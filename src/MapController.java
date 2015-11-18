@@ -158,7 +158,7 @@ public class MapController implements MouseListener {
                 ret.add(rs.getString(1));
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

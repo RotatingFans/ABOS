@@ -26,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class AddCustomer extends JDialog {
@@ -101,6 +100,8 @@ public class AddCustomer extends JDialog {
                 commitChanges();
                 updateTots();
                 dispose();
+                setVisible(false);
+
             }
         });
         okButton.setActionCommand("OK");
@@ -146,12 +147,14 @@ public class AddCustomer extends JDialog {
                 commitChanges();
                 updateTots();
                 dispose();
+                setVisible(false);
             }
         });
         okButton.setActionCommand("OK");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 dispose();
+                setVisible(false);
             }
         });
         cancelButton.setActionCommand("Cancel");
@@ -181,6 +184,7 @@ public class AddCustomer extends JDialog {
                 commitChanges();
                 updateTots();
                 dispose();
+                setVisible(false);
             }
         });
         okButton.setActionCommand("OK");
@@ -421,31 +425,35 @@ public class AddCustomer extends JDialog {
         ArrayList<String> Size;
         ArrayList<String> Unit;
         String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        String ret[][] = new String[4][];
-        ArrayList<String> res = new ArrayList<String>();
-
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS");
+        ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
         try {
+            ResultSet rs = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                prep.setString(1, toGet[i]);
-                ResultSet rs = prep.executeQuery();
-
+                res.add(new ArrayList<String>());
                 while (rs.next()) {
 
-                    res.add(rs.getString(1));
+                    res.get(i).add(rs.getString(toGet[i]));
 
                 }
-                ret[i] = (String[]) res.toArray();
-                DbInt.pCon.close();
+                rs.beforeFirst();
+                DbInt.pCon.commit();
+                ////DbInt.pCon.close();
 
+            }
+            rs.close();
+            rs = null;
+            if (DbInt.pCon != null) {
+                //DbInt.pCon.close();
+                DbInt.pCon = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        productIDs = new ArrayList(Arrays.asList(ret[0]));
-        productNames = new ArrayList(Arrays.asList(ret[1]));
-        Size = new ArrayList(Arrays.asList(ret[2]));
-        Unit = new ArrayList(Arrays.asList(ret[3]));
+        productIDs = res.get(0);
+        productNames = res.get(1);
+        Size = res.get(2);
+        Unit = res.get(3);
         Object[][] rows = new Object[productNames.size()][6];
 
         for (int i = 0; i < productNames.size(); i++) {
@@ -485,50 +493,58 @@ public class AddCustomer extends JDialog {
         ArrayList<String> Size;
         ArrayList<String> Unit;
         String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        String ret[][] = new String[4][];
-        ArrayList<String> res = new ArrayList<String>();
+        ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS");
         try {
+            ResultSet rs = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                prep.setString(1, toGet[i]);
-                ResultSet rs = prep.executeQuery();
+                res.add(new ArrayList<String>());
+
 
                 while (rs.next()) {
 
-                    res.add(rs.getString(1));
+                    res.get(i).add(rs.getString(toGet[i]));
+
 
                 }
-                ret[i] = (String[]) res.toArray();
-                DbInt.pCon.close();
+                rs.beforeFirst();
+                //DbInt.pCon.commit();
+                ////DbInt.pCon.close();
 
+            }
+
+            if (DbInt.pCon != null) {
+                //DbInt.pCon.close();
+                DbInt.pCon = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
+
         }
-        productIDs = new ArrayList(Arrays.asList(ret[0]));
-        productNames = new ArrayList(Arrays.asList(ret[1]));
-        Size = new ArrayList(Arrays.asList(ret[2]));
-        Unit = new ArrayList(Arrays.asList(ret[3]));
+        productIDs = res.get(0);
+        productNames = res.get(1);
+        Size = res.get(2);
+        Unit = res.get(3);
         Object[][] rows = new Object[productNames.size()][6];
         OldOrder = new Object[productNames.size()][3];
         ArrayList<String> Order = new ArrayList<String>();
         for (int i = 0; i < productNames.size(); i++) {
 
             int quant = 0;
-            prep = DbInt.getPrep(year, "SELECT ? FROM ORDERS WHERE ORDERID=?");
+            prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?");
             try {
 
-                prep.setString(1, Integer.toString(i));
-                prep.setString(2, OrderID);
+                //prep.setString(1, Integer.toString(i));
+                prep.setString(1, OrderID);
                 ResultSet rs = prep.executeQuery();
 
                 while (rs.next()) {
 
-                    Order.add(rs.getString(1));
+                    Order.add(rs.getString(Integer.toString(i)));
 
                 }
-                DbInt.pCon.close();
+                ////DbInt.pCon.close();
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -576,25 +592,27 @@ public class AddCustomer extends JDialog {
          * insert Customer INfo
          */
         try {
-            String address = Address.getText().toString() + " " + Town.getText().toString() + ", " + State.getText().toString();
+            String address = String.format("%s %s, %s", Address.getText().toString(), Town.getText().toString(), State.getText().toString());
             if (!edit) {
                 String com = "INSERT INTO ORDERS(NAME";
                 int cols = DbInt.getNoCol(year, "ORDERS");
+
                 for (int i = 0; i <= cols - 3; i++) {
                     com = String.format("%s, \"%s\"", com, Integer.toString(i));
 
                 }
-                com = String.format("%s) VALUES('%s'", com, Name.getText().toString());
+                com = String.format("%s) VALUES(?", com);
                 for (int i = 0; i < table.getRowCount(); i++) {
                     com = String.format("%s, %s", com, "?");//table.getModel().getValueAt(i, 4)
                 }
                 com = String.format("%s)", com);
                 PreparedStatement writeOrd = DbInt.getPrep(year, com);
+                writeOrd.setString(1, Name.getText().toString());
                 for (int i = 0; i < table.getRowCount(); i++) {
-                    writeOrd.setString(i + 1, table.getModel().getValueAt(i, 4).toString());//
+                    writeOrd.setString(i + 2, table.getModel().getValueAt(i, 4).toString());//
                 }
-                writeOrd.execute();
-                DbInt.pCon.close();
+                System.out.println(writeOrd.executeUpdate());
+                //////DbInt.pCon.close();
 
                 ArrayList<String> Ids = new ArrayList<String>();
                 PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?");
@@ -606,7 +624,7 @@ public class AddCustomer extends JDialog {
                     Ids.add(rs.getString(1));
 
                 }
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
                 String Id = Ids.get(Ids.size() - 1);
                 //,,,,, Paid.isSelected(), , );
@@ -620,12 +638,12 @@ public class AddCustomer extends JDialog {
                 writeCust.setString(7, Email.getText().toString());
 
                 writeCust.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
                 writeCust = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, ORDERED, NI, NH) VALUES(?,'True','False','False')");
                 writeCust.setString(1, address);
                 writeCust.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
             }
             if (edit) {
@@ -634,7 +652,7 @@ public class AddCustomer extends JDialog {
                 updateCust.setString(1, address);
                 updateCust.setString(2, getAddr(NameEdU));
                 updateCust.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
                 //Name.getText().toString(),address,Phone.getText().toString(), Paid.isSelected(), Delivered.isSelected(), Email.getText().toString(),NameEdU
                 PreparedStatement CComU = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDR=?,PHONE=?,PAID=?,DELIVERED=?, EMAIL=? WHERE NAME = ?");
@@ -646,9 +664,9 @@ public class AddCustomer extends JDialog {
                 CComU.setString(6, Email.getText().toString());
                 CComU.setString(7, NameEdU);
                 CComU.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
-                String OComU = String.format("UPDATE ORDERS SET NAME='%s'", Name.getText().toString());
+                String OComU = "UPDATE ORDERS SET NAME=?";
 
                 for (int i = 0; i < table.getRowCount(); i++) {
                     OComU = String.format("%s, \"%s\"=?", OComU, Integer.toString(i));//table.getModel().getValueAt(i, 4)
@@ -657,13 +675,14 @@ public class AddCustomer extends JDialog {
 
                 OComU = String.format("%s WHERE NAME = ?", OComU);
                 PreparedStatement updateOrders = DbInt.getPrep(year, OComU);
+                updateOrders.setString(1, Name.getText().toString());
                 for (int i = 0; i < table.getRowCount(); i++) {
-                    updateOrders.setString(i + 1, table.getModel().getValueAt(i, 4).toString());
+                    updateOrders.setString(i + 2, table.getModel().getValueAt(i, 4).toString());
 
                 }
-                updateOrders.setString(table.getRowCount() + 1, NameEdU);
+                updateOrders.setString(table.getRowCount() + 2, NameEdU);
                 updateOrders.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
 
                 double donations = Double.parseDouble(getDonations()) + Double.parseDouble(DonationsT.getText().toString());
@@ -674,7 +693,7 @@ public class AddCustomer extends JDialog {
                 double Customers = Double.parseDouble(getCustomers());
                 double Commis = getCommission(OT);
                 //donations,Lg,LP,Mulch,OT,Customers,Commis
-                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISIONS) VALUES(?,?,?,?,?,?,?)");
+                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS) VALUES(?,?,?,?,?,?,?)");
                 writeTots.setString(1, Double.toString(donations));
                 writeTots.setString(2, Double.toString(Lg));
                 writeTots.setString(3, Double.toString(LP));
@@ -683,7 +702,7 @@ public class AddCustomer extends JDialog {
                 writeTots.setString(6, Double.toString(Customers));
                 writeTots.setString(7, Double.toString(Commis));
                 writeTots.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
 			/*updatedouble newTot = Double.parseDouble(getOT()) + (tCostT - tCostTOr);  customers via name
              * update orders via id
@@ -870,19 +889,19 @@ public class AddCustomer extends JDialog {
     private String getTots(String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT TOTALS.? FROM TOTALS");
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
         try {
 
-            prep.setString(1, info);
+            //prep.setString(1, info);
 
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret = rs.getString(1);
+                ret = rs.getString(info);
 
             }
-            DbInt.pCon.close();
+            //////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -991,7 +1010,7 @@ public class AddCustomer extends JDialog {
                 Double OT = Double.parseDouble(getOT()) + tCostT;
                 Double Customers = Double.parseDouble(getCustomers()) + 1;
                 Double Commis = getCommission(OT);
-                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISIONS) VALUES(?,?,?,?,?,?,?)");
+                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS) VALUES(?,?,?,?,?,?,?)");
                 writeTots.setString(1, Double.toString(donations));
                 writeTots.setString(2, Double.toString(Lg));
                 writeTots.setString(3, Double.toString(LP));
@@ -1001,7 +1020,7 @@ public class AddCustomer extends JDialog {
                 writeTots.setString(7, Double.toString(Commis));
 
                 writeTots.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
             } else if (edit) {
                 Double donations = Double.parseDouble(getDonations()) + Double.parseDouble(DonationsT.getText().toString());
@@ -1011,7 +1030,7 @@ public class AddCustomer extends JDialog {
                 Double OT = Double.parseDouble(getOT()) + (tCostT - tCostTOr);
                 Double Customers = Double.parseDouble(getCustomers());
                 Double Commis = getCommission(OT);
-                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISIONS) VALUES(?,?,?,?,?,?,?)");
+                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS) VALUES(?,?,?,?,?,?,?)");
                 writeTots.setString(1, Double.toString(donations));
                 writeTots.setString(2, Double.toString(Lg));
                 writeTots.setString(3, Double.toString(LP));
@@ -1020,7 +1039,7 @@ public class AddCustomer extends JDialog {
                 writeTots.setString(6, Double.toString(Customers));
                 writeTots.setString(7, Double.toString(Commis));
                 writeTots.execute();
-                DbInt.pCon.close();
+                //////DbInt.pCon.close();
 
             }
         } catch (SQLException e) {

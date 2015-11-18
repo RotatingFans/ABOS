@@ -135,8 +135,14 @@ public class Main extends JFrame {
                 ret.add(rs.getString(1));
 
             }
-            DbInt.pCon.close();
 
+            //////////////////////DbInt.pCon.close();
+            rs.close();
+            rs = null;
+            if (DbInt.pCon != null) {
+                //DbInt.pCon.close();
+                DbInt.pCon = null;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

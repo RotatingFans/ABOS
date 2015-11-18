@@ -167,7 +167,7 @@ public class CustomerView extends JDialog {
                 ret.add(rs.getString(1));
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

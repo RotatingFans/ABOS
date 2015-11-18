@@ -138,7 +138,7 @@ public class OrderTotals {
                 ret = rs.getString(1);
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -327,7 +327,7 @@ public class OrderTotals {
                 ret.add(rs.getString(1));
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

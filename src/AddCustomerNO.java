@@ -120,7 +120,7 @@ public class AddCustomerNO extends JDialog {
             writeCust.setString(2, Boolean.toString(NI.isSelected()));
             writeCust.setString(3, Boolean.toString(NH.isSelected()));
             writeCust.execute();
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

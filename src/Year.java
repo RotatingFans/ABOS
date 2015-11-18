@@ -198,19 +198,19 @@ public class Year extends JDialog {
     private String getTots(String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM TOTALS");
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
         try {
 
-            prep.setString(1, info);
+            //prep.setString(1, info);
 
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret = rs.getString(1);
+                ret = rs.getString(info);
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -386,20 +386,20 @@ public class Year extends JDialog {
     private ArrayList<String> getOrders(String info, String PID) {
         ArrayList<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS WHERE PID=?");
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?");
         try {
 
-            prep.setString(1, info);
-            prep.setString(2, PID);
+
+            prep.setString(1, PID);
 
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret.add(rs.getString(1));
+                ret.add(rs.getString(info));
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class CustomerReport extends JDialog {
@@ -26,6 +25,8 @@ public class CustomerReport extends JDialog {
     private JTextField textField;
     private double QuantL = 0;
     private double totL = 0;
+    private JLabel QuantityL;
+    private JLabel TotL;
 
     /**
      * Create the application.
@@ -132,7 +133,7 @@ public class CustomerReport extends JDialog {
             lblTotalQuantity.setBounds(20, 395, 120, 20);
             west.add(lblTotalQuantity);
 
-            JLabel QuantityL = new JLabel(Double.toString(QuantL));
+            QuantityL = new JLabel(Double.toString(QuantL));
             QuantityL.setFont(new Font("Tahoma", Font.PLAIN, 14));
             QuantityL.setBounds(20, 413, 253, 37);
             west.add(QuantityL);
@@ -142,7 +143,7 @@ public class CustomerReport extends JDialog {
             lblTotalOrder.setBounds(20, 453, 96, 20);
             west.add(lblTotalOrder);
 
-            JLabel TotL = new JLabel(Double.toString(totL));
+            TotL = new JLabel(Double.toString(totL));
             TotL.setFont(new Font("Tahoma", Font.PLAIN, 14));
             TotL.setBounds(20, 474, 253, 37);
             west.add(TotL);
@@ -262,31 +263,35 @@ public class CustomerReport extends JDialog {
         ArrayList<String> Size;
         ArrayList<String> Unit;
         String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        String ret[][] = new String[4][];
-        ArrayList<String> res = new ArrayList<String>();
-
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS");
+        ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
         try {
+            ResultSet rs = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                prep.setString(1, toGet[i]);
-                ResultSet rs = prep.executeQuery();
-
+                res.add(new ArrayList<String>());
                 while (rs.next()) {
 
-                    res.add(rs.getString(1));
+                    res.get(i).add(rs.getString(toGet[i]));
 
                 }
-                ret[i] = (String[]) res.toArray();
-                DbInt.pCon.close();
+                rs.beforeFirst();
+                DbInt.pCon.commit();
+                ////DbInt.pCon.close();
 
+            }
+            rs.close();
+            rs = null;
+            if (DbInt.pCon != null) {
+                //DbInt.pCon.close();
+                DbInt.pCon = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        productIDs = new ArrayList(Arrays.asList(ret[0]));
-        productNames = new ArrayList(Arrays.asList(ret[1]));
-        Size = new ArrayList(Arrays.asList(ret[2]));
-        Unit = new ArrayList(Arrays.asList(ret[3]));
+        productIDs = res.get(0);
+        productNames = res.get(1);
+        Size = res.get(2);
+        Unit = res.get(3);
         Object[][] rows = new Object[productNames.size()][6];
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
         ArrayList<String> Order = new ArrayList<String>();
@@ -296,19 +301,19 @@ public class CustomerReport extends JDialog {
         for (int i = 0; i < productNames.size(); i++) {
 
             int quant = 0;
-            prep = DbInt.getPrep(year, "SELECT ? FROM ORDERS WHERE ORDERID=?");
+            prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?");
             try {
 
-                prep.setString(1, Integer.toString(i));
-                prep.setString(2, OrderID);
+                //prep.setString(1, Integer.toString(i));
+                prep.setString(1, OrderID);
                 ResultSet rs = prep.executeQuery();
 
                 while (rs.next()) {
 
-                    Order.add(rs.getString(1));
+                    Order.add(rs.getString(Integer.toString(i)));
 
                 }
-                DbInt.pCon.close();
+                ////DbInt.pCon.close();
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -316,25 +321,32 @@ public class CustomerReport extends JDialog {
             quant = Integer.parseInt(Order.get(Order.size() - 1));
             if (quant > 0) {
 
-                rows[i][0] = productNames.get(i);
-                rows[i][1] = Size.get(i);
-                rows[i][2] = Unit.get(i);
-                rows[i][3] = quant;
-                rows[i][4] = quant * Double.parseDouble(Unit.get(i).replaceAll("\\$", ""));
-                noVRows = noVRows + 1;
+                rows[noVRows][0] = productNames.get(i);
+                rows[noVRows][1] = Size.get(i);
+                rows[noVRows][2] = Unit.get(i);
+                rows[noVRows][3] = quant;
+                rows[noVRows][4] = quant * Double.parseDouble(Unit.get(i).replaceAll("\\$", ""));
+                QuantL = quant + QuantL;
+                totL = totL + (quant * Double.parseDouble(Unit.get(i).replaceAll("\\$", "")));
+                noVRows++;
 
             }
         }
-        final Object[][] rowDataF = new Object[noVRows][4];
+        final Object[][] rowDataF = new Object[noVRows][5];
         for (int i = 0; i <= noVRows - 1; i++) {
-            rowDataF[i][0] = rowData[i][0];
-            rowDataF[i][1] = rowData[i][1];
-            rowDataF[i][2] = rowData[i][2];
-            rowDataF[i][3] = rowData[i][3];
+            rowDataF[i][0] = rows[i][0];
+            rowDataF[i][1] = rows[i][1];
+            rowDataF[i][2] = rows[i][2];
+            rowDataF[i][3] = rows[i][3];
+            rowDataF[i][4] = rows[i][4];
         }
+        QuantityL.setText(Double.toString(QuantL));
+        TotL.setText(Double.toString(totL));
+
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+        table = new JTable();
         table.setModel(new DefaultTableModel(
-                rows,
+                rowDataF,
                 new String[]{
                         "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
                 }
@@ -352,6 +364,10 @@ public class CustomerReport extends JDialog {
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
 
+    }
+
+    public void setTable(JTable table) {
+        this.table = table;
     }
 
 	/*private void fillTable() {

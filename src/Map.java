@@ -204,7 +204,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 ret.add(rs.getString(1));
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

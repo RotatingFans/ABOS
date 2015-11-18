@@ -78,19 +78,19 @@ public class DbInt {
     public static String getCustInf(String yearL, String name, String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(yearL, "SELECT CUSTOMERS.? FROM CUSTOMERS WHERE CUSTOMER.NAME=?");
+        PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?");
         try {
 
-            prep.setString(1, info);
-            prep.setString(2, name);
+
+            prep.setString(1, name);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret = rs.getString(1);
+                ret = rs.getString(info);
 
             }
-            DbInt.pCon.close();
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -121,7 +121,8 @@ public class DbInt {
 //TODO fix apostrophe failure
 
             pCon = DriverManager.getConnection(url);
-            prep = pCon.prepareStatement(Command);
+            pCon.setAutoCommit(true);
+            prep = pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
