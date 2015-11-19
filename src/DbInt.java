@@ -24,7 +24,7 @@ public class DbInt {
         ArrayList<String> res = new ArrayList<String>();
         try {
 
-//TODO fix apostrophe failure
+
             command = command.replaceAll("''", "/0027");
             con = DriverManager.getConnection(url);
             st = con.createStatement();
@@ -118,7 +118,6 @@ public class DbInt {
         ArrayList<String> res = new ArrayList<String>();
         try {
 
-//TODO fix apostrophe failure
 
             pCon = DriverManager.getConnection(url);
             pCon.setAutoCommit(true);

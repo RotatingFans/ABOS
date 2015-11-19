@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ *
+ */
 //TODO Add comments and inline documentation
 //TODO Improve color pallete and design
 //TODO Remove private info
@@ -25,6 +28,7 @@ public class Main extends JFrame {
 
     /**
      * Launch the application.
+     * @param args
      */
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -118,9 +122,11 @@ public class Main extends JFrame {
         panel_1.setLayout(new GridLayout(2, 3, 1, 1));
         addYears();
 
-
     }
 
+    /**
+     * Adds the year buttons to the main panel.
+     */
     private void addYears() {
         ArrayList<String> ret = new ArrayList<String>();
 

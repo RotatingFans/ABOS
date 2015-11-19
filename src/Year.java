@@ -54,7 +54,8 @@ public class Year extends JDialog {
      */
     private void initialize() {
         frame = new JFrame();
-        frame.setBounds(100, 100, 750, 500);
+        frame.setBounds(100, 100, 750, 600);
+
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
 
@@ -116,16 +117,16 @@ public class Year extends JDialog {
             //OR.setBounds(193, 111, 65, 14);
             East.add(OR);
 
-            JLabel lblCustomers_1 = new JLabel("Customers");
-            lblCustomers_1.setFont(l);
-            //lblCustomers_1.setBounds(16, 136, 142, 14);
-            East.add(lblCustomers_1);
 
-            JLabel CustomersR = new JLabel(getCustomers());
-            CustomersR.setFont(l);
-            //CustomersR.setBounds(193, 136, 65, 14);
-            East.add(CustomersR);
+            JLabel lblGTot = new JLabel("Grand Total: ");
+            lblGTot.setFont(l);
+            //lblCommision.setBounds(16, 160, 83, 14);
+            East.add(lblGTot);
 
+            JLabel GTotR = new JLabel(getGTot());
+            //CommissionR.setBounds(193, 161, 65, 14);
+            GTotR.setFont(l);
+            East.add(GTotR);
             JLabel lblCommision = new JLabel("Commission ");
             lblCommision.setFont(l);
             //lblCommision.setBounds(16, 160, 83, 14);
@@ -135,6 +136,15 @@ public class Year extends JDialog {
             //CommissionR.setBounds(193, 161, 65, 14);
             CommissionR.setFont(l);
             East.add(CommissionR);
+            JLabel lblCustomers_1 = new JLabel("Customers");
+            lblCustomers_1.setFont(l);
+            //lblCustomers_1.setBounds(16, 136, 142, 14);
+            East.add(lblCustomers_1);
+
+            JLabel CustomersR = new JLabel(getCustomers());
+            CustomersR.setFont(l);
+            //CustomersR.setBounds(193, 136, 65, 14);
+            East.add(CustomersR);
             frame.getContentPane().add(East, BorderLayout.WEST);
         }
         //East
@@ -195,6 +205,10 @@ public class Year extends JDialog {
 
     }
 
+    /**
+     * @param info
+     * @return
+     */
     private String getTots(String info) {
         String ret = "";
 
@@ -247,6 +261,9 @@ public class Year extends JDialog {
         return getTots("COMMISSIONS");
     }
 
+    private String getGTot() {
+        return getTots("GRANDTOTAL");
+    }
     private void fillTable() {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
