@@ -693,7 +693,7 @@ public class AddCustomer extends JDialog {
                 double Customers = Double.parseDouble(getCustomers());
                 double Commis = getCommission(OT);
                 //donations,Lg,LP,Mulch,OT,Customers,Commis
-                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS) VALUES(?,?,?,?,?,?,?)");
+/*                PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS) VALUES(?,?,?,?,?,?,?)");
                 writeTots.setString(1, Double.toString(donations));
                 writeTots.setString(2, Double.toString(Lg));
                 writeTots.setString(3, Double.toString(LP));
@@ -701,7 +701,7 @@ public class AddCustomer extends JDialog {
                 writeTots.setString(5, Double.toString(OT));
                 writeTots.setString(6, Double.toString(Customers));
                 writeTots.setString(7, Double.toString(Commis));
-                writeTots.execute();
+                writeTots.execute();*/
                 //////DbInt.pCon.close();
 
 			/*updatedouble newTot = Double.parseDouble(getOT()) + (tCostT - tCostTOr);  customers via name
