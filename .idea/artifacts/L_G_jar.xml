@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="L&amp;G:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/L_G_jar</output-path>
+    <root id="archive" name="L&amp;G.jar">
+      <element id="module-output" name="LG" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/JMapViewer.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/derby.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
