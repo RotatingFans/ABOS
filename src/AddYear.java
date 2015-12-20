@@ -21,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 public class AddYear extends JDialog {
@@ -32,7 +31,7 @@ public class AddYear extends JDialog {
     private final JButton openCSV;
     private final JCheckBox chkboxCreateDatabase;
     private JTextField textField;
-    private JTable table;
+    private JTable ProductTable;
     private JTextField itemTb;
     private JTextField sizeTb;
     private JTextField rateTb;
@@ -220,15 +219,15 @@ public class AddYear extends JDialog {
                 //scrollPane.setBounds(0, 125, 541, 315);
                 center.add(scrollPane, BorderLayout.CENTER);
 
-                table = new JTable();
-                table.setFillsViewportHeight(true);
-                table.setColumnSelectionAllowed(true);
-                table.setCellSelectionEnabled(true);
+                ProductTable = new JTable();
+                ProductTable.setFillsViewportHeight(true);
+                ProductTable.setColumnSelectionAllowed(true);
+                ProductTable.setCellSelectionEnabled(true);
                 tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item"}, 0);
-                table.setModel(tableModel);
-                table.getColumnModel().getColumn(0).setPreferredWidth(15);
-                table.getColumnModel().getColumn(0).setMinWidth(10);
-                scrollPane.setViewportView(table);
+                ProductTable.setModel(tableModel);
+                ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
+                ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
+                scrollPane.setViewportView(ProductTable);
             }
             contentPanel.add(center, BorderLayout.CENTER);
         }
@@ -284,19 +283,23 @@ public class AddYear extends JDialog {
         }
     }
 
+    /**
+     * Creates Database for the year specified.
+     */
     private void CreateDb() {
         String year = textField.getText();
         DbInt.createDb(year);
-
+        //Create Tables
         DbInt.writeData(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDR varchar(255),PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))");
         DbInt.writeData(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255))");
         DbInt.writeData(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS varchar(255),LG varchar(255),LP varchar(255),MULCH varchar(255),TOTAL varchar(255),CUSTOMERS varchar(255),COMMISSIONS varchar(255),GRANDTOTAL varchar(255))");
         DbInt.writeData(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255),Action varchar(255))");
 
+        //Insert products into Product table
         String col = "";
-        for (int i = 0; i < table.getRowCount(); i++) {
+        for (int i = 0; i < ProductTable.getRowCount(); i++) {
             col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size) VALUES ('%s','%s','%s','%s')", table.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), table.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), table.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), table.getModel().getValueAt(i, 2).toString().replaceAll("'", "''")));
+            DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size) VALUES ('%s','%s','%s','%s')", ProductTable.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 2).toString().replaceAll("'", "''")));
         }
         DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
         DbInt.writeData(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES('0','0','0','0','0','0','0','0')");
@@ -308,6 +311,11 @@ public class AddYear extends JDialog {
         DbInt.writeData("Set", String.format("INSERT INTO YEARS(ID, YEARS) VALUES('%s', '%s')", textField.getText(), textField.getText()));
     }
 
+    /**
+     * Parses XML file to insert into products table on screen
+     *
+     * @param FLoc the location of the XML file
+     */
     @SuppressWarnings("serial")
     private void createTable(String FLoc) {
         try {
@@ -359,7 +367,7 @@ public class AddYear extends JDialog {
                             return columnEditables[column];
                         }
                     };
-                    table.setModel(tableModel);
+                    ProductTable.setModel(tableModel);
 
 
                 }
@@ -369,6 +377,10 @@ public class AddYear extends JDialog {
         }
     }
 
+
+    /**Creates an XML file from the table
+     * @param SavePath Path to save the created XML file
+     */
     private void createXML(String SavePath) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -387,7 +399,7 @@ public class AddYear extends JDialog {
 
 
             // set attribute to staff element
-            for (int i = 0; i < table.getRowCount(); i++) {
+            for (int i = 0; i < ProductTable.getRowCount(); i++) {
 
                 Element staff = doc.createElement("Products");
                 rootElement.appendChild(staff);
@@ -395,24 +407,25 @@ public class AddYear extends JDialog {
                 attr.setValue(Integer.toString(i));
                 staff.setAttributeNode(attr);
 
-                Element firstname = doc.createElement("ProductID");
-                firstname.appendChild(doc.createTextNode(table.getModel().getValueAt(i, 0).toString()));
-                staff.appendChild(firstname);
+                //ProductID elements
+                Element ProductID = doc.createElement("ProductID");
+                ProductID.appendChild(doc.createTextNode(ProductTable.getModel().getValueAt(i, 0).toString()));
+                staff.appendChild(ProductID);
 
-                // lastname elements
-                Element lastname = doc.createElement("ProductName");
-                lastname.appendChild(doc.createTextNode(table.getModel().getValueAt(i, 1).toString()));
-                staff.appendChild(lastname);
+                // Prodcut Name elements
+                Element ProductName = doc.createElement("ProductName");
+                ProductName.appendChild(doc.createTextNode(ProductTable.getModel().getValueAt(i, 1).toString()));
+                staff.appendChild(ProductName);
 
-                // nickname elements
-                Element nickname = doc.createElement("UnitCost");
-                nickname.appendChild(doc.createTextNode(table.getModel().getValueAt(i, 3).toString()));
-                staff.appendChild(nickname);
+                // Unit COst elements
+                Element UnitCost = doc.createElement("UnitCost");
+                UnitCost.appendChild(doc.createTextNode(ProductTable.getModel().getValueAt(i, 3).toString()));
+                staff.appendChild(UnitCost);
 
-                // salary elements
-                Element salary = doc.createElement("Size");
-                salary.appendChild(doc.createTextNode(table.getModel().getValueAt(i, 2).toString()));
-                staff.appendChild(salary);
+                // Size elements
+                Element Size = doc.createElement("Size");
+                Size.appendChild(doc.createTextNode(ProductTable.getModel().getValueAt(i, 2).toString()));
+                staff.appendChild(Size);
             }
 
 
@@ -440,68 +453,79 @@ public class AddYear extends JDialog {
         }
     }
 
+    /**
+     * Fills the table from a DB table
+     */
     @SuppressWarnings("serial")
     private void fillTable() {
         String year = textField.getText().toString();
         //DefaultTableModel model;
         //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-        ArrayList<String> productID;
+
+        //Variables for inserting info into table
+        ArrayList<String> productIDs;
         ArrayList<String> productNames;
         ArrayList<String> Size;
         ArrayList<String> Unit;
         String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        String ret[][] = new String[4][];
-        ArrayList<String> res = new ArrayList<String>();
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS");
         try {
+            //Run through Data set and add info to ProductInfoArray
+            ResultSet ProductInfoResultSet = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                prep.setString(1, toGet[i]);
-                ResultSet rs = prep.executeQuery();
+                ProductInfoArray.add(new ArrayList<String>());
+                while (ProductInfoResultSet.next()) {
 
-                while (rs.next()) {
-
-                    res.add(rs.getString(1));
+                    ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
 
                 }
-                ret[i] = (String[]) res.toArray();
+                ProductInfoResultSet.beforeFirst();
+                DbInt.pCon.commit();
                 ////DbInt.pCon.close();
 
+            }
+
+            //Close prepared statement
+            ProductInfoResultSet.close();
+            ProductInfoResultSet = null;
+            if (DbInt.pCon != null) {
+                //DbInt.pCon.close();
+                DbInt.pCon = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        productID = new ArrayList(Arrays.asList(ret[0]));
-        productNames = new ArrayList(Arrays.asList(ret[1]));
-        Size = new ArrayList(Arrays.asList(ret[2]));
-        Unit = new ArrayList(Arrays.asList(ret[3]));
-        Object[][] rows = new Object[productNames.size()][4];
-
-        for (int i = 0; i < productNames.size(); i++) {
-            rows[i][0] = productID.get(i);
-            rows[i][1] = productNames.get(i);
-            rows[i][2] = Size.get(i);
-            rows[i][3] = Unit.get(i);
+        //define array of rows
+        Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
+        //loop through ProductInfoArray and add data to Rows
+        for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
+            rows[i][0] = ProductInfoArray.get(0).get(i);
+            rows[i][1] = ProductInfoArray.get(1).get(i);
+            rows[i][2] = ProductInfoArray.get(2).get(i);
+            rows[i][3] = ProductInfoArray.get(3).get(i);
 
 
         }
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-        tableModel = new DefaultTableModel(
+
+        //Define table properties
+        ProductTable.setModel(new DefaultTableModel(
                 rows,
                 new String[]{
-                        "ID", "Item", "Size", "Price/Item"
+                        "ID", "Product Name", "Size", "Price/Item"
                 }
         ) {
 
             boolean[] columnEditables = new boolean[]{
-                    false, false, false, true, false
+                    true,true,true,true
             };
 
             public boolean isCellEditable(int row, int column) {
                 return columnEditables[column];
             }
-        };
-        table.setModel(tableModel);
+        });
     }
 
     private void tablefromDb() {

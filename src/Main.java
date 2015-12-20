@@ -94,25 +94,16 @@ public class Main extends JFrame {
         JButton refresh = new JButton("Refresh");
         refresh.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                //Refreshes the Window
                 panel_1.removeAll();
-                //			panel_1 = new JPanel();
-                //			panel_1.setBounds(0, 50, 682, 386);
-                //			frame.getContentPane().remove(panel_1);
-                //		frame.getContentPane().add(panel_1, BorderLayout.CENTER);
-                //		panel_1.setLayout(new GridLayout(2, 3, 1, 1));
+
                 addYears();
-//				revalidate();
-//				validate();
-//				panel_1.repaint();
-//				repaint();
-                //	initialize();
-                //SwingUtilities.updateComponentTreeUI(frame);
+
                 frame.invalidate();
                 frame.validate();
                 frame.repaint();
                 panel_1.repaint();
-                //window.setVisible(true);
+
             }
         });
         panel.add(refresh);
@@ -129,7 +120,7 @@ public class Main extends JFrame {
      */
     private void addYears() {
         ArrayList<String> ret = new ArrayList<String>();
-
+        ///Select all years
         PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
         try {
 
@@ -142,7 +133,6 @@ public class Main extends JFrame {
 
             }
 
-            //////////////////////DbInt.pCon.close();
             rs.close();
             rs = null;
             if (DbInt.pCon != null) {
@@ -153,11 +143,12 @@ public class Main extends JFrame {
             e.printStackTrace();
         }
         ArrayList<String> res = ret;
-
+        //Create a button for each year
         for (int i = 0; i < res.size(); i++) {
             JButton b = new JButton(res.get(i));
             b.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
+                    //On button click open Year window
                     new Year(((AbstractButton) e.getSource()).getText());
 
                     System.out.print(((AbstractButton) e.getSource()).getText());

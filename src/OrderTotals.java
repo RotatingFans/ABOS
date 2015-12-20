@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+//TODO figure out use of this class
 public class OrderTotals {
 
     public String year = Year.year;
@@ -104,7 +104,7 @@ public class OrderTotals {
         CustomerL.setBounds(10, 331, 65, 14);
         frame.getContentPane().add(CustomerL);
 
-        JLabel label_12 = new JLabel("Commision ");
+        JLabel label_12 = new JLabel("Commission ");
         label_12.setBounds(10, 366, 83, 14);
         frame.getContentPane().add(label_12);
 
@@ -126,16 +126,16 @@ public class OrderTotals {
     private String getTots(String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT TOTALS.? FROM TOTALS");
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT TOTALS.* FROM TOTALS");
         try {
 
-            prep.setString(1, info);
+
 
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret = rs.getString(1);
+                ret = rs.getString(info);
 
             }
             ////DbInt.pCon.close();

@@ -50,7 +50,7 @@ public class MapController implements MouseListener {
     }
 
     public void mouseClicked(MouseEvent e) {
-
+        //determine if a dot was clicked
         if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
 
             Point p = e.getPoint();
@@ -71,7 +71,6 @@ public class MapController implements MouseListener {
                     // calculate the radius from the touch to the center of the dot
                     double radCircle = Math.sqrt((((centerX - X) * (centerX - X)) + (centerY - Y) * (centerY - Y)));
 
-                    // if the radius is smaller then 23 (radius of a ball is 5), then it must be on the dot
                     if (radCircle < 8) {
 
                         Object[] cPoints = m.cPoints;
@@ -91,9 +90,9 @@ public class MapController implements MouseListener {
 
                                     if (o.get(o.size() - 1).toString().equals("True")) {
                                         m.OrderStat.setText("Has Ordered");
-                                        /*
-
-                                        
+                                        /*Get info about customer that has clicked
+                                        Display name Phone  Order status
+                                        Creates a button for each ordered year to view more information
                                         */
                                         final ArrayList<String> yearsD = DbInt.getData("Set", "SELECT YEARS From YEARS");
                                         ArrayList<String> Name = new ArrayList<String>();
@@ -148,14 +147,14 @@ public class MapController implements MouseListener {
         PreparedStatement prep = DbInt.getPrep(Db, "SELECT ? FROM Customers WHERE ?=?");
         try {
 
-            prep.setString(1, info);
-            prep.setString(2, where);
-            prep.setString(3, Address);
+
+            prep.setString(1, where);
+            prep.setString(2, Address);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret.add(rs.getString(1));
+                ret.add(rs.getString(info));
 
             }
             ////DbInt.pCon.close();

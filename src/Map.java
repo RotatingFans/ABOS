@@ -124,12 +124,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
         panelTop.add(this.mperpLabelName);
         panelTop.add(this.mperpLabelValue);
         this.add(this.treeMap, "Center");
-//		MapMarkerDot t = new MapMarkerDot(40.1248513618337, -75.1104089164882);
-//		t.setBackColor(Color.blue);
-//		t.setName("MY home");
-//		cPoints = new Object[1];
-//		cPoints[0] = new cPoint(40.1248513618337,-75.1104089164882,"***REMOVED***");
-//		this.map().addMapMarker(t);	for (int i=0; i<4 ; i++) {
+
+        //Add customers to map
         ArrayList<String> Addr = getCustInfo("ADDRESS");
         ArrayList<String> Ord = getCustInfo("Ordered");
         ArrayList<String> NI = getCustInfo("NI");
@@ -142,6 +138,10 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 double lon = Double.valueOf(coords[0][1].toString());
                 MapMarkerDot m = new MapMarkerDot(lat, lon);
                 cPoints[i] = new cPoint(lat, lon, Addr.get(i).toString());
+                //Determine color of dot
+                //Green = orderd
+                //Cyan = Not Interested
+                //Magenta = not home
                 if (Ord.get(Ord.size() - 1).toString().equals("True")) {
                     m.setBackColor(Color.GREEN);
                 }
@@ -190,18 +190,23 @@ public class Map extends JFrame implements JMapViewerEventListener {
         return cPoints;
     }
 
+    /**
+     * Getsx the requested info on customers
+     *
+     * @param info Info to retrieve
+     * @return The info requested in ArrayList form
+     */
     private ArrayList<String> getCustInfo(String info) {
         ArrayList<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep("Set", "SELECT ? FROM Customers");
+        PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
         try {
 
-            prep.setString(1, info);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
-                ret.add(rs.getString(1));
+                ret.add(rs.getString(info));
 
             }
             ////DbInt.pCon.close();
@@ -234,6 +239,12 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
     }
 
+
+    /**Gets coords of an address
+     * @param Address Address to get coords of
+     * @return Object[][] that holds the houses coordinates
+     * @throws Exception
+     */
     private Object[][] GetCoords(String Address) throws Exception {
         String AddressF = Address.replace(" ", "+");
         String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?format=xml&q=%s&addressdetails=0&limit=1", AddressF);
@@ -266,6 +277,10 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
     }
 
+    /**Gets coords of an address
+     * @param xml THe XML to parse
+     * @return Object[][] that holds the houses coordinates
+     */
     private Object[][] parseCoords(String xml) {
         Object[][] coords = new Object[1][2];
         try {

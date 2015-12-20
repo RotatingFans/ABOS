@@ -56,9 +56,8 @@ public class FirstStart extends JDialog {
                 north.add(openFile);
                 openFile.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+                        //Creates a JFileChooser to select a directory to store the Databases
                         JFileChooser chooser = new JFileChooser();
-                        // Note: source for ExampleFileFilter can be found in FileChooserDemo,
-                        // under the demo/jfc directory in the JDK.
                         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                         int returnVal = chooser.showOpenDialog(FirstStart.this);
                         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -91,6 +90,9 @@ public class FirstStart extends JDialog {
             okButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     new Config().setDbLoc(DbLoc.getText());
+                    //Creates Set Database
+                    //TODO allow to not create Db
+                    //TODO remove writeData
                     DbInt.createDb("Set");
                     DbInt.writeData("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address VARChAR(255), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))");
                     DbInt.writeData("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL, YEARS varchar(4))");

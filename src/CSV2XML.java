@@ -82,9 +82,10 @@ public class CSV2XML extends JDialog {
                 north.add(openFile);
                 openFile.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+                        //Creates JFileChooser to select a CSV file
                         JFileChooser chooser = new JFileChooser();
-                        // Note: source for ExampleFileFilter can be found in FileChooserDemo,
-                        // under the demo/jfc directory in the JDK.
+
+
                         FileNameExtensionFilter filter = new FileNameExtensionFilter("Comma Seperated Value File", "csv");
                         chooser.setFileFilter(filter);
                         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -122,9 +123,8 @@ public class CSV2XML extends JDialog {
                 south.add(openFile);
                 openFile.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+                        //Creates a JFileChooser to select save location of XML file
                         JFileChooser chooser = new JFileChooser();
-                        // Note: source for ExampleFileFilter can be found in FileChooserDemo,
-                        // under the demo/jfc directory in the JDK.
                         FileNameExtensionFilter filter = new FileNameExtensionFilter("XML File", "xml");
                         chooser.setFileFilter(filter);
 
@@ -186,6 +186,9 @@ public class CSV2XML extends JDialog {
 
     }
 
+    /**
+     * Converts the CSV to XML
+     */
     void convert() {
         List<String> headers = new ArrayList<String>(5);
 

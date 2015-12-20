@@ -16,7 +16,7 @@ public class CustomerView extends JDialog {
     private JPanel[] panel;
     private JTextField textField;
     private JTextField textField_1;
-    private ArrayList<String> res;
+    private ArrayList<String> CustomerNames;
     private JLabel pageL;
     private int currPage = 0;
     private int pages = 0;
@@ -62,6 +62,7 @@ public class CustomerView extends JDialog {
             JButton backBtn = new JButton("<-");
             //btnNewButton_1.setBounds(0, 7, 51, 36);
             backBtn.addActionListener(new ActionListener() {
+                //Turn Page back 1
                 public void actionPerformed(ActionEvent e) {
                     if (currPage > 0) {
                         frame.getContentPane().remove(panel[currPage]);
@@ -81,6 +82,7 @@ public class CustomerView extends JDialog {
 
             JButton forbtn = new JButton("->");
             forbtn.addActionListener(new ActionListener() {
+                //Turn page to forward
                 public void actionPerformed(ActionEvent e) {
                     if (currPage < (pages - 1)) {
                         frame.getContentPane().remove(panel[currPage]);
@@ -111,8 +113,9 @@ public class CustomerView extends JDialog {
             JButton btnNewButton = new JButton("Search");
             btnNewButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    for (int i = 0; i < res.size(); i++) {
-                        if (res.get(i).contains(textField_1.getText().toString())) {
+                    //loop through all buttons and look for typed name and turn to page
+                    for (int i = 0; i < CustomerNames.size(); i++) {
+                        if (CustomerNames.get(i).contains(textField_1.getText().toString())) {
                             double pgs = (i + 1) / 6.00000000;
                             int page = (int) Math.ceil(pgs) - 1;
                             frame.getContentPane().remove(panel[currPage]);
@@ -155,7 +158,7 @@ public class CustomerView extends JDialog {
 
     private void addCustomers() {
         ArrayList<String> ret = new ArrayList<String>();
-
+        //get all customer names
         PreparedStatement prep = DbInt.getPrep(year, "SELECT Customers.Name FROM Customers");
         try {
 
@@ -172,17 +175,19 @@ public class CustomerView extends JDialog {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        res = ret;
-        panel = new JPanel[res.size()];
-        for (int i = 0; i < res.size(); i++) {
+        CustomerNames = ret;
+        //Create a button for wach name
+        panel = new JPanel[CustomerNames.size()];
+        for (int i = 0; i < CustomerNames.size(); i++) {
             int pg = (int) Math.ceil(i / 6);
             panel[pg] = new JPanel(new GridLayout(2, 3, 1, 1));
 
             for (int i1 = 0; i1 < 6; i1++) {
-                if ((i1 + i < res.size())) {
-                    JButton b = new JButton(res.get(i1 + i));
+                if ((i1 + i < CustomerNames.size())) {
+                    JButton b = new JButton(CustomerNames.get(i1 + i));
                     b.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent e) {
+                            //Open Customer Report on button click
                             new CustomerReport(((AbstractButton) e.getSource()).getText(), year);
 
                             System.out.print(((AbstractButton) e.getSource()).getText());
@@ -201,11 +206,11 @@ public class CustomerView extends JDialog {
         }
 
         //	panel[0].setVisible(true);
-        if (res.size() > 0) {
+        if (CustomerNames.size() > 0) {
             frame.getContentPane().add(panel[0], BorderLayout.CENTER);
         }
 
-        double s = res.size();
+        double s = CustomerNames.size();
         double pagesD = (s / 6.00000);
         pages = ((int) Math.ceil(pagesD));
         pageL.setText(String.format("1 / %s", pages));

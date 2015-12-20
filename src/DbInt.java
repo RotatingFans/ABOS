@@ -3,10 +3,21 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ *
+ */
 @SuppressWarnings("unused")
 public class DbInt {
     public static Connection pCon = null;
 
+    /**
+     * Gets Data with specifed command and DB
+     *
+     * @param Db      THe database to retireve data from
+     * @param command The command To execute
+     * @return and ArrayList of the resulting Data
+     * @deprecated true
+     */
     public static ArrayList<String> getData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -75,6 +86,12 @@ public class DbInt {
         return res;
     }
 
+    /**Gets the specified Customer info
+     * @param yearL The year to search
+     * @param name The customer name
+     * @param info The info to search for
+     * @return A string with the resulting data
+     */
     public static String getCustInf(String yearL, String name, String info) {
         String ret = "";
 
@@ -100,6 +117,11 @@ public class DbInt {
         return ret;
     }
 
+    /**Creates a Prepared statemtn from provided Parameters.
+     * @param Db The database to create the statement for
+     * @param Command The Base command for the statement
+     * @return the PreparedStatemtn that was created.
+     */
     public static PreparedStatement getPrep(String Db, String Command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -161,6 +183,11 @@ public class DbInt {
         return prep;
     }
 
+    /**Gets # of collumns in a table
+     * @param Db The DB the table is in
+     * @param Table the Table to get number of columns from
+     * @return An integer with number of columns
+     */
     public static int getNoCol(String Db, String Table) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -227,6 +254,11 @@ public class DbInt {
         return columnsNumber;
     }
 
+    /**Writes data to A DB
+     * @param Db The DB to write to
+     * @param command THe command to execute
+     * @deprecated true
+     */
     public static void writeData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -288,11 +320,16 @@ public class DbInt {
 
     }
 
-    public static void createDb(String year) {
+    /**
+     * Creates a database with specified name
+     *
+     * @param DB The name of the DB to create
+     */
+    public static void createDb(String DB) {
         Connection con = null;
         Statement st = null;
 
-        String url = String.format("jdbc:derby:%s/%s;create=true", new Config().getDbLoc(), year);//;create=true
+        String url = String.format("jdbc:derby:%s/%s;create=true", new Config().getDbLoc(), DB);//;create=true
 
         try {
 
@@ -332,6 +369,9 @@ public class DbInt {
         }
     }
 
+    /**
+     * Closes the database connection.
+     */
     public void close() {
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");

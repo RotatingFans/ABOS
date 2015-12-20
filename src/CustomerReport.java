@@ -256,31 +256,30 @@ public class CustomerReport extends JDialog {
 
     private void fillTable() {
 
-        //DefaultTableModel model;
-        //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-        ArrayList<String> productIDs;
-        ArrayList<String> productNames;
-        ArrayList<String> Size;
-        ArrayList<String> Unit;
-        String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        ArrayList<ArrayList<String>> res = new ArrayList<ArrayList<String>>();
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
-        try {
-            ResultSet rs = prep.executeQuery();
-            for (int i = 0; i < 4; i++) {
-                res.add(new ArrayList<String>());
-                while (rs.next()) {
+        //Variables for inserting info into table
+        String toGet[] = {"PNAME", "SIZE", "UNIT"};
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
-                    res.get(i).add(rs.getString(toGet[i]));
+        try {
+            //Run through Data set and add info to ProductInfoArray
+            ResultSet ProductInfoResultSet = prep.executeQuery();
+            for (int i = 0; i < 3; i++) {
+                ProductInfoArray.add(new ArrayList<String>());
+                while (ProductInfoResultSet.next()) {
+
+                    ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
 
                 }
-                rs.beforeFirst();
+                ProductInfoResultSet.beforeFirst();
                 DbInt.pCon.commit();
                 ////DbInt.pCon.close();
 
             }
-            rs.close();
-            rs = null;
+
+            //Close prepared statement
+            ProductInfoResultSet.close();
+            ProductInfoResultSet = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -288,17 +287,18 @@ public class CustomerReport extends JDialog {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        productIDs = res.get(0);
-        productNames = res.get(1);
-        Size = res.get(2);
-        Unit = res.get(3);
-        Object[][] rows = new Object[productNames.size()][6];
+
+        //Table rows array
+        Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
+
+
+
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
-        ArrayList<String> Order = new ArrayList<String>();
-        int colO = DbInt.getNoCol(year, "ORDERS") - 2;
-        final Object[][] rowData = new Object[colO][4];
+        //Defines Arraylist of order quanitities
+        ArrayList<String> OrderQuantities = new ArrayList<String>();
         int noVRows = 0;
-        for (int i = 0; i < productNames.size(); i++) {
+        //Fills OrderQuantities Array
+        for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
 
             int quant = 0;
             prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?");
@@ -310,7 +310,7 @@ public class CustomerReport extends JDialog {
 
                 while (rs.next()) {
 
-                    Order.add(rs.getString(Integer.toString(i)));
+                    OrderQuantities.add(rs.getString(Integer.toString(i)));
 
                 }
                 ////DbInt.pCon.close();
@@ -318,20 +318,24 @@ public class CustomerReport extends JDialog {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            quant = Integer.parseInt(Order.get(Order.size() - 1));
+            //Fills row array for table with info
+            quant = Integer.parseInt(OrderQuantities.get(OrderQuantities.size() - 1));
+
+
             if (quant > 0) {
 
-                rows[noVRows][0] = productNames.get(i);
-                rows[noVRows][1] = Size.get(i);
-                rows[noVRows][2] = Unit.get(i);
-                rows[noVRows][3] = quant;
-                rows[noVRows][4] = quant * Double.parseDouble(Unit.get(i).replaceAll("\\$", ""));
+                rows[i][0] = ProductInfoArray.get(0).get(i);
+                rows[i][1] = ProductInfoArray.get(1).get(i);
+                rows[i][2] = ProductInfoArray.get(2).get(i);
+                rows[i][3] = quant;
+                rows[i][4] = quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
                 QuantL = quant + QuantL;
-                totL = totL + (quant * Double.parseDouble(Unit.get(i).replaceAll("\\$", "")));
+                totL = totL + (quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", "")));
                 noVRows++;
 
             }
         }
+        //Re create rows to remove blank rows
         final Object[][] rowDataF = new Object[noVRows][5];
         for (int i = 0; i <= noVRows - 1; i++) {
             rowDataF[i][0] = rows[i][0];
@@ -370,114 +374,5 @@ public class CustomerReport extends JDialog {
         this.table = table;
     }
 
-	/*private void fillTable() {
-        try {
-			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-		} catch (ClassNotFoundException e) {
 
-			e.printStackTrace();
-		}
-		Connection con = null;
-	    Statement st = null;
-	    ResultSet Order = null;
-	    //String Db = String.format("L&G%3",year);
-		String url = String.format("jdbc:derby:%s/%s",new Config().getDbLoc(), year);
-		System.setProperty("derby.system.home",
-				new Config().getDbLoc());
-	    ArrayList<String> res = new ArrayList<String>();
-		DefaultTableModel model;
-		int colO = DbInt.getNoCol(year, "ORDERS") - 2;
-	    final Object[][] rowData = new Object[colO][4];
-	    final Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
-		orderIdl = DbInt.getCustInf(year, name, "ORDERID");
-		int noVRows = 0;
-		for (int i=0; i<orderIdl.size(); i++ ) {
-	    try {
-	        
-
-	        
-	        con = DriverManager.getConnection(url);
-	        st = con.createStatement();
-	        Order = st.executeQuery(String.format("SELECT * FROM ORDERS WHERE ORDERID=%s",orderIdl);
-	        
-
-			ResultSetMetaData rsmd = Order.getMetaData();
-
-			int columnsNumber = rsmd.getColumnCount();
-			while (Order.next()) {
-				for (int c=3; c<= columnsNumber; c++) {
-				
-					ArrayList<String> productL = DbInt.getData(year, String.format("SELECT PName FROM PRODUCTS WHERE PID=%d",Integer.parseInt(rsmd.getColumnName(c)) + 1));
-					String product = productL.get(productL.size() - 1);
-					ArrayList<String> UnitL = DbInt.getData(year, String.format("SELECT Unit FROM PRODUCTS WHERE PID=%d",Integer.parseInt(rsmd.getColumnName(c)) + 1));
-					String Unit = UnitL.get(productL.size() - 1);
-					String quantity = Order.getString(c);
-					double UnitD = Double.parseDouble(Unit.replaceAll("\\$",""));
-					double quantityD = Double.parseDouble(quantity);
-					if (quantityD > 0) {
-						double TPrice = UnitD * quantityD;
-						totL = totL + TPrice;
-						QuantL = QuantL + quantityD;
-						
-						rowData[noVRows][0] = product;
-						rowData[noVRows][1] = Unit;
-						rowData[noVRows][2] = quantity;
-						rowData[noVRows][3] = TPrice;
-						noVRows = noVRows + 1;
-					}
-				}
-				
-			}
-	       // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-	        //return rs;
-	} catch (SQLException ex) {
-	        
-	        Logger lgr = Logger.getLogger(DbInt.class.getName());
-
-	        if (((ex.getErrorCode() == 50000)
-	                && ("XJ015".equals(ex.getSQLState())))) {
-
-	            lgr.log(Level.INFO, "Derby shut down normally");
-
-	        } else {
-
-	            lgr.log(Level.SEVERE, ex.getMessage(), ex);
-	        }
-
-	    } finally {
-
-	        try {
-	            if (Order != null) {
-	                Order.close();
-	                Order = null;
-	            }
-	            if (st != null) {
-	                st.close();
-	                st = null;
-	            }
-	            if (con != null) {
-	                con.close();
-	                con = null;
-	            }
-
-	        } catch (SQLException ex) {
-	            Logger lgr = Logger.getLogger(DbInt.class.getName());
-	            lgr.log(Level.WARNING, ex.getMessage(), ex);
-	        }
-	    }	
-		
-	}
-		 final Object[][] rowDataF = new Object[noVRows][4];
-		for (int i=0; i <= noVRows - 1; i++) {
-			rowDataF[i][0] = rowData[i][0];
-			rowDataF[i][1] = rowData[i][1];
-			rowDataF[i][2] = rowData[i][2];
-			rowDataF[i][3] = rowData[i][3];
-		}
-		table = new JTable();
-		table.setModel(new DefaultTableModel(rowDataF,columnNames));
-		table.setFillsViewportHeight(true);
-		table.setColumnSelectionAllowed(true);
-		table.setCellSelectionEnabled(true);
-	}*/
 }

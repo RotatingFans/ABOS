@@ -150,12 +150,7 @@ public class Year extends JDialog {
         //East
         {
 
-//			JPanel North = new JPanel(new BorderLayout());
-//			JLabel YearR = new JLabel(year);
-//			YearR.setFont(new Font("Tahoma", Font.PLAIN, 48));
-//			//YearR.setBounds(318, 0, 420, 139);
-//			North.add(YearR);
-//			frame.getContentPane().add(North, BorderLayout.EAST);
+
             frame.setTitle(year);
         }
         //CENTER
@@ -180,14 +175,7 @@ public class Year extends JDialog {
             });
             South.add(btnNewButton_1);
 
-//			JButton btnNewButton_2 = new JButton("Total Orders");
-//			btnNewButton_2.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					new OrderTotals();
-//				}
-//			});
-//			//btnNewButton_2.setBounds(525, 232, 212, 247);
-//			South.add(btnNewButton_2);
+
             JButton btnRefresh = new JButton("Refresh");
             btnRefresh.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -205,9 +193,9 @@ public class Year extends JDialog {
 
     }
 
-    /**
-     * @param info
-     * @return
+    /**Gets a piece of info from the totals table
+     * @param info The info to be pulled
+     * @return The Result of the query
      */
     private String getTots(String info) {
         String ret = "";
@@ -264,6 +252,11 @@ public class Year extends JDialog {
     private String getGTot() {
         return getTots("GRANDTOTAL");
     }
+
+
+    /**
+     * Fills the Table of order amounts
+     */
     private void fillTable() {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -285,7 +278,7 @@ public class Year extends JDialog {
         final Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
 
         int noVRows = 0;
-        int n = 0;
+        int productsNamed = 0;
         try {
 
 
@@ -298,17 +291,20 @@ public class Year extends JDialog {
 
             int columnsNumber = rsmd.getColumnCount();
             while (Order.next()) {
-                if (n == 0) {
+                if (productsNamed == 0) {
+                    //loop through columns
                     for (int c = 3; c <= columnsNumber; c++) {
-
-                        ArrayList<String> productL = getOrders("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        //Get Name of product
+                        ArrayList<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String product = productL.get(productL.size() - 1);
-                        ArrayList<String> UnitL = getOrders("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        //Get unit cost of product
+                        ArrayList<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String Unit = UnitL.get(productL.size() - 1);
+                        //Get Quantity ordered
                         String quantity = Order.getString(c);
                         double UnitD = Double.parseDouble(Unit.replaceAll("\\$", ""));
                         double quantityD = Double.parseDouble(quantity);
-
+                        //Calculate total price and overall Total
                         double TPrice = UnitD * quantityD;
                         totL = totL + TPrice;
                         QuantL = QuantL + quantityD;
@@ -320,19 +316,22 @@ public class Year extends JDialog {
                         noVRows = noVRows + 1;
 
                     }
-                    n = n + 1;
+                    productsNamed = productsNamed + 1;
                 } else {
                     noVRows = 0;
                     for (int c = 3; c <= columnsNumber; c++) {
 
-                        ArrayList<String> productL = getOrders("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        //Get Name of product
+                        ArrayList<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String product = productL.get(productL.size() - 1);
-                        ArrayList<String> UnitL = getOrders("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        //Get unit cost of product
+                        ArrayList<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String Unit = UnitL.get(productL.size() - 1);
+                        //Get Quantity ordered
                         String quantity = Order.getString(c);
                         double UnitD = Double.parseDouble(Unit.replaceAll("\\$", ""));
                         double quantityD = Double.parseDouble(quantity);
-
+                        //Calculate total price and overall Total
                         double TPrice = UnitD * quantityD;
                         totL = totL + TPrice;
                         QuantL = QuantL + quantityD;
@@ -383,7 +382,7 @@ public class Year extends JDialog {
             }
         }
 
-
+        //Only show rows that have ordered stuff
         final Object[][] rowDataF = new Object[noVRows][4];
         for (int i = 0; i <= noVRows - 1; i++) {
             rowDataF[i][0] = rowData[i][0];
@@ -391,6 +390,7 @@ public class Year extends JDialog {
             rowDataF[i][2] = rowData[i][2];
             rowDataF[i][3] = rowData[i][3];
         }
+        //Set up table
         table = new JTable();
         table.setLocation(172, 44);
         table.setSize(548, 490);
@@ -400,7 +400,14 @@ public class Year extends JDialog {
         table.setCellSelectionEnabled(true);
     }
 
-    private ArrayList<String> getOrders(String info, String PID) {
+    /**
+     * Get info on a product
+     *
+     * @param info the info to be retrieved
+     * @param PID  The ID of the product to get info for
+     * @return The info of the product specified
+     */
+    private ArrayList<String> GetProductInfo(String info, String PID) {
         ArrayList<String> ret = new ArrayList<String>();
 
         PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?");
