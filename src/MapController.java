@@ -82,7 +82,7 @@ public class MapController implements MouseListener {
                                     System.out.println(cP.getAddress());
                                     m.Address.setText(cP.getAddress());
 
-                                    ArrayList<String> o = getCustInfo("Set", "ORDERID", "ADDRESS", cP.getAddress());
+                                    ArrayList<String> o = getCustInfo("Set", "ORDERED", "ADDRESS", cP.getAddress());
                                     // m.Orders.setText(o.get(o.size() - 1).toString());
                                     ArrayList<String> NI = getCustInfo("Set", "NI", "ADDRESS", cP.getAddress());
                                     //m.Orders.setText(NI.get(NI.size() - 1).toString());
@@ -99,10 +99,10 @@ public class MapController implements MouseListener {
                                         ArrayList<String> Phone = new ArrayList<String>();
                                         ArrayList<String> Years = new ArrayList<String>();
                                         for (int i1 = 0; i1 < yearsD.size(); i1++) {
-                                            final ArrayList<String> NameD = getCustInfo(yearsD.get(i1), "NAME", "ADDR", cP.getAddress());
+                                            final ArrayList<String> NameD = getCustInfo(yearsD.get(i1), "NAME", "ADDRESS", cP.getAddress());
                                             if (NameD.size() > 0) {
                                                 Name.add(NameD.get(NameD.size() - 1));
-                                                ArrayList<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", "ADDR", cP.getAddress());
+                                                ArrayList<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", "ADDRESS", cP.getAddress());
                                                 Phone.add(PhoneD.get(PhoneD.size() - 1));
                                                 Years.add(yearsD.get(i1));
                                                 if (m.infoPanel.getComponentCount() > 8) {
@@ -144,12 +144,11 @@ public class MapController implements MouseListener {
     private ArrayList<String> getCustInfo(String Db, String info, String where, String Address) {
         ArrayList<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep(Db, "SELECT ? FROM Customers WHERE ?=?");
+        PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM Customers WHERE ADDRESS=?");
         try {
 
 
-            prep.setString(1, where);
-            prep.setString(2, Address);
+            prep.setString(1, Address);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {

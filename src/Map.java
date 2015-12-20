@@ -247,7 +247,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
      */
     private Object[][] GetCoords(String Address) throws Exception {
         String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?format=xml&q=%s&addressdetails=0&limit=1", AddressF);
+        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();

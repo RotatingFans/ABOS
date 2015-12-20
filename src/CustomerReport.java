@@ -230,7 +230,7 @@ public class CustomerReport extends JDialog {
     }
 
     private String getAddr() {
-        return DbInt.getCustInf(year, name, "ADDR");
+        return DbInt.getCustInf(year, name, "ADDRESS");
 
     }
 
@@ -324,13 +324,14 @@ public class CustomerReport extends JDialog {
 
             if (quant > 0) {
 
-                rows[i][0] = ProductInfoArray.get(0).get(i);
-                rows[i][1] = ProductInfoArray.get(1).get(i);
-                rows[i][2] = ProductInfoArray.get(2).get(i);
-                rows[i][3] = quant;
-                rows[i][4] = quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
+
+                rows[noVRows][0] = ProductInfoArray.get(0).get(i);
+                rows[noVRows][1] = ProductInfoArray.get(1).get(i);
+                rows[noVRows][2] = ProductInfoArray.get(2).get(i);
+                rows[noVRows][3] = quant;
+                rows[noVRows][4] = quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", ""));
                 QuantL = quant + QuantL;
-                totL = totL + (quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", "")));
+                totL = totL + (quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", "")));
                 noVRows++;
 
             }

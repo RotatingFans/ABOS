@@ -280,7 +280,7 @@ public class AddCustomer extends JDialog {
      * @return The Address of the specified customer
      */
     private String getAddr(String name) {
-        return DbInt.getCustInf(year, name, "ADDR");
+        return DbInt.getCustInf(year, name, "ADDRESS");
     }
 
     /**
@@ -765,7 +765,7 @@ public class AddCustomer extends JDialog {
 
                     //Inserts into customer table for year
                     String Id = Ids.get(Ids.size() - 1);
-                    PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDR,PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?)");
+                    PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS,PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?)");
                     writeCust.setString(1, Name.getText().toString());
                     writeCust.setString(2, address);
                     writeCust.setString(3, Phone.getText().toString());
@@ -792,15 +792,16 @@ public class AddCustomer extends JDialog {
                 updateCust.execute();
 
                 //Updates customer table in Year DB with new info.
-                PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDR=?,PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?");
+                PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?,PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?");
                 CustomerUpdate.setString(1, Name.getText().toString());
                 CustomerUpdate.setString(2, address);
                 CustomerUpdate.setString(3, Phone.getText().toString());
                 CustomerUpdate.setString(4, Boolean.toString(Paid.isSelected()));
                 CustomerUpdate.setString(5, Boolean.toString(Delivered.isSelected()));
                 CustomerUpdate.setString(6, Email.getText().toString());
-                CustomerUpdate.setString(7, NameEditCustomer);
                 CustomerUpdate.setString(7, DonationsT.getText().toString());
+                CustomerUpdate.setString(8, NameEditCustomer);
+
                 CustomerUpdate.execute();
 
 
