@@ -10,6 +10,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
@@ -115,6 +116,9 @@ public class AddCustomer extends JDialog {
                         int row = e.getFirstRow();
                         int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
                         double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));//Removes $ from cost and multiplies to get the total cost for that item
+                        if (ItemTotalCost == 0.0) {
+                            ItemTotalCost = 0;
+                        }
                         ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
                         totalCostFinal = 0;
                         for (int i = 0; i < ProductTable.getRowCount(); i++) {
@@ -129,10 +133,13 @@ public class AddCustomer extends JDialog {
 
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                commitChanges();
-                updateTots();
-                dispose();
-                setVisible(false);
+                if (infoEntered()) {
+
+                    commitChanges();
+                    updateTots();
+                    dispose();
+                    setVisible(false);
+                }
 
             }
         });
@@ -200,10 +207,13 @@ public class AddCustomer extends JDialog {
 
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                commitChanges();
-                updateTots();
-                dispose();
-                setVisible(false);
+                if (infoEntered()) {
+
+                    commitChanges();
+                    updateTots();
+                    dispose();
+                    setVisible(false);
+                }
             }
         });
         okButton.setActionCommand("OK");
@@ -244,10 +254,12 @@ public class AddCustomer extends JDialog {
         });
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                commitChanges();
-                updateTots();
-                dispose();
-                setVisible(false);
+                if (infoEntered()) {
+                    commitChanges();
+                    updateTots();
+                    dispose();
+                    setVisible(false);
+                }
             }
         });
         okButton.setActionCommand("OK");
@@ -361,9 +373,17 @@ public class AddCustomer extends JDialog {
             scrollPane.setBounds(0, 102, 857, 547);
             getContentPane().add(scrollPane);
             {
-                ProductTable = new JTable();
-                ProductTable.setCellSelectionEnabled(true);
-                ProductTable.setColumnSelectionAllowed(true);
+                ProductTable = new JTable() {
+                    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+                        Component c = super.prepareRenderer(renderer, row, column);
+
+
+                        return c;
+                    }
+                };
+                //ProductTable.setRowSelectionAllowed(true);
+                // ProductTable.setCellSelectionEnabled(true);
+                //ProductTable.setDefaultRenderer(String.class, new CustomTableCellRenderer());
                 if (!edit) {
                     fillTable();
                 }
@@ -578,6 +598,7 @@ public class AddCustomer extends JDialog {
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
         //Define table properties
+
         ProductTable.setModel(new DefaultTableModel(
                 rows,
                 new String[]{
@@ -685,6 +706,8 @@ public class AddCustomer extends JDialog {
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
         //Sets up table.
+
+
         ProductTable.setModel(new DefaultTableModel(
                 rows,
                 new String[]{
@@ -699,6 +722,7 @@ public class AddCustomer extends JDialog {
             public boolean isCellEditable(int row, int column) {
                 return columnEditables[column];
             }
+
         });
         //Fills original totals
         mulchOr = getMulchOrdered();
@@ -1167,6 +1191,10 @@ public class AddCustomer extends JDialog {
 
     }
 
+    private boolean infoEntered() {
+        //TODO Prevent OK == order
+        return true;
+    }
     /**
      * Updates the totals tables
      */

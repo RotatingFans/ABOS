@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<catalog>
+    <info>
+        <name>Patrick Magauran</name>
+        <streetAddress>1 test st</streetAddress>
+        <city>whoville PA, 15314</city>
+        <rank>Star Scout</rank>
+        <TotalCost>100</TotalCost>
+        <reportTitle>YearlyMusic</reportTitle>
+        <logo>http://design.ubuntu.com/wp-content/uploads/ubuntu-logo32.png</logo>
+    </info>
+    <columns>
+        <column>
+            <th style="text-align:left">ID</th>
+        </column>
+    </columns>
+
+    <cd>
+        <ID>Empire Burlesque</ID>
+        <Name>Bob Dylan</Name>
+        <Size>USA</Size>
+        <UnitCost>Columbia</UnitCost>
+        <Quantity>10.90</Quantity>
+        <TotalCost>1985</TotalCost>
+    </cd>
+    <cd>
+        <ID>Hide your heart</ID>
+        <Name>Bonnie Tyler</Name>
+        <Size>UK</Size>
+        <UnitCost>CBS Records</UnitCost>
+        <Quantity>9.90</Quantity>
+        <TotalCost>1988</TotalCost>
+    </cd>
+    <cd>
+        <ID>Greatest Hits</ID>
+        <Name>Dolly Parton</Name>
+        <Size>USA</Size>
+        <UnitCost>RCA</UnitCost>
+        <Quantity>9.90</Quantity>
+        <TotalCost>1982</TotalCost>
+    </cd>
+    <cd>
+        <ID>Still got the blues</ID>
+        <Name>Gary Moore</Name>
+        <Size>UK</Size>
+        <UnitCost>Virgin records</UnitCost>
+        <Quantity>10.20</Quantity>
+        <TotalCost>1990</TotalCost>
+    </cd>
+    <cd>
+        <ID>Eros</ID>
+        <Name>Eros Ramazzotti</Name>
+        <Size>EU</Size>
+        <UnitCost>BMG</UnitCost>
+        <Quantity>9.90</Quantity>
+        <TotalCost>1997</TotalCost>
+    </cd>
+    <cd>
+        <ID>One night only</ID>
+        <Name>Bee Gees</Name>
+        <Size>UK</Size>
+        <UnitCost>Polydor</UnitCost>
+        <Quantity>10.90</Quantity>
+        <TotalCost>1998</TotalCost>
+    </cd>
+    <cd>
+        <ID>Sylvias Mother</ID>
+        <Name>Dr.Hook</Name>
+        <Size>UK</Size>
+        <UnitCost>CBS</UnitCost>
+        <Quantity>8.10</Quantity>
+        <TotalCost>1973</TotalCost>
+    </cd>
+    <cd>
+        <ID>Maggie May</ID>
+        <Name>Rod Stewart</Name>
+        <Size>UK</Size>
+        <UnitCost>Pickwick</UnitCost>
+        <Quantity>8.50</Quantity>
+        <TotalCost>1990</TotalCost>
+    </cd>
+    <cd>
+        <ID>Romanza</ID>
+        <Name>Andrea Bocelli</Name>
+        <Size>EU</Size>
+        <UnitCost>Polydor</UnitCost>
+        <Quantity>10.80</Quantity>
+        <TotalCost>1996</TotalCost>
+    </cd>
+    <cd>
+        <ID>When a man loves a woman</ID>
+        <Name>Percy Sledge</Name>
+        <Size>USA</Size>
+        <UnitCost>Atlantic</UnitCost>
+        <Quantity>8.70</Quantity>
+        <TotalCost>1987</TotalCost>
+    </cd>
+    <cd>
+        <ID>Black angel</ID>
+        <Name>Savage Rose</Name>
+        <Size>EU</Size>
+        <UnitCost>Mega</UnitCost>
+        <Quantity>10.90</Quantity>
+        <TotalCost>1995</TotalCost>
+    </cd>
+    <cd>
+        <ID>1999 Grammy Nominees</ID>
+        <Name>Many</Name>
+        <Size>USA</Size>
+        <UnitCost>Grammy</UnitCost>
+        <Quantity>10.20</Quantity>
+        <TotalCost>1999</TotalCost>
+    </cd>
+    <cd>
+        <ID>For the good times</ID>
+        <Name>Kenny Rogers</Name>
+        <Size>UK</Size>
+        <UnitCost>Mucik Master</UnitCost>
+        <Quantity>8.70</Quantity>
+        <TotalCost>1995</TotalCost>
+    </cd>
+    <cd>
+        <ID>Big Willie style</ID>
+        <Name>Will Smith</Name>
+        <Size>USA</Size>
+        <UnitCost>Columbia</UnitCost>
+        <Quantity>9.90</Quantity>
+        <TotalCost>1997</TotalCost>
+    </cd>
+    <cd>
+        <ID>Tupelo Honey</ID>
+        <Name>Van Morrison</Name>
+        <Size>UK</Size>
+        <UnitCost>Polydor</UnitCost>
+        <Quantity>8.20</Quantity>
+        <TotalCost>1971</TotalCost>
+    </cd>
+    <cd>
+        <ID>Soulsville</ID>
+        <Name>Jorn Hoel</Name>
+        <Size>Norway</Size>
+        <UnitCost>WEA</UnitCost>
+        <Quantity>7.90</Quantity>
+        <TotalCost>1996</TotalCost>
+    </cd>
+    <cd>
+        <ID>The very best of</ID>
+        <Name>Cat Stevens</Name>
+        <Size>UK</Size>
+        <UnitCost>Island</UnitCost>
+        <Quantity>8.90</Quantity>
+        <TotalCost>1990</TotalCost>
+    </cd>
+    <cd>
+        <ID>Stop</ID>
+        <Name>Sam Brown</Name>
+        <Size>UK</Size>
+        <UnitCost>A and M</UnitCost>
+        <Quantity>8.90</Quantity>
+        <TotalCost>1988</TotalCost>
+    </cd>
+    <cd>
+        <ID>Bridge of Spies</ID>
+        <Name>T`Pau</Name>
+        <Size>UK</Size>
+        <UnitCost>Siren</UnitCost>
+        <Quantity>7.90</Quantity>
+        <TotalCost>1987</TotalCost>
+    </cd>
+    <cd>
+        <ID>Private Dancer</ID>
+        <Name>Tina Turner</Name>
+        <Size>UK</Size>
+        <UnitCost>Capitol</UnitCost>
+        <Quantity>8.90</Quantity>
+        <TotalCost>1983</TotalCost>
+    </cd>
+    <cd>
+        <ID>Midt om natten</ID>
+        <Name>Kim Larsen</Name>
+        <Size>EU</Size>
+        <UnitCost>Medley</UnitCost>
+        <Quantity>7.80</Quantity>
+        <TotalCost>1983</TotalCost>
+    </cd>
+    <cd>
+        <ID>Pavarotti Gala Concert</ID>
+        <Name>Luciano Pavarotti</Name>
+        <Size>UK</Size>
+        <UnitCost>DECCA</UnitCost>
+        <Quantity>9.90</Quantity>
+        <TotalCost>1991</TotalCost>
+    </cd>
+    <cd>
+        <ID>The dock of the bay</ID>
+        <Name>Otis Redding</Name>
+        <Size>USA</Size>
+        <UnitCost>Atlantic</UnitCost>
+        <Quantity>7.90</Quantity>
+        <TotalCost>1987</TotalCost>
+    </cd>
+    <cd>
+        <ID>Picture book</ID>
+        <Name>Simply Red</Name>
+        <Size>EU</Size>
+        <UnitCost>Elektra</UnitCost>
+        <Quantity>7.20</Quantity>
+        <TotalCost>1985</TotalCost>
+    </cd>
+    <cd>
+        <ID>Red</ID>
+        <Name>The Communards</Name>
+        <Size>UK</Size>
+        <UnitCost>London</UnitCost>
+        <Quantity>7.80</Quantity>
+        <TotalCost>1987</TotalCost>
+    </cd>
+    <cd>
+        <ID>Unchain my heart</ID>
+        <Name>Joe Cocker</Name>
+        <Size>USA</Size>
+        <UnitCost>EMI</UnitCost>
+        <Quantity>8.20</Quantity>
+        <TotalCost>1987</TotalCost>
+    </cd>
+</catalog>
+

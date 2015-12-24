@@ -277,7 +277,7 @@ public class Year extends JDialog {
         final Object[][] rowData = new Object[colO][4];
         final Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
 
-        int noVRows = 0;
+        int noRows = 0;
         int productsNamed = 0;
         try {
 
@@ -309,16 +309,17 @@ public class Year extends JDialog {
                         totL = totL + TPrice;
                         QuantL = QuantL + quantityD;
 
-                        rowData[noVRows][0] = product;
-                        rowData[noVRows][1] = Unit;
-                        rowData[noVRows][2] = quantity;
-                        rowData[noVRows][3] = TPrice;
-                        noVRows = noVRows + 1;
+                        rowData[noRows][0] = product;
+                        rowData[noRows][1] = Unit;
+                        rowData[noRows][2] = quantity;
+                        rowData[noRows][3] = TPrice;
+                        noRows = noRows + 1;
+
 
                     }
                     productsNamed = productsNamed + 1;
                 } else {
-                    noVRows = 0;
+                    noRows = 0;
                     for (int c = 3; c <= columnsNumber; c++) {
 
                         //Get Name of product
@@ -337,9 +338,9 @@ public class Year extends JDialog {
                         QuantL = QuantL + quantityD;
 
 
-                        rowData[noVRows][2] = Double.parseDouble(rowData[noVRows][2].toString()) + quantityD;
-                        rowData[noVRows][3] = Double.parseDouble(rowData[noVRows][3].toString()) + TPrice;
-                        noVRows = noVRows + 1;
+                        rowData[noRows][2] = Double.parseDouble(rowData[noRows][2].toString()) + quantityD;
+                        rowData[noRows][3] = Double.parseDouble(rowData[noRows][3].toString()) + TPrice;
+                        noRows = noRows + 1;
 
                     }
                 }
@@ -382,20 +383,35 @@ public class Year extends JDialog {
             }
         }
 
-        //Only show rows that have ordered stuff
-        final Object[][] rowDataF = new Object[noVRows][4];
-        for (int i = 0; i <= noVRows - 1; i++) {
-            rowDataF[i][0] = rowData[i][0];
-            rowDataF[i][1] = rowData[i][1];
-            rowDataF[i][2] = rowData[i][2];
-            rowDataF[i][3] = rowData[i][3];
+        //Limit array to only rows that have ordered stuff
+        final Object[][] rowDataExclude0 = new Object[noRows][4];
+        int NumNonEmptyRows = 0;
+        for (int i = 0; i <= noRows - 1; i++) {
+            if (Double.parseDouble(rowData[i][2].toString()) > 0) {
+                rowDataExclude0[NumNonEmptyRows][0] = rowData[i][0];
+                rowDataExclude0[NumNonEmptyRows][1] = rowData[i][1];
+                rowDataExclude0[NumNonEmptyRows][2] = rowData[i][2];
+                rowDataExclude0[NumNonEmptyRows][3] = rowData[i][3];
+                NumNonEmptyRows++;
+            }
+        }
+        //Only show non whitespace rows
+        final Object[][] rowDataFinal = new Object[noRows][4];
+        for (int i = 0; i <= NumNonEmptyRows - 1; i++) {
+
+            rowDataFinal[i][0] = rowDataExclude0[i][0];
+            rowDataFinal[i][1] = rowDataExclude0[i][1];
+            rowDataFinal[i][2] = rowDataExclude0[i][2];
+            rowDataFinal[i][3] = rowDataExclude0[i][3];
+
+
         }
         //Set up table
         table = new JTable();
         table.setLocation(172, 44);
         table.setSize(548, 490);
         table.setFillsViewportHeight(true);
-        table.setModel(new DefaultTableModel(rowDataF, columnNames));
+        table.setModel(new DefaultTableModel(rowDataExclude0, columnNames));
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
     }

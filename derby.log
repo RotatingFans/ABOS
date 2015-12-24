@@ -1,20 +1,7 @@
 ----------------------------------------------------------------
-Sun Dec 20 14:51:16 EST 2015:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0151-c0f2-31e5-000014c181b0 
-on database directory /home/patrick/Documents/yAY/Set with class loader sun.misc.Launcher$AppClassLoader@14dad5dc 
-Loaded from file:/mnt/CE48CFB148CF969D/Development/LG/Source/LG/derby.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_66-internal-b17
-user.dir=/mnt/CE48CFB148CF969D/Development/LG/Source/LG
-os.name=Linux
-os.arch=amd64
-os.version=4.2.0-22-generic
-derby.system.home=/home/patrick/Documents/yAY
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Sun Dec 20 14:51:19 EST 2015:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 08264012-0151-c0f2-31e5-000014c181b0 
-on database directory /home/patrick/Documents/yAY/2015 with class loader sun.misc.Launcher$AppClassLoader@14dad5dc 
+Thu Dec 24 13:32:51 EST 2015:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0151-d543-d5ed-000014a0ef58 
+on database directory /home/patrick/Documents/yAY/Set with class loader sun.misc.Launcher$AppClassLoader@5e2de80c 
 Loaded from file:/mnt/CE48CFB148CF969D/Development/LG/Source/LG/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_66-internal-b17
