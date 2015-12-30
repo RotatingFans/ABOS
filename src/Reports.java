@@ -1,8 +1,14 @@
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -190,6 +196,96 @@ public class Reports extends JDialog {
         }
     }
 
+    void convert() {
+        java.util.List<String> headers = new ArrayList<String>(5);
+
+
+        BufferedReader reader = null;
+
+        try {
+
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+
+            Document doc = domBuilder.newDocument();
+            // Root element
+            Element rootElement = doc.createElement("LawnGardenReports");
+            doc.appendChild(rootElement);
+            {
+                //Info Elements
+                Element info = doc.createElement("info");
+                rootElement.appendChild(info);
+                // Scoutname elements
+                {
+                    Element ScoutName = doc.createElement("name");
+                    ScoutName.appendChild(doc.createTextNode(""));
+                    info.appendChild(ScoutName);
+                }
+                // StreetAddress elements
+                {
+                    Element StreetAddress = doc.createElement("streetAddress");
+                    StreetAddress.appendChild(doc.createTextNode(""));
+                    info.appendChild(StreetAddress);
+                }
+                // City elements
+                {
+                    Element city = doc.createElement("city");
+                    city.appendChild(doc.createTextNode(""));
+                    info.appendChild(city);
+                }
+                // Rank elements
+                {
+                    Element rank = doc.createElement("rank");
+                    rank.appendChild(doc.createTextNode(""));
+                    info.appendChild(rank);
+                }
+                // Logo elements
+                {
+                    Element logo = doc.createElement("logo");
+                    logo.appendChild(doc.createTextNode(""));
+                    info.appendChild(logo);
+                }
+                // ReportTitle elements
+                {
+                    Element reportTitle = doc.createElement("reportTitle");
+                    reportTitle.appendChild(doc.createTextNode(""));
+                    info.appendChild(reportTitle);
+                }
+                // Splitter elements
+                {
+                    Element splitting = doc.createElement("splitting");
+                    splitting.appendChild(doc.createTextNode(""));
+                    info.appendChild(splitting);
+                }
+                // TotalCost elements
+                {
+                    Element TotalCost = doc.createElement("TotalCost");
+                    TotalCost.appendChild(doc.createTextNode(""));
+                    info.appendChild(TotalCost);
+                }
+                // TotalQuantity elements
+                {
+                    Element TotalQuantity = doc.createElement("totalQuantity");
+                    TotalQuantity.appendChild(doc.createTextNode(""));
+                    info.appendChild(TotalQuantity);
+                }
+            }
+            {
+                //Info Elements
+                Element info = doc.createElement("info");
+                rootElement.appendChild(info);
+                //Column
+                {
+                    Element TotalQuantity = doc.createElement("totalQuantity");
+                    TotalQuantity.appendChild(doc.createTextNode(""));
+                    info.appendChild(TotalQuantity);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void updateCombos() {
         ArrayList<String> years = getYears();
 
