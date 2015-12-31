@@ -1,19 +1,11 @@
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.codec.*;
-import com.lowagie.text.pdf.codec.Base64;
-import net.sf.saxon.TransformerFactoryImpl;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.MimeConstants;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
+import org.w3c.tidy.Tidy;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.resource.XMLResource;
+import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xml.sax.InputSource;
 
 import net.sf.saxon.s9api.*;
@@ -25,12 +17,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.awt.*;
@@ -42,7 +32,6 @@ import java.net.URL;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +66,7 @@ public class Reports extends JDialog {
     private JTextField scoutState;
     private JTextField scoutRank;
     private JTextField logoLoc;
-
+    private  XHTMLPanel preview;
     private String addrFormat;
     Object[][] rowDataF = new Object[0][];
     private double totL = 0;
@@ -103,7 +92,7 @@ public class Reports extends JDialog {
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
-        setSize(450, 150);
+        setSize(700, 500);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -237,7 +226,8 @@ public class Reports extends JDialog {
             {
                 JPanel ReportPreview = new JPanel(new FlowLayout());
                 {
-
+                    preview  = new XHTMLPanel();
+                    ReportInfo.add(preview);
                 }
                 SteptabbedPane.addTab("Report Type", ReportPreview);
 
@@ -397,8 +387,8 @@ public class Reports extends JDialog {
                 //Column Elements
                 Element columns = doc.createElement("columns");
                 rootElement.appendChild(columns);
-                String[] Columns = {"ID","Name","Unit Size", "Unit Cost", "Quantity", "Extended Price"};
-                for (int i=0; i<Columns.length; i++) {
+                String[] Columns = {"ID", "Name", "Unit Size", "Unit Cost", "Quantity", "Extended Price"};
+                for (int i = 0; i < Columns.length; i++) {
                     //Column
                     {
                         Element columnName = doc.createElement("column");
@@ -461,7 +451,7 @@ public class Reports extends JDialog {
                         }
                     }
                 }
-                    break;
+                break;
                 case "Customer Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString(), cmbxCustomers.getSelectedItem().toString());
                 {
@@ -512,7 +502,7 @@ public class Reports extends JDialog {
                         }
                     }
                 }
-                    break;
+                break;
                 case "Customer All-time Totals":
                     String Qname = cmbxCustomers.getSelectedItem().toString();
                     ArrayList<String> customerYears = new ArrayList<>();
@@ -521,11 +511,11 @@ public class Reports extends JDialog {
                         PreparedStatement prep = DbInt.getPrep(years.get(i), "SELECT NAME FROM Customers WHERE NAME=?");
                         try {
 
-                            prep.setString(1,Qname);
+                            prep.setString(1, Qname);
                             ResultSet rs = prep.executeQuery();
 
                             while (rs.next()) {
-                                    customerYears.add(years.get(i).toString());
+                                customerYears.add(years.get(i).toString());
                                 {
                                     //Product Elements
                                     Element products = doc.createElement("customerYear");
@@ -611,7 +601,7 @@ public class Reports extends JDialog {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
                     String tmpDirectoryOp = System.getProperty("java.io.tmpdir");
                     File tmpDirectory = new File(tmpDirectoryOp);
-                    File fstream = File.createTempFile("LGReport" + timeStamp, ".xml" , tmpDirectory);
+                    File fstream = File.createTempFile("LGReport" + timeStamp, ".xml", tmpDirectory);
                     outStream = new FileOutputStream(fstream);
 
                     // writing bytes in to byte output stream
@@ -644,6 +634,7 @@ public class Reports extends JDialog {
         }
 
     }
+
     private void fillTable(String year, String name) {
 
         //Variables for inserting info into table
@@ -680,7 +671,6 @@ public class Reports extends JDialog {
 
         //Table rows array
         Object[][] rows = new Object[ProductInfoArray.get(2).size()][6];
-
 
 
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
@@ -740,8 +730,8 @@ public class Reports extends JDialog {
         }
 
 
-
     }
+
     private void fillTable(String year) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -901,8 +891,6 @@ public class Reports extends JDialog {
             rowDataF[i][5] = rowDataExclude0[i][5];//Tcost
 
 
-
-
         }
 
     }
@@ -937,6 +925,7 @@ public class Reports extends JDialog {
         }
         return ret;
     }
+
     private void updateCombos() {
         ArrayList<String> years = getYears();
 
@@ -1059,6 +1048,7 @@ public class Reports extends JDialog {
 
         return ret;
     }
+
     public String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");
         //The URL for the MapquestAPI
@@ -1133,9 +1123,11 @@ public class Reports extends JDialog {
         //	return parseCoords(response.toString());
         return fullName;
     }
-    private void stuff(){
+
+    private void stuff() {
 
     }
+
     private void transf() throws SaxonApiException {
         OutputStream os = new ByteArrayOutputStream();
 
@@ -1153,29 +1145,91 @@ public class Reports extends JDialog {
         ByteArrayOutputStream baos;
         baos = (ByteArrayOutputStream) os;
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        // if you have html source in hand, use it to generate document object
-        Document document = XMLResource.load(is).getDocument();
+        Tidy tidy = new Tidy(); // obtain a new Tidy instance
+        // set desired config options using tidy setters
+        OutputStream osT = new ByteArrayOutputStream();
+        tidy.setQuiet(true);
+        tidy.setIndentContent(true);
+        tidy.setDocType("loose");
+        tidy.setFixBackslash(true);
+        tidy.setFixUri(true);
+        tidy.setShowWarnings(false);
+        tidy.setEscapeCdata(true);
+        tidy.setMakeClean(true);
+        tidy.setXHTML(true);
+        FileOutputStream fos = null;
+        String fileNameWithPath = "PDF-XhtmlRendered.pdf";
+        try {
+            fos = new FileOutputStream(fileNameWithPath);
 
-        ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocument( document, null );
+            tidy.parse(is, fos); // run tidy, providing an input and output streamp
+
+            //Document document = XMLResource.load(isT).getDocument();
+            preview.setDocument(new File(fileNameWithPath));
+
+        /*ITextRenderer renderer = new ITextRenderer();
+        renderer.setDocument(document, null);
 
         renderer.layout();
 
-        String fileNameWithPath =  "PDF-XhtmlRendered.pdf";
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream( fileNameWithPath );
 
-        renderer.createPDF( fos );
-        fos.close();
+
+            renderer.createPDF(fos);
+            fos.close();*/
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Output written to books.html");
+        class MyDocumentListener implements DocumentListener {
+            final String newline = "\n";
+
+            public void insertUpdate(DocumentEvent e) {
+                updateLog(e, "inserted into");
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateLog(e, "removed from");
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                //Plain text components don't fire these events.
+            }
+
+            public void updateLog(DocumentEvent e, String action) {
+
+            }
+        }
+
+        class MyTextActionListener implements ActionListener {
+            /**
+             * Handle the text field Return.
+             */
+            public void actionPerformed(ActionEvent e) {
+                String zip = scoutZip.getText().toString();
+                if (zip.length() > 4) {
+                    String FullName = "";
+                    try {
+                        FullName = getCityState(zip);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    String[] StateTown = FullName.split("&");
+                    String state = StateTown[1];
+                    String town = StateTown[0];
+                    scoutTown.setText(town);
+                    scoutState.setText(state);
+                }
+            }
+        }
+        /**
+         * Compile and execute a simple transformation that applies a stylesheet to an input file,
+         * and serializing the result to an output file
+         */
+
+
     }
     class MyDocumentListener implements DocumentListener {
         final String newline = "\n";
@@ -1218,11 +1272,5 @@ public class Reports extends JDialog {
             }
         }
     }
-    /**
-     * Compile and execute a simple transformation that applies a stylesheet to an input file,
-     * and serializing the result to an output file
-     */
-
-
 }
 

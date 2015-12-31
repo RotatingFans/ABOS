@@ -25,5 +25,6 @@
     <orderEntry type="library" name="fop" level="project" />
     <orderEntry type="library" name="iText-2.0.8" level="project" />
     <orderEntry type="library" name="core-renderer" level="project" />
+    <orderEntry type="library" name="jtidy-r938" level="project" />
   </component>
 </module>

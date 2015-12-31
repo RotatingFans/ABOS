@@ -1,10 +1,21 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
     <xsl:template match="/">
+
+        <head>
+            <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+            <title><xsl:value-of select="LawnGardenReports/info/reportTitle"/></title>
+            <style type="text/css">
+                #Bordered {
+                border: 1px solid black;
+                border-collapse: collapse;
+                }
+            </style>
+        </head>
         <html>
             <body>
                 <div style="position:relative; width:100%">
-                    <img alt="" width="200px" style="position:relative">
+                    <img alt="logo" style="position:relative; width:200px;">
                         <xsl:attribute name="src">
                             <xsl:value-of select="LawnGardenReports/info/logo"/>
                         </xsl:attribute>
@@ -18,7 +29,7 @@
                             <xsl:value-of select="LawnGardenReports/info/streetAddress"/>
                         </h2>
                         <h2>
-                            <xsl:value-of select="LawnGardenReports/info/City"/>
+                            <xsl:value-of select="LawnGardenReports/info/city"/>
                         </h2>
                         <h2>
                             <xsl:value-of select="LawnGardenReports/info/rank"/>
@@ -30,13 +41,13 @@
                         <xsl:value-of select="LawnGardenReports/info/reportTitle"/>
                     </h2>
                 </div>
-                <div>
-                    <h2 style="text-align:left; position:relative; top:20px; bottom:20px">
-                        <xsl:value-of select="LawnGardenReports/info/splitting"/>
-                    </h2>
-                </div>
-                <xsl:for-each select="LawnGardenReports/customerYear">
 
+                <xsl:for-each select="LawnGardenReports/customerYear">
+                    <div>
+                        <h2 style="text-align:left; position:relative; top:20px; bottom:20px">
+                            <xsl:value-of select="//splitting"/>
+                        </h2>
+                    </div>
                     <div>
                         <h2 style="text-align:center; position:relative; top:20px; bottom:20px">
                             <xsl:value-of select="title"/>
@@ -44,7 +55,7 @@
                     </div>
                     <table id="Bordered" border="1" style="width:100%; position:relative; top:20px">
                         <tr bgcolor="#9acd32">
-                            <xsl:for-each select="//column">
+                            <xsl:for-each select="/columns/column">
                                 <th style="text-align:left">
                                     <xsl:value-of select="name"/>
                                 </th>
@@ -88,12 +99,7 @@
                 <h2 style="text-align:right; position:relative; top:20px; bottom:20px">
                     TOTALS
                 </h2>
-                <style>
-                    #Bordered {
-                    border: 1px solid black;
-                    border-collapse: collapse;
-                    }
-                </style>
+
                 <table id="Bordered" border="0" style="position:relative; top:20px; float:right">
 
 
