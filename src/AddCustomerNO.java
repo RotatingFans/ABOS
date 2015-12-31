@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -10,16 +8,13 @@ import java.sql.SQLException;
  * Created by patrick on 4/11/15.
  */
 //TODO Move to AddCustomer Window
-public class AddCustomerNO extends JDialog {
+class AddCustomerNO extends JDialog {
     private final JPanel contentPanel = new JPanel();
     private JTextField Address;
     private JCheckBox NI;
     private JCheckBox NH;
-    private JCheckBox Donate;
-    private JButton okButton;
-    private JButton cancelButton;
 
-    public AddCustomerNO() {
+    AddCustomerNO() {
         initUI();
         setVisible(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -29,7 +24,7 @@ public class AddCustomerNO extends JDialog {
         try {
             new AddCustomerNO();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
@@ -61,55 +56,41 @@ public class AddCustomerNO extends JDialog {
 
 
         //Center
+        JPanel center = new JPanel(new FlowLayout());
         {
-            JPanel center = new JPanel(new FlowLayout());
-            {
-                NI = new JCheckBox("Not Interested");
-                // NI.setBounds(10, 70, 150, 23);
-                center.add(NI);
-            }
-            {
-                NH = new JCheckBox("Not Home");
-                // NH.setBounds(160, 70, 120, 23);
-                center.add(NH);
-            }
-            {
-                Donate = new JCheckBox("Gave Donation");
-                // Donate.setBounds(280, 70, 150, 23);
-                center.add(Donate);
-            }
-            contentPanel.add(center, BorderLayout.CENTER);
+            NI = new JCheckBox("Not Interested");
+            // NI.setBounds(10, 70, 150, 23);
+            center.add(NI);
         }
-
         {
-            JPanel buttonPane = new JPanel();
-            buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            getContentPane().add(buttonPane, BorderLayout.AFTER_LAST_LINE);
-            {
-                okButton = new JButton("OK");
-
-                buttonPane.add(okButton);
-                getRootPane().setDefaultButton(okButton);
-            }
-            {
-                cancelButton = new JButton("Cancel");
-
-                buttonPane.add(cancelButton);
-            }
-            okButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    addCustomer();
-                    dispose();
-                }
-            });
-            okButton.setActionCommand("OK");
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-            });
-            cancelButton.setActionCommand("Cancel");
+            NH = new JCheckBox("Not Home");
+            // NH.setBounds(160, 70, 120, 23);
+            center.add(NH);
         }
+        {
+            JCheckBox donate = new JCheckBox("Gave Donation");
+            // Donate.setBounds(280, 70, 150, 23);
+            center.add(donate);
+        }
+        contentPanel.add(center, BorderLayout.CENTER);
+
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        getContentPane().add(buttonPane, BorderLayout.AFTER_LAST_LINE);
+        JButton okButton = new JButton("OK");
+
+        buttonPane.add(okButton);
+        getRootPane().setDefaultButton(okButton);
+        JButton cancelButton = new JButton("Cancel");
+
+        buttonPane.add(cancelButton);
+        okButton.addActionListener(e -> {
+            addCustomer();
+            dispose();
+        });
+        okButton.setActionCommand("OK");
+        cancelButton.addActionListener(e -> dispose());
+        cancelButton.setActionCommand("Cancel");
     }
 
     private void addCustomer() {

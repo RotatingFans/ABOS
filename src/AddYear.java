@@ -1,4 +1,5 @@
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,40 +13,36 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class AddYear extends JDialog {
+class AddYear extends JDialog {
 
-    private final JPanel contentPanel = new JPanel();
-    private final JButton genXmlFrmTbl;
-    private final JButton fillTblFrmDb;
-    private final JButton openCSV;
     private final JCheckBox chkboxCreateDatabase;
-    private JTextField textField;
-    private JTable ProductTable;
-    private JTextField itemTb;
-    private JTextField sizeTb;
-    private JTextField rateTb;
+    private final JTextField textField;
+    private final JTable ProductTable;
+    private final JTextField itemTb;
+    private final JTextField sizeTb;
+    private final JTextField rateTb;
+    private final JTextField idTb;
+    private final JDialog parent;
     private DefaultTableModel tableModel;
-    private JTextField idTb;
-    private JDialog parent;
 
     /**
      * Create the dialog.
      */
-    public AddYear() {
+    AddYear() {
         parent = this;
         setSize(700, 500);
         getContentPane().setLayout(new BorderLayout());
+        JPanel contentPanel = new JPanel();
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
@@ -73,12 +70,8 @@ public class AddYear extends JDialog {
                 }
 
                 {
-                    fillTblFrmDb = new JButton("Fill table from pre-existing Database");
-                    fillTblFrmDb.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            tablefromDb();
-                        }
-                    });
+                    JButton fillTblFrmDb = new JButton("Fill table from pre-existing Database");
+                    fillTblFrmDb.addActionListener(e -> tablefromDb());
                     //chckbxGenerateXmlFile.setBounds(149, 21, 259, 23);
                     northNorth.add(fillTblFrmDb);
 
@@ -98,22 +91,16 @@ public class AddYear extends JDialog {
                 JPanel northSouth = new JPanel(new FlowLayout());
 
 
-                genXmlFrmTbl = new JButton("Generate XML file from Table below");
-                genXmlFrmTbl.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        xmlFromTable();
-                    }
-                });
+                JButton genXmlFrmTbl = new JButton("Generate XML file from Table below");
+                genXmlFrmTbl.addActionListener(e -> xmlFromTable());
                 //chckbxNewCheckBox.setBounds(149, 57, 235, 23);
                 northSouth.add(genXmlFrmTbl);
 
-                openCSV = new JButton("Generate XML and fill table from CSV");
-                openCSV.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        CSV2XML csv = new CSV2XML(parent);
-                        String xmlFile = csv.getXML();
-                        createTable(xmlFile);
-                    }
+                JButton openCSV = new JButton("Generate XML and fill table from CSV");
+                openCSV.addActionListener(e -> {
+                    CSV2XML csv = new CSV2XML(parent);
+                    String xmlFile = csv.getXML();
+                    createTable(xmlFile);
                 });
                 //chckbxNewCheckBox.setBounds(149, 57, 235, 23);
                 northSouth.add(openCSV);
@@ -124,149 +111,133 @@ public class AddYear extends JDialog {
             contentPanel.add(north, BorderLayout.NORTH);
         }
         //Center
+        JPanel center = new JPanel(new BorderLayout());
+        //North
         {
-            JPanel center = new JPanel(new BorderLayout());
+            JPanel CenterNorth = new JPanel(new FlowLayout());
             //North
             {
-                JPanel CenterNorth = new JPanel(new FlowLayout());
-                //North
+                //ID
                 {
-                    //ID
-                    {
-                        JPanel ID = new JPanel();
-                        ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
-                        JLabel lblId = new JLabel("ID");
-                        //lblId.setBounds(20, 87, 46, 14);
-                        ID.add(lblId);
-                        idTb = new JTextField();
-                        //	idTb.setBounds(10, 104, 68, 19);
-                        ID.add(idTb);
-                        idTb.setColumns(4);
-                        CenterNorth.add(ID);
-                    }
-                    //Item
-                    {
-                        JPanel ID = new JPanel();
-                        ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
-                        JLabel lblNewLabel = new JLabel("Item");
-                        //lblNewLabel.setBounds(104, 87, 46, 14);
-                        ID.add(lblNewLabel);
-                        itemTb = new JTextField();
-                        //itemTb.setBounds(88, 104, 141, 19);
-                        ID.add(itemTb);
-                        itemTb.setColumns(10);
-                        CenterNorth.add(ID);
-                    }
-                    //Size
-                    {
-                        JPanel ID = new JPanel();
-                        ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
-                        JLabel lblNewLabel_1 = new JLabel("Size");
-                        //	lblNewLabel_1.setBounds(252, 87, 46, 14);
-                        ID.add(lblNewLabel_1);
-                        sizeTb = new JTextField();
-                        //sizeTb.setBounds(239, 104, 138, 19);
-                        ID.add(sizeTb);
-                        sizeTb.setColumns(10);
-                        CenterNorth.add(ID);
-                    }
-                    //Rate
-                    {
-                        JPanel ID = new JPanel();
-                        ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
-                        JLabel lblNewLabel_2 = new JLabel("Price/Item");
-                        //	lblNewLabel_2.setBounds(390, 87, 70, 14);
-                        ID.add(lblNewLabel_2);
-                        rateTb = new JTextField();
-                        //rateTb.setBounds(387, 104, 97, 19);
-                        ID.add(rateTb);
-                        rateTb.setColumns(4);
-                        CenterNorth.add(ID);
-                    }
-                    JButton btnNewButton = new JButton("Add");
-                    btnNewButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            int count = tableModel.getRowCount() + 1;
-                            tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
-                        }
-                    });
-                    //btnNewButton.setBounds(484, 105, 57, 19);
-                    CenterNorth.add(btnNewButton);
+                    JPanel ID = new JPanel();
+                    ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
+                    JLabel lblId = new JLabel("ID");
+                    //lblId.setBounds(20, 87, 46, 14);
+                    ID.add(lblId);
+                    idTb = new JTextField();
+                    //	idTb.setBounds(10, 104, 68, 19);
+                    ID.add(idTb);
+                    idTb.setColumns(4);
+                    CenterNorth.add(ID);
+                }
+                //Item
+                {
+                    JPanel ID = new JPanel();
+                    ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
+                    JLabel lblNewLabel = new JLabel("Item");
+                    //lblNewLabel.setBounds(104, 87, 46, 14);
+                    ID.add(lblNewLabel);
+                    itemTb = new JTextField();
+                    //itemTb.setBounds(88, 104, 141, 19);
+                    ID.add(itemTb);
+                    itemTb.setColumns(10);
+                    CenterNorth.add(ID);
+                }
+                //Size
+                {
+                    JPanel ID = new JPanel();
+                    ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
+                    JLabel lblNewLabel_1 = new JLabel("Size");
+                    //	lblNewLabel_1.setBounds(252, 87, 46, 14);
+                    ID.add(lblNewLabel_1);
+                    sizeTb = new JTextField();
+                    //sizeTb.setBounds(239, 104, 138, 19);
+                    ID.add(sizeTb);
+                    sizeTb.setColumns(10);
+                    CenterNorth.add(ID);
+                }
+                //Rate
+                {
+                    JPanel ID = new JPanel();
+                    ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
+                    JLabel lblNewLabel_2 = new JLabel("Price/Item");
+                    //	lblNewLabel_2.setBounds(390, 87, 70, 14);
+                    ID.add(lblNewLabel_2);
+                    rateTb = new JTextField();
+                    //rateTb.setBounds(387, 104, 97, 19);
+                    ID.add(rateTb);
+                    rateTb.setColumns(4);
+                    CenterNorth.add(ID);
+                }
+                JButton btnNewButton = new JButton("Add");
+                btnNewButton.addActionListener(e -> {
+                    int count = tableModel.getRowCount() + 1;
+                    tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
+                });
+                //btnNewButton.setBounds(484, 105, 57, 19);
+                CenterNorth.add(btnNewButton);
 
-                    JButton btnGenerateTableFrom = new JButton("Generate table from XML");
-                    btnGenerateTableFrom.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
+                JButton btnGenerateTableFrom = new JButton("Generate table from XML");
+                btnGenerateTableFrom.addActionListener(e -> {
 
-                            FileDialog f = new FileDialog((Frame) getParent(), "Open", FileDialog.LOAD);
-                            f.setVisible(true);
-                            if (!(f.getFile() == null)) {
-                                createTable(f.getDirectory() + f.getFile());
-                            }
+                    FileDialog f = new FileDialog((Frame) getParent(), "Open", FileDialog.LOAD);
+                    f.setVisible(true);
+                    if (!(f.getFile() == null)) {
+                        createTable(f.getDirectory() + f.getFile());
+                    }
 
-                        }
-                    });
-                    //btnGenerateTableFrom.setBounds(387, 57, 154, 23);
-                    CenterNorth.add(btnGenerateTableFrom);
+                });
+                //btnGenerateTableFrom.setBounds(387, 57, 154, 23);
+                CenterNorth.add(btnGenerateTableFrom);
+
+            }
+
+            center.add(CenterNorth, BorderLayout.NORTH);
+            //contentPanel.add(center, BorderLayout.CENTER);
+        }
+        //Center
+        {
+            JScrollPane scrollPane = new JScrollPane();
+            //scrollPane.setBounds(0, 125, 541, 315);
+            center.add(scrollPane, BorderLayout.CENTER);
+
+            ProductTable = new JTable();
+            ProductTable.setFillsViewportHeight(true);
+            ProductTable.setColumnSelectionAllowed(true);
+            ProductTable.setCellSelectionEnabled(true);
+            tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item"}, 0);
+            ProductTable.setModel(tableModel);
+            ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
+            ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
+            scrollPane.setViewportView(ProductTable);
+        }
+        contentPanel.add(center, BorderLayout.CENTER);
+        //South
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        getContentPane().add(buttonPane, BorderLayout.SOUTH);
+        {
+            JButton okButton = new JButton("OK");
+            okButton.addActionListener(e -> {
+                if (chkboxCreateDatabase.isSelected()) {
+                    CreateDb();
+                } else {
+                    addYear();
 
                 }
 
-                center.add(CenterNorth, BorderLayout.NORTH);
-                //contentPanel.add(center, BorderLayout.CENTER);
-            }
-            //Center
-            {
-                JScrollPane scrollPane = new JScrollPane();
-                //scrollPane.setBounds(0, 125, 541, 315);
-                center.add(scrollPane, BorderLayout.CENTER);
-
-                ProductTable = new JTable();
-                ProductTable.setFillsViewportHeight(true);
-                ProductTable.setColumnSelectionAllowed(true);
-                ProductTable.setCellSelectionEnabled(true);
-                tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item"}, 0);
-                ProductTable.setModel(tableModel);
-                ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
-                ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
-                scrollPane.setViewportView(ProductTable);
-            }
-            contentPanel.add(center, BorderLayout.CENTER);
+                dispose();
+            });
+            okButton.setActionCommand("OK");
+            buttonPane.add(okButton);
+            getRootPane().setDefaultButton(okButton);
         }
-        //South
-        {
-            JPanel buttonPane = new JPanel();
-            buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            getContentPane().add(buttonPane, BorderLayout.SOUTH);
-            {
-                JButton okButton = new JButton("OK");
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (chkboxCreateDatabase.isSelected()) {
-                            CreateDb();
-                        } else {
-                            addYear();
-
-                        }
-
-                        dispose();
-                    }
-                });
-                okButton.setActionCommand("OK");
-                buttonPane.add(okButton);
-                getRootPane().setDefaultButton(okButton);
-            }
-            {
-                JButton cancelButton = new JButton("Cancel");
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        dispose();
-                    }
-                });
-                cancelButton.setActionCommand("Cancel");
-                buttonPane.add(cancelButton);
-            }
-        }
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setVisible(true);
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> dispose());
+        cancelButton.setActionCommand("Cancel");
+        buttonPane.add(cancelButton);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setVisible(true);
     }
 
     /**
@@ -278,7 +249,7 @@ public class AddYear extends JDialog {
             AddYear dialog = new AddYear();
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
@@ -352,33 +323,30 @@ public class AddYear extends JDialog {
 
 
                     //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-                    tableModel = new DefaultTableModel(
-                            rows,
-                            new String[]{
-                                    "ID", "Item", "Size", "Price/Item"
-                            }
-                    ) {
 
-                        boolean[] columnEditables = new boolean[]{
-                                false, false, false, true, false
-                        };
 
-                        public boolean isCellEditable(int row, int column) {
-                            return columnEditables[column];
-                        }
-                    };
-                    ProductTable.setModel(tableModel);
+                    ProductTable.setModel(new MyDefaultTableModel(rows));
 
 
                 }
             }
-        } catch (Exception e) {
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DOMException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
 
 
-    /**Creates an XML file from the table
+    /**
+     * Creates an XML file from the table
+     *
      * @param SavePath Path to save the created XML file
      */
     private void createXML(String SavePath) {
@@ -441,15 +409,10 @@ public class AddYear extends JDialog {
             transformer.transform(source, result);
 
             System.out.println("File saved!");
-        } catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException | FileNotFoundException | TransformerException e) {
 
             e.printStackTrace();
 
-        } catch (TransformerException tfe) {
-            tfe.printStackTrace();
-        } catch (FileNotFoundException e) {
-
-            e.printStackTrace();
         }
     }
 
@@ -458,24 +421,21 @@ public class AddYear extends JDialog {
      */
     @SuppressWarnings("serial")
     private void fillTable() {
-        String year = textField.getText().toString();
+        String year = textField.getText();
         //DefaultTableModel model;
         //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
 
         //Variables for inserting info into table
-        ArrayList<String> productIDs;
-        ArrayList<String> productNames;
-        ArrayList<String> Size;
-        ArrayList<String> Unit;
-        String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+
+        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
         try {
             //Run through Data set and add info to ProductInfoArray
             ResultSet ProductInfoResultSet = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -489,7 +449,6 @@ public class AddYear extends JDialog {
 
             //Close prepared statement
             ProductInfoResultSet.close();
-            ProductInfoResultSet = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -511,21 +470,7 @@ public class AddYear extends JDialog {
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
         //Define table properties
-        ProductTable.setModel(new DefaultTableModel(
-                rows,
-                new String[]{
-                        "ID", "Product Name", "Size", "Price/Item"
-                }
-        ) {
-
-            boolean[] columnEditables = new boolean[]{
-                    true,true,true,true
-            };
-
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        });
+        ProductTable.setModel(new MyDefaultTableModel(rows));
     }
 
     private void tablefromDb() {
@@ -535,7 +480,7 @@ public class AddYear extends JDialog {
 
     private void xmlFromTable() {
         JFileChooser chooser = new JFileChooser();
-        int returnVal = chooser.showSaveDialog(AddYear.this);
+        int returnVal = chooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             if (chooser.getSelectedFile().getName().endsWith(".xml")) {
                 createXML(chooser.getSelectedFile().getAbsolutePath() + ".xml");
@@ -547,4 +492,22 @@ public class AddYear extends JDialog {
 
     }
 
+    private static class MyDefaultTableModel extends DefaultTableModel {
+
+        final boolean[] columnEditables;
+
+        public MyDefaultTableModel(Object[][] rows) {
+            super(rows, new String[]{
+                    "ID", "Product Name", "Size", "Price/Item"
+            });
+            columnEditables = new boolean[]{
+                    true, true, true, true
+            };
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return columnEditables[column];
+        }
+    }
 }

@@ -7,8 +7,11 @@ import java.util.logging.Logger;
  *
  */
 @SuppressWarnings("unused")
-public class DbInt {
+class DbInt {
     public static Connection pCon = null;
+
+    private DbInt() {
+    }
 
     /**
      * Gets Data with specifed command and DB
@@ -18,6 +21,7 @@ public class DbInt {
      * @return and ArrayList of the resulting Data
      * @deprecated true
      */
+    @Deprecated
     public static ArrayList<String> getData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -29,10 +33,10 @@ public class DbInt {
         Statement st = null;
         ResultSet rs = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
+                Config.getDbLoc());
+        ArrayList<String> res = new ArrayList<>();
         try {
 
 
@@ -51,8 +55,8 @@ public class DbInt {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -66,15 +70,12 @@ public class DbInt {
             try {
                 if (rs != null) {
                     rs.close();
-                    rs = null;
                 }
                 if (st != null) {
                     st.close();
-                    st = null;
                 }
                 if (con != null) {
                     con.close();
-                    con = null;
                 }
 
             } catch (SQLException ex) {
@@ -86,16 +87,18 @@ public class DbInt {
         return res;
     }
 
-    /**Gets the specified Customer info
+    /**
+     * Gets the specified Customer info
+     *
      * @param yearL The year to search
-     * @param name The customer name
-     * @param info The info to search for
+     * @param name  The customer name
+     * @param info  The info to search for
      * @return A string with the resulting data
      */
     public static String getCustInf(String yearL, String name, String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?");
+        PreparedStatement prep = getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?");
         try {
 
 
@@ -117,8 +120,10 @@ public class DbInt {
         return ret;
     }
 
-    /**Creates a Prepared statemtn from provided Parameters.
-     * @param Db The database to create the statement for
+    /**
+     * Creates a Prepared statemtn from provided Parameters.
+     *
+     * @param Db      The database to create the statement for
      * @param Command The Base command for the statement
      * @return the PreparedStatemtn that was created.
      */
@@ -130,14 +135,12 @@ public class DbInt {
             e.printStackTrace();
         }
         PreparedStatement prep = null;
-        Statement st = null;
-        ResultSet rs = null;
+
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
+                Config.getDbLoc());
         try {
 
 
@@ -151,8 +154,8 @@ public class DbInt {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -161,30 +164,15 @@ public class DbInt {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                    rs = null;
-                }
-                if (st != null) {
-                    st.close();
-                    st = null;
-                }
-
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
 
         return prep;
     }
 
-    /**Gets # of collumns in a table
-     * @param Db The DB the table is in
+    /**
+     * Gets # of collumns in a table
+     *
+     * @param Db    The DB the table is in
      * @param Table the Table to get number of columns from
      * @return An integer with number of columns
      */
@@ -200,10 +188,9 @@ public class DbInt {
         Statement st = null;
         ResultSet rs = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
+                Config.getDbLoc());
         try {
 
 
@@ -219,8 +206,8 @@ public class DbInt {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -234,15 +221,12 @@ public class DbInt {
             try {
                 if (rs != null) {
                     rs.close();
-                    rs = null;
                 }
                 if (st != null) {
                     st.close();
-                    st = null;
                 }
                 if (con != null) {
                     con.close();
-                    con = null;
                 }
 
             } catch (SQLException ex) {
@@ -254,11 +238,14 @@ public class DbInt {
         return columnsNumber;
     }
 
-    /**Writes data to A DB
-     * @param Db The DB to write to
+    /**
+     * Writes data to A DB
+     *
+     * @param Db      The DB to write to
      * @param command THe command to execute
      * @deprecated true
      */
+    @Deprecated
     public static void writeData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -268,16 +255,14 @@ public class DbInt {
         }
         Connection con = null;
         Statement st = null;
-        ResultSet rs = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
+                Config.getDbLoc());
         try {
 
 
-            command.replaceAll("'", "/0027");
+            //command.replaceAll("'", "/0027");
             con = DriverManager.getConnection(url);
             st = con.createStatement();
             st.executeUpdate(command);
@@ -288,8 +273,8 @@ public class DbInt {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -304,11 +289,9 @@ public class DbInt {
 
                 if (st != null) {
                     st.close();
-                    st = null;
                 }
                 if (con != null) {
                     con.close();
-                    con = null;
                 }
 
             } catch (SQLException ex) {
@@ -329,7 +312,7 @@ public class DbInt {
         Connection con = null;
         Statement st = null;
 
-        String url = String.format("jdbc:derby:%s/%s;create=true", new Config().getDbLoc(), DB);//;create=true
+        String url = String.format("jdbc:derby:%s/%s;create=true", Config.getDbLoc(), DB);//;create=true
 
         try {
 
@@ -341,8 +324,8 @@ public class DbInt {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally", ex);
 
@@ -372,7 +355,7 @@ public class DbInt {
     /**
      * Closes the database connection.
      */
-    public void close() {
+    public static void close() {
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException e) {

@@ -1,10 +1,10 @@
-public class cPoint {
-    private String AddressM;
-    private Double LatM;
-    private Double LonM;
+class cPoint {
+    private final String AddressM;
+    private final Double LatM;
+    private final Double LonM;
 
 
-    public cPoint(Double Lat, Double Lon, String Address) {
+    cPoint(Double Lat, Double Lon, String Address) {
         AddressM = Address;
         LonM = Lon;
         LatM = Lat;
@@ -15,23 +15,29 @@ public class cPoint {
         return LatM;
     }
 
-    public void setLat(Double Lat) {
-        LatM = Lat;
-    }
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    public void setLat(Double Lat) {
+//        LatM = Lat;
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
 
     public Double getLon() {
         return LonM;
     }
 
-    public void setLon(Double Lon) {
-        LonM = Lon;
-    }
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    public void setLon(Double Lon) {
+//        LonM = Lon;
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
 
     public String getAddress() {
         return AddressM;
     }
 
-    public void setAddress(String Address) {
-        AddressM = Address;
-    }
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    public void setAddress(String Address) {
+//        AddressM = Address;
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
 }

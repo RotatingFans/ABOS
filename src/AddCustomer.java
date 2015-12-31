@@ -1,18 +1,15 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,16 +33,16 @@ import java.util.ArrayList;
  * @author patrick
  * @version 1.0
  */
-public class AddCustomer extends JDialog {
+class AddCustomer extends JDialog {
 
 
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
     //private final JPanel contentPanel = new JPanel();
-
+    //Variables used to store regularly accessed info.
+    private final String year;
     //Editable Field for user to input customer info.
-    JCheckBox Delivered;
-    JCheckBox Paid;    
-    Object[][] OldOrder;
+    private JCheckBox Delivered;
+    private JCheckBox Paid;
     private JTable ProductTable;
     private JTextField Name;
     private JTextField Address;
@@ -56,23 +55,21 @@ public class AddCustomer extends JDialog {
     //Action buttons
     private JButton okButton;
     private JButton cancelButton;
-    //Variables used to store regularly accessed info.
-    private String year = null;
-    private double totalCostFinal = 0;
+    private double totalCostFinal = 0.0;
     //Variables used to calculate difference of orders when in edit mode.
-    private String NameEditCustomer;
-    private double totalCostTOr = 0;
-    private double mulchOr = 0;
-    private double lpOr = 0;
-    private double lgOr = 0;
-    private double donationOr;
+    private String NameEditCustomer = null;
+    private double totalCostTOr = 0.0;
+    private double mulchOr = 0.0;
+    private double lpOr = 0.0;
+    private double lgOr = 0.0;
+    private double donationOr = 0.0;
 
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
      * @param customerName the name of the customer being edited.
      */
-    public AddCustomer(String customerName) {
+    AddCustomer(String customerName) {
         year = CustomerReport.year;
         edit = true;
         initUI();
@@ -80,7 +77,11 @@ public class AddCustomer extends JDialog {
         String[] addr = new String[4];
         //Todo deprecate getAddr Function
         try {
-            addr = getAddress(getAddr(customerName).toString());
+            addr = getAddress(getAddr(customerName));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -106,168 +107,145 @@ public class AddCustomer extends JDialog {
         NameEditCustomer = customerName;
         edit = true;
         //Add a Event to occur if a cell is changed in the table
-        ProductTable.getModel().addTableModelListener(new TableModelListener() {
+        ProductTable.getModel().addTableModelListener(e -> {
+            //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
+            if (e.getType() == TableModelEvent.UPDATE) {
+                if (e.getColumn() == 4) {
 
-            public void tableChanged(TableModelEvent e) {
-                //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-                if (e.getType() == 0) {
-                    if (e.getColumn() == 4) {
-
-                        int row = e.getFirstRow();
-                        int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                        double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));//Removes $ from cost and multiplies to get the total cost for that item
-                        if (ItemTotalCost == 0.0) {
-                            ItemTotalCost = 0;
-                        }
-                        ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
-                        totalCostFinal = 0;
-                        for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                            totalCostFinal = totalCostFinal + Double.parseDouble(ProductTable.getModel().getValueAt(i, 5).toString());//Recalculate Order total
-                        }
-
-
+                    int row = e.getFirstRow();
+                    int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
+                    double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));//Removes $ from cost and multiplies to get the total cost for that item
+                    if (ItemTotalCost == 0.0) {
+                        ItemTotalCost = 0;
                     }
-                }
-            }
-        });
-
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (infoEntered()) {
-
-                    commitChanges();
-                    updateTots();
-                    dispose();
-                    setVisible(false);
-                }
-
-            }
-        });
-        okButton.setActionCommand("OK");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-        cancelButton.setActionCommand("Cancel");
-        this.setVisible(true);
-    }
-
-    /**
-     * Used to open dialog with already existing customer information from a specific year.
-     *
-     * @param customerName The name of the customer being edited.
-     * @param Year         The year of the order to be edited.
-     */
-    public AddCustomer(String customerName, String Year) {
-        //Assign variables
-        year = Year;
-        edit = true;
-
-        initUI();
-
-        //Fill in Customer Info Fields
-        Address.setText(getAddr(customerName).toString());
-        Phone.setText(getPhone(customerName));
-        Paid.setSelected(Boolean.getBoolean(getPaid(customerName)));
-        Delivered.setSelected(Boolean.getBoolean(getDelivered(customerName)));
-        Email.setText(getEmail(customerName));
-        Name.setText(customerName);
-        DonationsT.setText(getDontation(customerName));
-
-        //Assign Values for original order
-        donationOr = Double.parseDouble(DonationsT.getText());
-        NameEditCustomer = customerName;
-        edit = true;
-
-        fillTable(getOrderId(customerName));
-
-        //Add a Event to occur if a cell is changed in the table
-        ProductTable.getModel().addTableModelListener(new TableModelListener() {
-
-            public void tableChanged(TableModelEvent e) {
-                //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-                if (e.getType() == 0) {
-                    if (e.getColumn() == 4) {
-
-                        int row = e.getFirstRow();
-                        int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                        double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));//Removes $ from cost and multiplies to get the total cost for that item
-                        ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
-                        totalCostFinal = 0;
-                        for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                            totalCostFinal = totalCostFinal + Double.parseDouble(ProductTable.getModel().getValueAt(i, 5).toString());//Recalculate Order total
-                        }
-
-
+                    ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
+                    totalCostFinal = 0;
+                    for (int i = 0; i < ProductTable.getRowCount(); i++) {
+                        totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(i, 5).toString());//Recalculate Order total
                     }
+
+
                 }
             }
         });
 
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (infoEntered()) {
+        okButton.addActionListener(e -> {
+            if (infoEntered()) {
 
-                    commitChanges();
-                    updateTots();
-                    dispose();
-                    setVisible(false);
-                }
-            }
-        });
-        okButton.setActionCommand("OK");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+                commitChanges();
+                updateTots();
                 dispose();
                 setVisible(false);
             }
+
         });
+        okButton.setActionCommand("OK");
+        cancelButton.addActionListener(e -> dispose());
         cancelButton.setActionCommand("Cancel");
-        this.setVisible(true);
+        setVisible(true);
     }
 
-    public AddCustomer() {
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    /**
+//     * Used to open dialog with already existing customer information from a specific year.
+//     *
+//     * @param customerName The name of the customer being edited.
+//     * @param Year         The year of the order to be edited.
+//     */
+//    public AddCustomer(String customerName, String Year) {
+//        //Assign variables
+//        year = Year;
+//        edit = true;
+//
+//        initUI();
+//
+//        //Fill in Customer Info Fields
+//        Address.setText(getAddr(customerName));
+//        Phone.setText(getPhone(customerName));
+//        Paid.setSelected(Boolean.getBoolean(getPaid(customerName)));
+//        Delivered.setSelected(Boolean.getBoolean(getDelivered(customerName)));
+//        Email.setText(getEmail(customerName));
+//        Name.setText(customerName);
+//        DonationsT.setText(getDontation(customerName));
+//
+//        //Assign Values for original order
+//        donationOr = Double.parseDouble(DonationsT.getText());
+//        NameEditCustomer = customerName;
+//        edit = true;
+//
+//        fillTable(getOrderId(customerName));
+//
+//        //Add a Event to occur if a cell is changed in the table
+//        ProductTable.getModel().addTableModelListener(e -> {
+//            //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
+//            if (e.getType() == 0) {
+//                if (e.getColumn() == 4) {
+//
+//                    int row = e.getFirstRow();
+//                    int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
+//                    double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));//Removes $ from cost and multiplies to get the total cost for that item
+//                    ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
+//                    totalCostFinal = 0;
+//                    for (int i = 0; i < ProductTable.getRowCount(); i++) {
+//                        totalCostFinal = totalCostFinal + Double.parseDouble(ProductTable.getModel().getValueAt(i, 5).toString());//Recalculate Order total
+//                    }
+//
+//
+//                }
+//            }
+//        });
+//
+//        okButton.addActionListener(e -> {
+//            if (infoEntered()) {
+//
+//                commitChanges();
+//                updateTots();
+//                dispose();
+//                setVisible(false);
+//            }
+//        });
+//        okButton.setActionCommand("OK");
+//        cancelButton.addActionListener(e -> {
+//            dispose();
+//            setVisible(false);
+//        });
+//        cancelButton.setActionCommand("Cancel");
+//        this.setVisible(true);
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
+
+    AddCustomer() {
 
         year = Year.year;
 
         initUI();
-
+        edit = false;
         //Add a Event to occur if a cell is changed in the table
-        ProductTable.getModel().addTableModelListener(new TableModelListener() {
+        ProductTable.getModel().addTableModelListener(e -> {
+            //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
+            if (e.getType() == TableModelEvent.UPDATE) {
+                if (e.getColumn() == 4) {
 
-            public void tableChanged(TableModelEvent e) {
-                //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-                if (e.getType() == 0) {
-                    if (e.getColumn() == 4) {
+                    int row = e.getFirstRow();
+                    int q = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
+                    //Removes $ from cost and multiplies to get the total cost for that item
+                    double tCost = q * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
 
-                        int row = e.getFirstRow();
-                        int q = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                        //Removes $ from cost and multiplies to get the total cost for that item
-                        double tCost = q * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
-
-                        totalCostFinal = totalCostFinal + tCost;//Recalculate Order total
-                        ProductTable.getModel().setValueAt(tCost, row, 5);
-                    }
+                    totalCostFinal += tCost;//Recalculate Order total
+                    ProductTable.getModel().setValueAt(tCost, row, 5);
                 }
             }
         });
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (infoEntered()) {
-                    commitChanges();
-                    updateTots();
-                    dispose();
-                    setVisible(false);
-                }
+        okButton.addActionListener(e -> {
+            if (infoEntered()) {
+                commitChanges();
+                updateTots();
+                dispose();
+                setVisible(false);
             }
         });
         okButton.setActionCommand("OK");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        cancelButton.addActionListener(e -> dispose());
         cancelButton.setActionCommand("Cancel");
 
     }
@@ -280,14 +258,229 @@ public class AddCustomer extends JDialog {
             AddCustomer dialog = new AddCustomer();
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Takes a zipcode and returns the city and state of the customer.
+     *
+     * @param zipCode The Zipcode of the customer
+     * @return The City and state of the customer
+     * @throws IOException
+     */
+    private static String getCityState(String zipCode) throws IOException {
+        //String AddressF = Address.replace(" ","+");
+        //The URL for the MapquestAPI
+        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
+
+        //Defines connection
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+        //add request header
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        //Creates Response buffer for Web response
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        //Fill String buffer with response
+        while ((inputLine = in.readLine()) != null) {
+            //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
+            //inputLine = StringEscapeUtils.escapeXml11(inputLine);
+            response.append(inputLine);
+        }
+        in.close();
+
+
+        String city = "";
+        String State = "";
+
+        //Parses XML response and fills City and State Variables
+        try {
+            InputSource is = new InputSource(new StringReader(response.toString()));
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(is);
+
+            doc.getDocumentElement().normalize();
+
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+            NodeList nList = doc.getElementsByTagName("place");
+
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+
+
+                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
+                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
+
+
+                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+
+
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DOMException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+        //Formats City and state into one string to return
+        String fullName = city + '&';
+        fullName += State;
+        //print result
+        //	return parseCoords(response.toString());
+        return fullName;
+    }
+
+    private static String[] getAddress(String Address) throws IOException {
+        String AddressF = Address.replace(" ", "+");
+        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", AddressF);
+
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        // optional default is GET
+        con.setRequestMethod("GET");
+
+        //add request header
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
+            //inputLine = StringEscapeUtils.escapeXml11(inputLine);
+            response.append(inputLine);
+        }
+        in.close();
+
+        String city = "";
+        String State = "";
+        String zipCode = "";
+        String hN = "";
+        String strt = "";
+        //String city = "";
+        try {
+            InputSource is = new InputSource(new StringReader(response.toString()));
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(is);
+
+            //optional, but recommended
+            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+            doc.getDocumentElement().normalize();
+
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+            NodeList nList = doc.getElementsByTagName("place");
+
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+
+
+                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
+                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
+                    zipCode = eElement.getElementsByTagName("postcode").item(0).getTextContent();
+                    hN = eElement.getElementsByTagName("house_number").item(0).getTextContent();
+                    strt = eElement.getElementsByTagName("road").item(0).getTextContent();
+
+
+                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+
+
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DOMException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+        //print result
+        //	return parseCoords(response.toString());
+        String[] address = new String[4];
+        address[0] = city;
+        address[1] = State;
+        address[2] = zipCode;
+        address[3] = hN + ' ' + strt;
+        return address;
+    }
+
+    /**
+     * Calculates the amount of commission to be earned.
+     *
+     * @param tcost the Sub total for all orders
+     * @return the amount of commission to be earned
+     */
+    private static double getCommission(double tcost) {
+        double comm = 0;
+        if (tcost > 299.99) {
+            if (tcost < 500.01) {
+                comm = tcost * 0.05;
+            }
+            if (tcost > 500.01) {
+                if (tcost < 1000.99) {
+                    comm = tcost * 0.1;
+                }
+
+            }
+            if (tcost >= 1001) {
+                comm = tcost * 0.15;
+            }
+        }
+        return comm;
+
+    }
+
+    private static boolean infoEntered() {
+        //TODO Prevent OK == order
+        return true;
+    }
 
     /**
      * Return Address of the customer whose name has been specified.
+     *
      * @param name The name of the customer
      * @return The Address of the specified customer
      */
@@ -357,8 +550,6 @@ public class AddCustomer extends JDialog {
 
     /**
      * Create the dialog.
-     *
-     *
      */
     private void initUI() {
         setSize(1100, 700);
@@ -373,14 +564,7 @@ public class AddCustomer extends JDialog {
             scrollPane.setBounds(0, 102, 857, 547);
             getContentPane().add(scrollPane);
             {
-                ProductTable = new JTable() {
-                    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                        Component c = super.prepareRenderer(renderer, row, column);
-
-
-                        return c;
-                    }
-                };
+                ProductTable = new MyJTable();
                 //ProductTable.setRowSelectionAllowed(true);
                 // ProductTable.setCellSelectionEnabled(true);
                 //ProductTable.setDefaultRenderer(String.class, new CustomTableCellRenderer());
@@ -534,9 +718,9 @@ public class AddCustomer extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setVisible(true);
+        setVisible(true);
     }
 
     /**
@@ -549,19 +733,16 @@ public class AddCustomer extends JDialog {
         //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
 
         //Variables for inserting info into table
-        ArrayList<String> productIDs;
-        ArrayList<String> productNames;
-        ArrayList<String> Size;
-        ArrayList<String> Unit;
-        String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+
+        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
         try {
             //Run through Data set and add info to ProductInfoArray
             ResultSet ProductInfoResultSet = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -575,7 +756,6 @@ public class AddCustomer extends JDialog {
 
             //Close prepared statement
             ProductInfoResultSet.close();
-            ProductInfoResultSet = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -599,24 +779,12 @@ public class AddCustomer extends JDialog {
 
         //Define table properties
 
-        ProductTable.setModel(new DefaultTableModel(
-                rows,
-                new String[]{
-                        "ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-                }
-        ) {
-
-            boolean[] columnEditables = new boolean[]{
-                    false, false, false, false, true, false
-            };
-
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        });
+        ProductTable.setModel(new MyDefaultTableModel(rows));
     }
 
-    /**Fills product table with info with quantities set to Amount customer ordered.
+    /**
+     * Fills product table with info with quantities set to Amount customer ordered.
+     *
      * @param OrderID the Order Id of the customer whose order is being displayed
      */
     @SuppressWarnings("serial")
@@ -626,15 +794,15 @@ public class AddCustomer extends JDialog {
         //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
 
         //Variables for inserting info into table
-        String toGet[] = {"ID", "PNAME", "SIZE", "UNIT"};
-        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
         try {
             //Run through Data set and add info to ProductInfoArray
             ResultSet ProductInfoResultSet = prep.executeQuery();
             for (int i = 0; i < 4; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -648,7 +816,6 @@ public class AddCustomer extends JDialog {
 
             //Close prepared statement
             ProductInfoResultSet.close();
-            ProductInfoResultSet = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -661,14 +828,14 @@ public class AddCustomer extends JDialog {
         Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
 
         //Defines array fo quantities of Order prior to editing.
-        OldOrder = new Object[ProductInfoArray.get(1).size()][3];
+        Object[][] oldOrder = new Object[ProductInfoArray.get(1).size()][3];
 
         //Defines Arraylist of order quanitities
-        ArrayList<String> OrderQuantities = new ArrayList<String>();
+        ArrayList<String> OrderQuantities = new ArrayList<>();
         //Fills OrderQuantities Array
         for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
 
-            int quant = 0;
+            int quant;
             prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?");
             try {
 
@@ -696,11 +863,11 @@ public class AddCustomer extends JDialog {
             rows[i][5] = quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
 
             //Defines info for the order prior to editing
-            OldOrder[i][0] = i;
-            OldOrder[i][1] = rows[i][4];
-            OldOrder[i][2] = rows[i][5];
-            totalCostFinal = totalCostFinal + Double.parseDouble(rows[i][5].toString());
-            totalCostTOr = totalCostTOr + Double.parseDouble(rows[i][5].toString());
+            oldOrder[i][0] = i;
+            oldOrder[i][1] = rows[i][4];
+            oldOrder[i][2] = rows[i][5];
+            totalCostFinal += Double.parseDouble(rows[i][5].toString());
+            totalCostTOr += Double.parseDouble(rows[i][5].toString());
 
         }
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
@@ -708,22 +875,7 @@ public class AddCustomer extends JDialog {
         //Sets up table.
 
 
-        ProductTable.setModel(new DefaultTableModel(
-                rows,
-                new String[]{
-                        "ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-                }
-        ) {
-
-            boolean[] columnEditables = new boolean[]{
-                    false, false, false, false, true, false
-            };
-
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-
-        });
+        ProductTable.setModel(new MyDefaultTableModel(rows));
         //Fills original totals
         mulchOr = getMulchOrdered();
         lpOr = getLpOrdered();
@@ -735,76 +887,72 @@ public class AddCustomer extends JDialog {
      * Commits table to the Database
      */
     private void commitChanges() {
-        /**
-         * Insert Order
-         * Get ID via Name
-         * insert Customer INfo
+        /*
+          Insert Order
+          Get ID via Name
+          insert Customer INfo
          */
         try {
-            String address = String.format("%s %s, %s", Address.getText().toString(), Town.getText().toString(), State.getText().toString());//Formats address
+            String address = String.format("%s %s, %s", Address.getText(), Town.getText(), State.getText());//Formats address
 
             if (!edit) {
                 // Inserts order data into order tables
 
-                {
-                    String InsertOrderString = "INSERT INTO ORDERS(NAME";
+                String InsertOrderString = "INSERT INTO ORDERS(NAME";
 
-                    int cols = DbInt.getNoCol(year, "ORDERS");
+                int cols = DbInt.getNoCol(year, "ORDERS");
 
-                    //Loops through And adds product numbers to Order string
-                    for (int i = 0; i <= cols - 3; i++) {
-                        InsertOrderString = String.format("%s, \"%s\"", InsertOrderString, Integer.toString(i));
-                    }
-
-                    //Adds ? for customer name and each quantity amount to use in prepared statement.
-                    InsertOrderString = String.format("%s) VALUES(?", InsertOrderString);
-                    for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                        InsertOrderString = String.format("%s, %s", InsertOrderString, "?");//table.getModel().getValueAt(i, 4)
-                    }
-                    InsertOrderString = String.format("%s)", InsertOrderString);
-
-                    //Creates prepared Statement and replaces ? with quantities and names
-                    PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderString);
-                    writeOrd.setString(1, Name.getText().toString());
-                    for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                        writeOrd.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
-                    }
-
-                    System.out.println(writeOrd.executeUpdate());
+                //Loops through And adds product numbers to Order string
+                for (int i = 0; i <= (cols - 3); i++) {
+                    InsertOrderString = String.format("%s, \"%s\"", InsertOrderString, Integer.toString(i));
                 }
+
+                //Adds ? for customer name and each quantity amount to use in prepared statement.
+                InsertOrderString = String.format("%s) VALUES(?", InsertOrderString);
+                for (int i = 0; i < ProductTable.getRowCount(); i++) {
+                    InsertOrderString = String.format("%s, %s", InsertOrderString, "?");//table.getModel().getValueAt(i, 4)
+                }
+                InsertOrderString = String.format("%s)", InsertOrderString);
+
+                //Creates prepared Statement and replaces ? with quantities and names
+                PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderString);
+                writeOrd.setString(1, Name.getText());
+                for (int i = 0; i < ProductTable.getRowCount(); i++) {
+                    writeOrd.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
+                }
+
+                System.out.println(writeOrd.executeUpdate());
 
                 //Inserts into customers tables with specified information.
-                {
-                    //Gets order ID of customer
-                    ArrayList<String> Ids = new ArrayList<String>();
-                    PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?");
+                //Gets order ID of customer
+                ArrayList<String> Ids = new ArrayList<>();
+                PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?");
 
-                    prep.setString(1, Name.getText().toString());
-                    ResultSet rs = prep.executeQuery();
-                    while (rs.next()) {
+                prep.setString(1, Name.getText());
+                ResultSet rs = prep.executeQuery();
+                while (rs.next()) {
 
-                        Ids.add(rs.getString(1));
+                    Ids.add(rs.getString(1));
 
-                    }
-
-                    //Inserts into customer table for year
-                    String Id = Ids.get(Ids.size() - 1);
-                    PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS,PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?)");
-                    writeCust.setString(1, Name.getText().toString());
-                    writeCust.setString(2, address);
-                    writeCust.setString(3, Phone.getText().toString());
-                    writeCust.setString(4, Id);
-                    writeCust.setString(5, Boolean.toString(Paid.isSelected()));
-                    writeCust.setString(6, Boolean.toString(Delivered.isSelected()));
-                    writeCust.setString(7, Email.getText().toString());
-                    writeCust.setString(8, DonationsT.getText().toString());
-                    writeCust.execute();
-
-                    //Inserts into customer table for all years.
-                    writeCust = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, ORDERED, NI, NH) VALUES(?,'True','False','False')");
-                    writeCust.setString(1, address);
-                    writeCust.execute();
                 }
+
+                //Inserts into customer table for year
+                String Id = Ids.get(Ids.size() - 1);
+                PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS,PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?)");
+                writeCust.setString(1, Name.getText());
+                writeCust.setString(2, address);
+                writeCust.setString(3, Phone.getText());
+                writeCust.setString(4, Id);
+                writeCust.setString(5, Boolean.toString(Paid.isSelected()));
+                writeCust.setString(6, Boolean.toString(Delivered.isSelected()));
+                writeCust.setString(7, Email.getText());
+                writeCust.setString(8, DonationsT.getText());
+                writeCust.execute();
+
+                //Inserts into customer table for all years.
+                writeCust = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, ORDERED, NI, NH) VALUES(?,'True','False','False')");
+                writeCust.setString(1, address);
+                writeCust.execute();
                 //////DbInt.pCon.close();
 
             }
@@ -817,13 +965,13 @@ public class AddCustomer extends JDialog {
 
                 //Updates customer table in Year DB with new info.
                 PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?,PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?");
-                CustomerUpdate.setString(1, Name.getText().toString());
+                CustomerUpdate.setString(1, Name.getText());
                 CustomerUpdate.setString(2, address);
-                CustomerUpdate.setString(3, Phone.getText().toString());
+                CustomerUpdate.setString(3, Phone.getText());
                 CustomerUpdate.setString(4, Boolean.toString(Paid.isSelected()));
                 CustomerUpdate.setString(5, Boolean.toString(Delivered.isSelected()));
-                CustomerUpdate.setString(6, Email.getText().toString());
-                CustomerUpdate.setString(7, DonationsT.getText().toString());
+                CustomerUpdate.setString(6, Email.getText());
+                CustomerUpdate.setString(7, DonationsT.getText());
                 CustomerUpdate.setString(8, NameEditCustomer);
 
                 CustomerUpdate.execute();
@@ -840,7 +988,7 @@ public class AddCustomer extends JDialog {
                 //Uses string to create PreparedStatement that is filled with quantities from table.
                 UpdateOrderString = String.format("%s WHERE NAME = ?", UpdateOrderString);
                 PreparedStatement updateOrders = DbInt.getPrep(year, UpdateOrderString);
-                updateOrders.setString(1, Name.getText().toString());
+                updateOrders.setString(1, Name.getText());
                 for (int i = 0; i < ProductTable.getRowCount(); i++) {
                     updateOrders.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
 
@@ -856,179 +1004,8 @@ public class AddCustomer extends JDialog {
     }
 
     /**
-     * Takes a zipcode and returns the city and state of the customer.
+     * Gets info from Totals Table in current year
      *
-     * @param zipCode The Zipcode of the customer
-     * @return The City and state of the customer
-     * @throws IOException
-     */
-    public String getCityState(String zipCode) throws IOException {
-        //String AddressF = Address.replace(" ","+");
-        //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
-
-        //Defines connection
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        //Creates Response buffer for Web response
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        //Fill String buffer with response
-        while ((inputLine = in.readLine()) != null) {
-            //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-            //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-            response.append(inputLine);
-        }
-        in.close();
-
-
-        String city = "";
-        String State = "";
-
-        //Parses XML response and fills City and State Variables
-        try {
-            InputSource is = new InputSource(new StringReader(response.toString()));
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
-
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-            NodeList nList = doc.getElementsByTagName("place");
-
-
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                Node nNode = nList.item(temp);
-
-
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element eElement = (Element) nNode;
-
-
-                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
-
-                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //Formats City and state into one string to return
-        String fullName = city.concat("&");
-        fullName = fullName.concat(State);
-        //print result
-        //	return parseCoords(response.toString());
-        return fullName;
-    }
-
-    public String[] getAddress(String Address) throws IOException {
-        String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", AddressF);
-
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-            //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-            response.append(inputLine);
-        }
-        in.close();
-
-        Object[] coords = new Object[2];
-        String city = "";
-        String State = "";
-        String zipCode = "";
-        String hN = "";
-        String strt = "";
-        String srtAdd = "";
-        //String city = "";
-        try {
-            InputSource is = new InputSource(new StringReader(response.toString()));
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
-
-            //optional, but recommended
-            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-            NodeList nList = doc.getElementsByTagName("place");
-
-
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                Node nNode = nList.item(temp);
-
-
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element eElement = (Element) nNode;
-
-
-                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
-                    zipCode = eElement.getElementsByTagName("postcode").item(0).getTextContent();
-                    hN = eElement.getElementsByTagName("house_number").item(0).getTextContent();
-                    strt = eElement.getElementsByTagName("road").item(0).getTextContent();
-
-
-                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String fullName = city.concat("&");
-        fullName = fullName.concat(State);
-        //print result
-        //	return parseCoords(response.toString());
-        String[] address = new String[4];
-        address[0] = city;
-        address[1] = State;
-        address[2] = zipCode;
-        address[3] = hN + " " + strt;
-        return address;
-    }
-
-
-    /** Gets info from Totals Table in current year
      * @param info the info to be gotten
      * @return THe info to be wanten
      */
@@ -1057,6 +1034,7 @@ public class AddCustomer extends JDialog {
 
     /**
      * Gets the Total Donations Using getTots Function
+     *
      * @return The total donation amount
      */
     private String getDonations() {
@@ -1065,6 +1043,7 @@ public class AddCustomer extends JDialog {
 
     /**
      * Gets the Total Lawn ANd Garden quantities Using getTots Function
+     *
      * @return The total Lawn ANd Garden quantities amount
      */
     private String getLG() {
@@ -1073,6 +1052,7 @@ public class AddCustomer extends JDialog {
 
     /**
      * Gets the Total Live Plants quantities Using getTots Function
+     *
      * @return The total Live Plants quantities amount
      */
     private String getLP() {
@@ -1081,14 +1061,27 @@ public class AddCustomer extends JDialog {
 
     /**
      * Gets the Total Mulch quantities Using getTots Function
+     *
      * @return The total Mulch quantities amount
      */
     private String getMulch() {
         return getTots("MULCH");
     }
 
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    /**
+//     * Gets the Total Commissions Using getTots Function
+//     *
+//     * @return The total Commissions amount
+//     */
+//    private String getCommis() {
+//        return getTots("COMMISSIONS");
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
+
     /**
      * Gets the order Total Using getTots Function
+     *
      * @return The Order total amount
      */
     private String getOT() {
@@ -1097,18 +1090,11 @@ public class AddCustomer extends JDialog {
 
     /**
      * Gets the Total Customer Using getTots Function
+     *
      * @return The total amount of Customers
      */
     private String getCustomers() {
         return getTots("CUSTOMERS");
-    }
-
-    /**
-     * Gets the Total Commissions Using getTots Function
-     * @return The total Commissions amount
-     */
-    private String getCommis() {
-        return getTots("COMMISSIONS");
     }
 
     /**
@@ -1120,8 +1106,9 @@ public class AddCustomer extends JDialog {
         return getTots("GRANDTOTAL");
     }
 
-
-    /**Loops through Table to get total amount of Bulk Mulch ordered.
+    /**
+     * Loops through Table to get total amount of Bulk Mulch ordered.
+     *
      * @return The amount of Bulk mulch ordered
      */
     private double getMulchOrdered() {
@@ -1129,7 +1116,7 @@ public class AddCustomer extends JDialog {
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if (ProductTable.getModel().getValueAt(i, 1).toString().contains("Mulch")) {
                 if (ProductTable.getModel().getValueAt(i, 1).toString().contains("Bulk")) {
-                    quant = quant + Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                    quant += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
                 }
             }
         }
@@ -1138,82 +1125,57 @@ public class AddCustomer extends JDialog {
 
     }
 
-
-    /**Loops through Table to get total amount of Lawn and Garden Products ordered.
+    /**
+     * Loops through Table to get total amount of Lawn and Garden Products ordered.
+     *
      * @return The amount of Lawn and Garden Products ordered
      */
     private double getLpOrdered() {
         double lp = 0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-P")) {
-                lp = lp + Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                lp += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
 
             }
         }
         return lp;
     }
 
-    /**Loops through Table to get total amount of Live Plants ordered.
+    /**
+     * Loops through Table to get total amount of Live Plants ordered.
+     *
      * @return The amount of Live Plants ordered
      */
     private double getLgOrdered() {
         double lg = 0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-L")) {
-                lg = lg + Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                lg += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
 
             }
         }
         return lg;
     }
 
-    /** Calculates the amount of commission to be earned.
-     * @param tcost the Sub total for all orders
-     * @return
-     */
-    private double getCommission(double tcost) {
-        double comm = 0;
-        if (tcost > 299.99) {
-            if (tcost < 500.01) {
-                comm = tcost * 0.05;
-            }
-            if (tcost > 500.01) {
-                if (tcost < 1000.99) {
-                    comm = tcost * 0.1;
-                }
-
-            }
-            if (tcost >= 1001) {
-                comm = tcost * 0.15;
-            }
-        }
-        return comm;
-
-    }
-
-    private boolean infoEntered() {
-        //TODO Prevent OK == order
-        return true;
-    }
     /**
      * Updates the totals tables
      */
     private void updateTots() {
-        /**
-         * get current totals
-         * add to them
-         * update
-         *
+        /*
+          get current totals
+          add to them
+          update
+
          */
         try {
             if (!edit) {
-                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText().toString()) - donationOr);
+                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
                 Double Lg = Double.parseDouble(getLG()) + getLgOrdered();
                 Double LP = Double.parseDouble(getLP()) + getLpOrdered();
                 Double Mulch = Double.parseDouble(getMulch()) + getMulchOrdered();
                 Double OT = Double.parseDouble(getOT()) + totalCostFinal;
                 Double Customers = Double.parseDouble(getCustomers()) + 1;
-                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText().toString()) - donationOr);
+                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
 
                 Double Commis = getCommission(GTot);
 
@@ -1231,13 +1193,13 @@ public class AddCustomer extends JDialog {
                 //////DbInt.pCon.close();
 
             } else if (edit) {
-                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText().toString()) - donationOr);
+                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
                 Double Lg = Double.parseDouble(getLG()) + (getLgOrdered() - lgOr);
                 Double LP = Double.parseDouble(getLP()) + (getLpOrdered() - lpOr);
                 Double Mulch = Double.parseDouble(getMulch()) + (getMulchOrdered() - mulchOr);
                 Double OT = Double.parseDouble(getOT()) + (totalCostFinal - totalCostTOr);
                 Double Customers = Double.parseDouble(getCustomers());
-                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText().toString()) - donationOr);
+                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
 
                 Double Commis = getCommission(GTot);
                 PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)");
@@ -1258,36 +1220,65 @@ public class AddCustomer extends JDialog {
         }
     }
 
-    class MyDocumentListener implements DocumentListener {
-        final String newline = "\n";
+    private static class MyJTable extends JTable {
+    }
 
+    private static class MyDefaultTableModel extends DefaultTableModel {
+
+        final boolean[] columnEditables;
+
+        public MyDefaultTableModel(Object[][] rows) {
+            super(rows, new String[]{
+                    "ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
+            });
+            columnEditables = new boolean[]{
+                    false, false, false, false, true, false
+            };
+        }
+
+        public boolean isCellEditable(int row, int column) {
+            return columnEditables[column];
+        }
+    }
+
+    static class MyDocumentListener implements DocumentListener {
+        // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";
+
+        @Override
         public void insertUpdate(DocumentEvent e) {
-            updateLog(e, "inserted into");
+            updateLog();
         }
 
+        @Override
         public void removeUpdate(DocumentEvent e) {
-            updateLog(e, "removed from");
+            updateLog();
         }
 
+        @Override
         public void changedUpdate(DocumentEvent e) {
             //Plain text components don't fire these events.
         }
 
-        public void updateLog(DocumentEvent e, String action) {
+        public void updateLog() {
 
         }
     }
 
-    class MyTextActionListener implements ActionListener {
+    private class MyTextActionListener implements ActionListener {
         /**
          * Handle the text field Return.
          */
+        @Override
         public void actionPerformed(ActionEvent e) {
-            String zip = ZipCode.getText().toString();
+            String zip = ZipCode.getText();
             if (zip.length() > 4) {
                 String FullName = "";
                 try {
                     FullName = getCityState(zip);
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (ProtocolException e1) {
+                    e1.printStackTrace();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

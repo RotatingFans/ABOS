@@ -1,27 +1,25 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //TODO figure out use of this class
-public class OrderTotals {
+class OrderTotals {
 
-    public String year = Year.year;
+    private final String year = Year.year;
     private JFrame frame;
     private JTable table;
-    private double QuantL = 0;
-    private double totL = 0;
-    private String name;
+    private double QuantL = 0.0;
+    private double totL = 0.0;
+    // --Commented out by Inspection (12/31/15 1:42 PM):private String name;
 
     /**
      * Create the application.
      */
-    public OrderTotals() {
+    private OrderTotals() {
         initialize();
     }
 
@@ -29,14 +27,12 @@ public class OrderTotals {
      * Launch the application.
      */
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    OrderTotals window = new OrderTotals();
-                    window.frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        EventQueue.invokeLater(() -> {
+            try {
+                OrderTotals window = new OrderTotals();
+                window.frame.setVisible(true);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -113,14 +109,10 @@ public class OrderTotals {
         frame.getContentPane().add(CommisL);
 
         JButton button = new JButton("Refresh");
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                initialize();
-            }
-        });
+        button.addActionListener(e -> initialize());
         button.setBounds(608, 21, 89, 23);
         frame.getContentPane().add(button);
-        this.frame.setVisible(true);
+        frame.setVisible(true);
     }
 
     private String getTots(String info) {
@@ -128,7 +120,6 @@ public class OrderTotals {
 
         PreparedStatement prep = DbInt.getPrep(year, "SELECT TOTALS.* FROM TOTALS");
         try {
-
 
 
             ResultSet rs = prep.executeQuery();
@@ -186,14 +177,13 @@ public class OrderTotals {
         Statement st = null;
         ResultSet Order = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), year);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), year);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
-        DefaultTableModel model;
+                Config.getDbLoc());
+
         int colO = DbInt.getNoCol(year, "ORDERS") - 2;
-        final Object[][] rowData = new Object[colO][4];
-        final Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
+        Object[][] rowData = new Object[colO][4];
+        Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
 
         int noVRows = 0;
         int n = 0;
@@ -221,23 +211,22 @@ public class OrderTotals {
                         double quantityD = Double.parseDouble(quantity);
 
                         double TPrice = UnitD * quantityD;
-                        totL = totL + TPrice;
-                        QuantL = QuantL + quantityD;
+                        totL += TPrice;
+                        QuantL += quantityD;
 
                         rowData[noVRows][0] = product;
                         rowData[noVRows][1] = Unit;
                         rowData[noVRows][2] = quantity;
                         rowData[noVRows][3] = TPrice;
-                        noVRows = noVRows + 1;
+                        noVRows += 1;
 
                     }
-                    n = n + 1;
+                    n += 1;
                 } else {
                     noVRows = 0;
                     for (int c = 3; c <= columnsNumber; c++) {
 
                         ArrayList<String> productL = getOrders("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        String product = productL.get(productL.size() - 1);
                         ArrayList<String> UnitL = getOrders("UNIT", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String Unit = UnitL.get(productL.size() - 1);
                         String quantity = Order.getString(c);
@@ -245,13 +234,13 @@ public class OrderTotals {
                         double quantityD = Double.parseDouble(quantity);
 
                         double TPrice = UnitD * quantityD;
-                        totL = totL + TPrice;
-                        QuantL = QuantL + quantityD;
+                        totL += TPrice;
+                        QuantL += quantityD;
 
 
                         rowData[noVRows][2] = Double.parseDouble(rowData[noVRows][2].toString()) + quantityD;
                         rowData[noVRows][3] = Double.parseDouble(rowData[noVRows][3].toString()) + TPrice;
-                        noVRows = noVRows + 1;
+                        noVRows += 1;
 
                     }
                 }
@@ -262,8 +251,8 @@ public class OrderTotals {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -277,15 +266,12 @@ public class OrderTotals {
             try {
                 if (Order != null) {
                     Order.close();
-                    Order = null;
                 }
                 if (st != null) {
                     st.close();
-                    st = null;
                 }
                 if (con != null) {
                     con.close();
-                    con = null;
                 }
 
             } catch (SQLException ex) {
@@ -295,8 +281,8 @@ public class OrderTotals {
         }
 
 
-        final Object[][] rowDataF = new Object[noVRows][4];
-        for (int i = 0; i <= noVRows - 1; i++) {
+        Object[][] rowDataF = new Object[noVRows][4];
+        for (int i = 0; i <= (noVRows - 1); i++) {
             rowDataF[i][0] = rowData[i][0];
             rowDataF[i][1] = rowData[i][1];
             rowDataF[i][2] = rowData[i][2];
@@ -312,7 +298,7 @@ public class OrderTotals {
     }
 
     private ArrayList<String> getOrders(String info, String PID) {
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
 
         PreparedStatement prep = DbInt.getPrep(year, "SELECT ? FROM PRODUCTS WHERE PID=?");
         try {

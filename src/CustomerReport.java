@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,49 +8,49 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 
-public class CustomerReport extends JDialog {
+class CustomerReport extends JDialog {
 
     //TODO Add Active search with only results shown
 
     //TODO FIND SPELLING errors
 
     //TODO ADD ERROR HANDLING
-    public static String year;
+    public static String year = null;
+    //public String year;
+    private final String name;
     private JFrame frame;
     private JTable table;
-    //public String year;
-    private String name;
     private JTextField textField;
-    private double QuantL = 0;
-    private double totL = 0;
+    private double QuantL = 0.0;
+    private double totL = 0.0;
     private JLabel QuantityL;
     private JLabel TotL;
 
     /**
      * Create the application.
      */
-    public CustomerReport(String Name, String Year) {
+    CustomerReport(String Name, String Year) {
         year = Year;
         name = Name;
         initialize();
-        this.frame.setVisible(true);
+        frame.setVisible(true);
     }
 
-    /**
-     * Launch the application.
-     */
-    public static void main(final String Name, final String Year, String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    CustomerReport window = new CustomerReport(Name, Year);
-                    window.frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    /**
+//     * Launch the application.
+//     */
+//    public static void main(final String Name, final String Year, String[] args) {
+//        EventQueue.invokeLater(() -> {
+//            try {
+//                CustomerReport window = new CustomerReport(Name, Year);
+//                window.frame.setVisible(true);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
 
     /**
      * Initialize the contents of the frame.
@@ -155,21 +153,15 @@ public class CustomerReport extends JDialog {
 
 
             JButton btnNewButton_1 = new JButton("Edit");
-            btnNewButton_1.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    new AddCustomer(name);
-                }
-            });
+            btnNewButton_1.addActionListener(e -> new AddCustomer(name));
             //btnNewButton_1.setBounds(193, 0, 120, 42);
             north.add(btnNewButton_1);
 
             JButton btnNewButton_2 = new JButton("Refresh");
-            btnNewButton_2.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    frame.setVisible(false);
-                    new CustomerReport(name, year).setVisible(true);
-                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-                }
+            btnNewButton_2.addActionListener(e -> {
+                frame.setVisible(false);
+                new CustomerReport(name, year).setVisible(true);
+                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             });
             //	btnNewButton_2.setBounds(340, 0, 73, 38);
             north.add(btnNewButton_2);
@@ -180,13 +172,11 @@ public class CustomerReport extends JDialog {
             textField.setColumns(10);
 
             JButton btnNewButton = new JButton("Search");
-            btnNewButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    for (int i = 0; i < table.getRowCount(); i++) {
+            btnNewButton.addActionListener(e -> {
+                for (int i = 0; i < table.getRowCount(); i++) {
 
-                        if (textField.getText().toString().contains((CharSequence) table.getModel().getValueAt(i, 0))) {
-                            table.setRowSelectionInterval(i, i);
-                        }
+                    if (textField.getText().contains((CharSequence) table.getModel().getValueAt(i, 0))) {
+                        table.setRowSelectionInterval(i, i);
                     }
                 }
             });
@@ -206,25 +196,18 @@ public class CustomerReport extends JDialog {
             scrollPane.setViewportView(table);
         }
         //South/Button Pane
-        {
-            JPanel buttonPane = new JPanel();
-            buttonPane.setLayout(new FlowLayout(FlowLayout.LEFT));
-            frame.getContentPane().add(buttonPane, BorderLayout.SOUTH);
-            {
-                JButton okButton = new JButton("OK");
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout(FlowLayout.LEFT));
+        frame.getContentPane().add(buttonPane, BorderLayout.SOUTH);
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(e -> {
 
-                        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-                        //frame.dispose();
-                    }
-                });
-                okButton.setActionCommand("OK");
-                buttonPane.add(okButton);
-                frame.getRootPane().setDefaultButton(okButton);
-            }
-
-        }
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            //frame.dispose();
+        });
+        okButton.setActionCommand("OK");
+        buttonPane.add(okButton);
+        frame.getRootPane().setDefaultButton(okButton);
 
 
     }
@@ -257,15 +240,15 @@ public class CustomerReport extends JDialog {
     private void fillTable() {
 
         //Variables for inserting info into table
-        String toGet[] = {"PNAME", "SIZE", "UNIT"};
-        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        String[] toGet = {"PNAME", "SIZE", "UNIT"};
+        ArrayList<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");//Get a prepared statement to retrieve data
 
         try {
             //Run through Data set and add info to ProductInfoArray
             ResultSet ProductInfoResultSet = prep.executeQuery();
             for (int i = 0; i < 3; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -279,7 +262,6 @@ public class CustomerReport extends JDialog {
 
             //Close prepared statement
             ProductInfoResultSet.close();
-            ProductInfoResultSet = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -292,15 +274,14 @@ public class CustomerReport extends JDialog {
         Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
 
 
-
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
         //Defines Arraylist of order quanitities
-        ArrayList<String> OrderQuantities = new ArrayList<String>();
+        ArrayList<String> OrderQuantities = new ArrayList<>();
         int noVRows = 0;
         //Fills OrderQuantities Array
         for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
 
-            int quant = 0;
+            int quant;
             prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?");
             try {
 
@@ -331,14 +312,14 @@ public class CustomerReport extends JDialog {
                 rows[noVRows][3] = quant;
                 rows[noVRows][4] = quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", ""));
                 QuantL = quant + QuantL;
-                totL = totL + (quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", "")));
+                totL += (quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", "")));
                 noVRows++;
 
             }
         }
         //Re create rows to remove blank rows
-        final Object[][] rowDataF = new Object[noVRows][5];
-        for (int i = 0; i <= noVRows - 1; i++) {
+        Object[][] rowDataF = new Object[noVRows][5];
+        for (int i = 0; i <= (noVRows - 1); i++) {
             rowDataF[i][0] = rows[i][0];
             rowDataF[i][1] = rows[i][1];
             rowDataF[i][2] = rows[i][2];
@@ -350,30 +331,37 @@ public class CustomerReport extends JDialog {
 
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
         table = new JTable();
-        table.setModel(new DefaultTableModel(
-                rowDataF,
-                new String[]{
-                        "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-                }
-        ) {
-
-            boolean[] columnEditables = new boolean[]{
-                    false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        });
+        table.setModel(new MyDefaultTableModel(rowDataF));
         table.setFillsViewportHeight(true);
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
 
     }
 
-    public void setTable(JTable table) {
-        this.table = table;
+    private static class MyDefaultTableModel extends DefaultTableModel {
+
+        final boolean[] columnEditables;
+
+        public MyDefaultTableModel(Object[][] rowDataF) {
+            super(rowDataF, new String[]{
+                    "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
+            });
+            columnEditables = new boolean[]{
+                    false, false, false, false, false
+            };
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return columnEditables[column];
+        }
     }
+
+// --Commented out by Inspection START (12/31/15 1:42 PM):
+//    public void setTable(JTable table) {
+//        this.table = table;
+//    }
+// --Commented out by Inspection STOP (12/31/15 1:42 PM)
 
 
 }

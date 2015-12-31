@@ -1,14 +1,17 @@
-/**
- * Created by patrick on 4/16/15.
+/*
+  Created by patrick on 4/16/15.
  */
 
 import java.io.*;
 import java.util.Properties;
 
-public class Config {
+class Config {
 
 
-    public boolean doesConfExist() {
+    private Config() {
+    }
+
+    public static boolean doesConfExist() {
         Properties prop = new Properties();
         InputStream input = null;
         boolean loc = false;
@@ -23,8 +26,10 @@ public class Config {
             //loc = prop.getProperty("databaseLocation");
 
 
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException ex) {
-            if (ex.getMessage().equals("LGconfig.properties (No such file or directory)")) {
+            if ("LGconfig.properties (No such file or directory)".equals(ex.getMessage())) {
                 return false;
             } else {
                 ex.printStackTrace();
@@ -50,7 +55,7 @@ public class Config {
         //return true;
     }
 
-    public String getDbLoc() {
+    public static String getDbLoc() {
         Properties prop = new Properties();
         InputStream input = null;
         String loc = "";
@@ -65,6 +70,8 @@ public class Config {
             loc = prop.getProperty("databaseLocation");
 
 
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -81,7 +88,7 @@ public class Config {
         return loc;
     }
 
-    public void setDbLoc(String Loc) {
+    public static void setDbLoc(String Loc) {
         Properties prop = new Properties();
         OutputStream output = null;
 
@@ -96,6 +103,8 @@ public class Config {
             // save properties to project root folder
             prop.store(output, null);
 
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException io) {
             io.printStackTrace();
         } finally {
