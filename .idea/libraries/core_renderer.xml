@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="core-renderer">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/core-renderer.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

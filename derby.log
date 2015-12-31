@@ -1,13 +1,26 @@
 ----------------------------------------------------------------
-Thu Dec 24 13:32:51 EST 2015:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0151-d543-d5ed-000014a0ef58 
-on database directory /home/patrick/Documents/yAY/Set with class loader sun.misc.Launcher$AppClassLoader@5e2de80c 
-Loaded from file:/mnt/CE48CFB148CF969D/Development/LG/Source/LG/derby.jar
+Wed Dec 30 20:06:35 EST 2015:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0151-f592-752e-0000006665c8 
+on database directory C:\Users\Patrick\Documents\DB\Set with class loader sun.misc.Launcher$AppClassLoader@a987ac 
+Loaded from file:/C:/Development/IDEA/LG/derby.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_66-internal-b17
-user.dir=/mnt/CE48CFB148CF969D/Development/LG/Source/LG
-os.name=Linux
-os.arch=amd64
-os.version=4.2.0-22-generic
-derby.system.home=/home/patrick/Documents/yAY
+java.runtime.version=1.8.0_66-b18
+user.dir=C:\Development\IDEA\LG
+os.name=Windows 10
+os.arch=x86
+os.version=10.0
+derby.system.home=C:\Users\Patrick\Documents\DB
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Wed Dec 30 20:07:09 EST 2015:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 08264012-0151-f592-752e-0000006665c8 
+on database directory C:\Users\Patrick\Documents\DB\2015 with class loader sun.misc.Launcher$AppClassLoader@a987ac 
+Loaded from file:/C:/Development/IDEA/LG/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_66-b18
+user.dir=C:\Development\IDEA\LG
+os.name=Windows 10
+os.arch=x86
+os.version=10.0
+derby.system.home=C:\Users\Patrick\Documents\DB
 Database Class Loader started - derby.database.classpath=''

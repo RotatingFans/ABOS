@@ -21,5 +21,9 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="saxon9he" level="project" />
+    <orderEntry type="library" name="fop" level="project" />
+    <orderEntry type="library" name="iText-2.0.8" level="project" />
+    <orderEntry type="library" name="core-renderer" level="project" />
   </component>
 </module>
