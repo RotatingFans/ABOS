@@ -176,9 +176,9 @@ class OrderTotals {
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), year);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), year);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
 
         int colO = DbInt.getNoCol(year, "ORDERS") - 2;
         Object[][] rowData = new Object[colO][4];

@@ -28,9 +28,9 @@ class DbInt {
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
         List<String> res = new ArrayList<String>();
         command = command.replaceAll("''", "/0027");
 
@@ -112,22 +112,21 @@ class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
         try {
 
 
             pCon = DriverManager.getConnection(url);
             pCon.setAutoCommit(true);
-            try (PreparedStatement prep = pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-                // DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
                 //return rs;
 
 
-                return prep;
-        }
+            return pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
         } catch (SQLException ex) {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
@@ -176,9 +175,9 @@ class DbInt {
         int columnsNumber = 0;
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
         try (Connection con = DriverManager.getConnection(url);
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(String.format("SELECT * FROM %s", Table))) {
@@ -224,9 +223,9 @@ class DbInt {
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
         command.replaceAll("'", "/0027");
 
         try (Connection con = DriverManager.getConnection(url);
@@ -265,7 +264,7 @@ class DbInt {
     public static void createDb(String DB) {
 
 
-        String url = String.format("jdbc:derby:%s/%s;create=true", new Config().getDbLoc(), DB);//;create=true
+        String url = String.format("jdbc:derby:%s/%s;create=true", Config.getDbLoc(), DB);//;create=true
 
         try (Connection con = DriverManager.getConnection(url);
              Statement st = con.createStatement()) {

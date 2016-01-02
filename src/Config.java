@@ -8,9 +8,6 @@ import java.util.Properties;
 class Config {
 
 
-    private Config() {
-    }
-
     public static boolean doesConfExist() {
         Properties prop = new Properties();
         InputStream input = null;
@@ -70,8 +67,6 @@ class Config {
             loc = prop.getProperty("databaseLocation");
 
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -103,8 +98,6 @@ class Config {
             // save properties to project root folder
             prop.store(output, null);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException io) {
             io.printStackTrace();
         } finally {

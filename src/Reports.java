@@ -1,11 +1,15 @@
+import com.lowagie.text.DocumentException;
 import net.sf.saxon.s9api.*;
+import net.sf.saxon.s9api.Serializer.Property;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.tidy.Tidy;
-import org.xhtmlrenderer.simple.XHTMLPanel;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.resource.XMLResource;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,6 +19,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -39,13 +44,13 @@ import java.util.logging.Logger;
  */
 class Reports extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    private final JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
+    private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
     private JTabbedPane SteptabbedPane;
-    // --Commented out by Inspection (1/2/2016 12:01 PM):private JTextField DbLoc;
+    private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
     private JPanel ReportInfo;
-    private JComboBox cmbxReportType;
-    private JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
-    private JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
+    private JComboBox<Object> cmbxReportType;
     private JTextField scoutName;
     private JTextField scoutStAddr;
     private JTextField scoutZip;
@@ -53,14 +58,12 @@ class Reports extends JDialog {
     private JTextField scoutState;
     private JTextField scoutRank;
     private JTextField logoLoc;
-    private  XHTMLPanel preview;
     private String addrFormat = null;
-    private Object[][] rowDataF = new Object[0][];
     private double totL = 0.0;
     private double QuantL = 0.0;
     private String Splitting = "";
     private String repTitle = "";
-
+    private File xmlTempFile = null;
 
     private Reports() {
         initUI();
@@ -77,6 +80,179 @@ class Reports extends JDialog {
         }
     }
 
+    /**
+     * Get info on a product
+     *
+     * @param info the info to be retrieved
+     * @param PID  The ID of the product to get info for
+     * @return The info of the product specified
+     */
+    private static List<String> GetProductInfo(String info, String PID, String year) {
+        List<String> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")) {
+
+
+            prep.setString(1, PID);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret.add(rs.getString(info));
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    private static Iterable<String> getYears() {
+        Collection<String> ret = new ArrayList<>();
+        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
+             ResultSet rs = prep.executeQuery()) {
+
+
+            while (rs.next()) {
+
+                ret.add(rs.getString("YEARS"));
+
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return ret;
+    }
+
+    private static Iterable<String> getCustomers(String year) {
+        Collection<String> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+             ResultSet rs = prep.executeQuery()) {
+
+
+            while (rs.next()) {
+
+                ret.add(rs.getString("NAME"));
+
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return ret;
+    }
+
+    private static Iterable<String> getCustomers() {
+        Collection<String> ret = new ArrayList<>();
+        Iterable<String> years = getYears();
+        for (String year : years) {
+
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+                 ResultSet rs = prep.executeQuery()
+            ) {
+
+
+                while (rs.next()) {
+                    String name = rs.getString("NAME");
+                    if (!ret.contains(name)) {
+                        ret.add(name);
+                    }
+
+                }
+                ////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return ret;
+    }
+
+    private static String getCityState(String zipCode) throws IOException {
+        //String AddressF = Address.replace(" ","+");
+        //The URL for the MapquestAPI
+        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
+
+        //Defines connection
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+        //add request header
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+        String city = "";
+        String State = "";
+        //Creates Response buffer for Web response
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            //Fill String buffer with response
+            while ((inputLine = in.readLine()) != null) {
+                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
+                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
+                response.append(inputLine);
+            }
+
+
+            //Parses XML response and fills City and State Variables
+            InputSource is = new InputSource(new StringReader(response.toString()));
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(is);
+
+            doc.getDocumentElement().normalize();
+
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+            NodeList nList = doc.getElementsByTagName("place");
+
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+
+                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+
+
+                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
+                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
+
+
+                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+
+
+                }
+            }
+        } catch (ParserConfigurationException | IOException | SAXException | RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        //Formats City and state into one string to return
+        String fullName = city + '&';
+        fullName += State;
+        //print result
+        //	return parseCoords(response.toString());
+        return fullName;
+    }
+
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
         setSize(700, 500);
@@ -91,7 +267,7 @@ class Reports extends JDialog {
             {
                 JPanel ReportType = new JPanel(new FlowLayout());
                 {
-                    cmbxReportType = new JComboBox(new DefaultComboBoxModel<>());
+                    cmbxReportType = new JComboBox<>(new DefaultComboBoxModel<>());
                     cmbxReportType.addActionListener(actionEvent -> {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
 
@@ -121,13 +297,11 @@ class Reports extends JDialog {
                         Object selected = comboBox.getSelectedItem();
                         if (cmbxReportType.getSelectedIndex() == 2) {
                             if (cmbxYears.getSelectedItem() != "") {
-                                List<String> customersY = getCustomers(cmbxYears.getSelectedItem().toString());
+                                Iterable<String> customersY = getCustomers(cmbxYears.getSelectedItem().toString());
                                 cmbxCustomers.removeAllItems();
                                 cmbxCustomers.addItem("");
                                 cmbxCustomers.setSelectedItem("");
-                                for (String aCustomersY : customersY) {
-                                    cmbxCustomers.addItem(aCustomersY);
-                                }
+                                customersY.forEach(cmbxCustomers::addItem);
                                 cmbxCustomers.setEnabled(true);
                             }
                         } else if (cmbxYears.getSelectedItem() != "") {
@@ -202,8 +376,7 @@ class Reports extends JDialog {
             {
                 JPanel ReportPreview = new JPanel(new FlowLayout());
                 {
-                    preview  = new XHTMLPanel();
-                    ReportInfo.add(preview);
+
                 }
                 SteptabbedPane.addTab("Report Type", ReportPreview);
 
@@ -278,6 +451,7 @@ class Reports extends JDialog {
 
     private void convert() {
 
+
         try {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -318,7 +492,7 @@ class Reports extends JDialog {
                 // Logo elements
                 {
                     Element logo = doc.createElement("logo");
-                    logo.appendChild(doc.createTextNode(logoLoc.getText()));
+                    logo.appendChild(doc.createTextNode("file:///" + logoLoc.getText().replace("\\", "/")));
                     info.appendChild(logo);
                 }
                 // ReportTitle elements
@@ -363,6 +537,9 @@ class Reports extends JDialog {
                 }
             }
             switch (cmbxReportType.getSelectedItem().toString()) {
+//TODO Add Split by customer option
+                //TODO Fix GUI Sizing
+                //TODO Fix total cost box
 
                 case "Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString());
@@ -376,6 +553,7 @@ class Reports extends JDialog {
                         title.appendChild(doc.createTextNode(cmbxYears.getSelectedItem().toString()));
                         products.appendChild(title);
                     }
+                    double tCost = 0.0;
 
                     for (Object[] aRowDataF : rowDataF) {
                         {
@@ -409,9 +587,15 @@ class Reports extends JDialog {
                             {
                                 Element TotalCost = doc.createElement("TotalCost");
                                 TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                                tCost += Double.parseDouble(aRowDataF[5].toString());
                                 Product.appendChild(TotalCost);
                             }
                         }
+                    }
+                    {
+                        Element tCostE = doc.createElement("totalCost");
+                        tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                        products.appendChild(tCostE);
                     }
                 }
                 break;
@@ -427,6 +611,7 @@ class Reports extends JDialog {
                         title.appendChild(doc.createTextNode(cmbxYears.getSelectedItem().toString()));
                         products.appendChild(title);
                     }
+                    double tCost = 0.0;
 
                     for (Object[] aRowDataF : rowDataF) {
                         {
@@ -460,16 +645,22 @@ class Reports extends JDialog {
                             {
                                 Element TotalCost = doc.createElement("TotalCost");
                                 TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                                tCost += Double.parseDouble(aRowDataF[5].toString());
                                 Product.appendChild(TotalCost);
                             }
                         }
+                    }
+                    {
+                        Element tCostE = doc.createElement("totalCost");
+                        tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                        products.appendChild(tCostE);
                     }
                 }
                 break;
                 case "Customer All-time Totals":
                     String Qname = cmbxCustomers.getSelectedItem().toString();
                     Collection<String> customerYears = new ArrayList<>();
-                    List<String> years = getYears();
+                    Iterable<String> years = getYears();
                     for (String year : years) {
                         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE NAME=?")) {
 
@@ -478,55 +669,55 @@ class Reports extends JDialog {
 
                                 while (rs.next()) {
                                     customerYears.add(year);
+                                    //Product Elements
+                                    Element products = doc.createElement("customerYear");
+                                    rootElement.appendChild(products);
+                                    //YearTitle
                                     {
-                                        //Product Elements
-                                        Element products = doc.createElement("customerYear");
-                                        rootElement.appendChild(products);
-                                        //YearTitle
+                                        Element title = doc.createElement("title");
+                                        title.appendChild(doc.createTextNode(year));
+                                        products.appendChild(title);
+                                    }
+                                    fillTable(year, cmbxCustomers.getSelectedItem().toString());
+                                    double tCost = 0.0;
+                                    for (Object[] aRowDataF : rowDataF) {
+                                        Element Product = doc.createElement("Product");
+                                        products.appendChild(Product);
                                         {
-                                            Element title = doc.createElement("title");
-                                            title.appendChild(doc.createTextNode(year));
-                                            products.appendChild(title);
+                                            Element ID = doc.createElement("ID");
+                                            ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                                            Product.appendChild(ID);
                                         }
-                                        fillTable(year, cmbxCustomers.getSelectedItem().toString());
-
-                                        for (Object[] aRowDataF : rowDataF) {
-                                            {
-                                                Element Product = doc.createElement("Product");
-                                                products.appendChild(Product);
-                                                {
-                                                    Element ID = doc.createElement("ID");
-                                                    ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                                                    Product.appendChild(ID);
-                                                }
-                                                {
-                                                    Element Name = doc.createElement("Name");
-                                                    Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                                                    Product.appendChild(Name);
-                                                }
-                                                {
-                                                    Element Size = doc.createElement("Size");
-                                                    Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                                                    Product.appendChild(Size);
-                                                }
-                                                {
-                                                    Element UnitCost = doc.createElement("UnitCost");
-                                                    UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                                                    Product.appendChild(UnitCost);
-                                                }
-                                                {
-                                                    Element Quantity = doc.createElement("Quantity");
-                                                    Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                                                    Product.appendChild(Quantity);
-                                                }
-                                                {
-                                                    Element TotalCost = doc.createElement("TotalCost");
-                                                    TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                                    Product.appendChild(TotalCost);
-                                                }
-                                            }
+                                        {
+                                            Element Name = doc.createElement("Name");
+                                            Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                                            Product.appendChild(Name);
+                                        }
+                                        {
+                                            Element Size = doc.createElement("Size");
+                                            Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                                            Product.appendChild(Size);
+                                        }
+                                        {
+                                            Element UnitCost = doc.createElement("UnitCost");
+                                            UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                                            Product.appendChild(UnitCost);
+                                        }
+                                        {
+                                            Element Quantity = doc.createElement("Quantity");
+                                            Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                                            Product.appendChild(Quantity);
+                                        }
+                                        {
+                                            Element TotalCost = doc.createElement("TotalCost");
+                                            TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                                            tCost += Double.parseDouble(aRowDataF[5].toString());
+                                            Product.appendChild(TotalCost);
                                         }
                                     }
+                                    Element tCostE = doc.createElement("totalCost");
+                                    tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                                    products.appendChild(tCostE);
 
                                 }
                             }
@@ -542,7 +733,6 @@ class Reports extends JDialog {
             OutputStreamWriter osw = null;
 
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-
                 osw = new OutputStreamWriter(baos);
 
                 TransformerFactory tranFactory = TransformerFactory.newInstance();
@@ -556,13 +746,14 @@ class Reports extends JDialog {
                 aTransformer.transform(src, result);
 
                 osw.flush();
-                System.out.println(new String(baos.toByteArray()));
 
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
                 String tmpDirectoryOp = System.getProperty("java.io.tmpdir");
                 File tmpDirectory = new File(tmpDirectoryOp);
-                File fstream = File.createTempFile("LGReport" + timeStamp, ".xml", tmpDirectory);
-                try (OutputStream outStream = new FileOutputStream(fstream)) {// writing bytes in to byte output stream
+                xmlTempFile = File.createTempFile("LGReport" + timeStamp, ".xml", tmpDirectory);
+                xmlTempFile.deleteOnExit();
+
+                try (OutputStream outStream = new FileOutputStream(xmlTempFile)) {// writing bytes in to byte output stream
 
                     baos.writeTo(outStream);
                     //fstream.deleteOnExit();
@@ -576,8 +767,10 @@ class Reports extends JDialog {
                 exp.printStackTrace();
             } finally {
                 try {
-                    osw.close();
-                } catch (IOException e) {
+                    if (osw != null) {
+                        osw.close();
+                    }
+                } catch (IOException | RuntimeException e) {
                     e.printStackTrace();
                 }
 
@@ -593,14 +786,15 @@ class Reports extends JDialog {
 
         //Variables for inserting info into table
         String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
-        List<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        List<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
              ResultSet ProductInfoResultSet = prep.executeQuery()) {
             //Run through Data set and add info to ProductInfoArray
+
             for (int i = 0; i < 4; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -628,43 +822,40 @@ class Reports extends JDialog {
 
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
         //Defines Arraylist of order quanitities
-        List<String> OrderQuantities = new ArrayList<String>();
+        List<String> OrderQuantities = new ArrayList<>();
         int noVRows = 0;
         //Fills OrderQuantities Array
         for (int i = 0; i < ProductInfoArray.get(2).size(); i++) {
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?")
-            ) {
+            int quant;
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?")) {
 
                 //prep.setString(1, Integer.toString(i));
                 prep.setString(1, OrderID);
                 try (ResultSet rs = prep.executeQuery()) {
 
                     while (rs.next()) {
-
-                        OrderQuantities.add(rs.getString(Integer.toString(i)));
-
+                        DbInt.pCon.close();
                     }
                 }
-                ////DbInt.pCon.close();
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
             //Fills row array for table with info
-            int parseInt = Integer.parseInt(OrderQuantities.get(OrderQuantities.size() - 1));
+            quant = Integer.parseInt(OrderQuantities.get(OrderQuantities.size() - 1));
 
 
-            if (parseInt > 0) {
+            if (quant > 0) {
 
                 rows[noVRows][0] = ProductInfoArray.get(0).get(i);
                 rows[noVRows][1] = ProductInfoArray.get(1).get(i);
                 rows[noVRows][2] = ProductInfoArray.get(2).get(i);
                 rows[noVRows][3] = ProductInfoArray.get(3).get(i);
-                rows[noVRows][4] = parseInt;
-                rows[noVRows][5] = (double) parseInt * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
-                totL += ((double) parseInt * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", "")));
-                QuantL += (double) parseInt;
+                rows[noVRows][4] = quant;
+                rows[noVRows][5] = (double) quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
+                totL += ((double) quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", "")));
+                QuantL += (double) quant;
 
                 noVRows++;
 
@@ -692,25 +883,26 @@ class Reports extends JDialog {
 
             e.printStackTrace();
         }
+
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), year);
+        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), year);
         System.setProperty("derby.system.home",
-                new Config().getDbLoc());
+                Config.getDbLoc());
 
         int colO = DbInt.getNoCol(year, "ORDERS") - 2;
         Object[][] rowData = new Object[colO][6];
 
         int noRows = 0;
-
+        int productsNamed = 0;
         try (Connection con = DriverManager.getConnection(url);
              Statement st = con.createStatement();
-             ResultSet Order = st.executeQuery("SELECT * FROM ORDERS")) {
+             ResultSet Order = st.executeQuery("SELECT * FROM ORDERS")
+        ) {
 
 
             ResultSetMetaData rsmd = Order.getMetaData();
 
             int columnsNumber = rsmd.getColumnCount();
-            int productsNamed = 0;
             while (Order.next()) {
                 if (productsNamed == 0) {
                     //loop through columns
@@ -755,7 +947,7 @@ class Reports extends JDialog {
                         //Get Name of product
                         List<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1), year);
                         //Get unit cost of product
-                        List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1), year);
+                        java.util.List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1), year);
                         String Unit = UnitL.get(productL.size() - 1);
                         //Get Quantity ordered
                         String quantity = Order.getString(c);
@@ -780,8 +972,8 @@ class Reports extends JDialog {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
 
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
+            if ((ex.getErrorCode() == 50000)
+                    && "XJ015".equals(ex.getSQLState())) {
 
                 lgr.log(Level.INFO, "Derby shut down normally");
 
@@ -823,41 +1015,8 @@ class Reports extends JDialog {
 
     }
 
-    /**
-     * Get info on a product
-     *
-     * @param info the info to be retrieved
-     * @param PID  The ID of the product to get info for
-     * @return The info of the product specified
-     */
-    private List<String> GetProductInfo(String info, String PID, String year) {
-        List<String> ret = new ArrayList<String>();
-
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")
-        ) {
-
-
-            prep.setString(1, PID);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(rs.getString(info));
-
-                }
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
     private void updateCombos() {
-        List<String> years = getYears();
+        Iterable<String> years = getYears();
 
         switch (cmbxReportType.getSelectedItem().toString()) {
 
@@ -869,10 +1028,7 @@ class Reports extends JDialog {
                 cmbxYears.removeAllItems();
                 cmbxYears.addItem("");
                 cmbxYears.setSelectedItem("");
-                for (String year1 : years) {
-
-                    cmbxYears.addItem(year1);
-                }
+                years.forEach(cmbxYears::addItem);
 
                 break;
             case "Customer Year Totals":
@@ -884,9 +1040,7 @@ class Reports extends JDialog {
                 cmbxYears.removeAllItems();
                 cmbxYears.addItem("");
                 cmbxYears.setSelectedItem("");
-                for (String year : years) {
-                    cmbxYears.addItem(year);
-                }
+                years.forEach(cmbxYears::addItem);
 
                 break;
             case "Customer All-time Totals":
@@ -896,166 +1050,11 @@ class Reports extends JDialog {
                 cmbxCustomers.removeAllItems();
                 cmbxCustomers.addItem("");
                 cmbxCustomers.setSelectedItem("");
-                List<String> customers = getCustomers();
-                for (String customer : customers) {
-                    cmbxCustomers.addItem(customer);
-                }
+                Iterable<String> customers = getCustomers();
+                customers.forEach(cmbxCustomers::addItem);
                 break;
         }
     }
-
-    private List<String> getYears() {
-        List<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
-             ResultSet rs = prep.executeQuery()
-        ) {
-
-
-
-            while (rs.next()) {
-
-                ret.add(rs.getString("YEARS"));
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        return ret;
-    }
-
-    private List<String> getCustomers(String year) {
-        List<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
-             ResultSet rs = prep.executeQuery()
-        ) {
-
-
-
-            while (rs.next()) {
-
-                ret.add(rs.getString("NAME"));
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        return ret;
-    }
-
-    private List<String> getCustomers() {
-        List<String> ret = new ArrayList<>();
-        List<String> years = getYears();
-        for (String year : years) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
-                 ResultSet rs = prep.executeQuery()
-            ) {
-
-
-
-                while (rs.next()) {
-                    String name = rs.getString("NAME");
-                    if (!ret.contains(name)) {
-                        ret.add(name);
-                    }
-
-                }
-                ////DbInt.pCon.close();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        return ret;
-    }
-
-    private String getCityState(String zipCode) throws IOException {
-        //String AddressF = Address.replace(" ","+");
-        //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
-
-        //Defines connection
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        String city = "";
-        String State = "";
-        //Creates Response buffer for Web response
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            //Fill String buffer with response
-            while ((inputLine = in.readLine()) != null) {
-                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-                response.append(inputLine);
-            }
-
-
-            //Parses XML response and fills City and State Variables
-            try {
-                InputSource is = new InputSource(new StringReader(response.toString()));
-
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(is);
-
-                doc.getDocumentElement().normalize();
-
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-                NodeList nList = doc.getElementsByTagName("place");
-
-
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                    Node nNode = nList.item(temp);
-
-
-                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-                        Element eElement = (Element) nNode;
-
-
-                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
-
-                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        //Formats City and state into one string to return
-        String fullName = city + '&';
-        fullName += State;
-        //print result
-        //	return parseCoords(response.toString());
-        return fullName;
-    }
-
-// --Commented out by Inspection START (1/2/2016 12:01 PM):
-//    private void stuff() {
-//
-//    }
-// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
     private void transf() throws SaxonApiException {
         OutputStream os = new ByteArrayOutputStream();
@@ -1063,18 +1062,21 @@ class Reports extends JDialog {
         Processor proc = new Processor(false);
         XsltCompiler comp = proc.newXsltCompiler();
         XsltExecutable exp = comp.compile(new StreamSource(new File("Report.xsl")));
-        XdmNode source = proc.newDocumentBuilder().build(new StreamSource(new File("test.xml")));
+        XdmNode source = proc.newDocumentBuilder().build(new StreamSource(xmlTempFile));
         Serializer out = proc.newSerializer(os);
-        out.setOutputProperty(Serializer.Property.METHOD, "html");
-        out.setOutputProperty(Serializer.Property.INDENT, "yes");
+        out.setOutputProperty(Property.METHOD, "html");
+        out.setOutputProperty(Property.INDENT, "yes");
         XsltTransformer trans = exp.load();
         trans.setInitialContextNode(source);
         trans.setDestination(out);
         trans.transform();
-        ByteArrayOutputStream baos = (ByteArrayOutputStream) os;
+        ByteArrayOutputStream baos;
+        baos = (ByteArrayOutputStream) os;
+
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
         Tidy tidy = new Tidy(); // obtain a new Tidy instance
         // set desired config options using tidy setters
+        OutputStream osT = new ByteArrayOutputStream();
         tidy.setQuiet(true);
         tidy.setIndentContent(true);
         tidy.setDocType("loose");
@@ -1082,75 +1084,37 @@ class Reports extends JDialog {
         tidy.setFixUri(true);
         tidy.setShowWarnings(false);
         tidy.setEscapeCdata(true);
-        tidy.setMakeClean(true);
         tidy.setXHTML(true);
+        tidy.setInputEncoding("utf8");
+        tidy.setOutputEncoding("utf8");
+
+        FileOutputStream fos;
+        String fileNameWithPath = "PDF-XhtmlRendered.pdf";
         try {
-            String fileNameWithPath = "PDF-XhtmlRendered.pdf";
-            FileOutputStream fos = new FileOutputStream(fileNameWithPath);
+            fos = new FileOutputStream(fileNameWithPath);
 
-            tidy.parse(is, fos); // run tidy, providing an input and output streamp
+            tidy.parse(is, osT); // run tidy, providing an input and output streamp
+            ByteArrayOutputStream baosT;
+            baosT = (ByteArrayOutputStream) osT;
+            try (InputStream isT = new ByteArrayInputStream(baosT.toByteArray())) {
+                Document document = XMLResource.load(isT).getDocument();
 
-            //Document document = XMLResource.load(isT).getDocument();
-            preview.setDocument(new File(fileNameWithPath));
+                //preview.setDocument(document);
 
-        /*ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocument(document, null);
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocument(document, null);
 
-        renderer.layout();
-
+                renderer.layout();
 
 
-            renderer.createPDF(fos);
-            fos.close();*/
+                renderer.createPDF(fos);
+                fos.close();
+            }
 
-        } catch (Exception e) {
+        } catch (RuntimeException | IOException | DocumentException e) {
             e.printStackTrace();
         }
-        class MyDocumentListener implements DocumentListener {
-            // --Commented out by Inspection (1/2/2016 12:01 PM):final String newline = "\n";
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                updateLog("inserted into");
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                updateLog("removed from");
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                //Plain text components don't fire these events.
-            }
-
-            public void updateLog(String action) {
-
-            }
-        }
-
-        class MyTextActionListener implements ActionListener {
-            /**
-             * Handle the text field Return.
-             */
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String zip = scoutZip.getText();
-                if (zip.length() > 4) {
-                    String FullName = "";
-                    try {
-                        FullName = getCityState(zip);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                    String[] StateTown = FullName.split("&");
-                    String state = StateTown[1];
-                    String town = StateTown[0];
-                    scoutTown.setText(town);
-                    scoutState.setText(state);
-                }
-            }
-        }
         /*
           Compile and execute a simple transformation that applies a stylesheet to an input file,
           and serializing the result to an output file
@@ -1160,7 +1124,7 @@ class Reports extends JDialog {
     }
 
     static class MyDocumentListener implements DocumentListener {
-        // --Commented out by Inspection (1/2/2016 12:01 PM):final String newline = "\n";
+        // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";
 
         @Override
         public void insertUpdate(DocumentEvent e) {
@@ -1205,4 +1169,3 @@ class Reports extends JDialog {
         }
     }
 }
-

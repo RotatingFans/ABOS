@@ -547,7 +547,7 @@
     <inspection_tool class="InstanceofInterfaces" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="InstanceofThis" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="InstantiatingObjectToGetClassObject" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="InstantiationOfUtilityClass" enabled="true" level="INFO" enabled_by_default="true" />
+    <inspection_tool class="InstantiationOfUtilityClass" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="IntLiteralMayBeLongLiteral" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="IntegerDivisionInFloatingPointContext" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="IntegerMultiplicationImplicitCastToLong" enabled="true" level="INFO" enabled_by_default="true">
@@ -1085,7 +1085,7 @@
       <option name="m_minLength" value="4" />
       <option name="m_maxLength" value="32" />
     </inspection_tool>
-    <inspection_tool class="StaticMethodOnlyUsedInOneClass" enabled="true" level="INFO" enabled_by_default="true" />
+    <inspection_tool class="StaticMethodOnlyUsedInOneClass" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="StaticNonFinalField" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="StaticPseudoFunctionalStyleMethod" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="StaticSuite" enabled="true" level="INFO" enabled_by_default="true" />

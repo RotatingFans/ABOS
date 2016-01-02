@@ -84,7 +84,7 @@ class FirstStart extends JDialog {
                 buttonPane.add(cancelButton);
             }
             okButton.addActionListener(e -> {
-                new Config().setDbLoc(DbLoc.getText());
+                Config.setDbLoc(DbLoc.getText());
                 //Creates Set Database
                 //TODO allow to not create Db
                 //TODO remove writeData

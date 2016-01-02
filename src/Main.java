@@ -44,7 +44,7 @@ class Main extends JFrame {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        if (!new Config().doesConfExist()) {
+        if (!Config.doesConfExist()) {
             new FirstStart();
         }
         frame = new JFrame();
