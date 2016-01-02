@@ -1,11 +1,11 @@
-/**
- * Created by patrick on 4/16/15.
+/*
+  Created by patrick on 4/16/15.
  */
 
 import java.io.*;
 import java.util.Properties;
 
-public class Config {
+class Config {
 
 
     public boolean doesConfExist() {
@@ -23,6 +23,8 @@ public class Config {
             //loc = prop.getProperty("databaseLocation");
 
 
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException ex) {
             if (ex.getMessage().equals("LGconfig.properties (No such file or directory)")) {
                 return false;

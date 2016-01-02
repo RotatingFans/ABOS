@@ -11,22 +11,19 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
 /**
  * Created by patrick on 9/15/15.
  */
-public class CSV2XML extends JDialog {
+class CSV2XML extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    public String xmlFile;
+    private String xmlFile = null;
     private JTextField CsvLoc;
-    private JButton okButton;
-    private JButton cancelButton;
     private JTextField XmlLoc;
 
 
@@ -35,17 +32,12 @@ public class CSV2XML extends JDialog {
 
         initUI();
         setVisible(true);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
     }
 
-    public static void main(String[] args) {
-        try {
+    public static void main(String... args) {
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public String getXML() {
@@ -55,7 +47,7 @@ public class CSV2XML extends JDialog {
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
-        this.setModal(true);
+        setModal(true);
 
         setSize(450, 450);
         getContentPane().setLayout(new BorderLayout());
@@ -80,22 +72,20 @@ public class CSV2XML extends JDialog {
             {
                 JButton openFile = new JButton("...");
                 north.add(openFile);
-                openFile.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        //Creates JFileChooser to select a CSV file
-                        JFileChooser chooser = new JFileChooser();
+                openFile.addActionListener(e -> {
+                    //Creates JFileChooser to select a CSV file
+                    JFileChooser chooser = new JFileChooser();
 
 
-                        FileNameExtensionFilter filter = new FileNameExtensionFilter("Comma Seperated Value File", "csv");
-                        chooser.setFileFilter(filter);
-                        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                        int returnVal = chooser.showOpenDialog(CSV2XML.this);
-                        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                            CsvLoc.setText(chooser.getSelectedFile().getAbsolutePath());
-                        }
-
-
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Comma Seperated Value File", "csv");
+                    chooser.setFileFilter(filter);
+                    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    int returnVal = chooser.showOpenDialog(this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        CsvLoc.setText(chooser.getSelectedFile().getAbsolutePath());
                     }
+
+
                 });
             }
             north.setMinimumSize(north.getPreferredSize());
@@ -121,25 +111,23 @@ public class CSV2XML extends JDialog {
             {
                 JButton openFile = new JButton("...");
                 south.add(openFile);
-                openFile.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        //Creates a JFileChooser to select save location of XML file
-                        JFileChooser chooser = new JFileChooser();
-                        FileNameExtensionFilter filter = new FileNameExtensionFilter("XML File", "xml");
-                        chooser.setFileFilter(filter);
+                openFile.addActionListener(e -> {
+                    //Creates a JFileChooser to select save location of XML file
+                    JFileChooser chooser = new JFileChooser();
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("XML File", "xml");
+                    chooser.setFileFilter(filter);
 
-                        int returnVal = chooser.showSaveDialog(CSV2XML.this);
-                        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                            if (chooser.getSelectedFile().getName().endsWith(".xml")) {
-                                XmlLoc.setText(chooser.getSelectedFile().getAbsolutePath());
-                            } else {
-                                XmlLoc.setText(chooser.getSelectedFile().getAbsolutePath() + ".xml");
+                    int returnVal = chooser.showSaveDialog(this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        if (chooser.getSelectedFile().getName().endsWith(".xml")) {
+                            XmlLoc.setText(chooser.getSelectedFile().getAbsolutePath());
+                        } else {
+                            XmlLoc.setText(chooser.getSelectedFile().getAbsolutePath() + ".xml");
 
-                            }
                         }
-
-
                     }
+
+
                 });
             }
             south.setMinimumSize(south.getPreferredSize());
@@ -154,32 +142,28 @@ public class CSV2XML extends JDialog {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
+            JButton okButton;
             {
                 okButton = new JButton("OK");
 
                 buttonPane.add(okButton);
                 getRootPane().setDefaultButton(okButton);
             }
+            JButton cancelButton;
             {
                 cancelButton = new JButton("Cancel");
 
                 buttonPane.add(cancelButton);
             }
-            okButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+            okButton.addActionListener(e -> {
 
-                    convert();
-                    setVisible(false);
-                    dispose();
-                }
+                convert();
+                setVisible(false);
+                dispose();
             });
             okButton.setActionCommand("OK");
 
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-            });
+            cancelButton.addActionListener(e -> dispose());
             cancelButton.setActionCommand("Cancel");
         }
         setSize(((int) getContentPane().getPreferredSize().getWidth()), 150);
@@ -189,14 +173,13 @@ public class CSV2XML extends JDialog {
     /**
      * Converts the CSV to XML
      */
-    void convert() {
+    private void convert() {
         List<String> headers = new ArrayList<String>(5);
 
 
         File file = new File(CsvLoc.getText());
-        BufferedReader reader = null;
 
-        try {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
@@ -206,10 +189,9 @@ public class CSV2XML extends JDialog {
             Element rootElement = newDoc.createElement("LawnGarden");
             newDoc.appendChild(rootElement);
 
-            reader = new BufferedReader(new FileReader(file));
             int line = 0;
 
-            String text = null;
+            String text;
             while ((text = reader.readLine()) != null) {
 
                 StringTokenizer st = new StringTokenizer(text, ";", false);
@@ -218,16 +200,15 @@ public class CSV2XML extends JDialog {
                 while (st.hasMoreTokens()) {
 
                     String next = st.nextToken();
-                    rowValues[index++] = next;
+                    rowValues[index] = next;
+                    index++;
 
                 }
 
                 //String[] rowValues = text.split(",");
 
                 if (line == 0) { // Header row
-                    for (String col : rowValues) {
-                        headers.add(col);
-                    }
+                    Collections.addAll(headers, rowValues);
                 } else { // Data row
                     Element rowElement = newDoc.createElement("Products");
                     rootElement.appendChild(rowElement);
@@ -236,7 +217,7 @@ public class CSV2XML extends JDialog {
                     rowElement.setAttributeNode(attr);
                     for (int col = 0; col < headers.size(); col++) {
                         String header = headers.get(col);
-                        String value = null;
+                        String value;
 
                         if (col < rowValues.length) {
                             value = rowValues[col].trim();
@@ -253,11 +234,9 @@ public class CSV2XML extends JDialog {
                 line++;
             }
 
-            ByteArrayOutputStream baos = null;
             OutputStreamWriter osw = null;
 
-            try {
-                baos = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 osw = new OutputStreamWriter(baos);
 
                 TransformerFactory tranFactory = TransformerFactory.newInstance();
@@ -272,18 +251,13 @@ public class CSV2XML extends JDialog {
 
                 osw.flush();
                 System.out.println(new String(baos.toByteArray()));
-                OutputStream outStream = null;
 
-                try {
-                    outStream = new FileOutputStream(XmlLoc.getText());
-
-                    // writing bytes in to byte output stream
+                try (OutputStream outStream = new FileOutputStream(XmlLoc.getText())) {// writing bytes in to byte output stream
 
                     baos.writeTo(outStream);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
-                    outStream.close();
                     xmlFile = XmlLoc.getText();
                 }
 
@@ -293,12 +267,10 @@ public class CSV2XML extends JDialog {
             } finally {
                 try {
                     osw.close();
-                } catch (Exception e) {
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                try {
-                    baos.close();
-                } catch (Exception e) {
-                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

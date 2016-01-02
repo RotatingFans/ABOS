@@ -1,11 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 //TODO Improve color pallete and design
 //TODO Remove private info
 //TODO Add saved window
-public class Main extends JFrame {
+class Main extends JFrame {
 
     private JFrame frame;
     private JPanel panel_1;
@@ -22,23 +21,21 @@ public class Main extends JFrame {
     /**
      * Create the application.
      */
-    public Main() {
+    private Main() {
         initialize();
     }
 
     /**
      * Launch the application.
-     * @param args
+     * @param args command line arguments
      */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    Main window = new Main();
-                    window.frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    public static void main(String... args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                Main window = new Main();
+                window.frame.setVisible(true);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -65,46 +62,34 @@ public class Main extends JFrame {
         panel.setLayout(new FlowLayout());
 
         JButton btnNewButton = new JButton("Add Year");
-        btnNewButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new AddYear();
-            }
-        });
+        btnNewButton.addActionListener(e -> new AddYear());
         //btnNewButton.setBounds(429, 5, 107, 39);
         panel.add(btnNewButton);
 
         JButton AddCustomerB = new JButton("Add Customer");
-        AddCustomerB.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new AddCustomerNO();
-            }
-        });
+        AddCustomerB.addActionListener(e -> new AddCustomerNO());
         //AddCustomerB.setBounds(274, 5, 140, 39);
         panel.add(AddCustomerB);
 
         JButton ViewMap = new JButton("View Map");
-        ViewMap.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Map window = new Map();
-                window.setVisible(true);
-            }
+        ViewMap.addActionListener(e -> {
+            Map window = new Map();
+            window.setVisible(true);
         });
         //	ViewMap.setBounds(165, 5, 107, 39);
         panel.add(ViewMap);
         JButton refresh = new JButton("Refresh");
-        refresh.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //Refreshes the Window
-                panel_1.removeAll();
+        refresh.addActionListener(e -> {
+            //Refreshes the Window
+            panel_1.removeAll();
 
-                addYears();
+            addYears();
 
-                frame.invalidate();
-                frame.validate();
-                frame.repaint();
-                panel_1.repaint();
+            frame.invalidate();
+            frame.validate();
+            frame.repaint();
+            panel_1.repaint();
 
-            }
         });
         panel.add(refresh);
         panel_1 = new JPanel();
@@ -119,13 +104,13 @@ public class Main extends JFrame {
      * Adds the year buttons to the main panel.
      */
     private void addYears() {
-        ArrayList<String> ret = new ArrayList<String>();
+        Collection<String> ret = new ArrayList<String>();
         ///Select all years
-        PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
-        try {
+        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
+             ResultSet rs = prep.executeQuery()
+        ) {
 
 
-            ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
@@ -134,7 +119,6 @@ public class Main extends JFrame {
             }
 
             rs.close();
-            rs = null;
             if (DbInt.pCon != null) {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
@@ -142,18 +126,15 @@ public class Main extends JFrame {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        ArrayList<String> res = ret;
         //Create a button for each year
-        for (int i = 0; i < res.size(); i++) {
-            JButton b = new JButton(res.get(i));
-            b.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    //On button click open Year window
-                    new Year(((AbstractButton) e.getSource()).getText());
+        for (String aRet : ret) {
+            JButton b = new JButton(aRet);
+            b.addActionListener(e -> {
+                //On button click open Year window
+                new Year(((AbstractButton) e.getSource()).getText());
 
-                    System.out.print(((AbstractButton) e.getSource()).getText());
+                System.out.print(((AbstractButton) e.getSource()).getText());
 
-                }
             });
             panel_1.add(b);
         }

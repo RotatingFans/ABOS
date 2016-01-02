@@ -1,53 +1,54 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class Year extends JDialog {
+class Year extends JDialog {
 
     public static String year = "2015";
     private JFrame frame;
     private JTable table;
-    private double QuantL = 0;
-    private double totL = 0;
+    private double QuantL = 0.0;
+    private double totL = 0.0;
 
     /**
      * Create the application.
      *
-     * @param Years
+     * @param Years    The year to display
      */
     public Year(String Years) {
         year = Years;
         System.out.print(year);
         initialize();
-        this.frame.setVisible(true);
+        frame.setVisible(true);
 
 
     }
 
-    /**
-     * Launch the application.
-     */
-    public static void main(final String Years, String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    year = Years;
-                    Year window = new Year(Years);
-                    window.frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+// --Commented out by Inspection START (1/2/2016 12:01 PM):
+//    /**
+//     * Launch the application.
+//     */
+//    public static void main(String Years, String[] args) {
+//        EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    year = Years;
+//                    Year window = new Year(Years);
+//                    window.frame.setVisible(true);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
+// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
     /**
      * Initialize the contents of the frame.
@@ -56,18 +57,18 @@ public class Year extends JDialog {
         frame = new JFrame();
         frame.setBounds(100, 100, 750, 600);
 
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
 
 
         //West
         {
-            Font l = new Font("Tahoma", Font.PLAIN, 24);
             JPanel East = new JPanel();
             East.setLayout(new BoxLayout(East, BoxLayout.PAGE_AXIS));
 
 
             JLabel lblNewLabel = new JLabel("Donations");
+            Font l = new Font("Tahoma", Font.PLAIN, 24);
             lblNewLabel.setFont(l);
             //lblNewLabel.setBounds(16, 11, 97, 14);
             East.add(lblNewLabel);
@@ -168,22 +169,16 @@ public class Year extends JDialog {
             South.setSize(frame.getSize().width, frame.getSize().height / 3);
             JButton btnNewButton_1 = new JButton("Customers");
             //btnNewButton_1.setBounds(276, 232, 212, 247);
-            btnNewButton_1.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    new CustomerView();
-                }
-            });
+            btnNewButton_1.addActionListener(arg0 -> new CustomerView());
             South.add(btnNewButton_1);
 
 
             JButton btnRefresh = new JButton("Refresh");
-            btnRefresh.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    frame.setVisible(false);
-                    new Year(year).setVisible(true);
-                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            btnRefresh.addActionListener(e -> {
+                frame.setVisible(false);
+                new Year(year).setVisible(true);
+                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 
-                }
             });
             //btnRefresh.setBounds(628, 157, 89, 23);
             South.add(btnRefresh);
@@ -200,12 +195,12 @@ public class Year extends JDialog {
     private String getTots(String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
-        try {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
+             ResultSet rs = prep.executeQuery()
+        ) {
 
             //prep.setString(1, info);
 
-            ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
@@ -264,41 +259,35 @@ public class Year extends JDialog {
 
             e.printStackTrace();
         }
-        Connection con = null;
-        Statement st = null;
-        ResultSet Order = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), year);
         System.setProperty("derby.system.home",
                 new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
-        DefaultTableModel model;
+
         int colO = DbInt.getNoCol(year, "ORDERS") - 2;
-        final Object[][] rowData = new Object[colO][4];
-        final Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
+        Object[][] rowData = new Object[colO][4];
+        Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
 
         int noRows = 0;
-        int productsNamed = 0;
-        try {
 
-
-            con = DriverManager.getConnection(url);
-            st = con.createStatement();
-            Order = st.executeQuery("SELECT * FROM ORDERS");
+        try (Connection con = DriverManager.getConnection(url);
+             Statement st = con.createStatement();
+             ResultSet Order = st.executeQuery("SELECT * FROM ORDERS")) {
 
 
             ResultSetMetaData rsmd = Order.getMetaData();
 
             int columnsNumber = rsmd.getColumnCount();
+            int productsNamed = 0;
             while (Order.next()) {
                 if (productsNamed == 0) {
                     //loop through columns
                     for (int c = 3; c <= columnsNumber; c++) {
                         //Get Name of product
-                        ArrayList<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        List<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String product = productL.get(productL.size() - 1);
                         //Get unit cost of product
-                        ArrayList<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String Unit = UnitL.get(productL.size() - 1);
                         //Get Quantity ordered
                         String quantity = Order.getString(c);
@@ -306,27 +295,26 @@ public class Year extends JDialog {
                         double quantityD = Double.parseDouble(quantity);
                         //Calculate total price and overall Total
                         double TPrice = UnitD * quantityD;
-                        totL = totL + TPrice;
-                        QuantL = QuantL + quantityD;
+                        totL += TPrice;
+                        QuantL += quantityD;
 
                         rowData[noRows][0] = product;
                         rowData[noRows][1] = Unit;
                         rowData[noRows][2] = quantity;
                         rowData[noRows][3] = TPrice;
-                        noRows = noRows + 1;
+                        noRows += 1;
 
 
                     }
-                    productsNamed = productsNamed + 1;
+                    productsNamed += 1;
                 } else {
                     noRows = 0;
                     for (int c = 3; c <= columnsNumber; c++) {
 
                         //Get Name of product
-                        ArrayList<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        String product = productL.get(productL.size() - 1);
+                        List<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         //Get unit cost of product
-                        ArrayList<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
+                        java.util.List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
                         String Unit = UnitL.get(productL.size() - 1);
                         //Get Quantity ordered
                         String quantity = Order.getString(c);
@@ -334,13 +322,13 @@ public class Year extends JDialog {
                         double quantityD = Double.parseDouble(quantity);
                         //Calculate total price and overall Total
                         double TPrice = UnitD * quantityD;
-                        totL = totL + TPrice;
-                        QuantL = QuantL + quantityD;
+                        totL += TPrice;
+                        QuantL += quantityD;
 
 
                         rowData[noRows][2] = Double.parseDouble(rowData[noRows][2].toString()) + quantityD;
                         rowData[noRows][3] = Double.parseDouble(rowData[noRows][3].toString()) + TPrice;
-                        noRows = noRows + 1;
+                        noRows += 1;
 
                     }
                 }
@@ -361,33 +349,13 @@ public class Year extends JDialog {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-                if (Order != null) {
-                    Order.close();
-                    Order = null;
-                }
-                if (st != null) {
-                    st.close();
-                    st = null;
-                }
-                if (con != null) {
-                    con.close();
-                    con = null;
-                }
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
 
         //Limit array to only rows that have ordered stuff
-        final Object[][] rowDataExclude0 = new Object[noRows][4];
+        Object[][] rowDataExclude0 = new Object[noRows][4];
         int NumNonEmptyRows = 0;
-        for (int i = 0; i <= noRows - 1; i++) {
-            if (Double.parseDouble(rowData[i][2].toString()) > 0) {
+        for (int i = 0; i <= (noRows - 1); i++) {
+            if (Double.parseDouble(rowData[i][2].toString()) > 0.0) {
                 rowDataExclude0[NumNonEmptyRows][0] = rowData[i][0];
                 rowDataExclude0[NumNonEmptyRows][1] = rowData[i][1];
                 rowDataExclude0[NumNonEmptyRows][2] = rowData[i][2];
@@ -396,8 +364,8 @@ public class Year extends JDialog {
             }
         }
         //Only show non whitespace rows
-        final Object[][] rowDataFinal = new Object[noRows][4];
-        for (int i = 0; i <= NumNonEmptyRows - 1; i++) {
+        Object[][] rowDataFinal = new Object[noRows][4];
+        for (int i = 0; i <= (NumNonEmptyRows - 1); i++) {
 
             rowDataFinal[i][0] = rowDataExclude0[i][0];
             rowDataFinal[i][1] = rowDataExclude0[i][1];
@@ -423,21 +391,22 @@ public class Year extends JDialog {
      * @param PID  The ID of the product to get info for
      * @return The info of the product specified
      */
-    private ArrayList<String> GetProductInfo(String info, String PID) {
-        ArrayList<String> ret = new ArrayList<String>();
+    private List<String> GetProductInfo(String info, String PID) {
+        List<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?");
-        try {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")
+        ) {
 
 
             prep.setString(1, PID);
 
-            ResultSet rs = prep.executeQuery();
+            try (ResultSet rs = prep.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret.add(rs.getString(info));
+                    ret.add(rs.getString(info));
 
+                }
             }
             ////DbInt.pCon.close();
 

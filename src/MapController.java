@@ -8,7 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Abstract base class for all mouse controller implementations. For
@@ -22,45 +23,46 @@ import java.util.Iterator;
  *
  * @author Jan Peter Stotz
  */
-public class MapController implements MouseListener {
+class MapController extends MouseAdapter {
 
-    protected JMapViewer map;
-    protected Map m;
-    private Point lastDragPoint;
+    private JMapViewer map;
+    private Map m;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private Point lastDragPoint;
 
-    private boolean isMoving = false;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private boolean isMoving = false;
 
-    private boolean movementEnabled = true;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private boolean movementEnabled = true;
 
-    private int movementMouseButton = MouseEvent.BUTTON3;
-    private int movementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private int movementMouseButton = MouseEvent.BUTTON3;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private int movementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
 
-    private boolean wheelZoomEnabled = true;
-    private boolean doubleClickZoomEnabled = true;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private boolean wheelZoomEnabled = true;
 
     public MapController(JMapViewer map, Map m) {
         this.map = map;
         this.m = m;
-        if (this instanceof MouseListener)
+        if (this instanceof MouseListener) {
             map.addMouseListener(this);
-        if (this instanceof MouseWheelListener)
-            map.addMouseWheelListener((MouseWheelListener) this);
-        if (this instanceof MouseMotionListener)
-            map.addMouseMotionListener((MouseMotionListener) this);
+        }
+        if (this instanceof MouseWheelListener) {
+            map.addMouseWheelListener(this);
+        }
+        if (this instanceof MouseMotionListener) {
+            map.addMouseMotionListener(this);
+        }
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         //determine if a dot was clicked
-        if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
+        boolean doubleClickZoomEnabled = true;
+        if ((e.getClickCount() == 1) && (e.getButton() == MouseEvent.BUTTON1)) {
 
             Point p = e.getPoint();
             int X = p.x + 3;
             int Y = p.y + 3;
             java.util.List<MapMarker> ar = map.getMapMarkerList();
-            Iterator<MapMarker> i = ar.iterator();
-            while (i.hasNext()) {
-
-                MapMarker mapMarker = i.next();
+            for (MapMarker mapMarker : ar) {
 
                 Point MarkerPosition = map.getMapPosition(mapMarker.getLat(), mapMarker.getLon());
                 if (MarkerPosition != null) {
@@ -69,40 +71,40 @@ public class MapController implements MouseListener {
                     int centerY = MarkerPosition.y;
 
                     // calculate the radius from the touch to the center of the dot
-                    double radCircle = Math.sqrt((((centerX - X) * (centerX - X)) + (centerY - Y) * (centerY - Y)));
+                    double radCircle = Math.sqrt((double) (((centerX - X) * (centerX - X)) + ((centerY - Y) * (centerY - Y))));
 
-                    if (radCircle < 8) {
+                    if (radCircle < 8.0) {
 
                         Object[] cPoints = m.cPoints;
-                        for (int c = 0; c < cPoints.length; c++) {
-                            cPoint cP = (cPoint) cPoints[c];
+                        for (Object cPoint : cPoints) {
+                            cPoint cP = (cPoint) cPoint;
                             if (cP.getLat() == mapMarker.getLat()) {
                                 if (cP.getLon() == mapMarker.getLon()) {
-                                    System.out.println(mapMarker.toString() + " is clicked");
+                                    System.out.println(mapMarker + " is clicked");
                                     System.out.println(cP.getAddress());
                                     m.Address.setText(cP.getAddress());
 
-                                    ArrayList<String> o = getCustInfo("Set", "ORDERED", "ADDRESS", cP.getAddress());
+                                    List<String> o = getCustInfo("Set", "ORDERED", cP.getAddress());
                                     // m.Orders.setText(o.get(o.size() - 1).toString());
-                                    ArrayList<String> NI = getCustInfo("Set", "NI", "ADDRESS", cP.getAddress());
+                                    List<String> NI = getCustInfo("Set", "NI", cP.getAddress());
                                     //m.Orders.setText(NI.get(NI.size() - 1).toString());
-                                    ArrayList<String> NH = getCustInfo("Set", "NH", "ADDRESS", cP.getAddress());
+                                    List<String> NH = getCustInfo("Set", "NH", cP.getAddress());
 
-                                    if (o.get(o.size() - 1).toString().equals("True")) {
+                                    if (o.get(o.size() - 1).equals("True")) {
                                         m.OrderStat.setText("Has Ordered");
                                         /*Get info about customer that has clicked
                                         Display name Phone  Order status
                                         Creates a button for each ordered year to view more information
                                         */
-                                        final ArrayList<String> yearsD = DbInt.getData("Set", "SELECT YEARS From YEARS");
-                                        ArrayList<String> Name = new ArrayList<String>();
-                                        ArrayList<String> Phone = new ArrayList<String>();
-                                        ArrayList<String> Years = new ArrayList<String>();
+                                        List<String> yearsD = DbInt.getData("Set", "SELECT YEARS From YEARS");
+                                        List<String> Name = new ArrayList<String>();
+                                        List<String> Phone = new ArrayList<String>();
+                                        Collection<String> Years = new ArrayList<String>();
                                         for (int i1 = 0; i1 < yearsD.size(); i1++) {
-                                            final ArrayList<String> NameD = getCustInfo(yearsD.get(i1), "NAME", "ADDRESS", cP.getAddress());
-                                            if (NameD.size() > 0) {
+                                            List<String> NameD = getCustInfo(yearsD.get(i1), "NAME", cP.getAddress());
+                                            if (!NameD.isEmpty()) {
                                                 Name.add(NameD.get(NameD.size() - 1));
-                                                ArrayList<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", "ADDRESS", cP.getAddress());
+                                                List<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", cP.getAddress());
                                                 Phone.add(PhoneD.get(PhoneD.size() - 1));
                                                 Years.add(yearsD.get(i1));
                                                 if (m.infoPanel.getComponentCount() > 8) {
@@ -110,22 +112,18 @@ public class MapController implements MouseListener {
 
                                                 }
                                                 JButton b = new JButton(yearsD.get(i1));
-                                                final int finalI = i1;
-                                                b.addActionListener(new ActionListener() {
-                                                    public void actionPerformed(ActionEvent e) {
-                                                        new CustomerReport(NameD.get(NameD.size() - 1), yearsD.get(finalI));
-                                                    }
-                                                });
+                                                int finalI = i1;
+                                                b.addActionListener(e1 -> new CustomerReport(NameD.get(NameD.size() - 1), yearsD.get(finalI)));
                                                 m.infoPanel.add(b);
                                             }
                                         }
                                         m.name.setText(Name.get(Name.size() - 1));
                                         m.Phone.setText(Phone.get(Phone.size() - 1));
                                     }
-                                    if (NI.get(NI.size() - 1).toString().equals("True")) {
+                                    if (NI.get(NI.size() - 1).equals("True")) {
                                         m.OrderStat.setText("Not interested");
                                     }
-                                    if (NH.get(NH.size() - 1).toString().equals("True")) {
+                                    if (NH.get(NH.size() - 1).equals("True")) {
                                         m.OrderStat.setText("Not home");
                                     }
 
@@ -136,25 +134,26 @@ public class MapController implements MouseListener {
 
                 }
             }
-        } else if (doubleClickZoomEnabled && e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+        } else if (doubleClickZoomEnabled && (e.getClickCount() == 2) && (e.getButton() == MouseEvent.BUTTON1)) {
             map.zoomIn(e.getPoint());
         }
     }
 
-    private ArrayList<String> getCustInfo(String Db, String info, String where, String Address) {
-        ArrayList<String> ret = new ArrayList<String>();
+    private List<String> getCustInfo(String Db, String info, String Address) {
+        List<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM Customers WHERE ADDRESS=?");
-        try {
+
+        try (PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM Customers WHERE ADDRESS=?")) {
 
 
             prep.setString(1, Address);
-            ResultSet rs = prep.executeQuery();
+            try (ResultSet rs = prep.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret.add(rs.getString(info));
+                    ret.add(rs.getString(info));
 
+                }
             }
             ////DbInt.pCon.close();
 
@@ -164,23 +163,4 @@ public class MapController implements MouseListener {
         return ret;
     }
 
-    @Override
-    public void mousePressed(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent mouseEvent) {
-
-    }
 }

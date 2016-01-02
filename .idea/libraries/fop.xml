@@ -1,8 +1,6 @@
 <component name="libraryTable">
   <library name="fop">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/fop.jar!/" />
-    </CLASSES>
+    <CLASSES />
     <JAVADOC />
     <SOURCES />
   </library>

@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -10,26 +8,23 @@ import java.sql.SQLException;
  * Created by patrick on 4/11/15.
  */
 //TODO Move to AddCustomer Window
-public class AddCustomerNO extends JDialog {
+class AddCustomerNO extends JDialog {
     private final JPanel contentPanel = new JPanel();
     private JTextField Address;
     private JCheckBox NI;
     private JCheckBox NH;
-    private JCheckBox Donate;
-    private JButton okButton;
-    private JButton cancelButton;
 
     public AddCustomerNO() {
         initUI();
         setVisible(true);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         try {
             new AddCustomerNO();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
@@ -74,9 +69,9 @@ public class AddCustomerNO extends JDialog {
                 center.add(NH);
             }
             {
-                Donate = new JCheckBox("Gave Donation");
+                JCheckBox donate = new JCheckBox("Gave Donation");
                 // Donate.setBounds(280, 70, 150, 23);
-                center.add(Donate);
+                center.add(donate);
             }
             contentPanel.add(center, BorderLayout.CENTER);
         }
@@ -85,37 +80,32 @@ public class AddCustomerNO extends JDialog {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.AFTER_LAST_LINE);
+            JButton okButton;
             {
                 okButton = new JButton("OK");
 
                 buttonPane.add(okButton);
                 getRootPane().setDefaultButton(okButton);
             }
+            JButton cancelButton;
             {
                 cancelButton = new JButton("Cancel");
 
                 buttonPane.add(cancelButton);
             }
-            okButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    addCustomer();
-                    dispose();
-                }
+            okButton.addActionListener(e -> {
+                addCustomer();
+                dispose();
             });
             okButton.setActionCommand("OK");
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-            });
+            cancelButton.addActionListener(e -> dispose());
             cancelButton.setActionCommand("Cancel");
         }
     }
 
     private void addCustomer() {
-        try {
+        try (PreparedStatement writeCust = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(Address,Ordered, NI, NH) VALUES (?,'False',?,?)")) {
             //Address.getText(),NI.isSelected(),NH.isSelected(),Donate.isSelected())
-            PreparedStatement writeCust = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(Address,Ordered, NI, NH) VALUES (?,'False',?,?)");
             writeCust.setString(1, Address.getText());
             writeCust.setString(2, Boolean.toString(NI.isSelected()));
             writeCust.setString(3, Boolean.toString(NH.isSelected()));

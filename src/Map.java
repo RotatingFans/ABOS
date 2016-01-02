@@ -1,4 +1,7 @@
-import org.openstreetmap.gui.jmapviewer.*;
+import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.JMapViewerTree;
+import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
+import org.openstreetmap.gui.jmapviewer.OsmTileLoader;
 import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
@@ -14,6 +17,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
@@ -22,24 +26,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Map extends JFrame implements JMapViewerEventListener {
-    private static final long serialVersionUID = 1L;
-    private final String USER_AGENT = "Mozilla/5.0";
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private static final long serialVersionUID = 1L;
     public JLabel Address = new JLabel("");
     public JLabel OrderStat = new JLabel("");
     public JLabel name = new JLabel("");
     public JLabel Phone = new JLabel("");
-    public JLabel Orders = new JLabel("");
     public Object[] cPoints;
     public JPanel infoPanel = new JPanel();
+    private JLabel Orders = new JLabel("");
     //TODO FIx zoom on map markers and colors
     private JMapViewerTree treeMap = null;
     private JLabel zoomLabel = null;
     private JLabel zoomValue = null;
     private JLabel mperpLabelName = null;
     private JLabel mperpLabelValue = null;
-    private JFrame frame;
+    // --Commented out by Inspection (1/2/2016 12:01 PM):private JFrame frame;
 
     /**
      * Launch the application.
@@ -60,24 +64,24 @@ public class Map extends JFrame implements JMapViewerEventListener {
     public Map() {
         super("JMapViewer Map");
 
-        this.setSize(600, 400);
-        this.treeMap = new JMapViewerTree("Zones");
-        this.map().addJMVListener(this);
-        this.setLayout(new BorderLayout());
-        this.setDefaultCloseOperation(3);
-        this.setExtendedState(6);
+        setSize(600, 400);
+        treeMap = new JMapViewerTree("Zones");
+        map().addJMVListener(this);
+        setLayout(new BorderLayout());
+        setDefaultCloseOperation(3);
+        setExtendedState(6);
         JPanel panel = new JPanel();
         JPanel panelTop = new JPanel();
         JPanel panelBottom = new JPanel();
         JPanel helpPanel = new JPanel();
 
 
-        this.mperpLabelName = new JLabel("Meters/Pixels: ");
-        this.mperpLabelValue = new JLabel(String.format("%s", new Object[]{Double.valueOf(this.map().getMeterPerPixel())}));
-        this.zoomLabel = new JLabel("Zoom: ");
-        this.zoomValue = new JLabel(String.format("%s", new Object[]{Integer.valueOf(this.map().getZoom())}));
-        this.add(panel, "North");
-        this.add(helpPanel, "South");
+        mperpLabelName = new JLabel("Meters/Pixels: ");
+        mperpLabelValue = new JLabel(String.format("%s", new Object[]{Double.valueOf(map().getMeterPerPixel())}));
+        zoomLabel = new JLabel("Zoom: ");
+        zoomValue = new JLabel(String.format("%s", new Object[]{Integer.valueOf(map().getZoom())}));
+        add(panel, "North");
+        add(helpPanel, "South");
         panel.setLayout(new BorderLayout());
         panel.add(panelTop, "North");
         panel.add(panelBottom, "South");
@@ -110,85 +114,89 @@ public class Map extends JFrame implements JMapViewerEventListener {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
         //infoPanel.setLayout(new GridLayout(10, 1, 3, 50));
         //infoPanel.setLayout(new FlowLayout());
-        this.add(infoPanel, "East");
+        add(infoPanel, "East");
 
-        Map.this.map().setTileSource(new OsmTileSource.Mapnik());
-        this.map().setTileLoader(new OsmTileLoader(this.map()));
-
-
-        Map.this.map().setMapMarkerVisible(true);
+        map().setTileSource(new OsmTileSource.Mapnik());
+        map().setTileLoader(new OsmTileLoader(map()));
 
 
-        panelTop.add(this.zoomLabel);
-        panelTop.add(this.zoomValue);
-        panelTop.add(this.mperpLabelName);
-        panelTop.add(this.mperpLabelValue);
-        this.add(this.treeMap, "Center");
+        map().setMapMarkerVisible(true);
+
+
+        panelTop.add(zoomLabel);
+        panelTop.add(zoomValue);
+        panelTop.add(mperpLabelName);
+        panelTop.add(mperpLabelValue);
+        add(treeMap, "Center");
 
         //Add customers to map
-        ArrayList<String> Addr = getCustInfo("ADDRESS");
-        ArrayList<String> Ord = getCustInfo("Ordered");
-        ArrayList<String> NI = getCustInfo("NI");
-        ArrayList<String> NH = getCustInfo("NH");
+        List<String> Addr = getCustInfo("ADDRESS");
+        List<String> Ord = getCustInfo("Ordered");
+        List<String> NI = getCustInfo("NI");
+        java.util.List<String> NH = getCustInfo("NH");
         cPoints = new Object[Addr.size()];
         for (int i = 0; i < Addr.size(); i++) {
             try {
-                Object[][] coords = GetCoords(Addr.get(i).toString());
+                Object[][] coords = GetCoords(Addr.get(i));
                 double lat = Double.valueOf(coords[0][0].toString());
                 double lon = Double.valueOf(coords[0][1].toString());
                 MapMarkerDot m = new MapMarkerDot(lat, lon);
-                cPoints[i] = new cPoint(lat, lon, Addr.get(i).toString());
+                cPoints[i] = new cPoint(lat, lon, Addr.get(i));
                 //Determine color of dot
                 //Green = orderd
                 //Cyan = Not Interested
                 //Magenta = not home
-                if (Ord.get(Ord.size() - 1).toString().equals("True")) {
+                if (Ord.get(Ord.size() - 1).equals("True")) {
                     m.setBackColor(Color.GREEN);
                 }
-                if (NI.get(NI.size() - 1).toString().equals("True")) {
+                if (NI.get(NI.size() - 1).equals("True")) {
                     m.setBackColor(Color.CYAN);
                 }
-                if (NH.get(NH.size() - 1).toString().equals("True")) {
+                if (NH.get(NH.size() - 1).equals("True")) {
                     m.setBackColor(Color.MAGENTA);
                 }
-                this.map().addMapMarker(m);
+                map().addMapMarker(m);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }
-        new MapController(this.map(), this);
-        Map.this.map().setDisplayToFitMapMarkers();
+        new MapController(map(), this);
+        map().setDisplayToFitMapMarkers();
 
     }
 
-    private static Coordinate c(double lat, double lon) {
-        return new Coordinate(lat, lon);
-    }
+// --Commented out by Inspection START (1/2/2016 12:01 PM):
+//    private static Coordinate c(double lat, double lon) {
+//        return new Coordinate(lat, lon);
+//    }
+// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         Map window = new Map();
         window.setVisible(true);
 
     }
 
-    /**
-     * Create the application.
-     */
-/*	public Map() {
-        initialize();
-		try {
-//			Object[][] coords = GetCoords("***REMOVED***");
-//			System.out.println(coords[0][0]);
-//			System.out.println(coords[0][1]);
-		}
-			catch(java.lang.Exception e) {
-					System.out.println(e.toString());
-			}
-		}*/
-    public Object[] getCPoints() {
-        return cPoints;
-    }
+// --Commented out by Inspection START (1/2/2016 12:01 PM):
+//    /**
+//     * Create the application.
+//     */
+///*	public Map() {
+//        initialize();
+//		try {
+////			Object[][] coords = GetCoords("***REMOVED***");
+////			System.out.println(coords[0][0]);
+////			System.out.println(coords[0][1]);
+//		}
+//			catch(java.lang.Exception e) {
+//					System.out.println(e.toString());
+//			}
+//		}*/
+//    public Object[] getCPoints() {
+//        return cPoints;
+//    }
+// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
     /**
      * Getsx the requested info on customers
@@ -196,13 +204,13 @@ public class Map extends JFrame implements JMapViewerEventListener {
      * @param info Info to retrieve
      * @return The info requested in ArrayList form
      */
-    private ArrayList<String> getCustInfo(String info) {
-        ArrayList<String> ret = new ArrayList<String>();
+    private List<String> getCustInfo(String info) {
+        List<String> ret = new ArrayList<String>();
 
-        PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
-        try {
+        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
+             ResultSet rs = prep.executeQuery()
+        ) {
 
-            ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
 
@@ -218,23 +226,24 @@ public class Map extends JFrame implements JMapViewerEventListener {
     }
 
     private JMapViewer map() {
-        return this.treeMap.getViewer();
+        return treeMap.getViewer();
     }
 
     private void updateZoomParameters() {
-        if (this.mperpLabelValue != null) {
-            this.mperpLabelValue.setText(String.format("%s", Double.valueOf(this.map().getMeterPerPixel())));
+        if (mperpLabelValue != null) {
+            mperpLabelValue.setText(String.format("%s", Double.valueOf(map().getMeterPerPixel())));
         }
 
-        if (this.zoomValue != null) {
-            this.zoomValue.setText(String.format("%s", Integer.valueOf(this.map().getZoom())));
+        if (zoomValue != null) {
+            zoomValue.setText(String.format("%s", Integer.valueOf(map().getZoom())));
         }
 
     }
 
+    @Override
     public void processCommand(JMVCommandEvent command) {
-        if (command.getCommand().equals(JMVCommandEvent.COMMAND.ZOOM) || command.getCommand().equals(JMVCommandEvent.COMMAND.MOVE)) {
-            this.updateZoomParameters();
+        if ((command.getCommand() == JMVCommandEvent.COMMAND.ZOOM) || (command.getCommand() == JMVCommandEvent.COMMAND.MOVE)) {
+            updateZoomParameters();
         }
 
     }
@@ -243,9 +252,9 @@ public class Map extends JFrame implements JMapViewerEventListener {
     /**Gets coords of an address
      * @param Address Address to get coords of
      * @return Object[][] that holds the houses coordinates
-     * @throws Exception
+     * @throws IOException
      */
-    private Object[][] GetCoords(String Address) throws Exception {
+    private Object[][] GetCoords(String Address) throws IOException {
         String AddressF = Address.replace(" ", "+");
         String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
 
@@ -256,25 +265,26 @@ public class Map extends JFrame implements JMapViewerEventListener {
         con.setRequestMethod("GET");
 
         //add request header
+        String USER_AGENT = "Mozilla/5.0";
         con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()))) {
+            String inputLine;
+            StringBuilder response = new StringBuilder();
 
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+
+
+            //print result
+            return parseCoords(response.toString());
         }
-        in.close();
-
-        //print result
-        return parseCoords(response.toString());
-
     }
 
     /**Gets coords of an address
@@ -304,9 +314,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 Node nNode = nList.item(temp);
 
 
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
 
-                    Element eElement = (Element) nNode;
 
 
                     coords[0][0] = ((Element) nNode).getAttributeNode("lat").getValue();
@@ -323,8 +332,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
         }
         return coords;
     }
-    /**
-     * Initialize the contents of the frame.
+    /*
+      Initialize the contents of the frame.
      */
 /*	private void initialize() {
         frame = new JFrame();

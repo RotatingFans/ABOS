@@ -1,13 +1,13 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
  */
-@SuppressWarnings("unused")
-public class DbInt {
+class DbInt {
     public static Connection pCon = null;
 
     /**
@@ -18,28 +18,27 @@ public class DbInt {
      * @return and ArrayList of the resulting Data
      * @deprecated true
      */
-    public static ArrayList<String> getData(String Db, String command) {
+    @Deprecated
+    public static List<String> getData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
 
             e.printStackTrace();
         }
-        Connection con = null;
-        Statement st = null;
-        ResultSet rs = null;
+
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
-        try {
+        List<String> res = new ArrayList<String>();
+        command = command.replaceAll("''", "/0027");
+
+        try (Connection con = DriverManager.getConnection(url);
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(command)) {
 
 
-            command = command.replaceAll("''", "/0027");
-            con = DriverManager.getConnection(url);
-            st = con.createStatement();
-            rs = st.executeQuery(command);
             while (rs.next()) {
 
                 res.add(rs.getString(1).replaceAll("/0027", "'"));
@@ -61,26 +60,6 @@ public class DbInt {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                    rs = null;
-                }
-                if (st != null) {
-                    st.close();
-                    st = null;
-                }
-                if (con != null) {
-                    con.close();
-                    con = null;
-                }
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
 
         return res;
@@ -95,17 +74,17 @@ public class DbInt {
     public static String getCustInf(String yearL, String name, String info) {
         String ret = "";
 
-        PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?");
-        try {
+        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?")) {
 
 
             prep.setString(1, name);
-            ResultSet rs = prep.executeQuery();
+            try (ResultSet rs = prep.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret = rs.getString(info);
+                    ret = rs.getString(info);
 
+                }
             }
             ////DbInt.pCon.close();
 
@@ -129,7 +108,6 @@ public class DbInt {
 
             e.printStackTrace();
         }
-        PreparedStatement prep = null;
         Statement st = null;
         ResultSet rs = null;
         pCon = null;
@@ -137,16 +115,19 @@ public class DbInt {
         String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
         try {
 
 
             pCon = DriverManager.getConnection(url);
             pCon.setAutoCommit(true);
-            prep = pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            try (PreparedStatement prep = pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
+                // DriverManager.getConnection("jdbc:derby:;shutdown=true");
+                //return rs;
+
+
+                return prep;
+        }
         } catch (SQLException ex) {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
@@ -166,11 +147,9 @@ public class DbInt {
             try {
                 if (rs != null) {
                     rs.close();
-                    rs = null;
                 }
                 if (st != null) {
                     st.close();
-                    st = null;
                 }
 
 
@@ -179,8 +158,7 @@ public class DbInt {
                 lgr.log(Level.WARNING, ex.getMessage(), ex);
             }
         }
-
-        return prep;
+        return null;
     }
 
     /**Gets # of collumns in a table
@@ -196,20 +174,17 @@ public class DbInt {
             e.printStackTrace();
         }
         int columnsNumber = 0;
-        Connection con = null;
-        Statement st = null;
-        ResultSet rs = null;
+
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
-        try {
+        try (Connection con = DriverManager.getConnection(url);
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(String.format("SELECT * FROM %s", Table))) {
 
 
-            con = DriverManager.getConnection(url);
-            st = con.createStatement();
-            rs = st.executeQuery(String.format("SELECT * FROM %s", Table));
+
             ResultSetMetaData rsmd = rs.getMetaData();
 
             columnsNumber = rsmd.getColumnCount();
@@ -229,26 +204,6 @@ public class DbInt {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                    rs = null;
-                }
-                if (st != null) {
-                    st.close();
-                    st = null;
-                }
-                if (con != null) {
-                    con.close();
-                    con = null;
-                }
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
 
         return columnsNumber;
@@ -259,6 +214,7 @@ public class DbInt {
      * @param command THe command to execute
      * @deprecated true
      */
+    @Deprecated
     public static void writeData(String Db, String command) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -266,21 +222,19 @@ public class DbInt {
 
             e.printStackTrace();
         }
-        Connection con = null;
-        Statement st = null;
-        ResultSet rs = null;
+
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:derby:%s/%s", new Config().getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 new Config().getDbLoc());
-        ArrayList<String> res = new ArrayList<String>();
-        try {
+        command.replaceAll("'", "/0027");
 
+        try (Connection con = DriverManager.getConnection(url);
+             Statement st = con.createStatement()
+        ) {
 
-            command.replaceAll("'", "/0027");
-            con = DriverManager.getConnection(url);
-            st = con.createStatement();
             st.executeUpdate(command);
+
 
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
@@ -298,23 +252,6 @@ public class DbInt {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-
-                if (st != null) {
-                    st.close();
-                    st = null;
-                }
-                if (con != null) {
-                    con.close();
-                    con = null;
-                }
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
 
 
@@ -326,16 +263,14 @@ public class DbInt {
      * @param DB The name of the DB to create
      */
     public static void createDb(String DB) {
-        Connection con = null;
-        Statement st = null;
+
 
         String url = String.format("jdbc:derby:%s/%s;create=true", new Config().getDbLoc(), DB);//;create=true
 
-        try {
+        try (Connection con = DriverManager.getConnection(url);
+             Statement st = con.createStatement()) {
 
 
-            con = DriverManager.getConnection(url);
-            st = con.createStatement();
             //  DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException ex) {
 
@@ -351,34 +286,21 @@ public class DbInt {
                 lgr.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-        } finally {
-
-            try {
-
-                if (st != null) {
-                    st.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-
-            } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-            }
         }
     }
 
-    /**
-     * Closes the database connection.
-     */
-    public void close() {
-        try {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
+// --Commented out by Inspection START (1/2/2016 12:01 PM):
+//    /**
+//     * Closes the database connection.
+//     */
+//    public void close() {
+//        try {
+//            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
 }
