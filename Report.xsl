@@ -10,6 +10,10 @@
                 border: 1px solid black;
                 border-collapse: collapse;
                 }
+                #UBordered {
+                border: 0px solid black;
+                border-collapse: collapse;
+                }
             </style>
         </head>
         <html>
@@ -22,18 +26,18 @@
 
                     </img>
                     <div style="position:relative; float:right">
-                        <h2>
+                        <h4>
                             <xsl:value-of select="LawnGardenReports/info/name"/>
-                        </h2>
-                        <h2>
+                        </h4>
+                        <h4>
                             <xsl:value-of select="LawnGardenReports/info/streetAddress"/>
-                        </h2>
-                        <h2>
+                        </h4>
+                        <h4>
                             <xsl:value-of select="LawnGardenReports/info/city"/>
-                        </h2>
-                        <h2>
+                        </h4>
+                        <h4>
                             <xsl:value-of select="LawnGardenReports/info/rank"/>
-                        </h2>
+                        </h4>
                     </div>
                 </div>
                 <div>
@@ -47,15 +51,14 @@
                         <h2 style="text-align:left; position:relative; top:20px; bottom:20px">
                             <xsl:value-of select="//splitting"/>
                         </h2>
-                    </div>
-                    <div>
                         <h2 style="text-align:center; position:relative; top:20px; bottom:20px">
                             <xsl:value-of select="title"/>
                         </h2>
                     </div>
+
                     <table id="Bordered" border="1" style="width:100%; position:relative; top:20px">
                         <tr bgcolor="#9acd32">
-                            <xsl:for-each select="/columns/column">
+                            <xsl:for-each select="//column">
                                 <th style="text-align:left">
                                     <xsl:value-of select="name"/>
                                 </th>
@@ -83,11 +86,11 @@
                                 </td>
                             </tr>
                         </xsl:for-each>
-                        <tr id="Bordered">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                        <tr id="UBordered">
+                            <td id="UBordered"></td>
+                            <td id="UBordered"></td>
+                            <td id="UBordered"></td>
+                            <td id="UBordered"></td>
                             <td id="Bordered">Total Cost:</td>
                             <td id="Bordered">
                                 <xsl:value-of select="totalCost"/>
@@ -99,8 +102,8 @@
                 <h2 style="text-align:right; position:relative; top:20px; bottom:20px">
                     TOTALS
                 </h2>
-
-                <table id="Bordered" border="0" style="position:relative; top:20px; float:right">
+                <div style="position:relative;">
+                    <table id="Bordered" border="0" style="position:absolute; top:0px; right:0px;">
 
 
                     <tr id="Bordered">
@@ -119,6 +122,7 @@
                     </tr>
 
                 </table>
+                </div>
             </body>
         </html>
     </xsl:template>
