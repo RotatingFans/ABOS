@@ -32,27 +32,46 @@ class Settings extends JDialog {
         contentPanel.setLayout(new BorderLayout());
         //North
         {
-            JPanel north = new JPanel(new FlowLayout());
+            JTabbedPane north = new JTabbedPane();
+            JPanel general = new JPanel(new FlowLayout());
             {
-                JLabel lblNewLabel = new JLabel("Location to Store the Database:");
-                //   lblNewLabel.setBounds(10, 25, 80, 14);
-                north.add(lblNewLabel);
-            }
-            {
-                JTextField dbLoc = new JTextField();
-                //Address.setBounds(90, 15, 340, 28);
-                north.add(dbLoc);
-                dbLoc.setColumns(30);
+                //Choose DB location
+                //Export DB
 
             }
+            north.addTab("General", general);
+
+            JPanel AddCustomer = new JPanel(new FlowLayout());
             {
-                JButton openFile = new JButton("...");
-                north.add(openFile);
-                openFile.addActionListener(e -> {
+                //Set default options for add customer form
 
 
-                });
             }
+            north.addTab("Add Customer", AddCustomer);
+
+            JPanel MapOptions = new JPanel(new FlowLayout());
+            {
+                //Area to Display
+                //Default zoom
+
+            }
+            north.addTab("Map", MapOptions);
+
+            JPanel Report = new JPanel(new FlowLayout());
+            {
+                //Default Options for Form
+
+
+            }
+            north.addTab("Reports", Report);
+
+            JPanel Licesnce = new JPanel(new FlowLayout());
+            {
+                //Display Liscence info
+
+
+            }
+            north.addTab("Licence", Licesnce);
             contentPanel.add(north, BorderLayout.CENTER);
         }
 
