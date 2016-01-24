@@ -44,6 +44,13 @@ class Main extends JFrame {
      * Initialize the contents of the frame.
      */
     private void initialize() {
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (!Config.doesConfExist()) {
             new FirstStart();
         }

@@ -1,20 +1,7 @@
 ----------------------------------------------------------------
-Sat Jan 02 15:26:22 EST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0152-0405-0060-0000007b2688 
-on database directory C:\Users\Patrick\Documents\DB\Set with class loader sun.misc.Launcher$AppClassLoader@103dbd3 
-Loaded from file:/C:/Development/IDEA/LG/derby.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_66-b18
-user.dir=C:\Development\IDEA\LG
-os.name=Windows 10
-os.arch=x86
-os.version=10.0
-derby.system.home=C:\Users\Patrick\Documents\DB
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Sat Jan 02 15:26:41 EST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 08264012-0152-0405-0060-0000007b2688 
-on database directory C:\Users\Patrick\Documents\DB\2015 with class loader sun.misc.Launcher$AppClassLoader@103dbd3 
+Mon Jan 18 12:28:09 EST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0152-55c7-951d-0000009e2740 
+on database directory C:\Users\Patrick\Documents\DB\Set with class loader sun.misc.Launcher$AppClassLoader@1ee12a7 
 Loaded from file:/C:/Development/IDEA/LG/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_66-b18
