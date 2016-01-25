@@ -260,6 +260,8 @@ class Reports extends JDialog {
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
+        FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
+
         //North
         {
             SteptabbedPane = new JTabbedPane();
@@ -289,7 +291,7 @@ class Reports extends JDialog {
             }
             //Report Info
             {
-                ReportInfo = new JPanel(new FlowLayout());
+                ReportInfo = new JPanel(new FlowLayout(FlowLayout.LEADING));
                 {
                     cmbxYears.addActionListener(actionEvent -> {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
@@ -327,13 +329,13 @@ class Reports extends JDialog {
                     JLabel scoutRankL = new JLabel("Scout Rank");
                     JLabel logoLocL = new JLabel("Logo Location:");
 
-                    scoutName = new JTextField(20);
-                    scoutStAddr = new JTextField(20);
-                    scoutZip = new JTextField(5);
-                    scoutTown = new JTextField(20);
-                    scoutState = new JTextField(20);
-                    scoutRank = new JTextField(20);
-                    logoLoc = new JTextField(50);
+                    scoutName = new JTextField(Config.getProp("ScoutName"), 20);
+                    scoutStAddr = new JTextField(Config.getProp("ScoutAddress"), 20);
+                    scoutZip = new JTextField(Config.getProp("ScoutZip"), 5);
+                    scoutTown = new JTextField(Config.getProp("ScoutTown"), 20);
+                    scoutState = new JTextField(Config.getProp("ScoutState"), 20);
+                    scoutRank = new JTextField(Config.getProp("ScoutRank"), 20);
+                    logoLoc = new JTextField(Config.getProp("logoLoc"), 25);
                     scoutZip.addActionListener(new MyTextActionListener());
                     scoutZip.getDocument().addDocumentListener(new MyDocumentListener());
                     JButton logoButton = new JButton("...");
@@ -351,23 +353,49 @@ class Reports extends JDialog {
                     });
 
 
-                    ReportInfo.add(cmbxYears);
-                    ReportInfo.add(cmbxCustomers);
-                    ReportInfo.add(scoutNameL);
-                    ReportInfo.add(scoutName);
-                    ReportInfo.add(scoutStAddrL);
-                    ReportInfo.add(scoutStAddr);
-                    ReportInfo.add(scoutZipL);
-                    ReportInfo.add(scoutZip);
-                    ReportInfo.add(scoutTownL);
-                    ReportInfo.add(scoutTown);
-                    ReportInfo.add(scoutStateL);
-                    ReportInfo.add(scoutState);
-                    ReportInfo.add(scoutRankL);
-                    ReportInfo.add(scoutRank);
-                    ReportInfo.add(logoLocL);
-                    ReportInfo.add(logoLoc);
-                    ReportInfo.add(logoButton);
+                    {
+                        JPanel group = new JPanel(flow);
+                        ReportInfo.add(scoutNameL);
+                        ReportInfo.add(scoutName);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutStAddrL);
+                        group.add(scoutStAddr);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutZipL);
+                        group.add(scoutZip);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutTownL);
+                        group.add(scoutTown);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutStateL);
+                        group.add(scoutState);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutRankL);
+                        group.add(scoutRank);
+                        ReportInfo.add(group);
+                    }
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(logoLocL);
+                        group.add(logoLoc);
+                        group.add(logoButton);
+                        ReportInfo.add(group);
+                    }
                 }
                 SteptabbedPane.addTab("Report Info", ReportInfo);
 
@@ -1026,10 +1054,9 @@ class Reports extends JDialog {
 
                 ReportInfo.add(cmbxYears);
                 cmbxYears.removeAllItems();
-                cmbxYears.addItem("");
-                cmbxYears.setSelectedItem("");
-                years.forEach(cmbxYears::addItem);
 
+                years.forEach(cmbxYears::addItem);
+                cmbxYears.setSelectedItem(cmbxYears.getItemAt(cmbxYears.getItemCount() - 1));
                 break;
             case "Customer Year Totals":
                 ReportInfo.remove(cmbxYears);
@@ -1038,9 +1065,8 @@ class Reports extends JDialog {
                 ReportInfo.add(cmbxCustomers);
                 cmbxCustomers.setEnabled(false);
                 cmbxYears.removeAllItems();
-                cmbxYears.addItem("");
-                cmbxYears.setSelectedItem("");
                 years.forEach(cmbxYears::addItem);
+                cmbxYears.setSelectedItem(cmbxYears.getItemAt(cmbxYears.getItemCount() - 1));
 
                 break;
             case "Customer All-time Totals":

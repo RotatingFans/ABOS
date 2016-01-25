@@ -52,7 +52,7 @@ class Main extends JFrame {
         }
 
         if (!Config.doesConfExist()) {
-            new FirstStart();
+            new Settings();
         }
         frame = new JFrame();
         frame.setBounds(100, 100, 690, 470);

@@ -111,4 +111,64 @@ class Config {
 
         }
     }
+
+    public static void setProp(String property, String setting) {
+        Properties prop = new Properties();
+        OutputStream output = null;
+
+        try {
+
+            output = new FileOutputStream("./LGconfig.properties");
+
+            // set the properties value
+            prop.setProperty(property, setting);
+
+
+            // save properties to project root folder
+            prop.store(output, null);
+
+        } catch (IOException io) {
+            io.printStackTrace();
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    public static String getProp(String property) {
+        Properties prop = new Properties();
+        InputStream input = null;
+        String loc = "";
+        try {
+
+            input = new FileInputStream("./LGconfig.properties");
+
+            // load a properties file
+            prop.load(input);
+
+            // get the property value and print it out
+            loc = prop.getProperty(property);
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+        return loc;
+    }
 }

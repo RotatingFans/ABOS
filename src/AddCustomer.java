@@ -344,15 +344,171 @@ class AddCustomer extends JDialog {
     private void initUI() {
         setSize(1100, 700);
         getContentPane().setLayout(new BorderLayout());
+        FlowLayout flow = new FlowLayout(FlowLayout.CENTER);
+        JPanel mainP = new JPanel(new GridLayout(3, 2));
 /*        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);*/
         //contentPanel.setLayout(BorderLayout);
 
         //Add Table in scrollpane
+
+
+        //Add Customer info fields and lables
+        {
+            JPanel North = new JPanel();
+
+
+            North.setLayout(new FlowLayout());
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel lblNewLabel = new JLabel("Name");
+                    //lblNewLabel.setBounds(10, 25, 46, 14);
+                    name.add(lblNewLabel);
+                }
+                {
+                    Name = new JTextField(Config.getProp("CustomerName"));
+                    //Name.setBounds(136, 11, 173, 28);
+                    Name.setColumns(15);
+
+                    name.add(Name);
+                }
+                North.add(name);
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel lblNewLabel_1 = new JLabel("Street Address");
+                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
+                    name.add(lblNewLabel_1);
+                }
+                {
+                    Address = new JTextField(Config.getProp("CustomerAddress"));
+                    Address.setColumns(20);
+                    //Address.setBounds(385, 11, 173, 28);
+                    name.add(Address);
+                }
+                North.add(name);
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel ZipCodeL = new JLabel("ZipCode");
+                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
+                    name.add(ZipCodeL);
+                }
+                {
+                    ZipCode = new JTextField(Config.getProp("CustomerZipCode"));
+                    ZipCode.setColumns(5);
+                    ZipCode.addActionListener(new MyTextActionListener());
+                    ZipCode.getDocument().addDocumentListener(new MyDocumentListener());
+                    name.add(ZipCode);
+                }
+                North.add(name);
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel TownL = new JLabel("Town");
+                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
+                    name.add(TownL);
+                }
+                {
+                    Town = new JTextField(Config.getProp("CustomerTown"));
+                    Town.setColumns(10);
+                    //Address.setBounds(385, 11, 173, 28);
+                    name.add(Town);
+                }
+                North.add(name);
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel StateL = new JLabel("State");
+                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
+                    name.add(StateL);
+                }
+                {
+                    State = new JTextField(Config.getProp("CustomerState"));
+                    State.setColumns(15);
+                    //Address.setBounds(385, 11, 173, 28);
+                    name.add(State);
+                }
+
+                North.add(name);
+            }
+//                JPanel South = new JPanel();
+//                South.setLayout(new FlowLayout());
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel lblPhone = new JLabel("Phone #");
+                    //lblPhone.setBounds(10, 66, 46, 14);
+                    name.add(lblPhone);
+                }
+                {
+                    Phone = new JTextField(Config.getProp("CustomerPhone"));
+                    Phone.setColumns(10);
+                    //Phone.setBounds(136, 59, 173, 28);
+                    name.add(Phone);
+                }
+                North.add(name);
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel lblNewLabel_2 = new JLabel("Email Address");
+                    //lblNewLabel_2.setBounds(568, 15, 76, 21);
+                    name.add(lblNewLabel_2);
+                }
+                {
+                    Email = new JTextField(Config.getProp("CustomerEmail"));
+                    Email.setColumns(10);
+                    //	Email.setBounds(654, 11, 173, 28);
+                    name.add(Email);
+                }
+                North.add(name);
+            }
+            {
+
+                {
+                    Paid = new JCheckBox("Paid");
+                    Paid.setSelected(Boolean.valueOf(Config.getProp("CustomerPaid")));
+                    //Paid.setBounds(385, 62, 55, 23);
+                    North.add(Paid);
+                }
+
+                {
+                    Delivered = new JCheckBox("Delivered");
+                    Paid.setSelected(Boolean.valueOf(Config.getProp("CustomerDelivered")));
+                    //Delivered.setBounds(473, 62, 83, 23);
+                    North.add(Delivered);
+                }
+            }
+            {
+                JPanel name = new JPanel(flow);
+                {
+                    JLabel lblNewLabel_3 = new JLabel("Donations");
+                    //lblNewLabel_3.setBounds(568, 66, 76, 14);
+                    name.add(lblNewLabel_3);
+                }
+
+                {
+                    DonationsT = new JTextField(Config.getProp("CustomerDonations"));
+                    DonationsT.setColumns(4);
+                    //DonationsT.setBounds(654, 59, 173, 28);
+                    if (Config.getProp("CustomerDonations") == null) {
+                        DonationsT.setText("0.0");
+                    }
+                    name.add(DonationsT);
+                }
+                North.add(name);
+            }
+
+            mainP.add(North);
+        }
         {
             JScrollPane scrollPane = new JScrollPane();
-            scrollPane.setBounds(0, 102, 857, 547);
-            getContentPane().add(scrollPane);
             {
                 ProductTable = new MyJTable();
                 //ProductTable.setRowSelectionAllowed(true);
@@ -366,136 +522,15 @@ class AddCustomer extends JDialog {
 
                 scrollPane.setViewportView(ProductTable);
             }
+            //scrollPane.setBounds(0, 102, 857,547)
+            mainP.add(scrollPane);
+
         }
-
-        //Add Customer info fields and lables
-        {
-            JPanel CustomerInfo = new JPanel(new BorderLayout());
-            {
-                JPanel North = new JPanel();
-                North.setLayout(new FlowLayout());
-                {
-                    JLabel lblNewLabel = new JLabel("Name");
-                    //lblNewLabel.setBounds(10, 25, 46, 14);
-                    North.add(lblNewLabel);
-                }
-                {
-                    Name = new JTextField();
-                    //Name.setBounds(136, 11, 173, 28);
-                    North.add(Name);
-                    Name.setColumns(15);
-                }
-                {
-                    JLabel lblNewLabel_1 = new JLabel("Street Address");
-                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
-                    North.add(lblNewLabel_1);
-                }
-                {
-                    Address = new JTextField();
-                    Address.setColumns(20);
-                    //Address.setBounds(385, 11, 173, 28);
-                    North.add(Address);
-                }
-                {
-                    JLabel ZipCodeL = new JLabel("ZipCode");
-                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
-                    North.add(ZipCodeL);
-                }
-                {
-                    ZipCode = new JTextField();
-                    ZipCode.setColumns(5);
-                    ZipCode.addActionListener(new MyTextActionListener());
-                    ZipCode.getDocument().addDocumentListener(new MyDocumentListener());
-                    //ZipCode.getDocument().putProperty("ZipCode", "Text Field");
-
-
-                    //Address.setBounds(385, 11, 173, 28);
-                    North.add(ZipCode);
-                }
-                {
-                    JLabel TownL = new JLabel("Town");
-                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
-                    North.add(TownL);
-                }
-                {
-                    Town = new JTextField();
-                    Town.setColumns(10);
-                    //Address.setBounds(385, 11, 173, 28);
-                    North.add(Town);
-                }
-                {
-                    JLabel StateL = new JLabel("State");
-                    //lblNewLabel_1.setBounds(329, 18, 46, 14);
-                    North.add(StateL);
-                }
-                {
-                    State = new JTextField();
-                    State.setColumns(15);
-                    //Address.setBounds(385, 11, 173, 28);
-                    North.add(State);
-                }
-                CustomerInfo.add(North, BorderLayout.NORTH);
-                //CustomerInfo.add(North);
-            }
-            {
-                JPanel South = new JPanel(new FlowLayout());
-                {
-                    JLabel lblPhone = new JLabel("Phone #");
-                    //lblPhone.setBounds(10, 66, 46, 14);
-                    South.add(lblPhone);
-                }
-                {
-                    Phone = new JTextField();
-                    Phone.setColumns(10);
-                    //Phone.setBounds(136, 59, 173, 28);
-                    South.add(Phone);
-                }
-                {
-                    JLabel lblNewLabel_2 = new JLabel("Email Address");
-                    //lblNewLabel_2.setBounds(568, 15, 76, 21);
-                    South.add(lblNewLabel_2);
-                }
-                {
-                    Email = new JTextField();
-                    Email.setColumns(10);
-                    //	Email.setBounds(654, 11, 173, 28);
-                    South.add(Email);
-                }
-                {
-                    Paid = new JCheckBox("Paid");
-                    //Paid.setBounds(385, 62, 55, 23);
-                    South.add(Paid);
-                }
-
-                {
-                    Delivered = new JCheckBox("Delivered");
-                    //Delivered.setBounds(473, 62, 83, 23);
-                    South.add(Delivered);
-                }
-
-                {
-                    JLabel lblNewLabel_3 = new JLabel("Donations");
-                    //lblNewLabel_3.setBounds(568, 66, 76, 14);
-                    South.add(lblNewLabel_3);
-                }
-
-                {
-                    DonationsT = new JTextField();
-                    DonationsT.setColumns(4);
-                    //DonationsT.setBounds(654, 59, 173, 28);
-                    DonationsT.setText("0.0");
-                    South.add(DonationsT);
-                }
-                CustomerInfo.add(South, BorderLayout.SOUTH);
-            }
-            getContentPane().add(CustomerInfo, BorderLayout.NORTH);
-        }
-
         //Add button pane to bottom of Window
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            getContentPane().add(buttonPane, BorderLayout.SOUTH);
+            mainP.add(buttonPane);
             {
                 okButton = new JButton("OK");
 
@@ -508,6 +543,7 @@ class AddCustomer extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
+        getContentPane().add(mainP);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         setVisible(true);
