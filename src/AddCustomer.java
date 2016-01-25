@@ -343,10 +343,8 @@ class AddCustomer extends JDialog {
      */
     private void initUI() {
         setSize(1100, 700);
-        getContentPane().setLayout(
-                new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS)
-        );
-        FlowLayout flow = new FlowLayout(FlowLayout.CENTER);
+        getContentPane().setLayout(new BorderLayout());
+        WrapLayout flow = new WrapLayout();
 /*        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);*/
         //contentPanel.setLayout(BorderLayout);
@@ -359,7 +357,7 @@ class AddCustomer extends JDialog {
             JPanel North = new JPanel();
 
 
-            North.setLayout(new FlowLayout());
+            North.setLayout(flow);
             {
                 JPanel name = new JPanel(flow);
                 {
@@ -506,7 +504,7 @@ class AddCustomer extends JDialog {
                 North.add(name);
             }
 
-            getContentPane().add(North);
+            getContentPane().add(North, BorderLayout.PAGE_START);
         }
         {
             JScrollPane scrollPane = new JScrollPane();
@@ -524,14 +522,14 @@ class AddCustomer extends JDialog {
                 scrollPane.setViewportView(ProductTable);
             }
             //scrollPane.setBounds(0, 102, 857,547)
-            getContentPane().add(scrollPane);
+            getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         }
         //Add button pane to bottom of Window
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            getContentPane().add(buttonPane);
+            getContentPane().add(buttonPane, BorderLayout.PAGE_END);
             {
                 okButton = new JButton("OK");
 
