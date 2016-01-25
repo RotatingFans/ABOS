@@ -1,26 +1,26 @@
 ----------------------------------------------------------------
-Sun Jan 24 20:00:43 EST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0152-764c-1517-000014642a88 
-on database directory /home/patrick/Documents/Databases/Set with class loader sun.misc.Launcher$AppClassLoader@14dad5dc 
-Loaded from file:/mnt/CE48CFB148CF969D/Development/LG/Source/LG/derby.jar
+Sun Jan 24 20:15:31 EST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0152-7659-9f89-000000960518 
+on database directory C:\Users\Patrick\Documents\DB\Set with class loader sun.misc.Launcher$AppClassLoader@1ee12a7 
+Loaded from file:/C:/Development/IDEA/LG/derby.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_66-internal-b17
-user.dir=/mnt/CE48CFB148CF969D/Development/LG/Source/LG
-os.name=Linux
-os.arch=amd64
-os.version=4.2.0-25-generic
-derby.system.home=/home/patrick/Documents/Databases
+java.runtime.version=1.8.0_66-b18
+user.dir=C:\Development\IDEA\LG
+os.name=Windows 10
+os.arch=x86
+os.version=10.0
+derby.system.home=C:\Users\Patrick\Documents\DB
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-Sun Jan 24 20:00:45 EST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 08264012-0152-764c-1517-000014642a88 
-on database directory /home/patrick/Documents/Databases/2015 with class loader sun.misc.Launcher$AppClassLoader@14dad5dc 
-Loaded from file:/mnt/CE48CFB148CF969D/Development/LG/Source/LG/derby.jar
+Sun Jan 24 20:15:33 EST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 08264012-0152-7659-9f89-000000960518 
+on database directory C:\Users\Patrick\Documents\DB\2015 with class loader sun.misc.Launcher$AppClassLoader@1ee12a7 
+Loaded from file:/C:/Development/IDEA/LG/derby.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_66-internal-b17
-user.dir=/mnt/CE48CFB148CF969D/Development/LG/Source/LG
-os.name=Linux
-os.arch=amd64
-os.version=4.2.0-25-generic
-derby.system.home=/home/patrick/Documents/Databases
+java.runtime.version=1.8.0_66-b18
+user.dir=C:\Development\IDEA\LG
+os.name=Windows 10
+os.arch=x86
+os.version=10.0
+derby.system.home=C:\Users\Patrick\Documents\DB
 Database Class Loader started - derby.database.classpath=''

@@ -343,9 +343,10 @@ class AddCustomer extends JDialog {
      */
     private void initUI() {
         setSize(1100, 700);
-        getContentPane().setLayout(new BorderLayout());
+        getContentPane().setLayout(
+                new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS)
+        );
         FlowLayout flow = new FlowLayout(FlowLayout.CENTER);
-        JPanel mainP = new JPanel(new GridLayout(3, 2));
 /*        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);*/
         //contentPanel.setLayout(BorderLayout);
@@ -505,7 +506,7 @@ class AddCustomer extends JDialog {
                 North.add(name);
             }
 
-            mainP.add(North);
+            getContentPane().add(North);
         }
         {
             JScrollPane scrollPane = new JScrollPane();
@@ -523,14 +524,14 @@ class AddCustomer extends JDialog {
                 scrollPane.setViewportView(ProductTable);
             }
             //scrollPane.setBounds(0, 102, 857,547)
-            mainP.add(scrollPane);
+            getContentPane().add(scrollPane);
 
         }
         //Add button pane to bottom of Window
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            mainP.add(buttonPane);
+            getContentPane().add(buttonPane);
             {
                 okButton = new JButton("OK");
 
@@ -543,7 +544,6 @@ class AddCustomer extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
-        getContentPane().add(mainP);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         setVisible(true);
