@@ -13,7 +13,6 @@ class CustomerReport extends JDialog {
 
     //TODO Add Active search with only results shown
 
-    //TODO FIND SPELLING errors
 
     //TODO ADD ERROR HANDLING
     public static String year = "2015";

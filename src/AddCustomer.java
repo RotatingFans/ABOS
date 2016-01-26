@@ -34,7 +34,7 @@ import java.util.List;
  * @version 1.0
  */
 class AddCustomer extends JDialog {
-
+//TODO remove address gathering, put all data in database.
 
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
     //private final JPanel contentPanel = new JPanel();
@@ -76,7 +76,6 @@ class AddCustomer extends JDialog {
         initUI();
         //Set the address
         String[] addr = new String[4];
-        //Todo deprecate getAddr Function
         try {
             addr = getAddress(getAddr(customerName));
         } catch (IOException e) {
@@ -133,7 +132,23 @@ class AddCustomer extends JDialog {
                 updateTots();
                 dispose();
                 setVisible(false);
+            } else {
+                String message = "<html><head><style>" +
+                        "h3 {text-align:center;}" +
+                        "h4 {text-align:center;}" +
+                        "</style></head>" +
+                        "<body><h3>Uh Oh!</h3>" +
+                        "<h3>It appears you have not entered any data</h3>" +
+                        "<h4>Would you like to re-enter the data?</h4>" +
+                        "</body>" +
+                        "</html>";
+                int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (cont == 1) {
+                    dispose();
+                    setVisible(false);
+                }
             }
+
 
         });
         okButton.setActionCommand("OK");
@@ -246,6 +261,21 @@ class AddCustomer extends JDialog {
                 updateTots();
                 dispose();
                 setVisible(false);
+            } else {
+                String message = "<html><head><style>" +
+                        "h3 {text-align:center;}" +
+                        "h4 {text-align:center;}" +
+                        "</style></head>" +
+                        "<body><h3>Uh Oh!</h3>" +
+                        "<h3>It appears you have not entered any data</h3>" +
+                        "<h4>Would you like to re-enter the data?</h4>" +
+                        "</body>" +
+                        "</html>";
+                int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (cont == 1) {
+                    dispose();
+                    setVisible(false);
+                }
             }
         });
         okButton.setActionCommand("OK");
@@ -809,6 +839,7 @@ class AddCustomer extends JDialog {
                     updateCust.setString(1, address);
                     updateCust.setString(2, getAddr(NameEditCustomer));
                     updateCust.execute();
+
                 }
 
                 //Updates customer table in Year DB with new info.
@@ -1200,8 +1231,8 @@ class AddCustomer extends JDialog {
     }
 
     private boolean infoEntered() {
-        //TODO Prevent OK == order
-        return true;
+        return !((Name.getText().length() < 1) && (Address.getText().length() < 1));
+
     }
 
     /**

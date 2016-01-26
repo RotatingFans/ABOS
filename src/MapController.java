@@ -73,7 +73,7 @@ class MapController extends MouseAdapter {
                     // calculate the radius from the touch to the center of the dot
                     double radCircle = Math.sqrt((double) (((centerX - X) * (centerX - X)) + ((centerY - Y) * (centerY - Y))));
 
-                    if (radCircle < 8.0) {
+                    if (radCircle < 10.0) {
 
                         Object[] cPoints = m.cPoints;
                         for (Object cPoint : cPoints) {
@@ -89,7 +89,7 @@ class MapController extends MouseAdapter {
                                     List<String> NI = getCustInfo("Set", "NI", cP.getAddress());
                                     //m.Orders.setText(NI.get(NI.size() - 1).toString());
                                     List<String> NH = getCustInfo("Set", "NH", cP.getAddress());
-
+                                    m.buttonPanel.removeAll();
                                     if (o.get(o.size() - 1).equals("True")) {
                                         m.OrderStat.setText("Has Ordered");
                                         /*Get info about customer that has clicked
@@ -107,14 +107,14 @@ class MapController extends MouseAdapter {
                                                 List<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", cP.getAddress());
                                                 Phone.add(PhoneD.get(PhoneD.size() - 1));
                                                 Years.add(yearsD.get(i1));
-                                                if (m.infoPanel.getComponentCount() > 8) {
+/*                                                if (m.infoPanel.getComponentCount() > 8) {
                                                     m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
 
-                                                }
+                                                }*/
                                                 JButton b = new JButton(yearsD.get(i1));
                                                 int finalI = i1;
                                                 b.addActionListener(e1 -> new CustomerReport(NameD.get(NameD.size() - 1), yearsD.get(finalI)));
-                                                m.infoPanel.add(b);
+                                                m.buttonPanel.add(b);
                                             }
                                         }
                                         m.name.setText(Name.get(Name.size() - 1));

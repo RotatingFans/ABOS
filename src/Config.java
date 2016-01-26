@@ -112,34 +112,36 @@ class Config {
         }
     }
 
-    public static void setProp(String property, String setting) {
-        Properties prop = new Properties();
-        OutputStream output = null;
-
-        try {
-
-            output = new FileOutputStream("./LGconfig.properties");
-
-            // set the properties value
-            prop.setProperty(property, setting);
-
-
-            // save properties to project root folder
-            prop.store(output, null);
-
-        } catch (IOException io) {
-            io.printStackTrace();
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-    }
+// --Commented out by Inspection START (1/25/16 10:13 AM):
+//    public static void setProp(String property, String setting) {
+//        Properties prop = new Properties();
+//        OutputStream output = null;
+//
+//        try {
+//
+//            output = new FileOutputStream("./LGconfig.properties");
+//
+//            // set the properties value
+//            prop.setProperty(property, setting);
+//
+//
+//            // save properties to project root folder
+//            prop.store(output, null);
+//
+//        } catch (IOException io) {
+//            io.printStackTrace();
+//        } finally {
+//            if (output != null) {
+//                try {
+//                    output.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        }
+//    }
+// --Commented out by Inspection STOP (1/25/16 10:13 AM)
 
     public static String getProp(String property) {
         Properties prop = new Properties();

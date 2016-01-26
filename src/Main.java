@@ -9,10 +9,7 @@ import java.util.Collection;
 /**
  *
  */
-//TODO Add comments and inline documentation
-//TODO Improve color pallete and design
-//TODO Remove private info
-//TODO Add saved window
+
 class Main extends JFrame {
 
     private JFrame frame;
@@ -67,42 +64,70 @@ class Main extends JFrame {
         panel.setBounds(0, 0, 682, 44);
         frame.getContentPane().add(panel, BorderLayout.NORTH);
         panel.setLayout(new FlowLayout());
+        //Settings
+        {
+            JButton btnNewButton = new JButton("Settings");
+            btnNewButton.addActionListener(e -> new Settings());
+            //btnNewButton.setBounds(429, 5, 107, 39);
+            panel.add(btnNewButton);
+        }
+        //Reports
+        {
+            JButton btnNewButton = new JButton("Reports");
+            btnNewButton.addActionListener(e -> new Reports());
+            //btnNewButton.setBounds(429, 5, 107, 39);
+            panel.add(btnNewButton);
+        }
+        //Add Year
+        {
+            JButton btnNewButton = new JButton("Add Year");
+            btnNewButton.addActionListener(e -> new AddYear());
+            //btnNewButton.setBounds(429, 5, 107, 39);
+            panel.add(btnNewButton);
+        }
+        //Add Customer
+        {
+            JButton AddCustomerB = new JButton("Add Customer");
+            AddCustomerB.addActionListener(e -> new AddCustomerNO());
+            //AddCustomerB.setBounds(274, 5, 140, 39);
+            panel.add(AddCustomerB);
+        }
+        //View Map
+        {
+            JButton ViewMap = new JButton("View Map");
+            ViewMap.addActionListener(e -> {
+                Map window = new Map();
+                window.setVisible(true);
+                window.map().setDisplayToFitMapElements(true, false, false);
 
-        JButton btnNewButton = new JButton("Add Year");
-        btnNewButton.addActionListener(e -> new AddYear());
-        //btnNewButton.setBounds(429, 5, 107, 39);
-        panel.add(btnNewButton);
+            });
+            //	ViewMap.setBounds(165, 5, 107, 39);
+            panel.add(ViewMap);
+        }
+        //Refresh Button
+        {
+            JButton refresh = new JButton("Refresh");
+            refresh.addActionListener(e -> {
+                //Refreshes the Window
+                panel_1.removeAll();
 
-        JButton AddCustomerB = new JButton("Add Customer");
-        AddCustomerB.addActionListener(e -> new AddCustomerNO());
-        //AddCustomerB.setBounds(274, 5, 140, 39);
-        panel.add(AddCustomerB);
+                addYears();
 
-        JButton ViewMap = new JButton("View Map");
-        ViewMap.addActionListener(e -> {
-            Map window = new Map();
-            window.setVisible(true);
-        });
-        //	ViewMap.setBounds(165, 5, 107, 39);
-        panel.add(ViewMap);
-        JButton refresh = new JButton("Refresh");
-        refresh.addActionListener(e -> {
-            //Refreshes the Window
-            panel_1.removeAll();
+                frame.invalidate();
+                frame.validate();
+                frame.repaint();
+                panel_1.repaint();
 
-            addYears();
-
-            frame.invalidate();
-            frame.validate();
-            frame.repaint();
-            panel_1.repaint();
-
-        });
-        panel.add(refresh);
-        panel_1 = new JPanel();
-        panel_1.setBounds(0, 50, 682, 386);
-        frame.getContentPane().add(panel_1, BorderLayout.CENTER);
-        panel_1.setLayout(new GridLayout(2, 3, 1, 1));
+            });
+            panel.add(refresh);
+        }
+        //GridLayoutPanel
+        {
+            panel_1 = new JPanel();
+            panel_1.setBounds(0, 50, 682, 386);
+            frame.getContentPane().add(panel_1, BorderLayout.CENTER);
+            panel_1.setLayout(new GridLayout(2, 3, 1, 1));
+        }
         addYears();
 
     }

@@ -36,8 +36,9 @@ public class Map extends JFrame implements JMapViewerEventListener {
     public JLabel Phone = new JLabel("");
     public Object[] cPoints;
     public JPanel infoPanel = new JPanel();
+    public JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private JLabel Orders = new JLabel("");
-    //TODO FIx zoom on map markers and colors
+    //TODO Add coords to customer profile to decrease nomination use.
     private JMapViewerTree treeMap = null;
     private JLabel zoomLabel = null;
     private JLabel zoomValue = null;
@@ -109,6 +110,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
         infoPanel.add(OrdersL);
         infoPanel.add(Orders);
         Orders.setBorder(new EmptyBorder(0, 0, 15, 0));
+        infoPanel.add(buttonPanel);
 
 
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
@@ -116,7 +118,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
         //infoPanel.setLayout(new FlowLayout());
         add(infoPanel, "East");
 
-        map().setTileSource(new OsmTileSource.Mapnik());
+        map().setTileSource(new OsmTileSource.CycleMap());
         map().setTileLoader(new OsmTileLoader(map()));
 
 
@@ -133,7 +135,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
         List<String> Addr = getCustInfo("ADDRESS");
         List<String> Ord = getCustInfo("Ordered");
         List<String> NI = getCustInfo("NI");
-        java.util.List<String> NH = getCustInfo("NH");
+        List<String> NH = getCustInfo("NH");
         cPoints = new Object[Addr.size()];
         for (int i = 0; i < Addr.size(); i++) {
             try {
@@ -141,6 +143,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 double lat = Double.valueOf(coords[0][0].toString());
                 double lon = Double.valueOf(coords[0][1].toString());
                 MapMarkerDot m = new MapMarkerDot(lat, lon);
+
                 cPoints[i] = new cPoint(lat, lon, Addr.get(i));
                 //Determine color of dot
                 //Green = orderd
@@ -162,9 +165,23 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
         }
         new MapController(map(), this);
-        map().setDisplayToFitMapMarkers();
+        map().setZoom(5000);
+
 
     }
+
+
+    public Point centroid(ArrayList<Point> knots) {
+        Point center = new Point();
+        for (Point curr : knots) {
+            center.setLocation(center.getX() + curr.getX(), center.getY() + curr.getY());
+        }
+        return center;
+    }
+
+
+
+
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    private static Coordinate c(double lat, double lon) {
@@ -172,9 +189,11 @@ public class Map extends JFrame implements JMapViewerEventListener {
 //    }
 // --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
-    public static void main(String... args) {
+    public void main(String... args) {
         Map window = new Map();
         window.setVisible(true);
+        map().setDisplayToFitMapElements(true, false, false);
+
 
     }
 
@@ -225,7 +244,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
         return ret;
     }
 
-    private JMapViewer map() {
+    public JMapViewer map() {
         return treeMap.getViewer();
     }
 

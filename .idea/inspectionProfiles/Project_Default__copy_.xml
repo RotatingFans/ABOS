@@ -21,6 +21,11 @@
     <inspection_tool class="AccessToStaticFieldLockedOnInstance" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="AmbiguousFieldAccess" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="AmbiguousMethodCall" enabled="true" level="INFO" enabled_by_default="true" />
+    <inspection_tool class="AndroidDomInspection" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="AndroidElementNotAllowed" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="AndroidMissingOnClickHandler" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="AndroidNonConstantResIdsInSwitch" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="AndroidUnknownAttribute" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="Annotation" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="AnnotationClass" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="AnnotationNamingConvention" enabled="false" level="INFO" enabled_by_default="false">
@@ -250,7 +255,7 @@
     <inspection_tool class="ComparisonOfShortAndChar" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="ComparisonToNaN" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="ConditionSignal" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="ConditionalExpression" enabled="true" level="INFO" enabled_by_default="true">
+    <inspection_tool class="ConditionalExpression" enabled="false" level="INFO" enabled_by_default="false">
       <option name="ignoreSimpleAssignmentsAndReturns" value="false" />
     </inspection_tool>
     <inspection_tool class="ConditionalExpressionWithIdenticalBranches" enabled="true" level="INFO" enabled_by_default="true" />
@@ -755,7 +760,7 @@
     </inspection_tool>
     <inspection_tool class="MultipleTopLevelClassesInFile" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="MultipleTypedDeclaration" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="MultiplyOrDivideByPowerOfTwo" enabled="true" level="INFO" enabled_by_default="true">
+    <inspection_tool class="MultiplyOrDivideByPowerOfTwo" enabled="false" level="INFO" enabled_by_default="false">
       <option name="checkDivision" value="false" />
     </inspection_tool>
     <inspection_tool class="NakedNotify" enabled="true" level="INFO" enabled_by_default="true" />
@@ -997,6 +1002,7 @@
       <option name="ignoreLazyOperators" value="true" />
       <option name="ignoreObscureOperators" value="false" />
     </inspection_tool>
+    <inspection_tool class="ResourceType" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="ResultOfObjectAllocationIgnored" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="ResultSetIndexZero" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="ReturnFromFinallyBlock" enabled="true" level="INFO" enabled_by_default="true" />

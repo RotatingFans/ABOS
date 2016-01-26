@@ -56,6 +56,8 @@ class Reports extends JDialog {
     private JTextField scoutZip;
     private JTextField scoutTown;
     private JTextField scoutState;
+    private JTextField scoutPhone;
+
     private JTextField scoutRank;
     private JTextField logoLoc;
     private String addrFormat = null;
@@ -65,7 +67,7 @@ class Reports extends JDialog {
     private String repTitle = "";
     private File xmlTempFile = null;
 
-    private Reports() {
+    public Reports() {
         initUI();
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -262,7 +264,7 @@ class Reports extends JDialog {
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
 
-        //North
+        //Main
         {
             SteptabbedPane = new JTabbedPane();
             //Report Type
@@ -270,6 +272,7 @@ class Reports extends JDialog {
                 JPanel ReportType = new JPanel(new FlowLayout());
                 {
                     cmbxReportType = new JComboBox<>(new DefaultComboBoxModel<>());
+                    cmbxReportType.setSelectedItem(Config.getProp("ReportType"));
                     cmbxReportType.addActionListener(actionEvent -> {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
 
@@ -292,6 +295,7 @@ class Reports extends JDialog {
             //Report Info
             {
                 ReportInfo = new JPanel(new FlowLayout(FlowLayout.LEADING));
+                //Content
                 {
                     cmbxYears.addActionListener(actionEvent -> {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
@@ -326,6 +330,7 @@ class Reports extends JDialog {
                     JLabel scoutZipL = new JLabel("Scout Zip:");
                     JLabel scoutTownL = new JLabel("Scout Town:");
                     JLabel scoutStateL = new JLabel("Scout State:");
+                    JLabel scoutPhoneL = new JLabel("Scout Phone #:");
                     JLabel scoutRankL = new JLabel("Scout Rank");
                     JLabel logoLocL = new JLabel("Logo Location:");
 
@@ -334,6 +339,7 @@ class Reports extends JDialog {
                     scoutZip = new JTextField(Config.getProp("ScoutZip"), 5);
                     scoutTown = new JTextField(Config.getProp("ScoutTown"), 20);
                     scoutState = new JTextField(Config.getProp("ScoutState"), 20);
+                    scoutPhone = new JTextField(Config.getProp("ScoutPhone"), 10);
                     scoutRank = new JTextField(Config.getProp("ScoutRank"), 20);
                     logoLoc = new JTextField(Config.getProp("logoLoc"), 25);
                     scoutZip.addActionListener(new MyTextActionListener());
@@ -352,43 +358,56 @@ class Reports extends JDialog {
 
                     });
 
-
+                    //ScoutName
                     {
                         JPanel group = new JPanel(flow);
                         ReportInfo.add(scoutNameL);
                         ReportInfo.add(scoutName);
                         ReportInfo.add(group);
                     }
+                    //ScoutStAddress
                     {
                         JPanel group = new JPanel(flow);
                         group.add(scoutStAddrL);
                         group.add(scoutStAddr);
                         ReportInfo.add(group);
                     }
+                    //ScoutZip
                     {
                         JPanel group = new JPanel(flow);
                         group.add(scoutZipL);
                         group.add(scoutZip);
                         ReportInfo.add(group);
                     }
+                    //ScoutTown
                     {
                         JPanel group = new JPanel(flow);
                         group.add(scoutTownL);
                         group.add(scoutTown);
                         ReportInfo.add(group);
                     }
+                    //ScoutState
                     {
                         JPanel group = new JPanel(flow);
                         group.add(scoutStateL);
                         group.add(scoutState);
                         ReportInfo.add(group);
                     }
+                    //ScoutPhone
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(scoutPhoneL);
+                        group.add(scoutPhone);
+                        ReportInfo.add(group);
+                    }
+                    //ScoutRank
                     {
                         JPanel group = new JPanel(flow);
                         group.add(scoutRankL);
                         group.add(scoutRank);
                         ReportInfo.add(group);
                     }
+                    //LogoLocation
                     {
                         JPanel group = new JPanel(flow);
                         group.add(logoLocL);
@@ -404,39 +423,47 @@ class Reports extends JDialog {
             {
                 JPanel ReportPreview = new JPanel(new FlowLayout());
                 {
-
+                    //TODO Display PDF preview
+                    //TODO offer save as
+                    //TODO offer print
                 }
-                SteptabbedPane.addTab("Report Type", ReportPreview);
+                SteptabbedPane.addTab("Report Preview", ReportPreview);
 
             }
 
             contentPanel.add(SteptabbedPane, BorderLayout.CENTER);
         }
 
-
+        //Buttons
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
+            //Next
             {
                 nextButton = new JButton("Next -->");
                 nextButton.setEnabled(false);
                 buttonPane.add(nextButton);
                 getRootPane().setDefaultButton(nextButton);
             }
+            //OK
             JButton okButton;
             {
                 okButton = new JButton("OK");
                 okButton.setEnabled(false);
                 buttonPane.add(okButton);
             }
+            //Cancel
             JButton cancelButton;
             {
                 cancelButton = new JButton("Cancel");
 
                 buttonPane.add(cancelButton);
             }
+            //OK Button Action
             okButton.addActionListener(e -> dispose());
+            okButton.setActionCommand("OK");
+            //NextButton Action
             nextButton.addActionListener(e -> {
 
                 switch (SteptabbedPane.getSelectedIndex()) {
@@ -470,8 +497,7 @@ class Reports extends JDialog {
                 SteptabbedPane.setSelectedIndex(SteptabbedPane.getSelectedIndex() + 1);
 
             });
-            okButton.setActionCommand("OK");
-
+            //Cancel Button Action
             cancelButton.addActionListener(e -> dispose());
             cancelButton.setActionCommand("Cancel");
         }
@@ -489,10 +515,11 @@ class Reports extends JDialog {
             // Root element
             Element rootElement = doc.createElement("LawnGardenReports");
             doc.appendChild(rootElement);
+            //Info Elements
+            Element info = doc.createElement("info");
+            rootElement.appendChild(info);
+
             {
-                //Info Elements
-                Element info = doc.createElement("info");
-                rootElement.appendChild(info);
                 // Scoutname elements
                 {
                     Element ScoutName = doc.createElement("name");
@@ -535,21 +562,10 @@ class Reports extends JDialog {
                     splitting.appendChild(doc.createTextNode(Splitting));
                     info.appendChild(splitting);
                 }
-                // TotalCost elements
-                {
-                    Element TotalCost = doc.createElement("TotalCost");
-                    TotalCost.appendChild(doc.createTextNode(Double.toString(totL)));
-                    info.appendChild(TotalCost);
-                }
-                // TotalQuantity elements
-                {
-                    Element TotalQuantity = doc.createElement("totalQuantity");
-                    TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
-                    info.appendChild(TotalQuantity);
-                }
+
             }
+            //Column Elements
             {
-                //Column Elements
                 Element columns = doc.createElement("columns");
                 rootElement.appendChild(columns);
                 String[] Columns = {"ID", "Name", "Unit Size", "Unit Cost", "Quantity", "Extended Price"};
@@ -566,11 +582,10 @@ class Reports extends JDialog {
             }
             switch (cmbxReportType.getSelectedItem().toString()) {
 //TODO Add Split by customer option
-                //TODO Fix GUI Sizing
-                //TODO Fix total cost box
 
                 case "Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString());
+                    //Products for year
                 {
                     //Product Elements
                     Element products = doc.createElement("customerYear");
@@ -587,31 +602,37 @@ class Reports extends JDialog {
                         {
                             Element Product = doc.createElement("Product");
                             products.appendChild(Product);
+                            //ID
                             {
                                 Element ID = doc.createElement("ID");
                                 ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
                                 Product.appendChild(ID);
                             }
+                            //Name
                             {
                                 Element Name = doc.createElement("Name");
                                 Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
                                 Product.appendChild(Name);
                             }
+                            //Size
                             {
                                 Element Size = doc.createElement("Size");
                                 Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
                                 Product.appendChild(Size);
                             }
+                            //UnitCost
                             {
                                 Element UnitCost = doc.createElement("UnitCost");
                                 UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
                                 Product.appendChild(UnitCost);
                             }
+                            //Quantity
                             {
                                 Element Quantity = doc.createElement("Quantity");
                                 Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
                                 Product.appendChild(Quantity);
                             }
+                            //TotalCost
                             {
                                 Element TotalCost = doc.createElement("TotalCost");
                                 TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
@@ -620,15 +641,30 @@ class Reports extends JDialog {
                             }
                         }
                     }
+                    //Total Cost for list
                     {
                         Element tCostE = doc.createElement("totalCost");
                         tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
                         products.appendChild(tCostE);
                     }
+                    // OverallTotalCost elements
+                    {
+                        Element TotalCost = doc.createElement("TotalCost");
+                        TotalCost.appendChild(doc.createTextNode(Double.toString(totL)));
+                        info.appendChild(TotalCost);
+                    }
+                    // OverallTotalQuantity elements
+                    {
+                        Element TotalQuantity = doc.createElement("totalQuantity");
+                        TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
+                        info.appendChild(TotalQuantity);
+                    }
                 }
                 break;
+
                 case "Customer Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString(), cmbxCustomers.getSelectedItem().toString());
+                    //Set Items
                 {
                     //Product Elements
                     Element products = doc.createElement("customerYear");
@@ -640,61 +676,83 @@ class Reports extends JDialog {
                         products.appendChild(title);
                     }
                     double tCost = 0.0;
-
+                    //For each product ordered, enter info
                     for (Object[] aRowDataF : rowDataF) {
+
+                        Element Product = doc.createElement("Product");
+                        products.appendChild(Product);
+                        //ID
                         {
-                            Element Product = doc.createElement("Product");
-                            products.appendChild(Product);
-                            {
-                                Element ID = doc.createElement("ID");
-                                ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                                Product.appendChild(ID);
-                            }
-                            {
-                                Element Name = doc.createElement("Name");
-                                Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                                Product.appendChild(Name);
-                            }
-                            {
-                                Element Size = doc.createElement("Size");
-                                Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                                Product.appendChild(Size);
-                            }
-                            {
-                                Element UnitCost = doc.createElement("UnitCost");
-                                UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                                Product.appendChild(UnitCost);
-                            }
-                            {
-                                Element Quantity = doc.createElement("Quantity");
-                                Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                                Product.appendChild(Quantity);
-                            }
-                            {
-                                Element TotalCost = doc.createElement("TotalCost");
-                                TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                tCost += Double.parseDouble(aRowDataF[5].toString());
-                                Product.appendChild(TotalCost);
-                            }
+                            Element ID = doc.createElement("ID");
+                            ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                            Product.appendChild(ID);
                         }
+                        //Name
+                        {
+                            Element Name = doc.createElement("Name");
+                            Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                            Product.appendChild(Name);
+                        }
+                        //Size
+                        {
+                            Element Size = doc.createElement("Size");
+                            Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                            Product.appendChild(Size);
+                        }
+                        //UnitCost
+                        {
+                            Element UnitCost = doc.createElement("UnitCost");
+                            UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                            Product.appendChild(UnitCost);
+                        }
+                        //Quantity
+                        {
+                            Element Quantity = doc.createElement("Quantity");
+                            Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                            Product.appendChild(Quantity);
+                        }
+                        //Extended Price
+                        {
+                            Element TotalCost = doc.createElement("TotalCost");
+                            TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                            tCost += Double.parseDouble(aRowDataF[5].toString());
+                            Product.appendChild(TotalCost);
+                        }
+
                     }
+                    //Total Cost for this Year
                     {
                         Element tCostE = doc.createElement("totalCost");
                         tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
                         products.appendChild(tCostE);
                     }
+                    // OverallTotalCost elements
+                    {
+                        Element TotalCost = doc.createElement("TotalCost");
+                        TotalCost.appendChild(doc.createTextNode(Double.toString(totL)));
+                        info.appendChild(TotalCost);
+                    }
+                    // OverallTotalQuantity elements
+                    {
+                        Element TotalQuantity = doc.createElement("totalQuantity");
+                        TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
+                        info.appendChild(TotalQuantity);
+                    }
                 }
                 break;
+
                 case "Customer All-time Totals":
                     String Qname = cmbxCustomers.getSelectedItem().toString();
                     Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = getYears();
+                    //For Each Year
                     for (String year : years) {
+                        //Get Customer with name ?
                         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE NAME=?")) {
 
                             prep.setString(1, Qname);
                             try (ResultSet rs = prep.executeQuery()) {
-
+                                //Loop through customers
                                 while (rs.next()) {
                                     customerYears.add(year);
                                     //Product Elements
@@ -708,34 +766,41 @@ class Reports extends JDialog {
                                     }
                                     fillTable(year, cmbxCustomers.getSelectedItem().toString());
                                     double tCost = 0.0;
+                                    //For each product in the table set the data
                                     for (Object[] aRowDataF : rowDataF) {
                                         Element Product = doc.createElement("Product");
                                         products.appendChild(Product);
+                                        //ID
                                         {
                                             Element ID = doc.createElement("ID");
                                             ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
                                             Product.appendChild(ID);
                                         }
+                                        //Name
                                         {
                                             Element Name = doc.createElement("Name");
                                             Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
                                             Product.appendChild(Name);
                                         }
+                                        //Size
                                         {
                                             Element Size = doc.createElement("Size");
                                             Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
                                             Product.appendChild(Size);
                                         }
+                                        //UnitCost
                                         {
                                             Element UnitCost = doc.createElement("UnitCost");
                                             UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
                                             Product.appendChild(UnitCost);
                                         }
+                                        //Quanity
                                         {
                                             Element Quantity = doc.createElement("Quantity");
                                             Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
                                             Product.appendChild(Quantity);
                                         }
+                                        //Total Cost
                                         {
                                             Element TotalCost = doc.createElement("TotalCost");
                                             TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
@@ -743,11 +808,15 @@ class Reports extends JDialog {
                                             Product.appendChild(TotalCost);
                                         }
                                     }
-                                    Element tCostE = doc.createElement("totalCost");
-                                    tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
-                                    products.appendChild(tCostE);
+                                    //Total for current customer
+                                    {
+                                        Element tCostE = doc.createElement("totalCost");
+                                        tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                                        products.appendChild(tCostE);
+                                    }
 
                                 }
+
                             }
                             ////DbInt.pCon.close();
 
@@ -755,7 +824,19 @@ class Reports extends JDialog {
                             e.printStackTrace();
                         }
                     }
-                    break;
+                    // OverallTotalCost elements
+                {
+                    Element TotalCost = doc.createElement("TotalCost");
+                    TotalCost.appendChild(doc.createTextNode(Double.toString(totL)));
+                    info.appendChild(TotalCost);
+                }
+                // OverallTotalQuantity elements
+                {
+                    Element TotalQuantity = doc.createElement("totalQuantity");
+                    TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
+                    info.appendChild(TotalQuantity);
+                }
+                break;
             }
 
             OutputStreamWriter osw = null;
@@ -853,9 +934,10 @@ class Reports extends JDialog {
         List<String> OrderQuantities = new ArrayList<>();
         int noVRows = 0;
         //Fills OrderQuantities Array
+        //For Each product get quantity
         for (int i = 0; i < ProductInfoArray.get(2).size(); i++) {
 
-            int quant;
+            int quant = 0;
             try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?")) {
 
                 //prep.setString(1, Integer.toString(i));
@@ -863,7 +945,8 @@ class Reports extends JDialog {
                 try (ResultSet rs = prep.executeQuery()) {
 
                     while (rs.next()) {
-                        DbInt.pCon.close();
+                        quant = Integer.parseInt(rs.getString(String.valueOf(i)));
+                        //DbInt.pCon.close();
                     }
                 }
 
@@ -871,7 +954,6 @@ class Reports extends JDialog {
                 e.printStackTrace();
             }
             //Fills row array for table with info
-            quant = Integer.parseInt(OrderQuantities.get(OrderQuantities.size() - 1));
 
 
             if (quant > 0) {
@@ -1087,59 +1169,68 @@ class Reports extends JDialog {
 
         Processor proc = new Processor(false);
         XsltCompiler comp = proc.newXsltCompiler();
-        XsltExecutable exp = comp.compile(new StreamSource(new File("Report.xsl")));
-        XdmNode source = proc.newDocumentBuilder().build(new StreamSource(xmlTempFile));
-        Serializer out = proc.newSerializer(os);
-        out.setOutputProperty(Property.METHOD, "html");
-        out.setOutputProperty(Property.INDENT, "yes");
-        XsltTransformer trans = exp.load();
-        trans.setInitialContextNode(source);
-        trans.setDestination(out);
-        trans.transform();
-        ByteArrayOutputStream baos;
-        baos = (ByteArrayOutputStream) os;
 
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        Tidy tidy = new Tidy(); // obtain a new Tidy instance
-        // set desired config options using tidy setters
-        OutputStream osT = new ByteArrayOutputStream();
-        tidy.setQuiet(true);
-        tidy.setIndentContent(true);
-        tidy.setDocType("loose");
-        tidy.setFixBackslash(true);
-        tidy.setFixUri(true);
-        tidy.setShowWarnings(false);
-        tidy.setEscapeCdata(true);
-        tidy.setXHTML(true);
-        tidy.setInputEncoding("utf8");
-        tidy.setOutputEncoding("utf8");
-
-        FileOutputStream fos;
-        String fileNameWithPath = "PDF-XhtmlRendered.pdf";
-        try {
-            fos = new FileOutputStream(fileNameWithPath);
-
-            tidy.parse(is, osT); // run tidy, providing an input and output streamp
-            ByteArrayOutputStream baosT;
-            baosT = (ByteArrayOutputStream) osT;
-            try (InputStream isT = new ByteArrayInputStream(baosT.toByteArray())) {
-                Document document = XMLResource.load(isT).getDocument();
-
-                //preview.setDocument(document);
-
-                ITextRenderer renderer = new ITextRenderer();
-                renderer.setDocument(document, null);
-
-                renderer.layout();
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("Report.xsl")) {
 
 
-                renderer.createPDF(fos);
-                fos.close();
+            XsltExecutable exp = comp.compile(new StreamSource(in));
+            XdmNode source = proc.newDocumentBuilder().build(new StreamSource(xmlTempFile));
+            Serializer out = proc.newSerializer(os);
+            out.setOutputProperty(Property.METHOD, "html");
+            out.setOutputProperty(Property.INDENT, "yes");
+            XsltTransformer trans = exp.load();
+            trans.setInitialContextNode(source);
+            trans.setDestination(out);
+            trans.transform();
+            ByteArrayOutputStream baos;
+            baos = (ByteArrayOutputStream) os;
+
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+
+            Tidy tidy = new Tidy(); // obtain a new Tidy instance
+            // set desired config options using tidy setters
+            OutputStream osT = new ByteArrayOutputStream();
+            tidy.setQuiet(true);
+            tidy.setIndentContent(true);
+            tidy.setDocType("loose");
+            tidy.setFixBackslash(true);
+            tidy.setFixUri(true);
+            tidy.setShowWarnings(false);
+            tidy.setEscapeCdata(true);
+            tidy.setXHTML(true);
+            tidy.setInputEncoding("utf8");
+            tidy.setOutputEncoding("utf8");
+
+            FileOutputStream fos;
+            String fileNameWithPath = "PDF-XhtmlRendered.pdf";
+            try {
+                fos = new FileOutputStream(fileNameWithPath);
+
+                tidy.parse(is, osT); // run tidy, providing an input and output streamp
+                ByteArrayOutputStream baosT;
+                baosT = (ByteArrayOutputStream) osT;
+                try (InputStream isT = new ByteArrayInputStream(baosT.toByteArray())) {
+                    Document document = XMLResource.load(isT).getDocument();
+
+                    //preview.setDocument(document);
+
+                    ITextRenderer renderer = new ITextRenderer();
+                    renderer.setDocument(document, null);
+
+                    renderer.layout();
+
+
+                    renderer.createPDF(fos);
+                    fos.close();
+                }
+
+            } catch (RuntimeException | IOException | DocumentException e) {
+                e.printStackTrace();
             }
-
-        } catch (RuntimeException | IOException | DocumentException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         /*
           Compile and execute a simple transformation that applies a stylesheet to an input file,

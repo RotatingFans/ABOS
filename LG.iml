@@ -7,24 +7,15 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Lib" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="LG" level="project" />
-    <orderEntry type="library" exported="" name="JMapViewer" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/derby.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" exported="" name="saxon9he" level="project" />
-    <orderEntry type="library" exported="" name="fop" level="project" />
-    <orderEntry type="library" exported="" name="iText-2.0.8" level="project" />
     <orderEntry type="library" exported="" name="core-renderer" level="project" />
+    <orderEntry type="library" exported="" name="derby" level="project" />
     <orderEntry type="library" exported="" name="jtidy-r938" level="project" />
+    <orderEntry type="library" exported="" name="saxon9he" level="project" />
+    <orderEntry type="library" exported="" name="iText-2.0.8" level="project" />
+    <orderEntry type="library" exported="" name="JMapViewer" level="project" />
   </component>
 </module>

@@ -7,7 +7,6 @@ import java.sql.SQLException;
 /**
  * Created by patrick on 4/11/15.
  */
-//TODO Move to AddCustomer Window
 class AddCustomerNO extends JDialog {
     private final JPanel contentPanel = new JPanel();
     private JTextField Address;
