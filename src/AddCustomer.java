@@ -75,12 +75,7 @@ class AddCustomer extends JDialog {
         edit = true;
         initUI();
         //Set the address
-        String[] addr = new String[4];
-        try {
-            addr = getAddress(getAddr(customerName));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String[] addr = getAddress(customerName);
         String streetAdd = addr[3];
         String city = addr[0];
         String state = addr[1];
@@ -299,8 +294,8 @@ class AddCustomer extends JDialog {
 
 
     /**
-     * Return Address of the customer whose name has been specified.
-     *
+     * Returns Street Address of the customer whose name has been specified.
+     * @deprecated
      * @param name The name of the customer
      * @return The Address of the specified customer
      */
@@ -762,7 +757,9 @@ class AddCustomer extends JDialog {
          */
         try {
             String address = String.format("%s %s, %s", Address.getText(), Town.getText(), State.getText());//Formats address
-
+            Object[][] coords = GetCoords(address);
+            double lat = Double.valueOf(coords[0][0].toString());
+            double lon = Double.valueOf(coords[0][1].toString());
             if (!edit) {
                 // Inserts order data into order tables
 
@@ -812,20 +809,30 @@ class AddCustomer extends JDialog {
 
                     //Inserts into customer table for year
                     String Id = Ids.get(Ids.size() - 1);
-                    try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS,PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?)")) {
+                    try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                         writeCust.setString(1, Name.getText());
-                        writeCust.setString(2, address);
-                        writeCust.setString(3, Phone.getText());
-                        writeCust.setString(4, Id);
-                        writeCust.setString(5, Boolean.toString(Paid.isSelected()));
-                        writeCust.setString(6, Boolean.toString(Delivered.isSelected()));
-                        writeCust.setString(7, Email.getText());
-                        writeCust.setString(8, DonationsT.getText());
+                        writeCust.setString(2, Address.getText());
+                        writeCust.setString(3, Town.getText());
+                        writeCust.setString(4, State.getText());
+                        writeCust.setString(5, ZipCode.getText());
+                        writeCust.setDouble(6, lat);
+                        writeCust.setDouble(7, lon);
+                        writeCust.setString(8, Phone.getText());
+                        writeCust.setString(9, Id);
+                        writeCust.setString(10, Boolean.toString(Paid.isSelected()));
+                        writeCust.setString(11, Boolean.toString(Delivered.isSelected()));
+                        writeCust.setString(12, Email.getText());
+                        writeCust.setString(13, DonationsT.getText());
                         writeCust.execute();
                     }
                     //Inserts into customer table for all years.
-                    try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, ORDERED, NI, NH) VALUES(?,'True','False','False')")) {
-                        prep1.setString(1, address);
+                    try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
+                        prep1.setString(1, Address.getText());
+                        prep1.setString(2, Town.getText());
+                        prep1.setString(3, State.getText());
+                        prep1.setString(4, ZipCode.getText());
+                        prep1.setDouble(5, lat);
+                        prep1.setDouble(6, lon);
                         prep1.execute();
                     }
                 }
@@ -834,24 +841,34 @@ class AddCustomer extends JDialog {
             }
             if (edit) {
                 //Updates Customer table in set DB with new info
-                try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE CUSTOMERS SET ADDRESS=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
+                try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE CUSTOMERS SET ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
-                    updateCust.setString(1, address);
-                    updateCust.setString(2, getAddr(NameEditCustomer));
+                    updateCust.setString(1, Address.getText());
+                    updateCust.setString(2, Town.getText());
+                    updateCust.setString(3, State.getText());
+                    updateCust.setString(4, ZipCode.getText());
+                    updateCust.setDouble(5, lat);
+                    updateCust.setDouble(6, lon);
+                    updateCust.setString(7, getAddr(NameEditCustomer));
                     updateCust.execute();
 
                 }
 
                 //Updates customer table in Year DB with new info.
-                try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?,PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
+                try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
                     CustomerUpdate.setString(1, Name.getText());
-                    CustomerUpdate.setString(2, address);
-                    CustomerUpdate.setString(3, Phone.getText());
-                    CustomerUpdate.setString(4, Boolean.toString(Paid.isSelected()));
-                    CustomerUpdate.setString(5, Boolean.toString(Delivered.isSelected()));
-                    CustomerUpdate.setString(6, Email.getText());
-                    CustomerUpdate.setString(7, DonationsT.getText());
-                    CustomerUpdate.setString(8, NameEditCustomer);
+                    CustomerUpdate.setString(2, Address.getText());
+                    CustomerUpdate.setString(3, Town.getText());
+                    CustomerUpdate.setString(4, State.getText());
+                    CustomerUpdate.setString(5, ZipCode.getText());
+                    CustomerUpdate.setDouble(6, lat);
+                    CustomerUpdate.setDouble(7, lon);
+                    CustomerUpdate.setString(8, Phone.getText());
+                    CustomerUpdate.setString(9, Boolean.toString(Paid.isSelected()));
+                    CustomerUpdate.setString(10, Boolean.toString(Delivered.isSelected()));
+                    CustomerUpdate.setString(11, Email.getText());
+                    CustomerUpdate.setString(12, DonationsT.getText());
+                    CustomerUpdate.setString(13, NameEditCustomer);
 
                     CustomerUpdate.execute();
                 }
@@ -878,6 +895,8 @@ class AddCustomer extends JDialog {
 
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -962,9 +981,9 @@ class AddCustomer extends JDialog {
         return fullName;
     }
 
-    private String[] getAddress(String Address) throws IOException {
+    private Object[][] GetCoords(String Address) throws IOException {
         String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", AddressF);
+        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -973,78 +992,156 @@ class AddCustomer extends JDialog {
         con.setRequestMethod("GET");
 
         //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+        String USER_AGENT = "Mozilla/5.0";
+        con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
-        String city = "";
-        String State = "";
-        String zipCode = "";
-        String hN = "";
-        String strt = "";
+
         try (BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()))) {
             String inputLine;
             StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null) {
-                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
                 response.append(inputLine);
             }
 
 
-            //String city = "";
-            try {
-                InputSource is = new InputSource(new StringReader(response.toString()));
-
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(is);
-
-                //optional, but recommended
-                //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-                doc.getDocumentElement().normalize();
-
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-                NodeList nList = doc.getElementsByTagName("place");
-
-
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                    Node nNode = nList.item(temp);
-
-
-                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-                        Element eElement = (Element) nNode;
-
-
-                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-                        zipCode = eElement.getElementsByTagName("postcode").item(0).getTextContent();
-                        hN = eElement.getElementsByTagName("house_number").item(0).getTextContent();
-                        strt = eElement.getElementsByTagName("road").item(0).getTextContent();
-
-
-                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            //print result
+            return parseCoords(response.toString());
         }
-        //print result
-        //	return parseCoords(response.toString());
+    }
+
+    private Object[][] parseCoords(String xml) {
+        Object[][] coords = new Object[1][2];
+        try {
+            InputSource is = new InputSource(new StringReader(xml));
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(is);
+
+            //optional, but recommended
+            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+            doc.getDocumentElement().normalize();
+
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+            NodeList nList = doc.getElementsByTagName("place");
+
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+
+                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+
+
+                    coords[0][0] = ((Element) nNode).getAttributeNode("lat").getValue();
+                    coords[0][1] = ((Element) nNode).getAttributeNode("lon").getValue();
+
+
+                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return coords;
+    }
+
+    private String[] getAddress(String name) {
+//        String AddressF = Address.replace(" ", "+");
+//        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", AddressF);
+//
+//        URL obj = new URL(url);
+//        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//
+//        // optional default is GET
+//        con.setRequestMethod("GET");
+//
+//        //add request header
+//        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+//
+//        int responseCode = con.getResponseCode();
+//        System.out.println("\nSending 'GET' request to URL : " + url);
+//        System.out.println("Response Code : " + responseCode);
+//        String city = "";
+//        String State = "";
+//        String zipCode = "";
+//        String hN = "";
+//        String strt = "";
+//        try (BufferedReader in = new BufferedReader(
+//                new InputStreamReader(con.getInputStream()))) {
+//            String inputLine;
+//            StringBuilder response = new StringBuilder();
+//
+//            while ((inputLine = in.readLine()) != null) {
+//                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
+//                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
+//                response.append(inputLine);
+//            }
+//
+//
+//            //String city = "";
+//            try {
+//                InputSource is = new InputSource(new StringReader(response.toString()));
+//
+//                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+//                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+//                Document doc = dBuilder.parse(is);
+//
+//                //optional, but recommended
+//                //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+//                doc.getDocumentElement().normalize();
+//
+//                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+//
+//                NodeList nList = doc.getElementsByTagName("place");
+//
+//
+//                for (int temp = 0; temp < nList.getLength(); temp++) {
+//
+//                    Node nNode = nList.item(temp);
+//
+//
+//                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+//
+//                        Element eElement = (Element) nNode;
+//
+//
+//                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
+//                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
+//                        zipCode = eElement.getElementsByTagName("postcode").item(0).getTextContent();
+//                        hN = eElement.getElementsByTagName("house_number").item(0).getTextContent();
+//                        strt = eElement.getElementsByTagName("road").item(0).getTextContent();
+//
+//
+//                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+//
+//
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        //print result
+//        //	return parseCoords(response.toString());
+        String city = DbInt.getCustInf(year, name, "TOWN");
+        String State = DbInt.getCustInf(year, name, "STATE");
+        String zipCode = DbInt.getCustInf(year, name, "ZIPCODE");
+        String strtAddress = DbInt.getCustInf(year, name, "ADDRESS");
         String[] address = new String[4];
         address[0] = city;
         address[1] = State;
         address[2] = zipCode;
-        address[3] = hN + ' ' + strt;
+        address[3] = strtAddress;
         return address;
     }
 

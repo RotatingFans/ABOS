@@ -82,7 +82,7 @@ class MapController extends MouseAdapter {
                                 if (cP.getLon() == mapMarker.getLon()) {
                                     System.out.println(mapMarker + " is clicked");
                                     System.out.println(cP.getAddress());
-                                    m.Address.setText(cP.getAddress());
+                                    m.Address.setText(String.format("%s %s, %s", cP.getAddress(), cP.getCity(), cP.getState()));
 
                                     List<String> o = getCustInfo("Set", "ORDERED", cP.getAddress());
                                     // m.Orders.setText(o.get(o.size() - 1).toString());

@@ -1,13 +1,17 @@
 class cPoint {
     private String AddressM;
+    private String CityM;
+    private String StateM;
     private Double LatM;
     private Double LonM;
 
 
-    public cPoint(Double Lat, Double Lon, String Address) {
+    public cPoint(Double Lat, Double Lon, String Address, String City, String State) {
         AddressM = Address;
         LonM = Lon;
         LatM = Lat;
+        CityM = City;
+        StateM = State;
 
     }
 
@@ -33,6 +37,14 @@ class cPoint {
 
     public String getAddress() {
         return AddressM;
+    }
+
+    public String getCity() {
+        return CityM;
+    }
+
+    public String getState() {
+        return StateM;
     }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):

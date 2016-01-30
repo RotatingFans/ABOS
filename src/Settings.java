@@ -489,7 +489,7 @@ class Settings extends JDialog {
                 prop.setProperty("databaseLocation", DbLoc.getText());
                 DbInt.createDb("Set");
 
-                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address VARChAR(255), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
+                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
                     prep.execute();
                 } catch (SQLException e) {
                     e.printStackTrace();

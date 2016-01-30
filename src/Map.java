@@ -5,23 +5,11 @@ import org.openstreetmap.gui.jmapviewer.OsmTileLoader;
 import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -133,18 +121,22 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
         //Add customers to map
         List<String> Addr = getCustInfo("ADDRESS");
+        List<String> Town = getCustInfo("TOWN");
+        List<String> State = getCustInfo("STATE");
+
+        List<String> latL = getCustInfo("Lat");
+        List<String> lonL = getCustInfo("Lon");
         List<String> Ord = getCustInfo("Ordered");
         List<String> NI = getCustInfo("NI");
         List<String> NH = getCustInfo("NH");
         cPoints = new Object[Addr.size()];
         for (int i = 0; i < Addr.size(); i++) {
             try {
-                Object[][] coords = GetCoords(Addr.get(i));
-                double lat = Double.valueOf(coords[0][0].toString());
-                double lon = Double.valueOf(coords[0][1].toString());
+                double lat = Double.valueOf(latL.get(i));
+                double lon = Double.valueOf(lonL.get(i));
                 MapMarkerDot m = new MapMarkerDot(lat, lon);
-
-                cPoints[i] = new cPoint(lat, lon, Addr.get(i));
+                String address = String.format("%s %s, %s", Addr.get(i), Town.get(i), State.get(i));//Formats address
+                cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
                 //Determine color of dot
                 //Green = orderd
                 //Cyan = Not Interested
@@ -169,19 +161,6 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
 
     }
-
-
-    public Point centroid(ArrayList<Point> knots) {
-        Point center = new Point();
-        for (Point curr : knots) {
-            center.setLocation(center.getX() + curr.getX(), center.getY() + curr.getY());
-        }
-        return center;
-    }
-
-
-
-
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    private static Coordinate c(double lat, double lon) {
@@ -273,91 +252,87 @@ public class Map extends JFrame implements JMapViewerEventListener {
      * @return Object[][] that holds the houses coordinates
      * @throws IOException
      */
-    private Object[][] GetCoords(String Address) throws IOException {
-        String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
+//    private Object[][] GetCoords(String Address) throws IOException {
+//
+//
+////        String AddressF = Address.replace(" ", "+");
+////        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
+////
+////        URL obj = new URL(url);
+////        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+////
+////        // optional default is GET
+////        con.setRequestMethod("GET");
+////
+////        //add request header
+////        String USER_AGENT = "Mozilla/5.0";
+////        con.setRequestProperty("User-Agent", USER_AGENT);
+////
+////        int responseCode = con.getResponseCode();
+////        System.out.println("\nSending 'GET' request to URL : " + url);
+////        System.out.println("Response Code : " + responseCode);
+////
+////        try (BufferedReader in = new BufferedReader(
+////                new InputStreamReader(con.getInputStream()))) {
+////            String inputLine;
+////            StringBuilder response = new StringBuilder();
+////
+////            while ((inputLine = in.readLine()) != null) {
+////                response.append(inputLine);
+////            }
+////
+////
+////            //print result
+////            return parseCoords(response.toString());
+//        return null;
+//      }
 
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        String USER_AGENT = "Mozilla/5.0";
-        con.setRequestProperty("User-Agent", USER_AGENT);
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-
-
-            //print result
-            return parseCoords(response.toString());
-        }
-    }
 
     /**Gets coords of an address
      * @param xml THe XML to parse
      * @return Object[][] that holds the houses coordinates
      */
-    private Object[][] parseCoords(String xml) {
-        Object[][] coords = new Object[1][2];
-        try {
-            InputSource is = new InputSource(new StringReader(xml));
+//    private Object[][] parseCoords(String xml) {
+//        Object[][] coords = new Object[1][2];
+//        try {
+//            InputSource is = new InputSource(new StringReader(xml));
+//
+//            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+//            Document doc = dBuilder.parse(is);
+//
+//            //optional, but recommended
+//            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+//            doc.getDocumentElement().normalize();
+//
+//            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+//
+//            NodeList nList = doc.getElementsByTagName("place");
+//
+//
+//            for (int temp = 0; temp < nList.getLength(); temp++) {
+//
+//                Node nNode = nList.item(temp);
+//
+//
+//                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+//
+//
+//
+//                    coords[0][0] = ((Element) nNode).getAttributeNode("lat").getValue();
+//                    coords[0][1] = ((Element) nNode).getAttributeNode("lon").getValue();
+//
+//
+//                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+//
+//
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return coords;
+//    }
 
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
-
-            //optional, but recommended
-            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-            NodeList nList = doc.getElementsByTagName("place");
-
-
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                Node nNode = nList.item(temp);
-
-
-                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-
-
-                    coords[0][0] = ((Element) nNode).getAttributeNode("lat").getValue();
-                    coords[0][1] = ((Element) nNode).getAttributeNode("lon").getValue();
-
-
-                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return coords;
-    }
-    /*
-      Initialize the contents of the frame.
-     */
-/*	private void initialize() {
-        frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}*/
 
 }
