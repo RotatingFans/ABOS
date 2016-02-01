@@ -299,6 +299,7 @@ class AddCustomer extends JDialog {
      * @param name The name of the customer
      * @return The Address of the specified customer
      */
+    @Deprecated
     private String getAddr(String name) {
         return DbInt.getCustInf(year, name, "ADDRESS");
     }
@@ -894,9 +895,7 @@ class AddCustomer extends JDialog {
                 }
 
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }

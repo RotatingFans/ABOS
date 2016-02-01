@@ -337,7 +337,7 @@ class Year extends JDialog {
             //return rs;
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
+            Logger lgr = Logger.getLogger(Year.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {

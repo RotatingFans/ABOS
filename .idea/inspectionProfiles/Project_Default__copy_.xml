@@ -881,7 +881,7 @@
     <inspection_tool class="OverlyStrongTypeCast" enabled="true" level="INFO" enabled_by_default="true">
       <option name="ignoreInMatchingInstanceof" value="false" />
     </inspection_tool>
-    <inspection_tool class="OverridableMethodCallDuringObjectConstruction" enabled="true" level="INFO" enabled_by_default="true" />
+    <inspection_tool class="OverridableMethodCallDuringObjectConstruction" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="OverriddenMethodCallDuringObjectConstruction" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="PackageDotHtmlMayBePackageInfo" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="PackageInMultipleModules" enabled="true" level="INFO" enabled_by_default="true" />

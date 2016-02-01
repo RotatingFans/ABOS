@@ -77,7 +77,6 @@ class Settings extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
-        String eol = System.getProperty("line.separator");
         //Main Content
         {
             north = new JTabbedPane();

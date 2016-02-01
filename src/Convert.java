@@ -25,7 +25,6 @@ import java.util.Collection;
 public class Convert {
     private Convert() {
         System.out.println("Starting");
-        Collection<String> ret = new ArrayList<>();
         Iterable<String> years = getYears();
         Object[][] yearData; //this is generic can use String[] directly
         for (String year : years) {
@@ -157,7 +156,7 @@ public class Convert {
             }
 
 
-        }//End of for
+        }
 
         int noOfCust = 1;
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
@@ -300,27 +299,29 @@ public class Convert {
         return ret;
     }
 
-    private static Iterable<String> getCustomers(String year) {
-        Collection<String> ret = new ArrayList<>();
-
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
-             ResultSet rs = prep.executeQuery()) {
-
-
-            while (rs.next()) {
-
-                ret.add(rs.getString("NAME"));
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        return ret;
-    }
+// --Commented out by Inspection START (2/1/16 5:28 PM):
+//    private static Iterable<String> getCustomers(String year) {
+//        Collection<String> ret = new ArrayList<>();
+//
+//        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+//             ResultSet rs = prep.executeQuery()) {
+//
+//
+//            while (rs.next()) {
+//
+//                ret.add(rs.getString("NAME"));
+//
+//            }
+//            ////DbInt.pCon.close();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        return ret;
+//    }
+// --Commented out by Inspection STOP (2/1/16 5:28 PM)
 
     private String[] GetAddress(String Address) throws IOException {
         String AddressF = Address.replace(" ", "+");

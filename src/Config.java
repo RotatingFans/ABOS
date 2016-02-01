@@ -2,7 +2,10 @@
   Created by patrick on 4/16/15.
  */
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 class Config {
@@ -83,34 +86,36 @@ class Config {
         return loc;
     }
 
-    public static void setDbLoc(String Loc) {
-        Properties prop = new Properties();
-        OutputStream output = null;
-
-        try {
-
-            output = new FileOutputStream("./LGconfig.properties");
-
-            // set the properties value
-            prop.setProperty("databaseLocation", Loc);
-
-
-            // save properties to project root folder
-            prop.store(output, null);
-
-        } catch (IOException io) {
-            io.printStackTrace();
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-    }
+// --Commented out by Inspection START (2/1/16 5:28 PM):
+//    public static void setDbLoc(String Loc) {
+//        Properties prop = new Properties();
+//        OutputStream output = null;
+//
+//        try {
+//
+//            output = new FileOutputStream("./LGconfig.properties");
+//
+//            // set the properties value
+//            prop.setProperty("databaseLocation", Loc);
+//
+//
+//            // save properties to project root folder
+//            prop.store(output, null);
+//
+//        } catch (IOException io) {
+//            io.printStackTrace();
+//        } finally {
+//            if (output != null) {
+//                try {
+//                    output.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        }
+//    }
+// --Commented out by Inspection STOP (2/1/16 5:28 PM)
 
 // --Commented out by Inspection START (1/25/16 10:13 AM):
 //    public static void setProp(String property, String setting) {

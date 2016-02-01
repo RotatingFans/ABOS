@@ -339,10 +339,16 @@ class CustomerReport extends JDialog {
 
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
         table = new JTable();
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        table.setColumnSelectionAllowed(true);
+        table.setRowSelectionAllowed(false);
+
+        table.setColumnSelectionAllowed(false);
+        table.setRowSelectionAllowed(true);
         table.setModel(new MyDefaultTableModel(rowDataF));
         table.setFillsViewportHeight(true);
-        table.setColumnSelectionAllowed(true);
-        table.setCellSelectionEnabled(true);
+
 
     }
 

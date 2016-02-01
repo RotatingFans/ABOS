@@ -1,4 +1,3 @@
-import com.lowagie.text.DocumentException;
 import net.sf.saxon.s9api.*;
 import net.sf.saxon.s9api.Serializer.Property;
 import org.w3c.dom.Document;
@@ -504,7 +503,7 @@ class Reports extends JDialog {
                         File myFile = new File(pdfLoc.getText());
                         Desktop.getDesktop().open(myFile);
                     } catch (IOException ex) {
-                        // no application registered for PDFs
+                        ex.printStackTrace();
                     }
                 }
                 dispose();
@@ -961,7 +960,6 @@ class Reports extends JDialog {
 
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
         //Defines Arraylist of order quanitities
-        List<String> OrderQuantities = new ArrayList<>();
         int noVRows = 0;
         //Fills OrderQuantities Array
         //For Each product get quantity
@@ -1110,7 +1108,7 @@ class Reports extends JDialog {
             //return rs;
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
+            Logger lgr = Logger.getLogger(Reports.class.getName());
 
             if ((ex.getErrorCode() == 50000)
                     && "XJ015".equals(ex.getSQLState())) {
@@ -1264,8 +1262,6 @@ class Reports extends JDialog {
                     fos.close();
                 }
 
-            } catch (RuntimeException | IOException | DocumentException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -243,6 +243,7 @@ class CSV2XML extends JDialog {
                 Transformer aTransformer = tranFactory.newTransformer();
                 aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                //aTransformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
                 aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
                 Source src = new DOMSource(newDoc);

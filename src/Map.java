@@ -9,7 +9,6 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -135,7 +134,6 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 double lat = Double.valueOf(latL.get(i));
                 double lon = Double.valueOf(lonL.get(i));
                 MapMarkerDot m = new MapMarkerDot(lat, lon);
-                String address = String.format("%s %s, %s", Addr.get(i), Town.get(i), State.get(i));//Formats address
                 cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
                 //Determine color of dot
                 //Green = orderd
@@ -168,13 +166,15 @@ public class Map extends JFrame implements JMapViewerEventListener {
 //    }
 // --Commented out by Inspection STOP (1/2/2016 12:01 PM)
 
-    public void main(String... args) {
-        Map window = new Map();
-        window.setVisible(true);
-        map().setDisplayToFitMapElements(true, false, false);
-
-
-    }
+// --Commented out by Inspection START (2/1/16 5:28 PM):
+//    public void main(String... args) {
+//        Map window = new Map();
+//        window.setVisible(true);
+//        map().setDisplayToFitMapElements(true, false, false);
+//
+//
+//    }
+// --Commented out by Inspection STOP (2/1/16 5:28 PM)
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
@@ -247,8 +247,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
     }
 
 
-    /**Gets coords of an address
-     * @param Address Address to get coords of
+    /*Gets coords of an address
+      @param Address Address to get coords of
      * @return Object[][] that holds the houses coordinates
      * @throws IOException
      */
@@ -288,8 +288,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
 //      }
 
 
-    /**Gets coords of an address
-     * @param xml THe XML to parse
+    /*Gets coords of an address
+      @param xml THe XML to parse
      * @return Object[][] that holds the houses coordinates
      */
 //    private Object[][] parseCoords(String xml) {
