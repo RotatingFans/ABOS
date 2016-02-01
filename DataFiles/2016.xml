@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LawnGarden>
+    <Products id="0">
+        <ProductID>01-L</ProductID>
+        <ProductName>Pine Bark Mulch - Fine</ProductName>
+        <Size>2 Cu. Ft.</Size>
+        <UnitCost>$6.00</UnitCost>
+    </Products>
+    <Products id="1">
+        <ProductID>02-L</ProductID>
+        <ProductName>Hardwood Mulch - Black Dyed</ProductName>
+        <Size>2 Cu Ft.</Size>
+        <UnitCost>$6.00</UnitCost>
+    </Products>
+    <Products id="2">
+        <ProductID>03-L</ProductID>
+        <ProductName>Right Dress Root Mulch</ProductName>
+        <Size>1.5 Cu. Ft.</Size>
+        <UnitCost>$7.50</UnitCost>
+    </Products>
+    <Products id="3">
+        <ProductID>04-L</ProductID>
+        <ProductName>Bulk Hardwood Mulch - Delivered</ProductName>
+        <Size>1 yard approx.</Size>
+        <UnitCost>$45.00</UnitCost>
+    </Products>
+    <Products id="4">
+        <ProductID>05-L</ProductID>
+        <ProductName>Premium Potting/Garden Soil Dr. Earth (Vegetables, Plants, Flowers, Containers)</ProductName>
+        <Size>1.5 Cu. Ft.</Size>
+        <UnitCost>$18.00</UnitCost>
+    </Products>
+    <Products id="5">
+        <ProductID>06-L</ProductID>
+        <ProductName>Better Potting Soil</ProductName>
+        <Size>40 lbs.</Size>
+        <UnitCost>$6.00</UnitCost>
+    </Products>
+    <Products id="6">
+        <ProductID>07-L</ProductID>
+        <ProductName>Humus (Composted Cow Manure)</ProductName>
+        <Size>40 lbs.</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="7">
+        <ProductID>08-L</ProductID>
+        <ProductName>Better Top Soil</ProductName>
+        <Size>40 lbs.</Size>
+        <UnitCost>$5.00</UnitCost>
+    </Products>
+    <Products id="8">
+        <ProductID>09-L</ProductID>
+        <ProductName>Premium Shady Grass Seed</ProductName>
+        <Size>3 lb. Bag</Size>
+        <UnitCost>$16.00</UnitCost>
+    </Products>
+    <Products id="9">
+        <ProductID>10-L</ProductID>
+        <ProductName>Premium Shady Grass Seed</ProductName>
+        <Size>10 lb. Bag</Size>
+        <UnitCost>$45.00</UnitCost>
+    </Products>
+    <Products id="10">
+        <ProductID>11-L</ProductID>
+        <ProductName>Premium Sunny Grass Seed</ProductName>
+        <Size>3 lb. Bag</Size>
+        <UnitCost>$15.00</UnitCost>
+    </Products>
+    <Products id="11">
+        <ProductID>12-L</ProductID>
+        <ProductName>Premium Sunny Grass Seed</ProductName>
+        <Size>10 lb. Bag</Size>
+        <UnitCost>$45.00</UnitCost>
+    </Products>
+    <Products id="12">
+        <ProductID>13-L</ProductID>
+        <ProductName>Premium Rye Grass Seed</ProductName>
+        <Size>3 lb. Bag</Size>
+        <UnitCost>$15.00</UnitCost>
+    </Products>
+    <Products id="13">
+        <ProductID>14-L</ProductID>
+        <ProductName>Premium Rye Grass Seed</ProductName>
+        <Size>10 lb. Bag</Size>
+        <UnitCost>$45.00</UnitCost>
+    </Products>
+    <Products id="14">
+        <ProductID>15-L</ProductID>
+        <ProductName>Premium Tall Fescue Grass Seed</ProductName>
+        <Size>3 lb. Bag</Size>
+        <UnitCost>$15.00</UnitCost>
+    </Products>
+    <Products id="15">
+        <ProductID>16-L</ProductID>
+        <ProductName>Premium Tall Fescue Grass Seed</ProductName>
+        <Size>10 lb. Bag</Size>
+        <UnitCost>$40.00</UnitCost>
+    </Products>
+    <Products id="16">
+        <ProductID>17-L</ProductID>
+        <ProductName>Seed Accelorator (covers 200 sq.ft.)</ProductName>
+        <Size>10 lb. Bag</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="17">
+        <ProductID>18-L</ProductID>
+        <ProductName>Step 1 Fertilizer and Crab Grass Control 18-00-10 (covers 5000 sq.ft.)</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="18">
+        <ProductID>19-L</ProductID>
+        <ProductName>Step 2 Weed and Feed 20-00-10 (covers 5000 sq.ft.)</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$23.00</UnitCost>
+    </Products>
+    <Products id="19">
+        <ProductID>20-L</ProductID>
+        <ProductName>Step 3 Summer Fertilizer 9-18-10 (covers 5000 sq.ft.)</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$20.00</UnitCost>
+    </Products>
+    <Products id="20">
+        <ProductID>21-L</ProductID>
+        <ProductName>Step 4 Fall Fertilizer 20-00-10 (covers 5000 sq.ft.)</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="21">
+        <ProductID>22-L</ProductID>
+        <ProductName>Step 1 Fertilizer and Crab Grass Control 18-00-10 (covers 10,000 sq.ft.)</ProductName>
+        <Size>40 lbs. Bag</Size>
+        <UnitCost>$39.00</UnitCost>
+    </Products>
+    <Products id="22">
+        <ProductID>23-L</ProductID>
+        <ProductName>Step 2 Weed and Feed 20-00-10 (covers 10,000 sq.ft</ProductName>
+        <Size>40 lbs. Bag</Size>
+        <UnitCost>$41.00</UnitCost>
+    </Products>
+    <Products id="23">
+        <ProductID>24-L</ProductID>
+        <ProductName>Step 3 Summer Fertilizer 9-18-10 covers 10,000 sq.ft)</ProductName>
+        <Size>40 lbs. Bag</Size>
+        <UnitCost>$38.00</UnitCost>
+    </Products>
+    <Products id="24">
+        <ProductID>25-L</ProductID>
+        <ProductName>Step 4 Fall Fertilizer 20-00-10 (covers 10,000 sq.ft.)</ProductName>
+        <Size>40 lbs. Bag</Size>
+        <UnitCost>$43.00</UnitCost>
+    </Products>
+    <Products id="25">
+        <ProductID>26-L</ProductID>
+        <ProductName>Lime Turf Turbo Slow Release (5,000 sq ft)</ProductName>
+        <Size>30 lbs. Bag</Size>
+        <UnitCost>$24.00</UnitCost>
+    </Products>
+    <Products id="26">
+        <ProductID>27-L</ProductID>
+        <ProductName>Holly-tone (Acid-loving Plant Food) - 100% Organic</ProductName>
+        <Size>8 lbs.</Size>
+        <UnitCost>$13.00</UnitCost>
+    </Products>
+    <Products id="27">
+        <ProductID>28-L</ProductID>
+        <ProductName>Holly-tone (Acid-loving Plant Food) - 100% Organic</ProductName>
+        <Size>18 lbs</Size>
+        <UnitCost>$20.00</UnitCost>
+    </Products>
+    <Products id="28">
+        <ProductID>29-L</ProductID>
+        <ProductName>Holly-tone (Acid-loving Plant Food) - 100% Organic</ProductName>
+        <Size>36 lbs.</Size>
+        <UnitCost>$30.00</UnitCost>
+    </Products>
+    <Products id="29">
+        <ProductID>30-L</ProductID>
+        <ProductName>Bio-Tone Starter Plus (slow release starter fertilizer for plants)</ProductName>
+        <Size>4 lbs</Size>
+        <UnitCost>$11.00</UnitCost>
+    </Products>
+    <Products id="30">
+        <ProductID>31-L</ProductID>
+        <ProductName>Bio-Tone Starter Plus (slow release starter fertilizer for plants)</ProductName>
+        <Size>25 lbs</Size>
+        <UnitCost>$45.00</UnitCost>
+    </Products>
+    <Products id="31">
+        <ProductID>32-L</ProductID>
+        <ProductName>Wild Bird Food</ProductName>
+        <Size>20 lbs.</Size>
+        <UnitCost>$15.00</UnitCost>
+    </Products>
+    <Products id="32">
+        <ProductID>33-L</ProductID>
+        <ProductName>Premium Wild Bird Food</ProductName>
+        <Size>25 lbs</Size>
+        <UnitCost>$25.00</UnitCost>
+    </Products>
+    <Products id="33">
+        <ProductID>34-L</ProductID>
+        <ProductName>Wild Bird Suet Cakes (single Nutty Treat)</ProductName>
+        <Size>11.75 oz</Size>
+        <UnitCost>$1.50</UnitCost>
+    </Products>
+    <Products id="34">
+        <ProductID>35-L</ProductID>
+        <ProductName>Wild Bird Suet Cakes (12 pack Nutty Treat )</ProductName>
+        <Size>11.75 oz</Size>
+        <UnitCost>$17.00</UnitCost>
+    </Products>
+    <Products id="35">
+        <ProductID>36-L</ProductID>
+        <ProductName>Finch Mix Lyric</ProductName>
+        <Size>5 lbs</Size>
+        <UnitCost>$12.00</UnitCost>
+    </Products>
+    <Products id="36">
+        <ProductID>37-L</ProductID>
+        <ProductName>Finch Mix Lyric</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$35.00</UnitCost>
+    </Products>
+    <Products id="37">
+        <ProductID>38-L</ProductID>
+        <ProductName>Black Oil Sunflower</ProductName>
+        <Size>25 lbs</Size>
+        <UnitCost>$18.00</UnitCost>
+    </Products>
+    <Products id="38">
+        <ProductID>39-L</ProductID>
+        <ProductName>Lyric Supreme Premium Bird Seed</ProductName>
+        <Size>20 lbs. Bag</Size>
+        <UnitCost>$25.00</UnitCost>
+    </Products>
+    <Products id="39">
+        <ProductID>40-L</ProductID>
+        <ProductName>Biodegrade Lawn Refuse Bags</ProductName>
+        <Size>5 Pack</Size>
+        <UnitCost>$3.50</UnitCost>
+    </Products>
+    <Products id="40">
+        <ProductID>1-FV</ProductID>
+        <ProductName>Geraniums</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$4.50</UnitCost>
+    </Products>
+    <Products id="41">
+        <ProductID>2-FV</ProductID>
+        <ProductName>New Guinea Impatiens (Sun Harmony) - Full Sun</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$4.50</UnitCost>
+    </Products>
+    <Products id="42">
+        <ProductID>3-FV</ProductID>
+        <ProductName>Wave Petunias</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$4.50</UnitCost>
+    </Products>
+    <Products id="43">
+        <ProductID>4-FV</ProductID>
+        <ProductName>Non-Stop Begonias</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$4.50</UnitCost>
+    </Products>
+    <Products id="44">
+        <ProductID>5-FV</ProductID>
+        <ProductName>Dahlia</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$4.50</UnitCost>
+    </Products>
+    <Products id="45">
+        <ProductID>6-FV</ProductID>
+        <ProductName>Vinca Vine</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.50</UnitCost>
+    </Products>
+    <Products id="46">
+        <ProductID>7-FV</ProductID>
+        <ProductName>Dracena</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.50</UnitCost>
+    </Products>
+    <Products id="47">
+        <ProductID>8-FV</ProductID>
+        <ProductName>Gerbera Daisy</ProductName>
+        <Size>6 inch pot</Size>
+        <UnitCost>$7.00</UnitCost>
+    </Products>
+    <Products id="48">
+        <ProductID>10-FV</ProductID>
+        <ProductName>New Guinea Impatiens Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="49">
+        <ProductID>11-FV</ProductID>
+        <ProductName>Marigold Dwarf Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="50">
+        <ProductID>12-FV</ProductID>
+        <ProductName>Petunias Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="51">
+        <ProductID>13-FV</ProductID>
+        <ProductName>Snap Dragons Dwarf Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="52">
+        <ProductID>14-FV</ProductID>
+        <ProductName>Vinca Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="53">
+        <ProductID>15-FV</ProductID>
+        <ProductName>Begonia Green Leaf Mix</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$4.00</UnitCost>
+    </Products>
+    <Products id="54">
+        <ProductID>16-FV</ProductID>
+        <ProductName>Verbena (Homestead Purple) - Full Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="55">
+        <ProductID>17-FV</ProductID>
+        <ProductName>Fuchsia - Shade/Partial Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="56">
+        <ProductID>18-FV</ProductID>
+        <ProductName>Santa Fe Begonias (Orangy-Red, Droopy) - Partial Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="57">
+        <ProductID>19-FV</ProductID>
+        <ProductName>New Guinea Impatiens - Partial Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="58">
+        <ProductID>20-FV</ProductID>
+        <ProductName>Ivy Geranium - Partial Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="59">
+        <ProductID>21-FV</ProductID>
+        <ProductName>Wave Petunias - Full Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="60">
+        <ProductID>22-FV</ProductID>
+        <ProductName>Million Bell Petunias - Full Sun (Calibrachoa)</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="61">
+        <ProductID>23-FV</ProductID>
+        <ProductName>Floribunda Geraniums - Full Sun</ProductName>
+        <Size>10" hanging basket</Size>
+        <UnitCost>$19.50</UnitCost>
+    </Products>
+    <Products id="62">
+        <ProductID>24-FV</ProductID>
+        <ProductName>Italian Parsley</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="63">
+        <ProductID>25-FV</ProductID>
+        <ProductName>Italian Oregano</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="64">
+        <ProductID>26-FV</ProductID>
+        <ProductName>Sage</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="65">
+        <ProductID>27-FV</ProductID>
+        <ProductName>English Tyme</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="66">
+        <ProductID>28-FV</ProductID>
+        <ProductName>Chives</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="67">
+        <ProductID>29-FV</ProductID>
+        <ProductName>Rosemary</ProductName>
+        <Size>4.5 inch pot</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="68">
+        <ProductID>30-FV</ProductID>
+        <ProductName>Cayenne chili pepper</ProductName>
+        <Size>3 inch pot</Size>
+        <UnitCost>$3.50</UnitCost>
+    </Products>
+    <Products id="69">
+        <ProductID>31-FV</ProductID>
+        <ProductName>Jalapeño</ProductName>
+        <Size>3 inch pot</Size>
+        <UnitCost>$3.50</UnitCost>
+    </Products>
+    <Products id="70">
+        <ProductID>32-FV</ProductID>
+        <ProductName>Tomatoes - Early Girl</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="71">
+        <ProductID>33-FV</ProductID>
+        <ProductName>Tomatoes - Better Boy</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="72">
+        <ProductID>34-FV</ProductID>
+        <ProductName>Tomatoes - Sweet 100 (Cherry Tomato)</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="73">
+        <ProductID>35-FV</ProductID>
+        <ProductName>Bell Peppers</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="74">
+        <ProductID>36-FV</ProductID>
+        <ProductName>Cucumber</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="75">
+        <ProductID>37-FV</ProductID>
+        <ProductName>Zucchini</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="76">
+        <ProductID>38-FV</ProductID>
+        <ProductName>Basil (Sweet)</ProductName>
+        <Size>6-pack</Size>
+        <UnitCost>$3.75</UnitCost>
+    </Products>
+    <Products id="77">
+        <ProductID>1-P</ProductID>
+        <ProductName>Daylily - Entrapment (Lavender w/ Lime)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="78">
+        <ProductID>2-P</ProductID>
+        <ProductName>Daylily - Stella d'Oro' (Golden Yellow)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="79">
+        <ProductID>3-P</ProductID>
+        <ProductName>Daylily - Strawberry Candy (Pink w/ Rasberry)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="80">
+        <ProductID>4-P</ProductID>
+        <ProductName>Creeping Phlox - Emerald Blue (Blue)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="81">
+        <ProductID>5-P</ProductID>
+        <ProductName>Creeping Phlox - Emerald Pink (Pink)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="82">
+        <ProductID>6-P</ProductID>
+        <ProductName>Creeping Phlox - Snowflakes (White)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="83">
+        <ProductID>7-P</ProductID>
+        <ProductName>Creeping Phlox - Purple Beauty (Purple)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="84">
+        <ProductID>8-P</ProductID>
+        <ProductName>Cone Flower - Cheyenne Spirit (Multi)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="85">
+        <ProductID>9-P</ProductID>
+        <ProductName>Cone Flower - Baby Swan (White)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="86">
+        <ProductID>10-P</ProductID>
+        <ProductName>Cone Flower - Primadonna Deep Rose (Pink)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="87">
+        <ProductID>11-P</ProductID>
+        <ProductName>Black-eyed Susan - Goldstrum (yellow)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="88">
+        <ProductID>12-P</ProductID>
+        <ProductName>Helleborus - Ivory Prince (white)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$17.00</UnitCost>
+    </Products>
+    <Products id="89">
+        <ProductID>13-P</ProductID>
+        <ProductName>Helleborus - Pink Fizz (pink)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$17.00</UnitCost>
+    </Products>
+    <Products id="90">
+        <ProductID>14-P</ProductID>
+        <ProductName>Helleborus - Mango Magic (apricot)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$17.00</UnitCost>
+    </Products>
+    <Products id="91">
+        <ProductID>15-P</ProductID>
+        <ProductName>German Iris - Breakers (purple and blue)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="92">
+        <ProductID>16-P</ProductID>
+        <ProductName>German Iris - Orange Harvest (orange)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="93">
+        <ProductID>17-P</ProductID>
+        <ProductName>German Iris - Rio Rojo (red)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="94">
+        <ProductID>18-P</ProductID>
+        <ProductName>German Iris - Raven Girl (black)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="95">
+        <ProductID>19-P</ProductID>
+        <ProductName>German Iris - Butter and Sugar (yellow)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$14.00</UnitCost>
+    </Products>
+    <Products id="96">
+        <ProductID>20-P</ProductID>
+        <ProductName>Volcano Phlox - Pink with red eye</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$12.00</UnitCost>
+    </Products>
+    <Products id="97">
+        <ProductID>21-P</ProductID>
+        <ProductName>Volcano Phlox - Purple</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$12.00</UnitCost>
+    </Products>
+    <Products id="98">
+        <ProductID>22-P</ProductID>
+        <ProductName>Volcano Phlox - Ruby</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$12.00</UnitCost>
+    </Products>
+    <Products id="99">
+        <ProductID>23-P</ProductID>
+        <ProductName>Volcano Phlox - White</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$12.00</UnitCost>
+    </Products>
+    <Products id="100">
+        <ProductID>24-P</ProductID>
+        <ProductName>Hens and Chicks</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$9.00</UnitCost>
+    </Products>
+    <Products id="101">
+        <ProductID>25-P</ProductID>
+        <ProductName>Liriope - Variegated (Green/White Foliage,Purple Flowers)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="102">
+        <ProductID>26-P</ProductID>
+        <ProductName>Ornamental Grass - Elijah Blue (Low, Compact Blue Grass)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="103">
+        <ProductID>27-P</ProductID>
+        <ProductName>Hosta - Patriot (Varigated, Green &amp; White Leaves)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="104">
+        <ProductID>28-P</ProductID>
+        <ProductName>Hosta - Royal Standard (Dark Green Leaves)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="105">
+        <ProductID>29-P</ProductID>
+        <ProductName>Hosta - Blue Angel (Deep Blue Leaves)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="106">
+        <ProductID>30-P</ProductID>
+        <ProductName>Hosta - Pauls Glory (Green &amp; Yellow Leaves)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="107">
+        <ProductID>31-P</ProductID>
+        <ProductName>Viola Etain - (purple, white, yellow)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="108">
+        <ProductID>32-P</ProductID>
+        <ProductName>Nepeta (Cat Mint) - Walkers Low (blue)</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="109">
+        <ProductID>33-P</ProductID>
+        <ProductName>Clematis (Raymond Evison) - Fleuri (dark purple/pink)</ProductName>
+        <Size>1.5 gal pot</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="110">
+        <ProductID>34-P</ProductID>
+        <ProductName>Clematis (Raymond Evison) - Rebecca (red)</ProductName>
+        <Size>1.5 gal pot</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="111">
+        <ProductID>35-P</ProductID>
+        <ProductName>Clematis (Raymond Evison) - Chelsea (pale blush/white)</ProductName>
+        <Size>1.5 gal pot</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="112">
+        <ProductID>36-P</ProductID>
+        <ProductName>Clematis (Raymond Evison) - Cherokee (pink)</ProductName>
+        <Size>1.5 gal pot</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="113">
+        <ProductID>37-P</ProductID>
+        <ProductName>Clematis (Raymond Evison) - Samaritan Jo (white w/purple edge)</ProductName>
+        <Size>1.5 gal pot</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="114">
+        <ProductID>38-P</ProductID>
+        <ProductName>Shasta Daisy (Becky - White</ProductName>
+        <Size>1 gal. pot</Size>
+        <UnitCost>$8.00</UnitCost>
+    </Products>
+    <Products id="115">
+        <ProductID>39-P</ProductID>
+        <ProductName>Knockout Rose (Red Blooming Shrub)</ProductName>
+        <Size>2 gal. container</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="116">
+        <ProductID>40-P</ProductID>
+        <ProductName>Knockout Rose (Blushing (Pink) Blooming Shrub)</ProductName>
+        <Size>2 gal. container</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+    <Products id="117">
+        <ProductID>41-P</ProductID>
+        <ProductName>Knockout Rose (Sunny (Yellow Blooming Shrub)</ProductName>
+        <Size>2 gal. container</Size>
+        <UnitCost>$22.00</UnitCost>
+    </Products>
+</LawnGarden>

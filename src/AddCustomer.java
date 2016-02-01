@@ -1277,7 +1277,7 @@ class AddCustomer extends JDialog {
     private double getLpOrdered() {
         double lp = 0.0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
-            if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-P")) {
+            if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-P") || ProductTable.getModel().getValueAt(i, 0).toString().contains("-FV")) {
                 lp += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
 
             }
