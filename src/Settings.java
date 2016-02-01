@@ -52,6 +52,7 @@ class Settings extends JDialog {
     private JTextField scoutPhone;
     private JTextField scoutRank;
     private JTextField logoLoc;
+    private JTextField pdfLoc;
 
     public Settings() {
         initUI();
@@ -111,9 +112,7 @@ class Settings extends JDialog {
                     //Create Database?
                     {
                         CreateDb = new JCheckBox("Create Database");
-                        if (!Config.doesConfExist()) {
-                            CreateDb.setSelected(false);
-                        }
+                        CreateDb.setSelected(!Config.doesConfExist());
                         CreateDb.addActionListener(e -> {
                             String message = "<html><head><style>" +
                                     "h3 {text-align:center;}" +
@@ -340,6 +339,7 @@ class Settings extends JDialog {
 
                     JLabel scoutRankL = new JLabel("Scout Rank");
                     JLabel logoLocL = new JLabel("Logo Location:");
+                    JLabel pdfLocL = new JLabel("PDF Save location:");
 
                     scoutName = new JTextField(Config.getProp("ScoutName"), 20);
                     scoutStAddr = new JTextField(Config.getProp("ScoutAddress"), 20);
@@ -364,6 +364,24 @@ class Settings extends JDialog {
                             logoLoc.setText(chooser.getSelectedFile().getAbsolutePath());
                         }
 
+                    });
+                    pdfLoc = new JTextField(Config.getProp("pdfLoc"), 25);
+                    JButton pdfButton = new JButton("...");
+                    pdfButton.addActionListener(e -> {
+                        //Creates a JFileChooser to select save location of XML file
+                        JFileChooser chooser = new JFileChooser();
+                        FileNameExtensionFilter filter = new FileNameExtensionFilter("Portable Document Formant", "pdf");
+                        chooser.setFileFilter(filter);
+                        int returnVal = chooser.showSaveDialog(this);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            if (chooser.getSelectedFile().getName().endsWith(".pdf")) {
+                                pdfLoc.setText(chooser.getSelectedFile().getAbsolutePath());
+                            } else {
+                                pdfLoc.setText(chooser.getSelectedFile().getAbsolutePath() + ".pdf");
+
+                            }
+
+                        }
                     });
 
                     //ScoutName
@@ -423,20 +441,28 @@ class Settings extends JDialog {
                         group.add(logoButton);
                         ReportInfo.add(group);
                     }
+                    //PDF Location
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(pdfLocL);
+                        group.add(pdfLoc);
+                        group.add(pdfButton);
+                        ReportInfo.add(group);
+                    }
                 }
 
 
             }
             north.addTab("Reports", ReportInfo);
 
-            //Liscence
-            JPanel Licesnce = new JPanel(flow);
+            //license
+            JPanel License = new JPanel(flow);
             {
-                //Display Liscence info
+                //Display license info
 
 
             }
-            north.addTab("Licence", Licesnce);
+            north.addTab("License", License);
             contentPanel.add(north, BorderLayout.CENTER);
         }
 
@@ -481,11 +507,10 @@ class Settings extends JDialog {
 
         try {
 
-            output = new FileOutputStream("./LGconfig.properties");
             //Add DB setting
-            if (Config.doesConfExist()) {
+            if (Config.doesConfExist() && !CreateDb.isSelected()) {
                 prop.setProperty("databaseLocation", DbLoc.getText());
-            } else {
+            } else if (!Config.doesConfExist() || CreateDb.isSelected()) {
                 prop.setProperty("databaseLocation", DbLoc.getText());
                 DbInt.createDb("Set");
 
@@ -501,6 +526,7 @@ class Settings extends JDialog {
                 }
 
             }
+            output = new FileOutputStream("./LGconfig.properties");
 
             //AddCustomer
             {
@@ -524,8 +550,12 @@ class Settings extends JDialog {
                 prop.setProperty("ScoutZip", scoutZip.getText());
                 prop.setProperty("ScoutTown", scoutTown.getText());
                 prop.setProperty("ScoutState", scoutState.getText());
+                prop.setProperty("ScoutPhone", scoutPhone.getText());
+
                 prop.setProperty("ScoutRank", scoutRank.getText());
                 prop.setProperty("logoLoc", logoLoc.getText());
+                prop.setProperty("pdfLoc", pdfLoc.getText());
+
             }
             prop.store(output, null);
 

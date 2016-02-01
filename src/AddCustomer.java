@@ -841,7 +841,7 @@ class AddCustomer extends JDialog {
             }
             if (edit) {
                 //Updates Customer table in set DB with new info
-                try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE CUSTOMERS SET ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
+                try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
                     updateCust.setString(1, Address.getText());
                     updateCust.setString(2, Town.getText());

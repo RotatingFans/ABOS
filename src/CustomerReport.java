@@ -176,7 +176,7 @@ class CustomerReport extends JDialog {
             btnNewButton.addActionListener(e -> {
                 for (int i = 0; i < table.getRowCount(); i++) {
 
-                    if (textField.getText().contains((CharSequence) table.getModel().getValueAt(i, 0))) {
+                    if (table.getModel().getValueAt(i, 0).toString().contains(textField.getText())) {
                         table.setRowSelectionInterval(i, i);
                     }
                 }

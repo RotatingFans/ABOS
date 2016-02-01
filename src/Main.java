@@ -51,6 +51,8 @@ class Main extends JFrame {
         if (!Config.doesConfExist()) {
             new Settings();
         }
+
+
         frame = new JFrame();
         frame.setBounds(100, 100, 690, 470);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -156,7 +158,16 @@ class Main extends JFrame {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("Error Start");
+
+            System.out.println(e.getErrorCode());
+            System.out.println(e.getSQLState());
+            System.out.println(e.getLocalizedMessage());
+            System.out.println(e.getMessage());
+            System.out.println("Error end");
+
+
         }
         //Create a button for each year
         for (String aRet : ret) {

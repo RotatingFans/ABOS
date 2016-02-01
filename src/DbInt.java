@@ -1,6 +1,8 @@
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,8 +139,24 @@ class DbInt {
                 lgr.log(Level.INFO, "Derby shut down normally");
 
             } else {
+                if (Objects.equals(ex.getSQLState(), "XJ004")) {
+                    String message = "<html><head><style>" +
+                            "h3 {text-align:center;}" +
+                            "h4 {text-align:center;}" +
+                            "</style></head>" +
+                            "<body><h3>ERROR!</h3>" +
+                            "<h3>The program cannot find the specified database</h3>" +
+                            "<h4>Would you like to open the settings Dialog to create it?</h4>" +
+                            "</body>" +
+                            "</html>";
+                    int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+                    if (cont == 0) {
+                        new Settings();
+                    }
 
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                } else {
+                    ex.printStackTrace();
+                }
             }
 
         } finally {

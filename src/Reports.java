@@ -60,12 +60,15 @@ class Reports extends JDialog {
 
     private JTextField scoutRank;
     private JTextField logoLoc;
+    private JTextField pdfLoc;
+
     private String addrFormat = null;
     private double totL = 0.0;
     private double QuantL = 0.0;
     private String Splitting = "";
     private String repTitle = "";
     private File xmlTempFile = null;
+
 
     public Reports() {
         initUI();
@@ -333,6 +336,7 @@ class Reports extends JDialog {
                     JLabel scoutPhoneL = new JLabel("Scout Phone #:");
                     JLabel scoutRankL = new JLabel("Scout Rank");
                     JLabel logoLocL = new JLabel("Logo Location:");
+                    JLabel pdfLocL = new JLabel("PDF Save location:");
 
                     scoutName = new JTextField(Config.getProp("ScoutName"), 20);
                     scoutStAddr = new JTextField(Config.getProp("ScoutAddress"), 20);
@@ -356,6 +360,24 @@ class Reports extends JDialog {
                             logoLoc.setText(chooser.getSelectedFile().getAbsolutePath());
                         }
 
+                    });
+                    pdfLoc = new JTextField(Config.getProp("pdfLoc"), 25);
+                    JButton pdfButton = new JButton("...");
+                    pdfButton.addActionListener(e -> {
+                        //Creates a JFileChooser to select save location of XML file
+                        JFileChooser chooser = new JFileChooser();
+                        FileNameExtensionFilter filter = new FileNameExtensionFilter("Portable Document Formant", "pdf");
+                        chooser.setFileFilter(filter);
+                        int returnVal = chooser.showSaveDialog(this);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            if (chooser.getSelectedFile().getName().endsWith(".pdf")) {
+                                pdfLoc.setText(chooser.getSelectedFile().getAbsolutePath());
+                            } else {
+                                pdfLoc.setText(chooser.getSelectedFile().getAbsolutePath() + ".pdf");
+
+                            }
+
+                        }
                     });
 
                     //ScoutName
@@ -415,21 +437,19 @@ class Reports extends JDialog {
                         group.add(logoButton);
                         ReportInfo.add(group);
                     }
+                    //PDF Location
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(pdfLocL);
+                        group.add(pdfLoc);
+                        group.add(pdfButton);
+                        ReportInfo.add(group);
+                    }
                 }
                 SteptabbedPane.addTab("Report Info", ReportInfo);
 
             }
-            //Report Preview
-            {
-                JPanel ReportPreview = new JPanel(new FlowLayout());
-                {
-                    //TODO Display PDF preview
-                    //TODO offer save as
-                    //TODO offer print
-                }
-                SteptabbedPane.addTab("Report Preview", ReportPreview);
 
-            }
 
             contentPanel.add(SteptabbedPane, BorderLayout.CENTER);
         }
@@ -461,40 +481,44 @@ class Reports extends JDialog {
                 buttonPane.add(cancelButton);
             }
             //OK Button Action
-            okButton.addActionListener(e -> dispose());
+            okButton.addActionListener(e -> {
+                switch (cmbxReportType.getSelectedIndex()) {
+                    case 1:
+                        repTitle = "Year of " + cmbxYears.getSelectedItem();
+                        Splitting = "Year:";
+                        break;
+                    case 2:
+                        repTitle = cmbxCustomers.getSelectedItem() + " " + cmbxYears.getSelectedItem();
+                        Splitting = "";
+                        break;
+                    case 3:
+                        repTitle = "All orders of " + cmbxCustomers.getSelectedItem();
+                        Splitting = "Year:";
+                        break;
+
+                }
+                addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
+                convert();
+                if (Desktop.isDesktopSupported()) {
+                    try {
+                        File myFile = new File(pdfLoc.getText());
+                        Desktop.getDesktop().open(myFile);
+                    } catch (IOException ex) {
+                        // no application registered for PDFs
+                    }
+                }
+                dispose();
+            });
             okButton.setActionCommand("OK");
             //NextButton Action
             nextButton.addActionListener(e -> {
 
-                switch (SteptabbedPane.getSelectedIndex()) {
-                    case 0:
                         updateCombos();
-                        break;
-                    case 1:
-                        switch (cmbxReportType.getSelectedIndex()) {
-                            case 1:
-                                repTitle = "Year of " + cmbxYears.getSelectedItem();
-                                Splitting = "Year:";
-                                break;
-                            case 2:
-                                repTitle = cmbxCustomers.getSelectedItem() + " " + cmbxYears.getSelectedItem();
-                                Splitting = "";
-                                break;
-                            case 3:
-                                repTitle = "All orders of " + cmbxCustomers.getSelectedItem();
-                                Splitting = "Year:";
-                                break;
-
-                        }
-                        addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
-                        convert();
-                        break;
-                    case 2:
-                        break;
-
-
-                }
+                nextButton.setEnabled(false);
+                okButton.setEnabled(true);
                 SteptabbedPane.setSelectedIndex(SteptabbedPane.getSelectedIndex() + 1);
+
+
 
             });
             //Cancel Button Action
@@ -542,6 +566,12 @@ class Reports extends JDialog {
                 {
                     Element rank = doc.createElement("rank");
                     rank.appendChild(doc.createTextNode(scoutRank.getText()));
+                    info.appendChild(rank);
+                }
+                // phone elements
+                {
+                    Element rank = doc.createElement("PhoneNumber");
+                    rank.appendChild(doc.createTextNode(scoutPhone.getText()));
                     info.appendChild(rank);
                 }
                 // Logo elements
@@ -1201,15 +1231,25 @@ class Reports extends JDialog {
             tidy.setInputEncoding("utf8");
             tidy.setOutputEncoding("utf8");
 
-            FileOutputStream fos;
-            String fileNameWithPath = "PDF-XhtmlRendered.pdf";
-            try {
-                fos = new FileOutputStream(fileNameWithPath);
+            File xhtml;
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+            String tmpDirectoryOp = System.getProperty("java.io.tmpdir");
+            File tmpDirectory = new File(tmpDirectoryOp);
+            xhtml = File.createTempFile("LGReportXhtml" + timeStamp, ".xhtml", tmpDirectory);
+            xhtml.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(pdfLoc.getText());
+                 FileOutputStream xhtmlfos = new FileOutputStream(xhtml)) {
+
 
                 tidy.parse(is, osT); // run tidy, providing an input and output streamp
                 ByteArrayOutputStream baosT;
                 baosT = (ByteArrayOutputStream) osT;
-                try (InputStream isT = new ByteArrayInputStream(baosT.toByteArray())) {
+
+                baosT.writeTo(xhtmlfos);
+                //fstream.deleteOnExit();
+
+
+                try (InputStream isT = new FileInputStream(xhtml)) {
                     Document document = XMLResource.load(isT).getDocument();
 
                     //preview.setDocument(document);
@@ -1225,6 +1265,8 @@ class Reports extends JDialog {
                 }
 
             } catch (RuntimeException | IOException | DocumentException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } catch (IOException e) {
