@@ -67,6 +67,7 @@ class Reports extends JDialog {
     private String Splitting = "";
     private String repTitle = "";
     private File xmlTempFile = null;
+    private File[] xmlTempFileA = null;
 
 
     public Reports() {
@@ -286,6 +287,8 @@ class Reports extends JDialog {
                     });
                     cmbxReportType.addItem("");
                     cmbxReportType.addItem("Year Totals");
+                    cmbxReportType.addItem("Year Totals; Spilt by Customer");
+
                     cmbxReportType.addItem("Customer Year Totals");
                     cmbxReportType.addItem("Customer All-time Totals");
 
@@ -303,7 +306,7 @@ class Reports extends JDialog {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
 
                         Object selected = comboBox.getSelectedItem();
-                        if (cmbxReportType.getSelectedIndex() == 2) {
+                        if (cmbxReportType.getSelectedIndex() == 3) {
                             if (cmbxYears.getSelectedItem() != "") {
                                 Iterable<String> customersY = getCustomers(cmbxYears.getSelectedItem().toString());
                                 cmbxCustomers.removeAllItems();
@@ -312,8 +315,6 @@ class Reports extends JDialog {
                                 customersY.forEach(cmbxCustomers::addItem);
                                 cmbxCustomers.setEnabled(true);
                             }
-                        } else if (cmbxYears.getSelectedItem() != "") {
-                            nextButton.setEnabled(true);
                         }
 
                     });
@@ -481,23 +482,35 @@ class Reports extends JDialog {
             }
             //OK Button Action
             okButton.addActionListener(e -> {
+                addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
                 switch (cmbxReportType.getSelectedIndex()) {
                     case 1:
                         repTitle = "Year of " + cmbxYears.getSelectedItem();
                         Splitting = "Year:";
+                        convert();
+
                         break;
                     case 2:
                         repTitle = cmbxCustomers.getSelectedItem() + " " + cmbxYears.getSelectedItem();
                         Splitting = "";
+                        convert4Split();
+
                         break;
                     case 3:
+                        repTitle = cmbxCustomers.getSelectedItem() + " " + cmbxYears.getSelectedItem();
+                        Splitting = "";
+                        convert();
+
+                        break;
+                    case 4:
                         repTitle = "All orders of " + cmbxCustomers.getSelectedItem();
                         Splitting = "Year:";
+                        convert();
+
                         break;
 
                 }
-                addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
-                convert();
+
                 if (Desktop.isDesktopSupported()) {
                     try {
                         File myFile = new File(pdfLoc.getText());
@@ -512,11 +525,10 @@ class Reports extends JDialog {
             //NextButton Action
             nextButton.addActionListener(e -> {
 
-                        updateCombos();
+                updateCombos();
                 nextButton.setEnabled(false);
                 okButton.setEnabled(true);
                 SteptabbedPane.setSelectedIndex(SteptabbedPane.getSelectedIndex() + 1);
-
 
 
             });
@@ -524,6 +536,255 @@ class Reports extends JDialog {
             cancelButton.addActionListener(e -> dispose());
             cancelButton.setActionCommand("Cancel");
         }
+    }
+
+    private void convert4Split() {
+
+
+        Iterable<String> customers = getCustomers(cmbxYears.getSelectedItem().toString());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder domBuilder = null;
+        try {
+            domBuilder = domFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+
+        Document doc = domBuilder.newDocument();
+        Element rootElement = doc.createElement("LawnGardenReports");
+        doc.appendChild(rootElement);
+        //Info Elements
+        Element info = doc.createElement("info");
+        rootElement.appendChild(info);
+
+        {
+            // Scoutname elements
+            {
+                Element ScoutName = doc.createElement("name");
+                ScoutName.appendChild(doc.createTextNode(scoutName.getText()));
+                info.appendChild(ScoutName);
+            }
+            // StreetAddress elements
+            {
+                Element StreetAddress = doc.createElement("streetAddress");
+                StreetAddress.appendChild(doc.createTextNode(scoutStAddr.getText()));
+                info.appendChild(StreetAddress);
+            }
+            // City elements
+            {
+                Element city = doc.createElement("city");
+                city.appendChild(doc.createTextNode(addrFormat));
+                info.appendChild(city);
+            }
+            // Rank elements
+            {
+                Element rank = doc.createElement("rank");
+                rank.appendChild(doc.createTextNode(scoutRank.getText()));
+                info.appendChild(rank);
+            }
+            // phone elements
+            {
+                Element rank = doc.createElement("PhoneNumber");
+                rank.appendChild(doc.createTextNode(scoutPhone.getText()));
+                info.appendChild(rank);
+            }
+            // Logo elements
+            {
+                Element logo = doc.createElement("logo");
+                logo.appendChild(doc.createTextNode("file:///" + logoLoc.getText().replace("\\", "/")));
+                info.appendChild(logo);
+            }
+
+
+        }
+        //Column Elements
+        {
+            Element columns = doc.createElement("columns");
+            rootElement.appendChild(columns);
+            String[] Columns = {"ID", "Name", "Unit Size", "Unit Cost", "Quantity", "Extended Price"};
+            for (String Column : Columns) {
+                //Column
+                {
+                    Element columnName = doc.createElement("column");
+                    Element cName = doc.createElement("name");
+                    cName.appendChild(doc.createTextNode(Column));
+                    columnName.appendChild(cName);
+                    columns.appendChild(columnName);
+                }
+            }
+        }
+        customers.forEach(customer -> {
+
+
+            // Root element
+
+
+            fillTable(cmbxYears.getSelectedItem().toString(), customer);
+            //Set Items
+            {
+                //Product Elements
+                Element products = doc.createElement("customerYear");
+                rootElement.appendChild(products);
+                //YearTitle
+                {
+                    Element custAddr = doc.createElement("custAddr");
+                    custAddr.appendChild(doc.createTextNode("true"));
+                    products.appendChild(custAddr);
+                }
+                // customername elements
+                {
+                    Element custName = doc.createElement("name");
+                    custName.appendChild(doc.createTextNode(customer));
+                    products.appendChild(custName);
+                }
+                // StreetAddress elements
+                {
+                    Element StreetAddress = doc.createElement("streetAddress");
+                    StreetAddress.appendChild(doc.createTextNode(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "ADDRESS")));
+                    products.appendChild(StreetAddress);
+                }
+                // City elements
+                {
+                    Element city = doc.createElement("city");
+                    String addr = DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "TOWN") + ' ' + DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "STATE") + ", " + DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "ZIPCODE");
+                    city.appendChild(doc.createTextNode(addr));
+                    products.appendChild(city);
+                }
+
+                // phone elements
+                {
+                    Element phone = doc.createElement("PhoneNumber");
+                    phone.appendChild(doc.createTextNode(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "PHONE")));
+                    products.appendChild(phone);
+                }
+                {
+                    Element header = doc.createElement("header");
+                    header.appendChild(doc.createTextNode("true"));
+                    products.appendChild(header);
+                }
+                {
+                    Element title = doc.createElement("title");
+                    title.appendChild(doc.createTextNode(customer + cmbxYears.getSelectedItem() + "Order"));
+                    products.appendChild(title);
+                }
+                double tCost = 0.0;
+                //For each product ordered, enter info
+                for (Object[] aRowDataF : rowDataF) {
+
+                    Element Product = doc.createElement("Product");
+                    products.appendChild(Product);
+                    //ID
+                    {
+                        Element ID = doc.createElement("ID");
+                        ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                        Product.appendChild(ID);
+                    }
+                    //Name
+                    {
+                        Element Name = doc.createElement("Name");
+                        Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                        Product.appendChild(Name);
+                    }
+                    //Size
+                    {
+                        Element Size = doc.createElement("Size");
+                        Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                        Product.appendChild(Size);
+                    }
+                    //UnitCost
+                    {
+                        Element UnitCost = doc.createElement("UnitCost");
+                        UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                        Product.appendChild(UnitCost);
+                    }
+                    //Quantity
+                    {
+                        Element Quantity = doc.createElement("Quantity");
+                        Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                        Product.appendChild(Quantity);
+                    }
+                    //Extended Price
+                    {
+                        Element TotalCost = doc.createElement("TotalCost");
+                        TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                        tCost += Double.parseDouble(aRowDataF[5].toString());
+                        Product.appendChild(TotalCost);
+                    }
+
+                }
+                //Total Cost for this Year
+                {
+                    Element tCostE = doc.createElement("totalCost");
+                    tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                    products.appendChild(tCostE);
+                }
+                // OverallTotalCost elements
+                {
+                    Element TotalCost = doc.createElement("TotalCost");
+                    TotalCost.appendChild(doc.createTextNode(Double.toString(totL)));
+                    info.appendChild(TotalCost);
+                }
+                // OverallTotalQuantity elements
+                {
+                    Element TotalQuantity = doc.createElement("totalQuantity");
+                    TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
+                    info.appendChild(TotalQuantity);
+                }
+            }
+        });
+
+        OutputStreamWriter osw = null;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            osw = new OutputStreamWriter(baos);
+
+            TransformerFactory tranFactory = TransformerFactory.newInstance();
+            Transformer aTransformer = tranFactory.newTransformer();
+            aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+            Source src = new DOMSource(doc);
+            Result result = new StreamResult(osw);
+            aTransformer.transform(src, result);
+
+            osw.flush();
+
+            String tmpDirectoryOp = System.getProperty("java.io.tmpdir");
+            File tmpDirectory = new File(tmpDirectoryOp);
+            xmlTempFile = File.createTempFile("LGReport" + timeStamp, ".xml", tmpDirectory);
+            xmlTempFile.deleteOnExit();
+
+            try (OutputStream outStream = new FileOutputStream(xmlTempFile)) {// writing bytes in to byte output stream
+
+                baos.writeTo(outStream);
+                //fstream.deleteOnExit();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        } catch (Exception exp) {
+            exp.printStackTrace();
+        } finally {
+            try {
+                if (osw != null) {
+                    osw.close();
+                }
+            } catch (IOException | RuntimeException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        try {
+            transf();
+        } catch (SaxonApiException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void convert() {
@@ -610,7 +871,6 @@ class Reports extends JDialog {
                 }
             }
             switch (cmbxReportType.getSelectedItem().toString()) {
-//TODO Add Split by customer option
 
                 case "Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString());
@@ -619,6 +879,11 @@ class Reports extends JDialog {
                     //Product Elements
                     Element products = doc.createElement("customerYear");
                     rootElement.appendChild(products);
+                    {
+                        Element header = doc.createElement("header");
+                        header.appendChild(doc.createTextNode("true"));
+                        products.appendChild(header);
+                    }
                     //YearTitle
                     {
                         Element title = doc.createElement("title");
@@ -690,6 +955,10 @@ class Reports extends JDialog {
                     }
                 }
                 break;
+                case "Year Totals; Spilt by Customer":
+                    convert4Split();
+
+                    break;
 
                 case "Customer Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString(), cmbxCustomers.getSelectedItem().toString());
@@ -698,6 +967,11 @@ class Reports extends JDialog {
                     //Product Elements
                     Element products = doc.createElement("customerYear");
                     rootElement.appendChild(products);
+                    {
+                        Element header = doc.createElement("header");
+                        header.appendChild(doc.createTextNode("true"));
+                        products.appendChild(header);
+                    }
                     //YearTitle
                     {
                         Element title = doc.createElement("title");
@@ -774,6 +1048,7 @@ class Reports extends JDialog {
                     String Qname = cmbxCustomers.getSelectedItem().toString();
                     Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = getYears();
+                    String headerS = "true";
                     //For Each Year
                     for (String year : years) {
                         //Get Customer with name ?
@@ -787,6 +1062,12 @@ class Reports extends JDialog {
                                     //Product Elements
                                     Element products = doc.createElement("customerYear");
                                     rootElement.appendChild(products);
+                                    {
+                                        Element header = doc.createElement("header");
+                                        header.appendChild(doc.createTextNode(headerS));
+                                        headerS = "false";
+                                        products.appendChild(header);
+                                    }
                                     //YearTitle
                                     {
                                         Element title = doc.createElement("title");
@@ -1168,6 +1449,16 @@ class Reports extends JDialog {
                 years.forEach(cmbxYears::addItem);
                 cmbxYears.setSelectedItem(cmbxYears.getItemAt(cmbxYears.getItemCount() - 1));
                 break;
+            case "Year Totals; Spilt by Customer":
+                ReportInfo.remove(cmbxYears);
+                ReportInfo.remove(cmbxCustomers);
+
+                ReportInfo.add(cmbxYears);
+                cmbxYears.removeAllItems();
+
+                years.forEach(cmbxYears::addItem);
+                cmbxYears.setSelectedItem(cmbxYears.getItemAt(cmbxYears.getItemCount() - 1));
+                break;
             case "Customer Year Totals":
                 ReportInfo.remove(cmbxYears);
                 ReportInfo.remove(cmbxCustomers);
@@ -1277,6 +1568,7 @@ class Reports extends JDialog {
 
 
     }
+
 
     static class MyDocumentListener implements DocumentListener {
         // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";

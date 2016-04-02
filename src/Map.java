@@ -25,7 +25,6 @@ public class Map extends JFrame implements JMapViewerEventListener {
     public JPanel infoPanel = new JPanel();
     public JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private JLabel Orders = new JLabel("");
-    //TODO Add coords to customer profile to decrease nomination use.
     private JMapViewerTree treeMap = null;
     private JLabel zoomLabel = null;
     private JLabel zoomValue = null;

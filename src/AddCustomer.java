@@ -34,7 +34,6 @@ import java.util.List;
  * @version 1.0
  */
 class AddCustomer extends JDialog {
-//TODO remove address gathering, put all data in database.
 
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
     //private final JPanel contentPanel = new JPanel();
