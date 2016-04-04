@@ -6,54 +6,78 @@
 
     <groupId>com.rotatingfans.LG</groupId>
     <artifactId>LG</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8</version>
     <dependencies>
 
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
             <artifactId>core-renderer</artifactId>
             <version>5</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/core-renderer.jar</systemPath>
+
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>10.11</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/derby.jar</systemPath>
+
         </dependency>
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>iText</artifactId>
             <version>2.0.8</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/iText-2.0.8.jar</systemPath>
+
         </dependency>
         <dependency>
             <groupId>org.openstreetmap.gui.jmapviewer</groupId>
             <artifactId>JMapViewer</artifactId>
             <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/JMapViewer.jar</systemPath>
+
         </dependency>
         <dependency>
             <groupId>org.w3c.tidy</groupId>
             <artifactId>jtidy</artifactId>
             <version>938</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/jtidy-r938.jar</systemPath>
+
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/Lib/saxon9he.jar</systemPath>
+
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>my-local-repo</id>
+            <url>file://${basedir}/repo</url>
+        </repository>
+    </repositories>
     <build>
+
         <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>full</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

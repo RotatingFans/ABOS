@@ -3,4 +3,4 @@ java:
     - call mvn clean install
   artifacts:
     paths:
-      - target/LG-0.8-SNAPSHOT.jar
+      - target/*
