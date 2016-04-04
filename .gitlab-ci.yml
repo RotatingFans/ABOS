@@ -3,4 +3,4 @@ java:
     - call mvn clean package
   artifacts:
     paths:
-      - target/*
+      - target/*.jar
