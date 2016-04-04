@@ -1,6 +1,6 @@
 java:
   script:
-    - call mvn clean push
+    - call mvn clean package
   artifacts:
     paths:
       - target/*
