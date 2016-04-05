@@ -90,7 +90,7 @@
                             </h2>
                         </div>
 
-                        <table id="Bordered" border="1"
+                        <table id="Bordered"
                                style="width:100%; position:relative; padding-top:20px;clear:both;">
                             <tr bgcolor="#9acd32">
                                 <xsl:for-each select="//column">
