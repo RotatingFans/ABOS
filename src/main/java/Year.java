@@ -167,21 +167,30 @@ class Year extends JDialog {
 
             JPanel South = new JPanel(new GridLayout(1, 3));
             South.setSize(frame.getSize().width, frame.getSize().height / 3);
-            JButton btnNewButton_1 = new JButton("Customers");
-            //btnNewButton_1.setBounds(276, 232, 212, 247);
-            btnNewButton_1.addActionListener(arg0 -> new CustomerView());
-            South.add(btnNewButton_1);
+            {
+                JButton btnNewButton_1 = new JButton("Customers");
+                //btnNewButton_1.setBounds(276, 232, 212, 247);
+                btnNewButton_1.addActionListener(arg0 -> new CustomerView());
+                South.add(btnNewButton_1);
+            }
+            {
+                JButton btnNewButton_1 = new JButton("Edit Year");
+                //btnNewButton_1.setBounds(276, 232, 212, 247);
+                btnNewButton_1.addActionListener(arg0 -> new AddYear(year));
+                South.add(btnNewButton_1);
+            }
+            {
+                JButton btnRefresh = new JButton("Refresh");
+                btnRefresh.addActionListener(e -> {
+                    frame.setVisible(false);
+                    new Year(year).setVisible(true);
+                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 
+                });
 
-            JButton btnRefresh = new JButton("Refresh");
-            btnRefresh.addActionListener(e -> {
-                frame.setVisible(false);
-                new Year(year).setVisible(true);
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-
-            });
             //btnRefresh.setBounds(628, 157, 89, 23);
             South.add(btnRefresh);
+            }
             frame.getContentPane().add(South, BorderLayout.SOUTH);
         }
 

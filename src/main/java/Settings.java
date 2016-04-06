@@ -523,6 +523,11 @@ class Settings extends JDialog {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255))")) {
+                    prep.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
             }
             output = new FileOutputStream("./LGconfig.properties");

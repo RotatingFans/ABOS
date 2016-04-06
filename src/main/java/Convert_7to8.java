@@ -22,8 +22,8 @@ import java.util.Collection;
 /**
  * Created by patrick on 1/26/16.
  */
-public class Convert {
-    private Convert() {
+public class Convert_7to8 {
+    private Convert_7to8() {
         System.out.println("Starting");
         Iterable<String> years = getYears();
         Object[][] yearData; //this is generic can use String[] directly
@@ -271,7 +271,7 @@ public class Convert {
     public static void main(String... args) {
         EventQueue.invokeLater(() -> {
             try {
-                Convert window = new Convert();
+                Convert_7to8 window = new Convert_7to8();
             } catch (RuntimeException e) {
                 e.printStackTrace();
             }
