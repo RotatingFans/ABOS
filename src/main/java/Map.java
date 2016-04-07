@@ -182,7 +182,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
 ///*	public Map() {
 //        initialize();
 //		try {
-////			Object[][] coords = GetCoords("***REMOVED***");
+////			Object[][] coords = GetCoords("1833 Rowland Rd Abington, PA");
 ////			System.out.println(coords[0][0]);
 ////			System.out.println(coords[0][1]);
 //		}

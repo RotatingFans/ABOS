@@ -725,7 +725,7 @@ class Reports extends JDialog {
                         Element title = doc.createElement("specialInfo");
                         {
                             Element text = doc.createElement("text");
-                            String notice = "*Notice: These products will be delivered to hour house on " + getDate(cmbxCategory.getSelectedItem().toString()) + ". Please Have the total payment listed below ready and be present on that date.";
+                            String notice = "*Notice: These products will be delivered to your house on " + getDate(cmbxCategory.getSelectedItem().toString()) + ". Please Have the total payment listed below ready and be present on that date.";
                             text.appendChild(doc.createTextNode(notice));
                             title.appendChild(text);
                         }
