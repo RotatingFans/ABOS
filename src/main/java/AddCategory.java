@@ -1,17 +1,23 @@
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * Created by patrick on 4/5/16.
  */
 class AddCategory extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    JDatePickerImpl datePicker;
     private JTextField catTxt;
-    private JComboBox catCmbx;
-    private boolean addToProducts = false;
+
 
     public AddCategory() {
         initUI();
@@ -44,9 +50,26 @@ class AddCategory extends JDialog {
             {
                 JPanel name = new JPanel(flow);
                 JLabel catLbl = new JLabel("Category Name:");
-                catTxt = new JTextField();
+                catTxt = new JTextField(20);
                 name.add(catLbl);
                 name.add(catTxt);
+                north.add(name);
+            }
+            //Category Date
+            {
+                JPanel name = new JPanel(flow);
+                JLabel catLbl = new JLabel("Category Date:");
+                UtilDateModel model = new UtilDateModel();
+
+                Properties p = new Properties();
+                p.put("text.today", "Today");
+                p.put("text.month", "Month");
+                p.put("text.year", "Year");
+                JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+                datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+                name.add(catLbl);
+                name.add(datePicker);
                 north.add(name);
             }
             contentPanel.add(north);
@@ -91,8 +114,11 @@ class AddCategory extends JDialog {
         //Add DB setting
 
 
-        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO Categories (Name) VALUES (?)")) {
+        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
             prep.setString(1, catTxt.getText());
+            Date selectedDate = (Date) datePicker.getModel().getValue();
+
+            prep.setDate(2, new java.sql.Date(selectedDate.getTime()));
             prep.execute();
         } catch (SQLException e) {
             e.printStackTrace();

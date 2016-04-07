@@ -26,14 +26,14 @@ import javax.xml.transform.stream.StreamSource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.*;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +45,7 @@ class Reports extends JDialog {
     private final JPanel contentPanel = new JPanel();
     private final JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
     private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
+    JLabel includeHeaderL;
     private JTabbedPane SteptabbedPane;
     private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
@@ -56,10 +57,12 @@ class Reports extends JDialog {
     private JTextField scoutTown;
     private JTextField scoutState;
     private JTextField scoutPhone;
-
     private JTextField scoutRank;
     private JTextField logoLoc;
     private JTextField pdfLoc;
+    private JComboBox<Object> cmbxCategory;
+    private JCheckBox includeHeader;
+
 
     private String addrFormat = null;
     private double totL = 0.0;
@@ -328,6 +331,36 @@ class Reports extends JDialog {
                         }
 
                     });
+                    cmbxCategory = new JComboBox<>();
+                    cmbxCategory.addItem("All");
+
+                    try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
+                        prep.execute();
+                        try (ResultSet rs = prep.executeQuery()) {
+
+                            while (rs.next()) {
+
+                                cmbxCategory.addItem(rs.getString(1));
+
+                            }
+                            ////DbInt.pCon.close();
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    cmbxCategory.setSelectedIndex(0);
+                    cmbxCategory.addItemListener(e -> {
+                        if ((e.getStateChange() == ItemEvent.SELECTED) && !e.getItem().equals("All")) {
+                            includeHeader.setVisible(true);
+                            includeHeaderL.setVisible(true);
+
+                        }
+                        else {
+                            includeHeader.setVisible(false);
+                            includeHeaderL.setVisible(false);
+
+                        }
+                    });
                     JLabel scoutNameL = new JLabel("Scout Name:");
                     JLabel scoutStAddrL = new JLabel("Scout Street Address:");
                     JLabel scoutZipL = new JLabel("Scout Zip:");
@@ -337,7 +370,10 @@ class Reports extends JDialog {
                     JLabel scoutRankL = new JLabel("Scout Rank");
                     JLabel logoLocL = new JLabel("Logo Location:");
                     JLabel pdfLocL = new JLabel("PDF Save location:");
+                    JLabel categoryL = new JLabel("Category:");
+                    includeHeaderL = new JLabel("Include Due header");
 
+                    includeHeaderL.setVisible(false);
                     scoutName = new JTextField(Config.getProp("ScoutName"), 20);
                     scoutStAddr = new JTextField(Config.getProp("ScoutAddress"), 20);
                     scoutZip = new JTextField(Config.getProp("ScoutZip"), 5);
@@ -346,6 +382,8 @@ class Reports extends JDialog {
                     scoutPhone = new JTextField(Config.getProp("ScoutPhone"), 10);
                     scoutRank = new JTextField(Config.getProp("ScoutRank"), 20);
                     logoLoc = new JTextField(Config.getProp("logoLoc"), 25);
+                    includeHeader = new JCheckBox();
+                    includeHeader.setVisible(false);
                     scoutZip.addActionListener(new MyTextActionListener());
                     scoutZip.getDocument().addDocumentListener(new MyDocumentListener());
                     JButton logoButton = new JButton("...");
@@ -443,6 +481,20 @@ class Reports extends JDialog {
                         group.add(pdfLocL);
                         group.add(pdfLoc);
                         group.add(pdfButton);
+                        ReportInfo.add(group);
+                    }
+                    //Category Choice
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(categoryL);
+                        group.add(cmbxCategory);
+                        ReportInfo.add(group);
+                    }
+                    //Add info header
+                    {
+                        JPanel group = new JPanel(flow);
+                        group.add(includeHeaderL);
+                        group.add(includeHeader);
                         ReportInfo.add(group);
                     }
                 }
@@ -626,7 +678,6 @@ class Reports extends JDialog {
             {
                 //Product Elements
                 Element products = doc.createElement("customerYear");
-                rootElement.appendChild(products);
                 //YearTitle
                 {
                     Element custAddr = doc.createElement("custAddr");
@@ -666,51 +717,64 @@ class Reports extends JDialog {
                 }
                 {
                     Element title = doc.createElement("title");
-                    title.appendChild(doc.createTextNode(customer + cmbxYears.getSelectedItem() + "Order"));
+                    title.appendChild(doc.createTextNode(customer + ' ' + cmbxYears.getSelectedItem() + " Order"));
                     products.appendChild(title);
+                }
+                {
+                    if (includeHeader.isSelected()) {
+                        Element title = doc.createElement("specialInfo");
+                        {
+                            Element text = doc.createElement("text");
+                            String notice = "*Notice: These products will be delivered to hour house on " + getDate(cmbxCategory.getSelectedItem().toString()) + ". Please Have the total payment listed below ready and be present on that date.";
+                            text.appendChild(doc.createTextNode(notice));
+                            title.appendChild(text);
+                        }
+                        products.appendChild(title);
+                    }
                 }
                 double tCost = 0.0;
                 //For each product ordered, enter info
                 for (Object[] aRowDataF : rowDataF) {
-
-                    Element Product = doc.createElement("Product");
-                    products.appendChild(Product);
-                    //ID
-                    {
-                        Element ID = doc.createElement("ID");
-                        ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                        Product.appendChild(ID);
-                    }
-                    //Name
-                    {
-                        Element Name = doc.createElement("Name");
-                        Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                        Product.appendChild(Name);
-                    }
-                    //Size
-                    {
-                        Element Size = doc.createElement("Size");
-                        Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                        Product.appendChild(Size);
-                    }
-                    //UnitCost
-                    {
-                        Element UnitCost = doc.createElement("UnitCost");
-                        UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                        Product.appendChild(UnitCost);
-                    }
-                    //Quantity
-                    {
-                        Element Quantity = doc.createElement("Quantity");
-                        Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                        Product.appendChild(Quantity);
-                    }
-                    //Extended Price
-                    {
-                        Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                        tCost += Double.parseDouble(aRowDataF[5].toString());
-                        Product.appendChild(TotalCost);
+                    if (Objects.equals(aRowDataF[6].toString(), cmbxCategory.getSelectedItem().toString())) {
+                        Element Product = doc.createElement("Product");
+                        products.appendChild(Product);
+                        //ID
+                        {
+                            Element ID = doc.createElement("ID");
+                            ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                            Product.appendChild(ID);
+                        }
+                        //Name
+                        {
+                            Element Name = doc.createElement("Name");
+                            Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                            Product.appendChild(Name);
+                        }
+                        //Size
+                        {
+                            Element Size = doc.createElement("Size");
+                            Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                            Product.appendChild(Size);
+                        }
+                        //UnitCost
+                        {
+                            Element UnitCost = doc.createElement("UnitCost");
+                            UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                            Product.appendChild(UnitCost);
+                        }
+                        //Quantity
+                        {
+                            Element Quantity = doc.createElement("Quantity");
+                            Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                            Product.appendChild(Quantity);
+                        }
+                        //Extended Price
+                        {
+                            Element TotalCost = doc.createElement("TotalCost");
+                            TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                            tCost += Double.parseDouble(aRowDataF[5].toString());
+                            Product.appendChild(TotalCost);
+                        }
                     }
 
                 }
@@ -732,7 +796,13 @@ class Reports extends JDialog {
                     TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
                     info.appendChild(TotalQuantity);
                 }
+                if (tCost > 0.0) {
+                    rootElement.appendChild(products);
+                }
+
+
             }
+
         });
 
         OutputStreamWriter osw = null;
@@ -1201,10 +1271,11 @@ class Reports extends JDialog {
 
     }
 
+
     private void fillTable(String year, String name) {
 
         //Variables for inserting info into table
-        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT", "Category"};
         List<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
@@ -1212,7 +1283,7 @@ class Reports extends JDialog {
              ResultSet ProductInfoResultSet = prep.executeQuery()) {
             //Run through Data set and add info to ProductInfoArray
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
@@ -1236,7 +1307,7 @@ class Reports extends JDialog {
         }
 
         //Table rows array
-        Object[][] rows = new Object[ProductInfoArray.get(2).size()][6];
+        Object[][] rows = new Object[ProductInfoArray.get(2).size()][7];
 
 
         String OrderID = DbInt.getCustInf(year, name, "ORDERID");
@@ -1275,13 +1346,14 @@ class Reports extends JDialog {
                 rows[noVRows][5] = (double) quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", ""));
                 totL += ((double) quant * Double.parseDouble(ProductInfoArray.get(3).get(i).replaceAll("\\$", "")));
                 QuantL += (double) quant;
+                rows[noVRows][6] = ProductInfoArray.get(4).get(i);
 
                 noVRows++;
 
             }
         }
         //Re create rows to remove blank rows
-        rowDataF = new Object[noVRows][6];
+        rowDataF = new Object[noVRows][7];
 
         for (int i = 0; i <= (noVRows - 1); i++) {
             rowDataF[i][0] = rows[i][0];//Product ID
@@ -1290,6 +1362,8 @@ class Reports extends JDialog {
             rowDataF[i][3] = rows[i][3];//Unit Cost
             rowDataF[i][4] = rows[i][4];//Quantity
             rowDataF[i][5] = rows[i][5]; //cost
+            rowDataF[i][6] = rows[i][6]; //cost
+
         }
 
 
@@ -1338,6 +1412,8 @@ class Reports extends JDialog {
                         //Get unit cost of product
                         List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1), year);
                         String Unit = UnitL.get(productL.size() - 1);
+                        List<String> CategoryL = GetProductInfo("Category", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1), year);
+                        String Category = CategoryL.get(productL.size() - 1);
                         //Get Quantity ordered
                         String quantity = Order.getString(c);
                         double UnitD = Double.parseDouble(Unit.replaceAll("\\$", ""));
@@ -1353,6 +1429,7 @@ class Reports extends JDialog {
                         rowData[noRows][3] = Unit;
                         rowData[noRows][4] = quantity;
                         rowData[noRows][5] = TPrice;
+                        rowData[noRows][6] = Category;
 
                         noRows += 1;
 
@@ -1414,6 +1491,7 @@ class Reports extends JDialog {
                 rowDataExclude0[NumNonEmptyRows][3] = rowData[i][3];
                 rowDataExclude0[NumNonEmptyRows][4] = rowData[i][4];
                 rowDataExclude0[NumNonEmptyRows][5] = rowData[i][5];
+                rowDataExclude0[NumNonEmptyRows][6] = rowData[i][6];
 
                 NumNonEmptyRows++;
             }
@@ -1428,6 +1506,7 @@ class Reports extends JDialog {
             rowDataF[i][3] = rowDataExclude0[i][3];//UnitCost
             rowDataF[i][4] = rowDataExclude0[i][4];//Quantity
             rowDataF[i][5] = rowDataExclude0[i][5];//Tcost
+            rowDataF[i][6] = rowDataExclude0[i][6];//Tcost
 
 
         }
@@ -1569,6 +1648,32 @@ class Reports extends JDialog {
 
     }
 
+    private String getDate(String catName){
+        Date ret = null;
+        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+
+
+            prep.setString(1, catName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getDate(1);
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String output;
+        SimpleDateFormat formatter;
+        formatter = new SimpleDateFormat("MM/dd/yyyy");
+        output = formatter.format(ret);
+        return output;
+    }
 
     static class MyDocumentListener implements DocumentListener {
         // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";

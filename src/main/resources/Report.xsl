@@ -84,6 +84,14 @@
                                     </h4>
                                 </div>
                             </xsl:if>
+                            <div>
+                                <xsl:for-each select="specialInfo">
+                                    <h2 id="specialInfo"
+                                        style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
+                                        <xsl:value-of select="text"/>
+                                    </h2>
+                                </xsl:for-each>
+                            </div>
                             <h2 id="SplitTitle"
                                 style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
                                 <xsl:value-of select="title"/>

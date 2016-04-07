@@ -75,7 +75,16 @@ public class Convert_8to9 {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
+            try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
+                prep.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
+                addCol.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             //Write data back to year
             for (int i = 1; i < productData[2].length; i++) {
                 try (PreparedStatement addCol = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {

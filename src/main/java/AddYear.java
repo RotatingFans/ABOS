@@ -32,6 +32,7 @@ class AddYear extends JDialog {
     private JTextField sizeTb;
     private JTextField rateTb;
     private JComboBox categoriesTb;
+    private JComboBox categoriesCmbx;
     private boolean updateDb = false;
     private DefaultTableModel tableModel;
     private JTextField idTb;
@@ -179,7 +180,10 @@ class AddYear extends JDialog {
                         JLabel lblNewLabel_2 = new JLabel("Category");
                         //	lblNewLabel_2.setBounds(390, 87, 70, 14);
                         ID.add(lblNewLabel_2);
+                        categoriesCmbx = new JComboBox();
                         categoriesTb = new JComboBox();
+                        categoriesTb.insertItemAt("",0);
+                        categoriesCmbx.insertItemAt("",0);
                         String browse = "Add Category";
                         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
                             prep.execute();
@@ -188,15 +192,15 @@ class AddYear extends JDialog {
                                 while (rs.next()) {
 
                                     categoriesTb.addItem(rs.getString(1));
-
+                                    categoriesCmbx.addItem(rs.getString(1));
                                 }
                                 ////DbInt.pCon.close();
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
-                        categoriesTb.addItem(browse);
-                        categoriesTb.addItemListener(new ItemListener() {
+                        categoriesCmbx.addItem(browse);
+                        categoriesCmbx.addItemListener(new ItemListener() {
                             @Override
                             public void itemStateChanged(ItemEvent e) {
                                 if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
@@ -205,7 +209,7 @@ class AddYear extends JDialog {
                             }
                         });
                         //rateTb.setBounds(387, 104, 97, 19);
-                        ID.add(categoriesTb);
+                        ID.add(categoriesCmbx);
                         CenterNorth.add(ID);
                     }
                     JButton btnNewButton = new JButton("Add");
@@ -398,7 +402,10 @@ class AddYear extends JDialog {
                         JLabel lblNewLabel_2 = new JLabel("Category");
                         //	lblNewLabel_2.setBounds(390, 87, 70, 14);
                         ID.add(lblNewLabel_2);
+                        categoriesCmbx = new JComboBox();
                         categoriesTb = new JComboBox();
+                        categoriesTb.insertItemAt("",0);
+                        categoriesCmbx.insertItemAt("",0);
                         String browse = "Add Category";
                         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
                             prep.execute();
@@ -407,24 +414,21 @@ class AddYear extends JDialog {
                                 while (rs.next()) {
 
                                     categoriesTb.addItem(rs.getString(1));
-
+                                    categoriesCmbx.addItem(rs.getString(1));
                                 }
                                 ////DbInt.pCon.close();
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
-                        categoriesTb.addItem(browse);
-                        categoriesTb.addItemListener(new ItemListener() {
-                            @Override
-                            public void itemStateChanged(ItemEvent e) {
-                                if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
-                                    new AddCategory();
-                                }
+                        categoriesCmbx.addItem(browse);
+                        categoriesCmbx.addItemListener(e -> {
+                            if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
+                                new AddCategory();
                             }
                         });
                         //rateTb.setBounds(387, 104, 97, 19);
-                        ID.add(categoriesTb);
+                        ID.add(categoriesCmbx);
                         CenterNorth.add(ID);
                     }
                     JButton btnNewButton = new JButton("Add");
@@ -468,7 +472,7 @@ class AddYear extends JDialog {
                 ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
                 ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
                 TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
-                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
+                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesCmbx));
 
 
                 scrollPane.setViewportView(ProductTable);
@@ -483,12 +487,8 @@ class AddYear extends JDialog {
             {
                 JButton okButton = new JButton("OK");
                 okButton.addActionListener(e -> {
-                    if (chkboxCreateDatabase.isSelected()) {
                         updateDb(year);
-                    } else {
-                        addYear();
 
-                    }
 
                     dispose();
                 });
@@ -775,6 +775,8 @@ class AddYear extends JDialog {
 
         //Define table properties
         ProductTable.setModel(new MyDefaultTableModel(rows));
+        TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
+        categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
     }
 
     private void tablefromDb() {
@@ -802,10 +804,10 @@ class AddYear extends JDialog {
 
         public MyDefaultTableModel(Object[][] rows) {
             super(rows, new String[]{
-                    "ID", "Product Name", "Size", "Price/Item"
+                    "ID", "Product Name", "Size", "Price/Item", "Category"
             });
             columnEditables = new boolean[]{
-                    true, true, true, true
+                    true, true, true, true, true
             };
         }
 
