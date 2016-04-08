@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.xhtmlrenderer:core-renderer:5">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xhtmlrenderer/core-renderer/5/core-renderer-5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xhtmlrenderer/core-renderer/5/core-renderer-5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xhtmlrenderer/core-renderer/5/core-renderer-5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
