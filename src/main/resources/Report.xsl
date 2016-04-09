@@ -134,12 +134,33 @@
                                 <td id="UBordered"></td>
                                 <td id="UBordered"></td>
                                 <td id="UBordered"></td>
-                                <td id="Bordered">Total Cost:</td>
+                                <td id="Bordered">Sub Total:</td>
                                 <td id="Bordered">
                                     <xsl:value-of select="totalCost"/>
                                 </td>
                             </tr>
-
+                            <xsl:if test="includeDonation">
+                                <tr id="UBordered">
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="Bordered">Total Pledged Donation:</td>
+                                    <td id="Bordered">
+                                        <xsl:value-of select="Donation"/>
+                                    </td>
+                                </tr>
+                                <tr id="UBordered">
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="Bordered">Grand Total:</td>
+                                    <td id="Bordered">
+                                        <xsl:value-of select="GrandTotal"/>
+                                    </td>
+                                </tr>
+                            </xsl:if>
                         </table>
                     </div>
                 </xsl:for-each>

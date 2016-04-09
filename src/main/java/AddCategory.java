@@ -17,10 +17,10 @@ class AddCategory extends JDialog {
     private final JPanel contentPanel = new JPanel();
     JDatePickerImpl datePicker;
     private JTextField catTxt;
+    private String year;
 
-
-    public AddCategory() {
-        initUI();
+    public AddCategory(String year) {
+        initUI(year);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
@@ -35,7 +35,7 @@ class AddCategory extends JDialog {
     }
 
     //SetBounds(X,Y,Width,Height)
-    private void initUI() {
+    private void initUI(String year) {
         setSize(600, 400);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -114,7 +114,7 @@ class AddCategory extends JDialog {
         //Add DB setting
 
 
-        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
             prep.setString(1, catTxt.getText());
             Date selectedDate = (Date) datePicker.getModel().getValue();
 

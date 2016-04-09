@@ -505,12 +505,16 @@ class Settings extends JDialog {
         OutputStream output = null;
 
         try {
+            output = new FileOutputStream("./LGconfig.properties");
 
             //Add DB setting
             if (Config.doesConfExist() && !CreateDb.isSelected()) {
                 prop.setProperty("databaseLocation", DbLoc.getText());
             } else if (!Config.doesConfExist() || CreateDb.isSelected()) {
                 prop.setProperty("databaseLocation", DbLoc.getText());
+                prop.store(output, null);
+                prop = new Properties();
+
                 DbInt.createDb("Set");
 
                 try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
@@ -523,14 +527,9 @@ class Settings extends JDialog {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
-                    prep.execute();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+
 
             }
-            output = new FileOutputStream("./LGconfig.properties");
 
             //AddCustomer
             {

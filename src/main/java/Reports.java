@@ -305,18 +305,37 @@ class Reports extends JDialog {
                 ReportInfo = new JPanel(new FlowLayout(FlowLayout.LEADING));
                 //Content
                 {
-                    cmbxYears.addActionListener(actionEvent -> {
-                        JComboBox comboBox = (JComboBox) actionEvent.getSource();
+                    cmbxYears.addItemListener(actionEvent -> {
+                        if (actionEvent.getStateChange() == ItemEvent.SELECTED) {
+                            if ((cmbxReportType.getSelectedIndex() == 2) || (cmbxReportType.getSelectedIndex() == 3)) {
+                                cmbxCategory.removeAllItems();
+                                cmbxCategory.addItem("All");
 
-                        Object selected = comboBox.getSelectedItem();
-                        if (cmbxReportType.getSelectedIndex() == 3) {
-                            if (cmbxYears.getSelectedItem() != "") {
-                                Iterable<String> customersY = getCustomers(cmbxYears.getSelectedItem().toString());
-                                cmbxCustomers.removeAllItems();
-                                cmbxCustomers.addItem("");
-                                cmbxCustomers.setSelectedItem("");
-                                customersY.forEach(cmbxCustomers::addItem);
-                                cmbxCustomers.setEnabled(true);
+                                try (PreparedStatement prep = DbInt.getPrep(cmbxYears.getSelectedItem().toString(), "SELECT NAME FROM Categories")) {
+                                    prep.execute();
+                                    try (ResultSet rs = prep.executeQuery()) {
+
+                                        while (rs.next()) {
+
+                                            cmbxCategory.addItem(rs.getString(1));
+
+                                        }
+                                        ////DbInt.pCon.close();
+                                    }
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                                cmbxCategory.setSelectedIndex(0);
+                            }
+                            if (cmbxReportType.getSelectedIndex() == 3) {
+                                if (cmbxYears.getSelectedItem() != "") {
+                                    Iterable<String> customersY = getCustomers(cmbxYears.getSelectedItem().toString());
+                                    cmbxCustomers.removeAllItems();
+                                    cmbxCustomers.addItem("");
+                                    cmbxCustomers.setSelectedItem("");
+                                    customersY.forEach(cmbxCustomers::addItem);
+                                    cmbxCustomers.setEnabled(true);
+                                }
                             }
                         }
 
@@ -332,23 +351,7 @@ class Reports extends JDialog {
 
                     });
                     cmbxCategory = new JComboBox<>();
-                    cmbxCategory.addItem("All");
-
-                    try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
-                        prep.execute();
-                        try (ResultSet rs = prep.executeQuery()) {
-
-                            while (rs.next()) {
-
-                                cmbxCategory.addItem(rs.getString(1));
-
-                            }
-                            ////DbInt.pCon.close();
-                        }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                    cmbxCategory.setSelectedIndex(0);
+                    cmbxCategory.setVisible(false);
                     cmbxCategory.addItemListener(e -> {
                         if ((e.getStateChange() == ItemEvent.SELECTED) && !e.getItem().equals("All")) {
                             includeHeader.setVisible(true);
@@ -372,8 +375,8 @@ class Reports extends JDialog {
                     JLabel pdfLocL = new JLabel("PDF Save location:");
                     JLabel categoryL = new JLabel("Category:");
                     includeHeaderL = new JLabel("Include Due header");
-
                     includeHeaderL.setVisible(false);
+
                     scoutName = new JTextField(Config.getProp("ScoutName"), 20);
                     scoutStAddr = new JTextField(Config.getProp("ScoutAddress"), 20);
                     scoutZip = new JTextField(Config.getProp("ScoutZip"), 5);
@@ -784,6 +787,27 @@ class Reports extends JDialog {
                     tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
                     products.appendChild(tCostE);
                 }
+                Double Donation = Double.parseDouble(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "DONATION"));
+                //Total Donation for this Year
+                {
+                    //Set include to true
+                    {
+                        Element includeDonation = doc.createElement("includeDonation");
+                        includeDonation.appendChild(doc.createTextNode("true"));
+                        products.appendChild(includeDonation);
+                    }
+                    Element donation = doc.createElement("Donation");
+                    donation.appendChild(doc.createTextNode(String.valueOf(Donation)));
+                    products.appendChild(donation);
+                }
+                //Total Donation for this Year
+                {
+
+
+                    Element donation = doc.createElement("GrandTotal");
+                    donation.appendChild(doc.createTextNode(String.valueOf(Donation + tCost)));
+                    products.appendChild(donation);
+                }
                 // OverallTotalCost elements
                 {
                     Element TotalCost = doc.createElement("TotalCost");
@@ -1011,6 +1035,53 @@ class Reports extends JDialog {
                         tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
                         products.appendChild(tCostE);
                     }
+                    //Total Donation for this Year
+                    {
+                        //Set include to true
+                        {
+                            Element includeDonation = doc.createElement("includeDonation");
+                            includeDonation.appendChild(doc.createTextNode("true"));
+                            products.appendChild(includeDonation);
+                        }
+                        String Donation = "0.0";
+                        try (PreparedStatement prep = DbInt.getPrep(cmbxYears.getSelectedItem().toString(), "SELECT DONATIONS FROM TOTALS")) {
+                            prep.execute();
+                            try (ResultSet rs = prep.executeQuery()) {
+
+                                while (rs.next()) {
+
+                                    Donation = rs.getString(1);
+                                }
+                                ////DbInt.pCon.close();
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        Element donation = doc.createElement("Donation");
+                        donation.appendChild(doc.createTextNode(String.valueOf(Donation)));
+                        products.appendChild(donation);
+                    }
+                    //Total Donation for this Year
+                    {
+
+                        String Donation = "0.0";
+                        try (PreparedStatement prep = DbInt.getPrep(cmbxYears.getSelectedItem().toString(), "SELECT GRANDTOTAL FROM TOTALS")) {
+                            prep.execute();
+                            try (ResultSet rs = prep.executeQuery()) {
+
+                                while (rs.next()) {
+
+                                    Donation = rs.getString(1);
+                                }
+                                ////DbInt.pCon.close();
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        Element donation = doc.createElement("GrandTotal");
+                        donation.appendChild(doc.createTextNode(String.valueOf(Donation)));
+                        products.appendChild(donation);
+                    }
                     // OverallTotalCost elements
                     {
                         Element TotalCost = doc.createElement("TotalCost");
@@ -1032,64 +1103,108 @@ class Reports extends JDialog {
 
                 case "Customer Year Totals":
                     fillTable(cmbxYears.getSelectedItem().toString(), cmbxCustomers.getSelectedItem().toString());
+                    String customer = cmbxCustomers.getSelectedItem().toString();
                     //Set Items
                 {
                     //Product Elements
                     Element products = doc.createElement("customerYear");
-                    rootElement.appendChild(products);
+                    //YearTitle
+                    {
+                        Element custAddr = doc.createElement("custAddr");
+                        custAddr.appendChild(doc.createTextNode("true"));
+                        products.appendChild(custAddr);
+                    }
+                    // customername elements
+                    {
+                        Element custName = doc.createElement("name");
+                        custName.appendChild(doc.createTextNode(customer));
+                        products.appendChild(custName);
+                    }
+                    // StreetAddress elements
+                    {
+                        Element StreetAddress = doc.createElement("streetAddress");
+                        StreetAddress.appendChild(doc.createTextNode(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "ADDRESS")));
+                        products.appendChild(StreetAddress);
+                    }
+                    // City elements
+                    {
+                        Element city = doc.createElement("city");
+                        String addr = DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "TOWN") + ' ' + DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "STATE") + ", " + DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "ZIPCODE");
+                        city.appendChild(doc.createTextNode(addr));
+                        products.appendChild(city);
+                    }
+
+                    // phone elements
+                    {
+                        Element phone = doc.createElement("PhoneNumber");
+                        phone.appendChild(doc.createTextNode(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "PHONE")));
+                        products.appendChild(phone);
+                    }
                     {
                         Element header = doc.createElement("header");
                         header.appendChild(doc.createTextNode("true"));
                         products.appendChild(header);
                     }
-                    //YearTitle
                     {
                         Element title = doc.createElement("title");
-                        title.appendChild(doc.createTextNode(cmbxYears.getSelectedItem().toString()));
+                        title.appendChild(doc.createTextNode(customer + ' ' + cmbxYears.getSelectedItem() + " Order"));
                         products.appendChild(title);
+                    }
+                    {
+                        if (includeHeader.isSelected()) {
+                            Element title = doc.createElement("specialInfo");
+                            {
+                                Element text = doc.createElement("text");
+                                String notice = "*Notice: These products will be delivered to your house on " + getDate(cmbxCategory.getSelectedItem().toString()) + ". Please Have the total payment listed below ready and be present on that date.";
+                                text.appendChild(doc.createTextNode(notice));
+                                title.appendChild(text);
+                            }
+                            products.appendChild(title);
+                        }
                     }
                     double tCost = 0.0;
                     //For each product ordered, enter info
                     for (Object[] aRowDataF : rowDataF) {
-
-                        Element Product = doc.createElement("Product");
-                        products.appendChild(Product);
-                        //ID
-                        {
-                            Element ID = doc.createElement("ID");
-                            ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                            Product.appendChild(ID);
-                        }
-                        //Name
-                        {
-                            Element Name = doc.createElement("Name");
-                            Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                            Product.appendChild(Name);
-                        }
-                        //Size
-                        {
-                            Element Size = doc.createElement("Size");
-                            Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                            Product.appendChild(Size);
-                        }
-                        //UnitCost
-                        {
-                            Element UnitCost = doc.createElement("UnitCost");
-                            UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                            Product.appendChild(UnitCost);
-                        }
-                        //Quantity
-                        {
-                            Element Quantity = doc.createElement("Quantity");
-                            Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                            Product.appendChild(Quantity);
-                        }
-                        //Extended Price
-                        {
-                            Element TotalCost = doc.createElement("TotalCost");
-                            TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                            tCost += Double.parseDouble(aRowDataF[5].toString());
-                            Product.appendChild(TotalCost);
+                        if (Objects.equals(aRowDataF[6].toString(), cmbxCategory.getSelectedItem().toString())) {
+                            Element Product = doc.createElement("Product");
+                            products.appendChild(Product);
+                            //ID
+                            {
+                                Element ID = doc.createElement("ID");
+                                ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                                Product.appendChild(ID);
+                            }
+                            //Name
+                            {
+                                Element Name = doc.createElement("Name");
+                                Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                                Product.appendChild(Name);
+                            }
+                            //Size
+                            {
+                                Element Size = doc.createElement("Size");
+                                Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                                Product.appendChild(Size);
+                            }
+                            //UnitCost
+                            {
+                                Element UnitCost = doc.createElement("UnitCost");
+                                UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                                Product.appendChild(UnitCost);
+                            }
+                            //Quantity
+                            {
+                                Element Quantity = doc.createElement("Quantity");
+                                Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                                Product.appendChild(Quantity);
+                            }
+                            //Extended Price
+                            {
+                                Element TotalCost = doc.createElement("TotalCost");
+                                TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
+                                tCost += Double.parseDouble(aRowDataF[5].toString());
+                                Product.appendChild(TotalCost);
+                            }
                         }
 
                     }
@@ -1098,6 +1213,27 @@ class Reports extends JDialog {
                         Element tCostE = doc.createElement("totalCost");
                         tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
                         products.appendChild(tCostE);
+                    }
+                    Double Donation = Double.parseDouble(DbInt.getCustInf(cmbxYears.getSelectedItem().toString(), customer, "DONATION"));
+                    //Total Donation for this Year
+                    {
+                        //Set include to true
+                        {
+                            Element includeDonation = doc.createElement("includeDonation");
+                            includeDonation.appendChild(doc.createTextNode("true"));
+                            products.appendChild(includeDonation);
+                        }
+                        Element donation = doc.createElement("Donation");
+                        donation.appendChild(doc.createTextNode(String.valueOf(Donation)));
+                        products.appendChild(donation);
+                    }
+                    //Total Donation for this Year
+                    {
+
+
+                        Element donation = doc.createElement("GrandTotal");
+                        donation.appendChild(doc.createTextNode(String.valueOf(Donation + tCost)));
+                        products.appendChild(donation);
                     }
                     // OverallTotalCost elements
                     {
@@ -1111,6 +1247,11 @@ class Reports extends JDialog {
                         TotalQuantity.appendChild(doc.createTextNode(Double.toString(QuantL)));
                         info.appendChild(TotalQuantity);
                     }
+                    if (tCost > 0.0) {
+                        rootElement.appendChild(products);
+                    }
+
+
                 }
                 break;
 
@@ -1650,7 +1791,7 @@ class Reports extends JDialog {
 
     private String getDate(String catName){
         Date ret = null;
-        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(cmbxYears.getSelectedItem().toString(), "SELECT Date FROM Categories WHERE Name=?")) {
 
 
             prep.setString(1, catName);
