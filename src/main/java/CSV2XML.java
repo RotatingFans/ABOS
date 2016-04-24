@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
  */
 class CSV2XML extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    private LogToFile MyLogger = new LogToFile();
     private String xmlFile = null;
     private JTextField CsvLoc;
     private JTextField XmlLoc;

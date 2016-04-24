@@ -10,12 +10,11 @@ import java.util.List;
 
 
 class CustomerReport extends JDialog {
-
-    //TODO Add Active search with only results shown
-
-
     //TODO ADD ERROR HANDLING
     public static String year = "2015";
+
+    //TODO Add Active search with only results shown
+    private LogToFile MyLogger = new LogToFile();
     private JFrame frame;
     private JTable table;
     //public String year;

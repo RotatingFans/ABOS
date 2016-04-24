@@ -24,6 +24,7 @@ import java.util.List;
  * @author Jan Peter Stotz
  */
 class MapController extends MouseAdapter {
+    private LogToFile MyLogger = new LogToFile();
 
     private JMapViewer map;
     private Map m;

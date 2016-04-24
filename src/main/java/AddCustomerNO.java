@@ -9,6 +9,7 @@ import java.sql.SQLException;
  */
 class AddCustomerNO extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    private LogToFile MyLogger = new LogToFile();
     private JTextField Address;
     private JCheckBox NI;
     private JCheckBox NH;

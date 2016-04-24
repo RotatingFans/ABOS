@@ -16,6 +16,7 @@ import java.util.Properties;
 class AddCategory extends JDialog {
     private final JPanel contentPanel = new JPanel();
     JDatePickerImpl datePicker;
+    private LogToFile MyLogger = new LogToFile();
     private JTextField catTxt;
     private String year;
 

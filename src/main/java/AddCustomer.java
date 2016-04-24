@@ -34,10 +34,9 @@ import java.util.List;
  * @version 1.0
  */
 class AddCustomer extends JDialog {
-
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
+    private LogToFile MyLogger = new LogToFile();
     //private final JPanel contentPanel = new JPanel();
-
     //Editable Field for user to input customer info.
     private JCheckBox Delivered;
     private JCheckBox Paid;

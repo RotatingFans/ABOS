@@ -9,8 +9,8 @@ import java.util.List;
 
 
 class CustomerView extends JDialog {
-
     private static String year = Year.year;
+    private LogToFile MyLogger = new LogToFile();
     private JFrame frame;
     private JPanel[] panel;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private JTextField textField;

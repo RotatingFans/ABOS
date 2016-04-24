@@ -46,6 +46,7 @@ class Reports extends JDialog {
     private final JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
     private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
     JLabel includeHeaderL;
+    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane SteptabbedPane;
     private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
@@ -1664,7 +1665,7 @@ class Reports extends JDialog {
                     fos.close();
                 }
             } catch (FileNotFoundException e) {
-                //TODO Implement logger
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

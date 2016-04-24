@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 
 
 class Year extends JDialog {
-
     public static String year = "2015";
+    private LogToFile MyLogger = new LogToFile();
     private JFrame frame;
     private JTable table;
     private double QuantL = 0.0;
