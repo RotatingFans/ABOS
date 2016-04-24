@@ -1665,7 +1665,7 @@ class Reports extends JDialog {
                     fos.close();
                 }
             } catch (FileNotFoundException e) {
-
+                MyLogger.log(e, Severity.SEVERE, "This file is currently open in another program. Please close this fle before continuing.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
