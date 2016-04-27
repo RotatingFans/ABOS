@@ -30,8 +30,10 @@ public class LogToFile {
 
         FileHandler fh = null;
         try {
-            fh = new FileHandler("log.txt", true);
+            // Create a file with append set to  true. Also limit the file to 10000 bytes
+            fh = new FileHandler("log.txt", 10000, 1, true);
 
+            // Set the file format to a simple text file.
             fh.setFormatter(new SimpleFormatter());
             logger.addHandler(fh);
 
