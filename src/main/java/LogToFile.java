@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 
 public class LogToFile {
@@ -29,8 +30,11 @@ public class LogToFile {
 
         FileHandler fh = null;
         try {
-            fh = new FileHandler("log.xml", true);
+            fh = new FileHandler("log.txt", true);
+
+            fh.setFormatter(new SimpleFormatter());
             logger.addHandler(fh);
+
             switch (level) {
                 case SEVERE:
                     logger.log(Level.SEVERE, msg, ex);
