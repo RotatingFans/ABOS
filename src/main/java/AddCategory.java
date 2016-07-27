@@ -17,7 +17,7 @@ class AddCategory extends JDialog {
     private final JPanel contentPanel = new JPanel();
     JDatePickerImpl datePicker;
     private LogToFile MyLogger = new LogToFile();
-    private JTextField catTxt;
+    private JTextField categoryTextField;
     private String year;
 
     public AddCategory(String year) {
