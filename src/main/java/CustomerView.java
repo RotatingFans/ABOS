@@ -10,7 +10,7 @@ import java.util.List;
 
 class CustomerView extends JDialog {
 
-    private static String year = Year.year;
+    private static String year;
     private JFrame frame;
     private JPanel[] panel;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private JTextField textField;
@@ -24,7 +24,8 @@ class CustomerView extends JDialog {
      * Create the application.
      */
 
-    public CustomerView() {
+    public CustomerView(String Year) {
+        year = Year;
         initialize();
         frame.setVisible(true);
     }
@@ -35,7 +36,7 @@ class CustomerView extends JDialog {
     public static void main(String... args) {
         EventQueue.invokeLater(() -> {
             try {
-                CustomerView window = new CustomerView();
+                CustomerView window = new CustomerView(args[1]);
                 window.frame.setVisible(true);
             } catch (RuntimeException e) {
                 e.printStackTrace();
@@ -127,7 +128,7 @@ class CustomerView extends JDialog {
             JButton btnRefresh = new JButton("Refresh");
             btnRefresh.addActionListener(e -> {
                 frame.setVisible(false);
-                new CustomerView().setVisible(true);
+                new CustomerView(year).setVisible(true);
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             });
             //btnRefresh.setBounds(181, 7, 51, 36);

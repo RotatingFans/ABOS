@@ -1,30 +1,20 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 
 /**
@@ -63,7 +53,9 @@ class AddCustomer extends JDialog {
     private double lpOr = 0.0;
     private double lgOr = 0.0;
     private double donationOr = 0.0;
-
+    private Geolocation Geo = new Geolocation();
+    private Customer CustPar = new Customer();
+    private AddCustomerWorker addCustWork;
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
@@ -74,7 +66,7 @@ class AddCustomer extends JDialog {
         edit = true;
         initUI();
         //Set the address
-        String[] addr = getAddress(customerName);
+        String[] addr = CustPar.getCustAddressFrmName(customerName, year);
         String streetAdd = addr[3];
         String city = addr[0];
         String state = addr[1];
@@ -751,14 +743,14 @@ class AddCustomer extends JDialog {
      * Commits table to the Database
      */
     private void commitChanges() {
-        /*
+       /* *//*
           Insert Order
           Get ID via Name
           insert Customer INfo
-         */
+         *//*
         try {
             String address = String.format("%s %s, %s", Address.getText(), Town.getText(), State.getText());//Formats address
-            Object[][] coords = GetCoords(address);
+            Object[][] coords = Geo.GetCoords(address);
             double lat = Double.valueOf(coords[0][0].toString());
             double lon = Double.valueOf(coords[0][1].toString());
             if (!edit) {
@@ -897,7 +889,45 @@ class AddCustomer extends JDialog {
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-        }
+        }*/
+        ProgressDialog progDial = new ProgressDialog();
+
+        addCustWork = new AddCustomerWorker(Address.getText(), Town.getText(), State.getText(), year, edit, ProductTable, Name.getText(), ZipCode.getText(), Phone.getText(), Email.getText(), DonationsT.getText(), NameEditCustomer, Paid.isSelected(), Delivered.isSelected(), progDial.statusLbl);
+        addCustWork.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent event) {
+                switch (event.getPropertyName()) {
+                    case "progress":
+                        progDial.progressBar.setIndeterminate(false);
+                        progDial.progressBar.setValue((Integer) event.getNewValue());
+                        break;
+                    case "state":
+                        switch ((SwingWorker.StateValue) event.getNewValue()) {
+                            case DONE:
+                                try {
+
+                                } catch (CancellationException e) {
+                                    JOptionPane.showMessageDialog(AddCustomer.this, "The process was cancelled", "Add Order",
+                                            JOptionPane.WARNING_MESSAGE);
+                                } catch (Exception e) {
+                                    JOptionPane.showMessageDialog(AddCustomer.this, "The process failed", "Add Order",
+                                            JOptionPane.ERROR_MESSAGE);
+                                }
+
+                                addCustWork = null;
+                                progDial.dispose();
+                                break;
+                            case STARTED:
+                            case PENDING:
+                                progDial.progressBar.setVisible(true);
+                                progDial.progressBar.setIndeterminate(true);
+                                break;
+                        }
+                        break;
+                }
+            }
+        });
+        addCustWork.execute();
     }
 
     /**
@@ -907,242 +937,6 @@ class AddCustomer extends JDialog {
      * @return The City and state of the customer
      * @throws IOException
      */
-    private String getCityState(String zipCode) throws IOException {
-        //String AddressF = Address.replace(" ","+");
-        //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
-
-        //Defines connection
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        String city = "";
-        String State = "";
-        //Creates Response buffer for Web response
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            //Fill String buffer with response
-            while ((inputLine = in.readLine()) != null) {
-                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-                response.append(inputLine);
-            }
-
-
-            //Parses XML response and fills City and State Variables
-            try {
-                InputSource is = new InputSource(new StringReader(response.toString()));
-
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(is);
-
-                doc.getDocumentElement().normalize();
-
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-                NodeList nList = doc.getElementsByTagName("place");
-
-
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                    Node nNode = nList.item(temp);
-
-
-                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-                        Element eElement = (Element) nNode;
-
-
-                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
-
-                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        //Formats City and state into one string to return
-        String fullName = city + '&';
-        fullName += State;
-        //print result
-        //	return parseCoords(response.toString());
-        return fullName;
-    }
-
-    private Object[][] GetCoords(String Address) throws IOException {
-        String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
-
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        String USER_AGENT = "Mozilla/5.0";
-        con.setRequestProperty("User-Agent", USER_AGENT);
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-
-
-            //print result
-            return parseCoords(response.toString());
-        }
-    }
-
-    private Object[][] parseCoords(String xml) {
-        Object[][] coords = new Object[1][2];
-        try {
-            InputSource is = new InputSource(new StringReader(xml));
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
-
-            //optional, but recommended
-            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-            doc.getDocumentElement().normalize();
-
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-            NodeList nList = doc.getElementsByTagName("place");
-
-
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                Node nNode = nList.item(temp);
-
-
-                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-
-                    coords[0][0] = ((Element) nNode).getAttributeNode("lat").getValue();
-                    coords[0][1] = ((Element) nNode).getAttributeNode("lon").getValue();
-
-
-                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return coords;
-    }
-
-    private String[] getAddress(String name) {
-//        String AddressF = Address.replace(" ", "+");
-//        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", AddressF);
-//
-//        URL obj = new URL(url);
-//        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-//
-//        // optional default is GET
-//        con.setRequestMethod("GET");
-//
-//        //add request header
-//        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-//
-//        int responseCode = con.getResponseCode();
-//        System.out.println("\nSending 'GET' request to URL : " + url);
-//        System.out.println("Response Code : " + responseCode);
-//        String city = "";
-//        String State = "";
-//        String zipCode = "";
-//        String hN = "";
-//        String strt = "";
-//        try (BufferedReader in = new BufferedReader(
-//                new InputStreamReader(con.getInputStream()))) {
-//            String inputLine;
-//            StringBuilder response = new StringBuilder();
-//
-//            while ((inputLine = in.readLine()) != null) {
-//                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-//                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-//                response.append(inputLine);
-//            }
-//
-//
-//            //String city = "";
-//            try {
-//                InputSource is = new InputSource(new StringReader(response.toString()));
-//
-//                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-//                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-//                Document doc = dBuilder.parse(is);
-//
-//                //optional, but recommended
-//                //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-//                doc.getDocumentElement().normalize();
-//
-//                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-//
-//                NodeList nList = doc.getElementsByTagName("place");
-//
-//
-//                for (int temp = 0; temp < nList.getLength(); temp++) {
-//
-//                    Node nNode = nList.item(temp);
-//
-//
-//                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-//
-//                        Element eElement = (Element) nNode;
-//
-//
-//                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-//                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-//                        zipCode = eElement.getElementsByTagName("postcode").item(0).getTextContent();
-//                        hN = eElement.getElementsByTagName("house_number").item(0).getTextContent();
-//                        strt = eElement.getElementsByTagName("road").item(0).getTextContent();
-//
-//
-//                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-//
-//
-//                    }
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        //print result
-//        //	return parseCoords(response.toString());
-        String city = DbInt.getCustInf(year, name, "TOWN");
-        String State = DbInt.getCustInf(year, name, "STATE");
-        String zipCode = DbInt.getCustInf(year, name, "ZIPCODE");
-        String strtAddress = DbInt.getCustInf(year, name, "ADDRESS");
-        String[] address = new String[4];
-        address[0] = city;
-        address[1] = State;
-        address[2] = zipCode;
-        address[3] = strtAddress;
-        return address;
-    }
 
 
     /**
@@ -1244,7 +1038,8 @@ class AddCustomer extends JDialog {
      * @return The Grand total amount
      */
     private String getGTot() {
-        return getTots("GRANDTOTAL");
+        String tot = getTots("GRANDTOTAL") == "" ? ("0") : getTots("GRANDTOTAL");
+        return tot;
     }
 
 
@@ -1460,7 +1255,7 @@ class AddCustomer extends JDialog {
             if (zip.length() > 4) {
                 String FullName = "";
                 try {
-                    FullName = getCityState(zip);
+                    FullName = Geo.getCityState(zip);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

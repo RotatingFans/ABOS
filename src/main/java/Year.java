@@ -170,7 +170,7 @@ class Year extends JDialog {
             {
                 JButton btnNewButton_1 = new JButton("Customers");
                 //btnNewButton_1.setBounds(276, 232, 212, 247);
-                btnNewButton_1.addActionListener(arg0 -> new CustomerView());
+                btnNewButton_1.addActionListener(arg0 -> new CustomerView(year));
                 South.add(btnNewButton_1);
             }
             {
