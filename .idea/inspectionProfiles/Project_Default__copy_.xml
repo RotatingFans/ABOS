@@ -60,7 +60,7 @@
     <inspection_tool class="AssertsWithoutMessages" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="AssertsWithoutMessagesTestNG" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="AssignmentToCatchBlockParameter" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="AssignmentToCollectionFieldFromParameter" enabled="true" level="INFO" enabled_by_default="true">
+    <inspection_tool class="AssignmentToCollectionFieldFromParameter" enabled="false" level="INFO" enabled_by_default="false">
       <option name="ignorePrivateMethods" value="true" />
     </inspection_tool>
     <inspection_tool class="AssignmentToDateFieldFromParameter" enabled="true" level="INFO" enabled_by_default="true">
@@ -714,7 +714,7 @@
     <inspection_tool class="MethodOverridesPrivateMethod" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="MethodOverridesStaticMethod" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="MethodReturnAlwaysConstant" enabled="false" level="INFO" enabled_by_default="false" />
-    <inspection_tool class="MethodReturnOfConcreteClass" enabled="true" level="INFO" enabled_by_default="true" />
+    <inspection_tool class="MethodReturnOfConcreteClass" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="MethodWithMultipleLoops" enabled="false" level="INFO" enabled_by_default="false" />
     <inspection_tool class="MismatchedArrayReadWrite" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="MismatchedCollectionQueryUpdate" enabled="false" level="INFO" enabled_by_default="false">

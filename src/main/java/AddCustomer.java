@@ -54,19 +54,23 @@ class AddCustomer extends JDialog {
     private double lgOr = 0.0;
     private double donationOr = 0.0;
     private Geolocation Geo = new Geolocation();
-    private Customer CustPar = new Customer();
     private AddCustomerWorker addCustWork;
+    private Year yearInfo;
+    private Customer customerInfo;
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
      * @param customerName the name of the customer being edited.
      */
     public AddCustomer(String customerName) {
+
         year = CustomerReport.year;
+        yearInfo = new Year(year);
+        customerInfo = new Customer(customerName, year);
         edit = true;
         initUI();
         //Set the address
-        String[] addr = CustPar.getCustAddressFrmName(customerName, year);
+        String[] addr = customerInfo.getCustAddressFrmName();
         String streetAdd = addr[3];
         String city = addr[0];
         String state = addr[1];
@@ -76,15 +80,15 @@ class AddCustomer extends JDialog {
         Town.setText(city);
         State.setText(state);
         ZipCode.setText(zip);
-        Phone.setText(getPhone(customerName));
-        Paid.setSelected(Boolean.getBoolean(getPaid(customerName)));
-        Delivered.setSelected(Boolean.getBoolean(getDelivered(customerName)));
-        Email.setText(getEmail(customerName));
+        Phone.setText(customerInfo.getPhone());
+        Paid.setSelected(Boolean.getBoolean(customerInfo.getPaid()));
+        Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
+        Email.setText(customerInfo.getEmail());
         Name.setText(customerName);
-        DonationsT.setText(getDontation(customerName));
+        DonationsT.setText(customerInfo.getDontation());
         donationOr = Double.parseDouble(DonationsT.getText());
         //Fill the table with their previous order info on record.
-        fillTable(getOrderId(customerName));
+        fillTable(customerInfo.getOrderId());
 
         NameEditCustomer = customerName;
         edit = true;
@@ -222,6 +226,7 @@ class AddCustomer extends JDialog {
     public AddCustomer() {
 
         year = YearWindow.year;
+        yearInfo = new Year(year);
 
         initUI();
 
@@ -281,79 +286,6 @@ class AddCustomer extends JDialog {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
-
-
-    /**
-     * Returns Street Address of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Address of the specified customer
-     * @deprecated
-     */
-    @Deprecated
-    private String getAddr(String name) {
-        return DbInt.getCustInf(year, name, "ADDRESS");
-    }
-
-    /**
-     * Return Phone number of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Phone number of the specified customer
-     */
-    private String getPhone(String name) {
-        return DbInt.getCustInf(year, name, "PHONE");
-    }
-
-    /**
-     * Returns if the customer has paid.
-     *
-     * @param name The name of the customer
-     * @return The Payment status of the specified customer
-     */
-    private String getPaid(String name) {
-        return DbInt.getCustInf(year, name, "PAID");
-    }
-
-    /**
-     * Return Delivery status of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Delivery status of the specified customer
-     */
-    private String getDelivered(String name) {
-        return DbInt.getCustInf(year, name, "DELIVERED");
-    }
-
-    /**
-     * Return Email Address of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Email Address of the specified customer
-     */
-    private String getEmail(String name) {
-        return DbInt.getCustInf(year, name, "Email");
-    }
-
-    /**
-     * Return Order ID of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Order ID of the specified customer
-     */
-    private String getOrderId(String name) {
-        return DbInt.getCustInf(year, name, "ORDERID");
-    }
-
-    /**
-     * Return Donation amount of the customer whose name has been specified.
-     *
-     * @param name The name of the customer
-     * @return The Donation Amount of the specified customer
-     */
-    private String getDontation(String name) {
-        return DbInt.getCustInf(year, name, "DONATION");
     }
 
     /**
@@ -945,102 +877,7 @@ class AddCustomer extends JDialog {
      * @param info the info to be gotten
      * @return THe info to be wanten
      */
-    private String getTots(String info) {
-        String ret = "";
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
-             ResultSet rs = prep.executeQuery()
-        ) {
-
-            //prep.setString(1, info);
-
-
-            while (rs.next()) {
-
-                ret = rs.getString(info);
-
-            }
-            //////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    /**
-     * Gets the Total Donations Using getTots Function
-     *
-     * @return The total donation amount
-     */
-    private String getDonations() {
-        return getTots("Donations");
-    }
-
-    /**
-     * Gets the Total Lawn ANd Garden quantities Using getTots Function
-     *
-     * @return The total Lawn ANd Garden quantities amount
-     */
-    private String getLG() {
-        return getTots("LG");
-    }
-
-    /**
-     * Gets the Total Live Plants quantities Using getTots Function
-     *
-     * @return The total Live Plants quantities amount
-     */
-    private String getLP() {
-        return getTots("LP");
-    }
-
-    /**
-     * Gets the Total Mulch quantities Using getTots Function
-     *
-     * @return The total Mulch quantities amount
-     */
-    private String getMulch() {
-        return getTots("MULCH");
-    }
-
-    /**
-     * Gets the order Total Using getTots Function
-     *
-     * @return The Order total amount
-     */
-    private String getOT() {
-        return getTots("TOTAL");
-    }
-
-    /**
-     * Gets the Total Customer Using getTots Function
-     *
-     * @return The total amount of Customers
-     */
-    private String getCustomers() {
-        return getTots("CUSTOMERS");
-    }
-
-// --Commented out by Inspection START (1/2/2016 12:01 PM):
-//    /**
-//     * Gets the Total Commissions Using getTots Function
-//     * @return The total Commissions amount
-//     */
-//    private String getCommis() {
-//        return getTots("COMMISSIONS");
-//    }
-// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
-
-    /**
-     * Gets the Grand Total Using getTots Function
-     *
-     * @return The Grand total amount
-     */
-    private String getGTot() {
-        String tot = getTots("GRANDTOTAL") == "" ? ("0") : getTots("GRANDTOTAL");
-        return tot;
-    }
 
 
     /**
@@ -1138,13 +975,13 @@ class AddCustomer extends JDialog {
          */
         try {
             if (!edit) {
-                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
-                Double Lg = Double.parseDouble(getLG()) + getLgOrdered();
-                Double LP = Double.parseDouble(getLP()) + getLpOrdered();
-                Double Mulch = Double.parseDouble(getMulch()) + getMulchOrdered();
-                Double OT = Double.parseDouble(getOT()) + totalCostFinal;
-                Double Customers = Double.parseDouble(getCustomers()) + 1.0;
-                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
+                Double donations = Double.parseDouble(yearInfo.getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
+                Double Lg = Double.parseDouble(yearInfo.getLG()) + getLgOrdered();
+                Double LP = Double.parseDouble(yearInfo.getLP()) + getLpOrdered();
+                Double Mulch = Double.parseDouble(yearInfo.getMulch()) + getMulchOrdered();
+                Double OT = Double.parseDouble(yearInfo.getOT()) + totalCostFinal;
+                Double Customers = Double.parseDouble(yearInfo.getNoCustomers()) + 1.0;
+                Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
 
                 Double Commis = getCommission(GTot);
 
@@ -1163,13 +1000,13 @@ class AddCustomer extends JDialog {
                 //////DbInt.pCon.close();
 
             } else if (edit) {
-                Double donations = Double.parseDouble(getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
-                Double Lg = Double.parseDouble(getLG()) + (getLgOrdered() - lgOr);
-                Double LP = Double.parseDouble(getLP()) + (getLpOrdered() - lpOr);
-                Double Mulch = Double.parseDouble(getMulch()) + (getMulchOrdered() - mulchOr);
-                Double OT = Double.parseDouble(getOT()) + (totalCostFinal - totalCostTOr);
-                Double Customers = Double.parseDouble(getCustomers());
-                Double GTot = Double.parseDouble(getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
+                Double donations = Double.parseDouble(yearInfo.getDonations()) + (Double.parseDouble(DonationsT.getText()) - donationOr);
+                Double Lg = Double.parseDouble(yearInfo.getLG()) + (getLgOrdered() - lgOr);
+                Double LP = Double.parseDouble(yearInfo.getLP()) + (getLpOrdered() - lpOr);
+                Double Mulch = Double.parseDouble(yearInfo.getMulch()) + (getMulchOrdered() - mulchOr);
+                Double OT = Double.parseDouble(yearInfo.getOT()) + (totalCostFinal - totalCostTOr);
+                Double Customers = Double.parseDouble(yearInfo.getNoCustomers());
+                Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - totalCostTOr) + (Double.parseDouble(DonationsT.getText()) - donationOr);
 
                 Double Commis = getCommission(GTot);
                 try (PreparedStatement writeTots = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {

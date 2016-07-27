@@ -45,7 +45,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
     private final String pdfLoc;
     private Document doc;
     private File xmlTempFile = null;
-    private File[] xmlTempFileA = null;
+    // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
 
     /**
      * Creates an instance of the worker
@@ -86,18 +86,20 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
         pdfLoc = pdfLoc1;
     }
 
-    private static void failIfInterrupted() throws InterruptedException {
-        if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedException("Interrupted while searching files");
-        }
-    }
+// --Commented out by Inspection START (7/27/16 3:02 PM):
+//    private static void failIfInterrupted() throws InterruptedException {
+//        if (Thread.currentThread().isInterrupted()) {
+//            throw new InterruptedException("Interrupted while searching files");
+//        }
+//    }
+// --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
     @Override
     protected Integer doInBackground() throws Exception {
         publish("Generating Report");
         if (reportType == "Year Totals; Spilt by Customer") {
-            Year year = new Year();
-            Iterable<String> customers = Year.getCustomers(selectedYear);
+            Year year = new Year(selectedYear);
+            Iterable<String> customers = year.getCustomerNames();
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder = null;
@@ -243,46 +245,49 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length;
                     double tCost = 0.0;
                     //For each product ordered, enter info
-                    for (Object[] aRowDataF : orderArray.orderData) {
-                        if (Objects.equals(aRowDataF[6].toString(), category) || (category == "All")) {
-                            Element Product = doc.createElement("Product");
-                            products.appendChild(Product);
-                            //ID
+                    for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                        if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
+
                             {
-                                Element ID = doc.createElement("ID");
-                                ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                                Product.appendChild(ID);
-                            }
-                            //Name
-                            {
-                                Element Name = doc.createElement("Name");
-                                Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                                Product.appendChild(Name);
-                            }
-                            //Size
-                            {
-                                Element Size = doc.createElement("Size");
-                                Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                                Product.appendChild(Size);
-                            }
-                            //UnitCost
-                            {
-                                Element UnitCost = doc.createElement("UnitCost");
-                                UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                                Product.appendChild(UnitCost);
-                            }
-                            //Quantity
-                            {
-                                Element Quantity = doc.createElement("Quantity");
-                                Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                                Product.appendChild(Quantity);
-                            }
-                            //Extended Price
-                            {
-                                Element TotalCost = doc.createElement("TotalCost");
-                                TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                tCost += Double.parseDouble(aRowDataF[5].toString());
-                                Product.appendChild(TotalCost);
+                                Element Product = doc.createElement("Product");
+                                products.appendChild(Product);
+                                //ID
+                                {
+                                    Element ID = doc.createElement("ID");
+                                    ID.appendChild(doc.createTextNode(aRowDataF.productID));
+                                    Product.appendChild(ID);
+                                }
+                                //Name
+                                {
+                                    Element Name = doc.createElement("Name");
+                                    Name.appendChild(doc.createTextNode(aRowDataF.productName));
+                                    Product.appendChild(Name);
+                                }
+                                //Size
+                                {
+                                    Element Size = doc.createElement("Size");
+                                    Size.appendChild(doc.createTextNode(aRowDataF.productSize));
+                                    Product.appendChild(Size);
+                                }
+                                //UnitCost
+                                {
+                                    Element UnitCost = doc.createElement("UnitCost");
+                                    UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                    Product.appendChild(UnitCost);
+                                }
+                                //Quantity
+                                {
+                                    Element Quantity = doc.createElement("Quantity");
+                                    Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
+                                    Product.appendChild(Quantity);
+                                }
+                                //TotalCost
+                                {
+                                    Element TotalCost = doc.createElement("TotalCost");
+                                    TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
+                                    tCost += aRowDataF.extendedCost;
+                                    Product.appendChild(TotalCost);
+                                }
                             }
                         }
                         setProgress(getProgress() + productProgressIncValue);
@@ -435,8 +440,8 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         orderArray.totalCost = 0.0;
                         orderArray.totalQuantity = 0.0;
                         int productIncValue = 90 / orderArray.orderData.length;
-                        for (Object[] aRowDataF : orderArray.orderData) {
-                            if (Objects.equals(aRowDataF[6].toString(), category) || (category == "All")) {
+                        for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                            if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
 
                                 {
                                     Element Product = doc.createElement("Product");
@@ -444,41 +449,41 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     //ID
                                     {
                                         Element ID = doc.createElement("ID");
-                                        ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                                        ID.appendChild(doc.createTextNode(aRowDataF.productID));
                                         Product.appendChild(ID);
                                     }
                                     //Name
                                     {
                                         Element Name = doc.createElement("Name");
-                                        Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                                        Name.appendChild(doc.createTextNode(aRowDataF.productName));
                                         Product.appendChild(Name);
                                     }
                                     //Size
                                     {
                                         Element Size = doc.createElement("Size");
-                                        Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                                        Size.appendChild(doc.createTextNode(aRowDataF.productSize));
                                         Product.appendChild(Size);
                                     }
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
                                     {
                                         Element Quantity = doc.createElement("Quantity");
-                                        orderArray.totalQuantity += Double.parseDouble(aRowDataF[4].toString());
-                                        Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                                        orderArray.totalQuantity += (double) aRowDataF.orderedQuantity;
+                                        Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
                                         Product.appendChild(Quantity);
                                     }
                                     //TotalCost
                                     {
                                         Element TotalCost = doc.createElement("TotalCost");
-                                        orderArray.totalCost += Double.parseDouble(aRowDataF[5].toString());
+                                        orderArray.totalCost += aRowDataF.extendedCost;
 
-                                        TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                        tCost += Double.parseDouble(aRowDataF[5].toString());
+                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
+                                        tCost += aRowDataF.extendedCost;
                                         Product.appendChild(TotalCost);
                                     }
                                 }
@@ -544,46 +549,49 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         int productIncValue = 90 / orderArray.orderData.length;
 
                         //For each product ordered, enter info
-                        for (Object[] aRowDataF : orderArray.orderData) {
-                            if (Objects.equals(aRowDataF[6].toString(), category) || (category == "All")) {
-                                Element Product = doc.createElement("Product");
-                                products.appendChild(Product);
-                                //ID
+                        for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                            if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
+
                                 {
-                                    Element ID = doc.createElement("ID");
-                                    ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
-                                    Product.appendChild(ID);
-                                }
-                                //Name
-                                {
-                                    Element Name = doc.createElement("Name");
-                                    Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
-                                    Product.appendChild(Name);
-                                }
-                                //Size
-                                {
-                                    Element Size = doc.createElement("Size");
-                                    Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
-                                    Product.appendChild(Size);
-                                }
-                                //UnitCost
-                                {
-                                    Element UnitCost = doc.createElement("UnitCost");
-                                    UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
-                                    Product.appendChild(UnitCost);
-                                }
-                                //Quantity
-                                {
-                                    Element Quantity = doc.createElement("Quantity");
-                                    Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
-                                    Product.appendChild(Quantity);
-                                }
-                                //Extended Price
-                                {
-                                    Element TotalCost = doc.createElement("TotalCost");
-                                    TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                    tCost += Double.parseDouble(aRowDataF[5].toString());
-                                    Product.appendChild(TotalCost);
+                                    Element Product = doc.createElement("Product");
+                                    products.appendChild(Product);
+                                    //ID
+                                    {
+                                        Element ID = doc.createElement("ID");
+                                        ID.appendChild(doc.createTextNode(aRowDataF.productID));
+                                        Product.appendChild(ID);
+                                    }
+                                    //Name
+                                    {
+                                        Element Name = doc.createElement("Name");
+                                        Name.appendChild(doc.createTextNode(aRowDataF.productName));
+                                        Product.appendChild(Name);
+                                    }
+                                    //Size
+                                    {
+                                        Element Size = doc.createElement("Size");
+                                        Size.appendChild(doc.createTextNode(aRowDataF.productSize));
+                                        Product.appendChild(Size);
+                                    }
+                                    //UnitCost
+                                    {
+                                        Element UnitCost = doc.createElement("UnitCost");
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        Product.appendChild(UnitCost);
+                                    }
+                                    //Quantity
+                                    {
+                                        Element Quantity = doc.createElement("Quantity");
+                                        Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
+                                        Product.appendChild(Quantity);
+                                    }
+                                    //TotalCost
+                                    {
+                                        Element TotalCost = doc.createElement("TotalCost");
+                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
+                                        tCost += aRowDataF.extendedCost;
+                                        Product.appendChild(TotalCost);
+                                    }
                                 }
                             }
                             setProgress(getProgress() + productIncValue);
@@ -651,44 +659,44 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     overallTotalCost = orderArray.totalCost;
                                     overallTotalQuantity = orderArray.totalQuantity;
                                     //For each product in the table set the data
-                                    for (Object[] aRowDataF : orderArray.orderData) {
+                                    for (Product.formattedProduct orderedProduct : orderArray.orderData) {
                                         Element Product = doc.createElement("Product");
                                         products.appendChild(Product);
                                         //ID
                                         {
                                             Element ID = doc.createElement("ID");
-                                            ID.appendChild(doc.createTextNode(aRowDataF[0].toString()));
+                                            ID.appendChild(doc.createTextNode(orderedProduct.productID));
                                             Product.appendChild(ID);
                                         }
                                         //Name
                                         {
                                             Element Name = doc.createElement("Name");
-                                            Name.appendChild(doc.createTextNode(aRowDataF[1].toString()));
+                                            Name.appendChild(doc.createTextNode(orderedProduct.productName));
                                             Product.appendChild(Name);
                                         }
                                         //Size
                                         {
                                             Element Size = doc.createElement("Size");
-                                            Size.appendChild(doc.createTextNode(aRowDataF[2].toString()));
+                                            Size.appendChild(doc.createTextNode(orderedProduct.productSize));
                                             Product.appendChild(Size);
                                         }
                                         //UnitCost
                                         {
                                             Element UnitCost = doc.createElement("UnitCost");
-                                            UnitCost.appendChild(doc.createTextNode(aRowDataF[3].toString()));
+                                            UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice));
                                             Product.appendChild(UnitCost);
                                         }
-                                        //Quanity
+                                        //Quantity
                                         {
                                             Element Quantity = doc.createElement("Quantity");
-                                            Quantity.appendChild(doc.createTextNode(aRowDataF[4].toString()));
+                                            Quantity.appendChild(doc.createTextNode(String.valueOf(orderedProduct.orderedQuantity)));
                                             Product.appendChild(Quantity);
                                         }
-                                        //Total Cost
+                                        //TotalCost
                                         {
                                             Element TotalCost = doc.createElement("TotalCost");
-                                            TotalCost.appendChild(doc.createTextNode(aRowDataF[5].toString()));
-                                            tCost += Double.parseDouble(aRowDataF[5].toString());
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
+                                            tCost += orderedProduct.extendedCost;
                                             Product.appendChild(TotalCost);
                                         }
                                     }

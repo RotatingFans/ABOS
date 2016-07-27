@@ -29,7 +29,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     private final Boolean Paid;
     private final Boolean Delivered;
     private final JLabel StatusLbl;
-    private Customer CustPar = new Customer();
     private Geolocation Geo = new Geolocation();
 
     /**
@@ -200,10 +199,10 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
             }
             if (edit) {
                 //Updates Customer table in set DB with new info
+                Customer customerInfo = new Customer(Name, year);
                 publish("Updating Customer Data");
                 int progressDivisor = (2 * ProductTable.getRowCount());
                 int progressIncrement = (progressDivisor - 10) / progressDivisor;
-                progress = 0;
 
                 try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
@@ -213,14 +212,13 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                     updateCust.setString(4, ZipCode);
                     updateCust.setDouble(5, lat);
                     updateCust.setDouble(6, lon);
-                    updateCust.setString(7, CustPar.getAddr(NameEditCustomer, year));
+                    updateCust.setString(7, customerInfo.getAddr());
                     AddCustomerWorker.failIfInterrupted();
 
                     updateCust.execute();
 
                 }
                 setProgress(10);
-                progress = 10;
                 //Updates customer table in Year DB with new info.
                 try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
                     CustomerUpdate.setString(1, Name);
@@ -241,7 +239,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                     CustomerUpdate.execute();
                 }
                 setProgress(20);
-                progress = 20;
                 //////DbInt.pCon.close();
                 publish("Building Order Update");
 
@@ -249,8 +246,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 //loops through table and adds product number to order string with "=?"
                 for (int i = 0; i < ProductTable.getRowCount(); i++) {
                     UpdateOrderString = String.format("%s, \"%s\"=?", UpdateOrderString, Integer.toString(i));//table.getModel().getValueAt(i, 4)
-                    setProgress(progress + progressIncrement);
-                    progress += progressIncrement;
+                    setProgress(getProgress() + progressIncrement);
                 }
                 AddCustomerWorker.failIfInterrupted();
 
@@ -260,8 +256,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                     updateOrders.setString(1, Name);
                     for (int i = 0; i < ProductTable.getRowCount(); i++) {
                         updateOrders.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
-                        setProgress(progress + progressIncrement);
-                        progress += progressIncrement;
+                        setProgress(getProgress() + progressIncrement);
                     }
                     AddCustomerWorker.failIfInterrupted();
 
@@ -271,7 +266,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                     updateOrders.execute();
                 }
                 setProgress(100);
-                progress = 100;
 
             }
         } catch (SQLException | IOException e) {

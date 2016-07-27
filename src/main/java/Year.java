@@ -8,7 +8,14 @@ import java.util.Collection;
  * Created by patrick on 7/27/16.
  */
 public class Year {
-    public static Iterable<String> getCustomers(String year) {
+    private final String year;
+
+    public Year(String year) {
+
+        this.year = year;
+    }
+
+    public Iterable<String> getCustomerNames() {
         Collection<String> ret = new ArrayList<>();
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
@@ -30,4 +37,98 @@ public class Year {
         return ret;
     }
 
+    public String getTots(String info) {
+        String ret = "";
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
+             ResultSet rs = prep.executeQuery()
+        ) {
+
+            //prep.setString(1, info);
+
+
+            while (rs.next()) {
+
+                ret = rs.getString(info);
+
+            }
+            //////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    /**
+     * Gets the Total Donations Using getTots Function
+     *
+     * @return The total donation amount
+     */
+    public String getDonations() {
+        return getTots("Donations");
+    }
+
+    /**
+     * Gets the Total Lawn ANd Garden quantities Using getTots Function
+     *
+     * @return The total Lawn ANd Garden quantities amount
+     */
+    public String getLG() {
+        return getTots("LG");
+    }
+
+    /**
+     * Gets the Total Live Plants quantities Using getTots Function
+     *
+     * @return The total Live Plants quantities amount
+     */
+    public String getLP() {
+        return getTots("LP");
+    }
+
+    /**
+     * Gets the Total Mulch quantities Using getTots Function
+     *
+     * @return The total Mulch quantities amount
+     */
+    public String getMulch() {
+        return getTots("MULCH");
+    }
+
+    /**
+     * Gets the order Total Using getTots Function
+     *
+     * @return The Order total amount
+     */
+    public String getOT() {
+        return getTots("TOTAL");
+    }
+
+    /**
+     * Gets the Total Customer Using getTots Function
+     *
+     * @return The total amount of Customers
+     */
+    public String getNoCustomers() {
+        return getTots("CUSTOMERS");
+    }
+
+    /**
+     * Gets the Total Commissions Using getTots Function
+     *
+     * @return The total Commissions amount
+     */
+    public String getCommis() {
+        return getTots("COMMISSIONS");
+    }
+
+    /**
+     * Gets the Grand Total Using getTots Function
+     *
+     * @return The Grand total amount
+     */
+    public String getGTot() {
+        return (getTots("GRANDTOTAL") == "") ? ("0") : getTots("GRANDTOTAL");
+    }
 }

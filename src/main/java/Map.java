@@ -104,12 +104,10 @@ public class Map extends JFrame implements JMapViewerEventListener {
         //infoPanel.setLayout(new FlowLayout());
         add(infoPanel, "East");
 
-        map().setTileSource(new OsmTileSource.CycleMap());
+        map().setTileSource(new OsmTileSource.Mapnik());
         map().setTileLoader(new OsmTileLoader(map()));
 
-
         map().setMapMarkerVisible(true);
-
 
         panelTop.add(zoomLabel);
         panelTop.add(zoomValue);
@@ -153,8 +151,9 @@ public class Map extends JFrame implements JMapViewerEventListener {
             }
 
         }
+        map().setDisplayToFitMapElements(true, true, true);
+        map().zoomIn();
         new MapController(map(), this);
-        map().setZoom(5000);
 
 
     }
@@ -332,6 +331,5 @@ public class Map extends JFrame implements JMapViewerEventListener {
 //        }
 //        return coords;
 //    }
-
 
 }

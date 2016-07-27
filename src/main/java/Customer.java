@@ -2,7 +2,16 @@
  * Created by patrick on 7/26/16.
  */
 public class Customer {
-    public String[] getCustAddressFrmName(String name, String year) {
+    private final String name;
+    private final String year;
+
+    public Customer(String name, String year) {
+
+        this.name = name;
+        this.year = year;
+    }
+
+    public String[] getCustAddressFrmName() {
 
         String city = DbInt.getCustInf(year, name, "TOWN");
         String State = DbInt.getCustInf(year, name, "STATE");
@@ -16,7 +25,7 @@ public class Customer {
         return address;
     }
 
-    public String getAddr(String name, String year) {
+    public String getAddr() {
         return DbInt.getCustInf(year, name, "ADDRESS");
     }
 
@@ -26,7 +35,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Phone number of the specified customer
      */
-    public String getPhone(String name, String year) {
+    public String getPhone() {
         return DbInt.getCustInf(year, name, "PHONE");
     }
 
@@ -36,7 +45,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Payment status of the specified customer
      */
-    public String getPaid(String name, String year) {
+    public String getPaid() {
         return DbInt.getCustInf(year, name, "PAID");
     }
 
@@ -46,7 +55,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Delivery status of the specified customer
      */
-    public String getDelivered(String name, String year) {
+    public String getDelivered() {
         return DbInt.getCustInf(year, name, "DELIVERED");
     }
 
@@ -56,7 +65,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Email Address of the specified customer
      */
-    public String getEmail(String name, String year) {
+    public String getEmail() {
         return DbInt.getCustInf(year, name, "Email");
     }
 
@@ -66,7 +75,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Order ID of the specified customer
      */
-    public String getOrderId(String name, String year) {
+    public String getOrderId() {
         return DbInt.getCustInf(year, name, "ORDERID");
     }
 
@@ -76,7 +85,7 @@ public class Customer {
      * @param name The name of the customer
      * @return The Donation Amount of the specified customer
      */
-    public String getDontation(String name, String year) {
+    public String getDontation() {
         return DbInt.getCustInf(year, name, "DONATION");
     }
 }

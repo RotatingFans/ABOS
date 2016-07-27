@@ -35,7 +35,8 @@ class AddCategory extends JDialog {
     }
 
     //SetBounds(X,Y,Width,Height)
-    private void initUI(String year) {
+    private void initUI(String Year) {
+        year = Year;
         setSize(600, 400);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

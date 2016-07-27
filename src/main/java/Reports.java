@@ -23,11 +23,9 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CancellationException;
@@ -41,7 +39,7 @@ class Reports extends JDialog {
     private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
     JLabel includeHeaderL;
     private JTabbedPane SteptabbedPane;
-    private Object[][] rowDataF = new Object[0][];
+    // --Commented out by Inspection (7/27/16 3:02 PM):private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
     private JPanel ReportInfo;
     private JComboBox<Object> cmbxReportType;
@@ -59,12 +57,12 @@ class Reports extends JDialog {
 
 
     private String addrFormat = null;
-    private double totL = 0.0;
-    private double QuantL = 0.0;
+    // --Commented out by Inspection (7/27/16 3:02 PM):private double totL = 0.0;
+    // --Commented out by Inspection (7/27/16 3:02 PM):private double QuantL = 0.0;
     private String Splitting = "";
     private String repTitle = "";
-    private File xmlTempFile = null;
-    private File[] xmlTempFileA = null;
+    // --Commented out by Inspection (7/27/16 3:02 PM):private File xmlTempFile = null;
+    // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
     private ReportsWorker reportsWorker;
 
 
@@ -262,7 +260,7 @@ class Reports extends JDialog {
                         Object selected = comboBox.getSelectedItem();
                         if (cmbxReportType.getSelectedIndex() == 3) {
                             if (cmbxYears.getSelectedItem() != "") {
-                                Iterable<String> customersY = Year.getCustomers(cmbxYears.getSelectedItem().toString());
+                                Iterable<String> customersY = Year.getCustomerNames();
                                 cmbxCustomers.removeAllItems();
                                 cmbxCustomers.addItem("");
                                 cmbxCustomers.setSelectedItem("");
@@ -571,7 +569,7 @@ class Reports extends JDialog {
   /*  private void convert4Split() {
 
 
-        Iterable<String> customers = getCustomers(cmbxYears.getSelectedItem().toString());
+        Iterable<String> customers = getNoCustomers(cmbxYears.getSelectedItem().toString());
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder domBuilder = null;
@@ -1334,33 +1332,34 @@ class Reports extends JDialog {
     }
 
 
-
-    private String getDate(String catName){
-        Date ret = null;
-        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
-
-
-            prep.setString(1, catName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                while (rs.next()) {
-
-                    ret = rs.getDate(1);
-
-                }
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        String output;
-        SimpleDateFormat formatter;
-        formatter = new SimpleDateFormat("MM/dd/yyyy");
-        output = formatter.format(ret);
-        return output;
-    }
+// --Commented out by Inspection START (7/27/16 3:02 PM):
+//    private String getDate(String catName){
+//        Date ret = null;
+//        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+//
+//
+//            prep.setString(1, catName);
+//
+//            try (ResultSet rs = prep.executeQuery()) {
+//
+//                while (rs.next()) {
+//
+//                    ret = rs.getDate(1);
+//
+//                }
+//            }
+//            ////DbInt.pCon.close();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        String output;
+//        SimpleDateFormat formatter;
+//        formatter = new SimpleDateFormat("MM/dd/yyyy");
+//        output = formatter.format(ret);
+//        return output;
+//    }
+// --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
     static class MyDocumentListener implements DocumentListener {
         // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";
