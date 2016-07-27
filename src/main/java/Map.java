@@ -116,15 +116,15 @@ public class Map extends JFrame implements JMapViewerEventListener {
         add(treeMap, "Center");
 
         //Add customers to map
-        List<String> Addr = getCustInfo("ADDRESS");
-        List<String> Town = getCustInfo("TOWN");
-        List<String> State = getCustInfo("STATE");
+        List<String> Addr = getAllCustomersInfo("ADDRESS");
+        List<String> Town = getAllCustomersInfo("TOWN");
+        List<String> State = getAllCustomersInfo("STATE");
 
-        List<String> latL = getCustInfo("Lat");
-        List<String> lonL = getCustInfo("Lon");
-        List<String> Ord = getCustInfo("Ordered");
-        List<String> NI = getCustInfo("NI");
-        List<String> NH = getCustInfo("NH");
+        List<String> latL = getAllCustomersInfo("Lat");
+        List<String> lonL = getAllCustomersInfo("Lon");
+        List<String> Ord = getAllCustomersInfo("Ordered");
+        List<String> NI = getAllCustomersInfo("NI");
+        List<String> NH = getAllCustomersInfo("NH");
         cPoints = new Object[Addr.size()];
         for (int i = 0; i < Addr.size(); i++) {
             try {
@@ -200,7 +200,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
      * @param info Info to retrieve
      * @return The info requested in ArrayList form
      */
-    private List<String> getCustInfo(String info) {
+    private List<String> getAllCustomersInfo(String info) {
         List<String> ret = new ArrayList<String>();
 
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");

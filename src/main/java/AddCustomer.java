@@ -10,10 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CancellationException;
 
 
@@ -507,52 +504,22 @@ class AddCustomer extends JDialog {
 
         //Variables for inserting info into table
 
-        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
-        List<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
-        //Get a prepared statement to retrieve data
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
-             ResultSet ProductInfoResultSet = prep.executeQuery()) {
-            //Run through Data set and add info to ProductInfoArray
-
-            for (int i = 0; i < 4; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
-                while (ProductInfoResultSet.next()) {
-
-                    ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
-
-                }
-                ProductInfoResultSet.beforeFirst();
-                DbInt.pCon.commit();
-                ////DbInt.pCon.close();
-
-            }
-
-            //Close prepared statement
-            ProductInfoResultSet.close();
-            if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
-                DbInt.pCon = null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //define array of rows
-        Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
-        //loop through ProductInfoArray and add data to Rows
-        for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
-            rows[i][0] = ProductInfoArray.get(0).get(i);
-            rows[i][1] = ProductInfoArray.get(1).get(i);
-            rows[i][2] = ProductInfoArray.get(2).get(i);
-            rows[i][3] = ProductInfoArray.get(3).get(i);
-            rows[i][4] = 0;
-            rows[i][5] = 0;
-
-        }
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
         //Define table properties
-
+        Product.formattedProduct[] productArray = yearInfo.getAllProducts();
+        Object[][] rows = new Object[productArray.length][6];
+        int i = 0;
+        for (Product.formattedProduct productOrder : productArray) {
+            rows[i][0] = productOrder.productID;
+            rows[i][1] = productOrder.productName;
+            rows[i][2] = productOrder.productSize;
+            rows[i][3] = productOrder.productUnitPrice;
+            rows[i][4] = productOrder.orderedQuantity;
+            rows[i][5] = productOrder.extendedCost;
+            i++;
+        }
         ProductTable.setModel(new DefaultTableModel(
                 rows,
                 new String[]{
@@ -874,24 +841,6 @@ class AddCustomer extends JDialog {
     }
 
     /**
-     * Takes a zipcode and returns the city and state of the customer.
-     *
-     * @param zipCode The Zipcode of the customer
-     * @return The City and state of the customer
-     * @throws IOException
-     */
-
-
-    /**
-     * Gets info from Totals Table in current year
-     *
-     * @param info the info to be gotten
-     * @return THe info to be wanten
-     */
-
-
-
-    /**
      * Loops through Table to get total amount of Bulk Mulch ordered.
      *
      * @return The amount of Bulk mulch ordered
@@ -951,6 +900,7 @@ class AddCustomer extends JDialog {
      */
     private double getCommission(double tcost) {
         double comm = 0.0;
+
         if (tcost > 299.99) {
             if (tcost < 500.01) {
                 comm = tcost * 0.05;

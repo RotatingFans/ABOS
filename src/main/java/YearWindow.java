@@ -2,11 +2,11 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowEvent;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 class YearWindow extends JDialog {
@@ -16,7 +16,7 @@ class YearWindow extends JDialog {
     private JTable table;
     private double QuantL = 0.0;
     private double totL = 0.0;
-
+    private Year yearInfo;
     /**
      * Create the application.
      *
@@ -54,6 +54,7 @@ class YearWindow extends JDialog {
      * Initialize the contents of the frame.
      */
     private void initialize() {
+        yearInfo = new Year(year);
         frame = new JFrame();
         frame.setBounds(100, 100, 750, 600);
 
@@ -73,7 +74,7 @@ class YearWindow extends JDialog {
             //lblNewLabel.setBounds(16, 11, 97, 14);
             East.add(lblNewLabel);
 
-            JLabel DonationsR = new JLabel(getDonations());
+            JLabel DonationsR = new JLabel(yearInfo.getDonations());
             DonationsR.setFont(l);
             //DonationsR.setBounds(193, 11, 65, 14);
             East.add(DonationsR);
@@ -83,7 +84,7 @@ class YearWindow extends JDialog {
             //lblLawnAndGarden.setBounds(16, 36, 142, 14);
             East.add(lblLawnAndGarden);
 
-            JLabel LGR = new JLabel(getLG());
+            JLabel LGR = new JLabel(yearInfo.getLG());
             LGR.setFont(l);
             //LGR.setBounds(193, 36, 65, 14);
             East.add(LGR);
@@ -93,7 +94,7 @@ class YearWindow extends JDialog {
             //lblLivePlantProducts.setBounds(16, 61, 113, 14);
             East.add(lblLivePlantProducts);
 
-            JLabel LPR = new JLabel(getLP());
+            JLabel LPR = new JLabel(yearInfo.getLP());
             LPR.setFont(l);
             //LPR.setBounds(193, 61, 65, 14);
             East.add(LPR);
@@ -103,7 +104,7 @@ class YearWindow extends JDialog {
             //	lblF.setBounds(16, 86, 113, 14);
             East.add(lblF);
 
-            JLabel MulchR = new JLabel(getMulch());
+            JLabel MulchR = new JLabel(yearInfo.getMulch());
             MulchR.setFont(l);
             //MulchR.setBounds(193, 86, 65, 14);
             East.add(MulchR);
@@ -113,7 +114,7 @@ class YearWindow extends JDialog {
             //lblCustomers.setBounds(16, 111, 113, 14);
             East.add(lblCustomers);
 
-            JLabel OR = new JLabel(getOT());
+            JLabel OR = new JLabel(yearInfo.getOT());
             OR.setFont(l);
             //OR.setBounds(193, 111, 65, 14);
             East.add(OR);
@@ -124,7 +125,7 @@ class YearWindow extends JDialog {
             //lblCommision.setBounds(16, 160, 83, 14);
             East.add(lblGTot);
 
-            JLabel GTotR = new JLabel(getGTot());
+            JLabel GTotR = new JLabel(yearInfo.getGTot());
             //CommissionR.setBounds(193, 161, 65, 14);
             GTotR.setFont(l);
             East.add(GTotR);
@@ -133,7 +134,7 @@ class YearWindow extends JDialog {
             //lblCommision.setBounds(16, 160, 83, 14);
             East.add(lblCommision);
 
-            JLabel CommissionR = new JLabel(getCommis());
+            JLabel CommissionR = new JLabel(yearInfo.getCommis());
             //CommissionR.setBounds(193, 161, 65, 14);
             CommissionR.setFont(l);
             East.add(CommissionR);
@@ -142,7 +143,7 @@ class YearWindow extends JDialog {
             //lblCustomers_1.setBounds(16, 136, 142, 14);
             East.add(lblCustomers_1);
 
-            JLabel CustomersR = new JLabel(getCustomers());
+            JLabel CustomersR = new JLabel(yearInfo.getNoCustomers());
             CustomersR.setFont(l);
             //CustomersR.setBounds(193, 136, 65, 14);
             East.add(CustomersR);
@@ -203,194 +204,31 @@ class YearWindow extends JDialog {
      * @param info The info to be pulled
      * @return The Result of the query
      */
-    private String getTots(String info) {
-        String ret = "";
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
-             ResultSet rs = prep.executeQuery()
-        ) {
-
-            //prep.setString(1, info);
-
-
-            while (rs.next()) {
-
-                ret = rs.getString(info);
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    private String getDonations() {
-        return getTots("Donations");
-
-    }
-
-    private String getLG() {
-        return getTots("LG");
-    }
-
-    private String getLP() {
-        return getTots("LP");
-    }
-
-    private String getMulch() {
-        return getTots("MULCH");
-    }
-
-    private String getOT() {
-        return getTots("TOTAL");
-    }
-
-    private String getCustomers() {
-        return getTots("CUSTOMERS");
-    }
-
-    private String getCommis() {
-        return getTots("COMMISSIONS");
-    }
-
-    private String getGTot() {
-        return getTots("GRANDTOTAL");
-    }
 
 
     /**
      * Fills the Table of order amounts
      */
     private void fillTable() {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
+        Order.orderArray order = new Order().createOrderArray(year);
+        Object[][] rows = new Object[order.orderData.length][5];
+        int i = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            rows[i][0] = productOrder.productName;
+            rows[i][1] = productOrder.productSize;
+            rows[i][2] = productOrder.productUnitPrice;
+            rows[i][3] = productOrder.orderedQuantity;
+            rows[i][4] = productOrder.extendedCost;
+            i++;
         }
-        //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), year);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
+        Object[] columnNames = {"Item", "Size", "Price/Item", "Quantity", "Price"};
 
-        int colO = DbInt.getNoCol(year, "ORDERS") - 2;
-        Object[][] rowData = new Object[colO][4];
-        Object[] columnNames = {"Item", "Price/Item", "Quantity", "Price"};
-
-        int noRows = 0;
-
-        try (Connection con = DriverManager.getConnection(url);
-             Statement st = con.createStatement();
-             ResultSet Order = st.executeQuery("SELECT * FROM ORDERS")) {
-
-
-            ResultSetMetaData rsmd = Order.getMetaData();
-
-            int columnsNumber = rsmd.getColumnCount();
-            int productsNamed = 0;
-            while (Order.next()) {
-                if (productsNamed == 0) {
-                    //loop through columns
-                    for (int c = 3; c <= columnsNumber; c++) {
-                        //Get Name of product
-                        List<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        String product = productL.get(productL.size() - 1);
-                        //Get unit cost of product
-                        List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        String Unit = UnitL.get(productL.size() - 1);
-                        //Get Quantity ordered
-                        String quantity = Order.getString(c);
-                        double UnitD = Double.parseDouble(Unit.replaceAll("\\$", ""));
-                        double quantityD = Double.parseDouble(quantity);
-                        //Calculate total price and overall Total
-                        double TPrice = UnitD * quantityD;
-                        totL += TPrice;
-                        QuantL += quantityD;
-
-                        rowData[noRows][0] = product;
-                        rowData[noRows][1] = Unit;
-                        rowData[noRows][2] = quantity;
-                        rowData[noRows][3] = TPrice;
-                        noRows += 1;
-
-
-                    }
-                    productsNamed += 1;
-                } else {
-                    noRows = 0;
-                    for (int c = 3; c <= columnsNumber; c++) {
-
-                        //Get Name of product
-                        List<String> productL = GetProductInfo("PNAME", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        //Get unit cost of product
-                        java.util.List<String> UnitL = GetProductInfo("Unit", Integer.toString(Integer.parseInt(rsmd.getColumnName(c)) + 1));
-                        String Unit = UnitL.get(productL.size() - 1);
-                        //Get Quantity ordered
-                        String quantity = Order.getString(c);
-                        double UnitD = Double.parseDouble(Unit.replaceAll("\\$", ""));
-                        double quantityD = Double.parseDouble(quantity);
-                        //Calculate total price and overall Total
-                        double TPrice = UnitD * quantityD;
-                        totL += TPrice;
-                        QuantL += quantityD;
-
-
-                        rowData[noRows][2] = Double.parseDouble(rowData[noRows][2].toString()) + quantityD;
-                        rowData[noRows][3] = Double.parseDouble(rowData[noRows][3].toString()) + TPrice;
-                        noRows += 1;
-
-                    }
-                }
-            }
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-        } catch (SQLException ex) {
-
-            Logger lgr = Logger.getLogger(YearWindow.class.getName());
-
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
-
-                lgr.log(Level.INFO, "Derby shut down normally");
-
-            } else {
-
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
-            }
-
-        }
-
-        //Limit array to only rows that have ordered stuff
-        Object[][] rowDataExclude0 = new Object[noRows][4];
-        int NumNonEmptyRows = 0;
-        for (int i = 0; i <= (noRows - 1); i++) {
-            if (Double.parseDouble(rowData[i][2].toString()) > 0.0) {
-                rowDataExclude0[NumNonEmptyRows][0] = rowData[i][0];
-                rowDataExclude0[NumNonEmptyRows][1] = rowData[i][1];
-                rowDataExclude0[NumNonEmptyRows][2] = rowData[i][2];
-                rowDataExclude0[NumNonEmptyRows][3] = rowData[i][3];
-                NumNonEmptyRows++;
-            }
-        }
-        //Only show non whitespace rows
-        Object[][] rowDataFinal = new Object[noRows][4];
-        for (int i = 0; i <= (NumNonEmptyRows - 1); i++) {
-
-            rowDataFinal[i][0] = rowDataExclude0[i][0];
-            rowDataFinal[i][1] = rowDataExclude0[i][1];
-            rowDataFinal[i][2] = rowDataExclude0[i][2];
-            rowDataFinal[i][3] = rowDataExclude0[i][3];
-
-
-        }
-        //Set up table
         table = new JTable();
         table.setLocation(172, 44);
         table.setSize(548, 490);
         table.setFillsViewportHeight(true);
-        table.setModel(new DefaultTableModel(rowDataExclude0, columnNames));
+        table.setModel(new DefaultTableModel(rows, columnNames));
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
     }

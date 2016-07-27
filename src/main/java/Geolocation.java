@@ -17,6 +17,14 @@ import java.net.URL;
  * Created by patrick on 7/26/16.
  */
 public class Geolocation {
+
+    /**
+     * Takes a zipcode and returns the city and state of the customer.
+     *
+     * @param zipCode The Zipcode of the customer
+     * @return The City and state of the customer
+     * @throws IOException
+     */
     public String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");
         //The URL for the MapquestAPI
