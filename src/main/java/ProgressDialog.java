@@ -25,7 +25,7 @@ public class ProgressDialog extends JDialog {
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
-        setSize(600, 400);
+        setSize(300, 100);
         getContentPane().setLayout(new BorderLayout());
 
         //Main Content

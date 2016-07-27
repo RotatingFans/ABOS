@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -311,6 +313,54 @@ class DbInt {
             }
 
         }
+    }
+
+    public static Iterable<String> getYears() {
+        Collection<String> ret = new ArrayList<>();
+        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
+             ResultSet rs = prep.executeQuery()) {
+
+
+            while (rs.next()) {
+
+                ret.add(rs.getString("YEARS"));
+
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return ret;
+    }
+
+    public static String getCategoryDate(String catName) {
+        Date ret = null;
+        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+
+
+            prep.setString(1, catName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getDate(1);
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String output;
+        SimpleDateFormat formatter;
+        formatter = new SimpleDateFormat("MM/dd/yyyy");
+        output = formatter.format(ret);
+        return output;
     }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):

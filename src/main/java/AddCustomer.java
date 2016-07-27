@@ -221,7 +221,7 @@ class AddCustomer extends JDialog {
 
     public AddCustomer() {
 
-        year = Year.year;
+        year = YearWindow.year;
 
         initUI();
 
