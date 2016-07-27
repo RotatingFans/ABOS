@@ -88,7 +88,7 @@ class AddCustomer extends JDialog {
         DonationsT.setText(customerInfo.getDontation());
         donationOr = Double.parseDouble(DonationsT.getText());
         //Fill the table with their previous order info on record.
-        fillTable(customerInfo.getOrderId());
+        fillOrderedTable();
 
         NameEditCustomer = customerName;
         edit = true;
@@ -175,7 +175,7 @@ class AddCustomer extends JDialog {
 //        NameEditCustomer = customerName;
 //        edit = true;
 //
-//        fillTable(getOrderId(customerName));
+//        fillOrderedTable(getOrderId(customerName));
 //
 //        //Add a Event to occur if a cell is changed in the table
 //        ProductTable.getModel().addTableModelListener(new TableModelListener() {
@@ -464,7 +464,7 @@ class AddCustomer extends JDialog {
                 // ProductTable.setCellSelectionEnabled(true);
                 //ProductTable.setDefaultRenderer(String.class, new CustomTableCellRenderer());
                 if (!edit) {
-                    fillTable();
+                    fillOrderedTable();
                 }
 
                 ProductTable.setFillsViewportHeight(true);
@@ -576,13 +576,13 @@ class AddCustomer extends JDialog {
      *
      * @param OrderID the Order Id of the customer whose order is being displayed
      */
-    private void fillTable(String OrderID) {
+    private void fillOrderedTable() {
 
         //DefaultTableModel model;
         //"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
 
         //Variables for inserting info into table
-        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+/*        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
         List<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
@@ -657,12 +657,23 @@ class AddCustomer extends JDialog {
             totalCostFinal += Double.parseDouble(rows[i][5].toString());
             totalCostTOr += Double.parseDouble(rows[i][5].toString());
 
-        }
+        }*/
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
         //Sets up table.
 
-
+        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName());
+        Object[][] rows = new Object[order.orderData.length][6];
+        int i = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            rows[i][0] = productOrder.productID;
+            rows[i][1] = productOrder.productName;
+            rows[i][2] = productOrder.productSize;
+            rows[i][3] = productOrder.productUnitPrice;
+            rows[i][4] = productOrder.orderedQuantity;
+            rows[i][5] = productOrder.extendedCost;
+            i++;
+        }
         ProductTable.setModel(new MyDefaultTableModel(rows));
         //Fills original totals
         mulchOr = getMulchOrdered();
@@ -1035,6 +1046,7 @@ class AddCustomer extends JDialog {
         boolean[] columnEditables;
 
         public MyDefaultTableModel(Object[][] rows) {
+
             super(rows, new String[]{
                     "ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
             });

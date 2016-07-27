@@ -25,6 +25,9 @@ public class Customer {
         return address;
     }
 
+    public String getName() {
+        return name;
+    }
     public String getAddr() {
         return DbInt.getCustInf(year, name, "ADDRESS");
     }
