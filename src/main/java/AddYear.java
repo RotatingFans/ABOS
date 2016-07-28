@@ -38,6 +38,7 @@ class AddYear extends JDialog {
     private JDialog parent;
     private boolean newYear = false;
     private Iterable<String[]> rowsCats;
+
     /**
      * Create the dialog.
      */

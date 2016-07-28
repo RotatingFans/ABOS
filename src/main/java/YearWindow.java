@@ -17,6 +17,7 @@ class YearWindow extends JDialog {
     private double QuantL = 0.0;
     private double totL = 0.0;
     private Year yearInfo;
+
     /**
      * Create the application.
      *
@@ -204,7 +205,6 @@ class YearWindow extends JDialog {
      * @param info The info to be pulled
      * @return The Result of the query
      */
-
 
 
     /**

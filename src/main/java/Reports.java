@@ -296,8 +296,7 @@ class Reports extends JDialog {
                             includeHeader.setVisible(true);
                             includeHeaderL.setVisible(true);
 
-                        }
-                        else {
+                        } else {
                             includeHeader.setVisible(false);
                             includeHeaderL.setVisible(false);
 
@@ -1279,8 +1278,6 @@ class Reports extends JDialog {
         }
 
     }*/
-
-
 
 
     private void updateCombos() {

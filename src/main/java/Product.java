@@ -45,6 +45,7 @@ public class Product {
         }
         return ret;
     }
+
     public static class formattedProduct {
         public final String productID;
         public final String productName;

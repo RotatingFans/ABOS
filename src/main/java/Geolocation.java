@@ -25,7 +25,7 @@ public class Geolocation {
      * @return The City and state of the customer
      * @throws IOException
      */
-    public String getCityState(String zipCode) throws IOException {
+    public static String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");
         //The URL for the MapquestAPI
         String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
@@ -98,7 +98,7 @@ public class Geolocation {
         return fullName;
     }
 
-    public Object[][] GetCoords(String Address) throws IOException {
+    public static Object[][] GetCoords(String Address) throws IOException {
         String AddressF = Address.replace(" ", "+");
         String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
 
@@ -131,7 +131,7 @@ public class Geolocation {
         }
     }
 
-    public Object[][] parseCoords(String xml) {
+    public static Object[][] parseCoords(String xml) {
         Object[][] coords = new Object[1][2];
         try {
             InputSource is = new InputSource(new StringReader(xml));
