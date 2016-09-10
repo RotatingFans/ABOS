@@ -28,7 +28,7 @@ class AddCategory extends JDialog {
 
     public static void main(String... args) {
         try {
-            new Settings();
+            new AddCategory(args[1]);
 
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -36,7 +36,8 @@ class AddCategory extends JDialog {
     }
 
     //SetBounds(X,Y,Width,Height)
-    private void initUI(String year) {
+    private void initUI(String Year) {
+        year = Year;
         setSize(600, 400);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -51,27 +52,27 @@ class AddCategory extends JDialog {
             {
                 JPanel name = new JPanel(flow);
                 JLabel catLbl = new JLabel("Category Name:");
-                catTxt = new JTextField(20);
+                categoryTextField = new JTextField(20);
                 name.add(catLbl);
-                name.add(catTxt);
+                name.add(categoryTextField);
                 north.add(name);
             }
             //Category Date
             {
-                JPanel name = new JPanel(flow);
+                JPanel catDatePanel = new JPanel(flow);
                 JLabel catLbl = new JLabel("Category Date:");
                 UtilDateModel model = new UtilDateModel();
 
                 Properties p = new Properties();
-                p.put("text.today", "Today");
-                p.put("text.month", "Month");
-                p.put("text.year", "Year");
+                p.setProperty("text.today", "Today");
+                p.setProperty("text.month", "Month");
+                p.setProperty("text.year", "Year");
                 JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
                 datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 
-                name.add(catLbl);
-                name.add(datePicker);
-                north.add(name);
+                catDatePanel.add(catLbl);
+                catDatePanel.add(datePicker);
+                north.add(catDatePanel);
             }
             contentPanel.add(north);
 
@@ -116,7 +117,7 @@ class AddCategory extends JDialog {
 
 
         try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
-            prep.setString(1, catTxt.getText());
+            prep.setString(1, categoryTextField.getText());
             Date selectedDate = (Date) datePicker.getModel().getValue();
 
             prep.setDate(2, new java.sql.Date(selectedDate.getTime()));

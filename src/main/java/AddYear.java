@@ -34,13 +34,12 @@ class AddYear extends JDialog {
     private JTextField sizeTb;
     private JTextField rateTb;
     private JComboBox categoriesTb;
-    private JComboBox categoriesCmbx;
-    private boolean updateDb = false;
     private DefaultTableModel tableModel;
     private JTextField idTb;
     private JDialog parent;
-    private boolean newYear = true;
+    private boolean newYear = false;
     private Iterable<String[]> rowsCats;
+
     /**
      * Create the dialog.
      */
@@ -296,7 +295,7 @@ class AddYear extends JDialog {
      */
     public AddYear(String year) {
         parent = this;
-        newYear = false;
+        newYear = true;
         setSize(700, 500);
         getContentPane().setLayout(new BorderLayout());
         JPanel contentPanel = new JPanel();
@@ -343,6 +342,7 @@ class AddYear extends JDialog {
         {
             JPanel center = new JPanel(new BorderLayout());
             //North
+            JComboBox categoriesCmbx;
             {
                 JPanel CenterNorth = new JPanel(new FlowLayout());
                 //North
@@ -507,7 +507,7 @@ class AddYear extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
-        updateDb = true;
+        boolean updateDb = true;
         fillTable();
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setVisible(true);
@@ -681,7 +681,7 @@ class AddYear extends JDialog {
                     ) {
 
                         boolean[] columnEditables = new boolean[]{
-                                false, false, false, true, false, !newYear
+                                false, false, false, true, false, newYear
                         };
 
                         @Override
@@ -717,7 +717,7 @@ class AddYear extends JDialog {
 
             Element rootElement = doc.createElement("LawnGarden");
             doc.appendChild(rootElement);
-            if (!newYear) {
+            if (newYear) {
                 int[] i = {0};
                 Iterable<String[]> caters = getCategories(yearText.getText());
                 caters.forEach(cat -> {

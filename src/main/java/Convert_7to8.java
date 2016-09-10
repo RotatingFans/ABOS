@@ -302,7 +302,7 @@ public class Convert_7to8 {
     }
 
 // --Commented out by Inspection START (2/1/16 5:28 PM):
-//    private static Iterable<String> getCustomers(String year) {
+//    private static Iterable<String> getNoCustomers(String year) {
 //        Collection<String> ret = new ArrayList<>();
 //
 //        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");

@@ -192,7 +192,7 @@ class Main extends JFrame {
             JButton b = new JButton(aRet);
             b.addActionListener(e -> {
                 //On button click open Year window
-                new Year(((AbstractButton) e.getSource()).getText());
+                new YearWindow(((AbstractButton) e.getSource()).getText());
 
                 System.out.print(((AbstractButton) e.getSource()).getText());
 

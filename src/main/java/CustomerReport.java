@@ -2,11 +2,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowEvent;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 class CustomerReport extends JDialog {
@@ -24,6 +19,7 @@ class CustomerReport extends JDialog {
     private double totL = 0.0;
     private JLabel QuantityL;
     private JLabel TotL;
+    private Customer customerInfo;
 
     /**
      * Create the application.
@@ -57,6 +53,7 @@ class CustomerReport extends JDialog {
      * Initialize the contents of the frame.
      */
     private void initialize() {
+        customerInfo = new Customer(name, year);
         frame = new JFrame();
         frame.setBounds(100, 100, 826, 595);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -67,82 +64,82 @@ class CustomerReport extends JDialog {
             west.setLayout(new BoxLayout(west, BoxLayout.PAGE_AXIS));
 
             JLabel lblName = new JLabel("Name");
-            lblName.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblName.setFont(Fonts.LargeFont);
             lblName.setBounds(20, 28, 66, 14);
             west.add(lblName);
 
             JLabel NameL = new JLabel(name);
-            NameL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            NameL.setFont(Fonts.plainFont);
             NameL.setBounds(20, 42, 253, 46);
             west.add(NameL);
 
             JLabel lblNewLabel = new JLabel("Address");
-            lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblNewLabel.setFont(Fonts.LargeFont);
             lblNewLabel.setBounds(20, 82, 120, 20);
             west.add(lblNewLabel);
 
-            JLabel AddrL = new JLabel(getAddr());
-            AddrL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            JLabel AddrL = new JLabel(customerInfo.getAddr());
+            AddrL.setFont(Fonts.plainFont);
             AddrL.setBounds(20, 100, 253, 45);
             west.add(AddrL);
 
             JLabel lblPhone = new JLabel("Phone #");
-            lblPhone.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblPhone.setFont(Fonts.LargeFont);
             lblPhone.setBounds(20, 144, 96, 20);
             west.add(lblPhone);
 
-            JLabel PhoneL = new JLabel(getPhone());
-            PhoneL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            JLabel PhoneL = new JLabel(customerInfo.getPhone());
+            PhoneL.setFont(Fonts.plainFont);
             PhoneL.setBounds(20, 173, 253, 21);
             west.add(PhoneL);
 
             JLabel lblNewLabel_1 = new JLabel("Email");
-            lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblNewLabel_1.setFont(Fonts.LargeFont);
             lblNewLabel_1.setBounds(20, 205, 83, 20);
             west.add(lblNewLabel_1);
 
-            JLabel lblNewLabel_2 = new JLabel(getEmail());
-            lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            JLabel lblNewLabel_2 = new JLabel(customerInfo.getEmail());
+            lblNewLabel_2.setFont(Fonts.plainFont);
             lblNewLabel_2.setBounds(20, 224, 253, 35);
             west.add(lblNewLabel_2);
 
             JLabel lblPaid = new JLabel("Paid");
-            lblPaid.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblPaid.setFont(Fonts.LargeFont);
             lblPaid.setBounds(20, 265, 57, 20);
             west.add(lblPaid);
 
-            JLabel PaidL = new JLabel(getPaid());
-            PaidL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            JLabel PaidL = new JLabel(customerInfo.getPaid());
+            PaidL.setFont(Fonts.plainFont);
             PaidL.setBounds(20, 283, 253, 37);
             west.add(PaidL);
 
             JLabel lblDelivered = new JLabel("Delivered");
-            lblDelivered.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblDelivered.setFont(Fonts.LargeFont);
             lblDelivered.setBounds(20, 328, 83, 20);
             west.add(lblDelivered);
 
-            JLabel DeliveredL = new JLabel(getDelivered());
-            DeliveredL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            JLabel DeliveredL = new JLabel(customerInfo.getDelivered());
+            DeliveredL.setFont(Fonts.plainFont);
             DeliveredL.setBounds(20, 347, 253, 37);
             west.add(DeliveredL);
 
             JLabel lblTotalQuantity = new JLabel("Total Quantity");
-            lblTotalQuantity.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblTotalQuantity.setFont(Fonts.LargeFont);
             lblTotalQuantity.setBounds(20, 395, 120, 20);
             west.add(lblTotalQuantity);
 
             QuantityL = new JLabel(Double.toString(QuantL));
-            QuantityL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            QuantityL.setFont(Fonts.plainFont);
             QuantityL.setBounds(20, 413, 253, 37);
             west.add(QuantityL);
 
             JLabel lblTotalOrder = new JLabel("Total Order");
-            lblTotalOrder.setFont(new Font("Tahoma", Font.BOLD, 16));
+            lblTotalOrder.setFont(Fonts.LargeFont);
             lblTotalOrder.setBounds(20, 453, 96, 20);
             west.add(lblTotalOrder);
 
             TotL = new JLabel(Double.toString(totL));
-            TotL.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            TotL.setFont(Fonts.plainFont);
             TotL.setBounds(20, 474, 253, 37);
             west.add(TotL);
             frame.getContentPane().add(west, BorderLayout.WEST);
@@ -217,123 +214,22 @@ class CustomerReport extends JDialog {
 
     }
 
-    private String getAddr() {
-        return DbInt.getCustInf(year, name, "ADDRESS");
-
-    }
-
-    private String getPhone() {
-        return DbInt.getCustInf(year, name, "PHONE");
-
-    }
-
-    private String getPaid() {
-        return DbInt.getCustInf(year, name, "PAID");
-
-    }
-
-    private String getDelivered() {
-        return DbInt.getCustInf(year, name, "DELIVERED");
-
-    }
-
-    private String getEmail() {
-        return DbInt.getCustInf(year, name, "Email");
-
-    }
 
     private void fillTable() {
-
-        //Variables for inserting info into table
-        String[] toGet = {"PNAME", "SIZE", "UNIT"};
-        List<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
-        //Get a prepared statement to retrieve data
-
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
-             ResultSet ProductInfoResultSet = prep.executeQuery()
-        ) {
-            //Run through Data set and add info to ProductInfoArray
-            for (int i = 0; i < 3; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
-                while (ProductInfoResultSet.next()) {
-
-                    ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
-
-                }
-                ProductInfoResultSet.beforeFirst();
-                DbInt.pCon.commit();
-                ////DbInt.pCon.close();
-
-            }
-
-            //Close prepared statement
-            ProductInfoResultSet.close();
-            if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
-                DbInt.pCon = null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        Object[][] rows = new Object[order.orderData.length][5];
+        int i = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            rows[i][0] = productOrder.productName;
+            rows[i][1] = productOrder.productSize;
+            rows[i][2] = productOrder.productUnitPrice;
+            rows[i][3] = productOrder.orderedQuantity;
+            rows[i][4] = productOrder.extendedCost;
+            i++;
         }
 
-        //Table rows array
-        Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];
-
-
-        String OrderID = DbInt.getCustInf(year, name, "ORDERID");
-        //Defines Arraylist of order quanitities
-        List<String> OrderQuantities = new ArrayList<String>();
-        int noVRows = 0;
-        //Fills OrderQuantities Array
-        for (int i = 0; i < ProductInfoArray.get(1).size(); i++) {
-
-            int quant;
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?")) {
-
-                //prep.setString(1, Integer.toString(i));
-                prep.setString(1, OrderID);
-                try (ResultSet rs = prep.executeQuery()) {
-
-                    while (rs.next()) {
-
-                        OrderQuantities.add(rs.getString(Integer.toString(i)));
-
-                    }
-                }
-                ////DbInt.pCon.close();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            //Fills row array for table with info
-            quant = Integer.parseInt(OrderQuantities.get(OrderQuantities.size() - 1));
-
-
-            if (quant > 0) {
-
-
-                rows[noVRows][0] = ProductInfoArray.get(0).get(i);
-                rows[noVRows][1] = ProductInfoArray.get(1).get(i);
-                rows[noVRows][2] = ProductInfoArray.get(2).get(i);
-                rows[noVRows][3] = quant;
-                rows[noVRows][4] = (double) quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", ""));
-                QuantL = +QuantL;
-                totL += ((double) quant * Double.parseDouble(ProductInfoArray.get(2).get(i).replaceAll("\\$", "")));
-                noVRows++;
-
-            }
-        }
-        //Re create rows to remove blank rows
-        Object[][] rowDataF = new Object[noVRows][5];
-        for (int i = 0; i <= (noVRows - 1); i++) {
-            rowDataF[i][0] = rows[i][0];
-            rowDataF[i][1] = rows[i][1];
-            rowDataF[i][2] = rows[i][2];
-            rowDataF[i][3] = rows[i][3];
-            rowDataF[i][4] = rows[i][4];
-        }
-        QuantityL.setText(Double.toString(QuantL));
-        TotL.setText(Double.toString(totL));
+        QuantityL.setText(Double.toString(order.totalQuantity));
+        TotL.setText(Double.toString(order.totalCost));
 
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
         table = new JTable();
@@ -344,7 +240,7 @@ class CustomerReport extends JDialog {
 
         table.setColumnSelectionAllowed(false);
         table.setRowSelectionAllowed(true);
-        table.setModel(new MyDefaultTableModel(rowDataF));
+        table.setModel(new MyDefaultTableModel(rows));
         table.setFillsViewportHeight(true);
 
 
