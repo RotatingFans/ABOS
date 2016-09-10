@@ -12,7 +12,7 @@ public class Order {
     private double totL = 0.0;
     private double QuantL = 0.0;
 
-    public orderArray createOrderArray(String year, String name) {
+    public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
 
         List<Product> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
@@ -62,19 +62,25 @@ public class Order {
             //Fills row array for table with info
 
 
-            if (quant > 0) {
+            if (quant > 0 && excludeZeroOrders) {
                 Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
                 allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
                 totL += ((double) quant * unitCost);
                 QuantL += (double) quant;
                 noProductsOrdered++;
 
+            } else if (!excludeZeroOrders) {
+                Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
+                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
+                totL += ((double) quant * unitCost);
+                QuantL += (double) quant;
+                noProductsOrdered++;
             }
         }
         //Re create rows to remove blank rows
         Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
 
-        System.arraycopy(allProducts, 0, orderedProducts, 0, noProductsOrdered - 1);
+        System.arraycopy(allProducts, 0, orderedProducts, 0, noProductsOrdered);
         return new orderArray(orderedProducts, totL, QuantL);
 
 
@@ -140,7 +146,7 @@ public class Order {
         //Re create rows to remove blank rows
         Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
 
-        System.arraycopy(allProducts, 0, orderedProducts, 0, noProductsOrdered - 1);
+        System.arraycopy(allProducts, 0, orderedProducts, 0, noProductsOrdered);
         return new orderArray(orderedProducts, totL, QuantL);
     }
 

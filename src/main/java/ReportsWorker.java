@@ -182,7 +182,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 // Root element
 
                 Order order = new Order();
-                Order.orderArray orderArray = order.createOrderArray(selectedYear, customer);
+                Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true);
                 //Set Items
                 {
                     //Product Elements
@@ -515,7 +515,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 break;
                 case "Customer Year Totals": {
                     Order order = new Order();
-                    Order.orderArray orderArray = order.createOrderArray(selectedYear, customer);
+                    Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true);
                     //Set Items
                     {
                         //Product Elements
@@ -654,7 +654,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                         products.appendChild(title);
                                     }
                                     Order order = new Order();
-                                    Order.orderArray orderArray = order.createOrderArray(year, customer);
+                                    Order.orderArray orderArray = order.createOrderArray(year, customer, true);
                                     double tCost = 0.0;
                                     overallTotalCost = orderArray.totalCost;
                                     overallTotalQuantity = orderArray.totalQuantity;

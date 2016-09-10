@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Searches the text files under the given directory and counts the number of instances a given word is found
- * in these file.
- *
- * @author Albert Attard
+ * @author Patrick Magauran
  */
 public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
@@ -33,8 +30,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
     /**
      * Creates an instance of the worker
-     * zip     * @param address
-     *
+     * @param address
      * @param name
      * @param zipCode
      * @param phone
@@ -65,68 +61,59 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
     private static void failIfInterrupted() throws InterruptedException {
         if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedException("Interrupted while searching files");
+            throw new InterruptedException("Interrupted while Adding Order");
         }
     }
 
     @Override
     protected Integer doInBackground() throws Exception {
-    /*
-          Insert Order
+    /*    Insert Order
           Get ID via Name
           insert Customer INfo
          */
         try {
             String address = String.format("%s %s, %s", Address, Town, State);//Formats address
             publish("Analyzing Address");
-            Object[][] coords = Geo.GetCoords(address);
+            Object[][] coords = Geolocation.GetCoords(address);
             double lat = Double.valueOf(coords[0][0].toString());
             double lon = Double.valueOf(coords[0][1].toString());
             AddCustomerWorker.failIfInterrupted();
             setProgress(0);
-            int progress = 0;
 
             if (!edit) {
                 // Inserts order data into order tables
-
                 {
                     publish("Building Order");
 
-                    String InsertOrderString = "INSERT INTO ORDERS(NAME";
+                    StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
 
-                    int cols = DbInt.getNoCol(year, "ORDERS");
-                    int progressDivisor = (cols - 3) + (2 * ProductTable.getRowCount());
+                    int progressDivisor = 2 * ProductTable.getRowCount();
                     int progressIncrement = (progressDivisor - 15) / progressDivisor;
                     //Loops through And adds product numbers to Order string
-                    for (int i = 0; i <= (cols - 3); i++) {
-                        setProgress(progress + progressIncrement);
-                        progress += progressIncrement;
-                        InsertOrderString = String.format("%s, \"%s\"", InsertOrderString, Integer.toString(i));
-                    }
-                    AddCustomerWorker.failIfInterrupted();
-
-                    //Adds ? for customer name and each quantity amount to use in prepared statement.
-                    InsertOrderString = String.format("%s) VALUES(?", InsertOrderString);
+                    int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
                     for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                        setProgress(progress + progressIncrement);
-                        progress += progressIncrement;
-                        InsertOrderString = String.format("%s, %s", InsertOrderString, "?");//table.getModel().getValueAt(i, 4)
+                        setProgress(getProgress() + progressIncrement);
+                        InsertOrderStringBuilder.insert(insertProductNumberHere, ",\"");
+                        InsertOrderStringBuilder.insert(insertProductNumberHere + 2, i);
+                        InsertOrderStringBuilder.insert(insertProductNumberHere + 2 + IntegerLength(i), '"');
+                        insertProductNumberHere += 3 + IntegerLength(i);
+                        InsertOrderStringBuilder.append(",?");
                     }
+                    InsertOrderStringBuilder.insert(insertProductNumberHere, ") ");
+                    InsertOrderStringBuilder.append(')');
 
                     AddCustomerWorker.failIfInterrupted();
-
-                    InsertOrderString = String.format("%s)", InsertOrderString);
 
                     //Creates prepared Statement and replaces ? with quantities and names
-                    try (PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderString)) {
+                    try (PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderStringBuilder.toString())) {
                         writeOrd.setString(1, Name);
+
                         for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                            setProgress(progress + progressIncrement);
-                            progress += progressIncrement;
+                            setProgress(getProgress() + progressIncrement);
                             writeOrd.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
                         }
                         AddCustomerWorker.failIfInterrupted();
-                        publish("Adiing Order");
+                        publish("Adding Order");
 
                         writeOrd.executeUpdate();
                     }
@@ -134,7 +121,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
                 //Inserts into customers tables with specified information.
                 {
-                    int progressIncrement = (100 - progress) / 3;
+                    int progressIncrement = (100 - getProgress()) / 3;
                     //Gets order ID of customer
                     List<String> Ids = new ArrayList<String>();
 
@@ -149,8 +136,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                             }
                         }
                     }
-                    setProgress(progress + progressIncrement);
-                    progress += progressIncrement;
+                    setProgress(getProgress() + progressIncrement);
                     AddCustomerWorker.failIfInterrupted();
                     publish("Adding Customer");
 
@@ -174,8 +160,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
                         writeCust.execute();
                     }
-                    setProgress(progress + progressIncrement);
-                    progress += progressIncrement;
+                    setProgress(getProgress() + progressIncrement);
                     //Inserts into customer table for all years.
                     try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
                         prep1.setString(1, Address);
@@ -188,10 +173,8 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
                         prep1.execute();
                     }
-                    setProgress(progress + progressIncrement);
-                    progress += progressIncrement;
+                    setProgress(getProgress() + progressIncrement);
                     setProgress(100);
-                    progress = 100;
 
                 }
                 //////DbInt.pCon.close();
@@ -242,17 +225,19 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 //////DbInt.pCon.close();
                 publish("Building Order Update");
 
-                String UpdateOrderString = "UPDATE ORDERS SET NAME=?";
+                StringBuilder UpdateOrderString = new StringBuilder("UPDATE ORDERS SET NAME=?");
                 //loops through table and adds product number to order string with "=?"
                 for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                    UpdateOrderString = String.format("%s, \"%s\"=?", UpdateOrderString, Integer.toString(i));//table.getModel().getValueAt(i, 4)
+                    UpdateOrderString.append('"');
+                    UpdateOrderString.append(i);
+                    UpdateOrderString.append("\"=?");
                     setProgress(getProgress() + progressIncrement);
                 }
                 AddCustomerWorker.failIfInterrupted();
 
                 //Uses string to create PreparedStatement that is filled with quantities from table.
-                UpdateOrderString = String.format("%s WHERE NAME = ?", UpdateOrderString);
-                try (PreparedStatement updateOrders = DbInt.getPrep(year, UpdateOrderString)) {
+                UpdateOrderString.append(" WHERE NAME = ?");
+                try (PreparedStatement updateOrders = DbInt.getPrep(year, UpdateOrderString.toString())) {
                     updateOrders.setString(1, Name);
                     for (int i = 0; i < ProductTable.getRowCount(); i++) {
                         updateOrders.setString(i + 2, ProductTable.getModel().getValueAt(i, 4).toString());
@@ -276,6 +261,35 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
         // Return the number of matches found
         return 1;
+    }
+
+    private int IntegerLength(int n) {
+        if (n < 100000) {
+            // 5 or less
+            if (n < 100) {
+                // 1 or 2
+                if (n < 10) { return 1; } else { return 2; }
+            } else {
+                // 3 or 4 or 5
+                if (n < 1000) { return 3; } else {
+                    // 4 or 5
+                    if (n < 10000) { return 4; } else { return 5; }
+                }
+            }
+        } else {
+            // 6 or more
+            if (n < 10000000) {
+                // 6 or 7
+                if (n < 1000000) { return 6; } else { return 7; }
+            } else {
+                // 8 to 10
+                if (n < 100000000) { return 8; } else {
+                    // 9 or 10
+                    if (n < 1000000000) { return 9; } else { return 10; }
+                }
+            }
+        }
+
     }
 
     @Override

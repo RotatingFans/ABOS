@@ -217,7 +217,7 @@ class CustomerReport extends JDialog {
 
 
     private void fillTable() {
-        Order.orderArray order = new Order().createOrderArray(year, name);
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
         Object[][] rows = new Object[order.orderData.length][5];
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {

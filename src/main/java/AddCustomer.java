@@ -45,14 +45,13 @@ class AddCustomer extends JDialog {
     private AddCustomerWorker addCustWork = null;
     private Year yearInfo;
     private Customer customerInfo = null;
-
+    private int newCustomer = 0;
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
      * @param customerName the name of the customer being edited.
      */
     public AddCustomer(String customerName) {
-
         year = CustomerReport.year;
         yearInfo = new Year(year);
         customerInfo = new Customer(customerName, year);
@@ -87,6 +86,7 @@ class AddCustomer extends JDialog {
     }
 
     public AddCustomer() {
+        newCustomer = 1;
 
         year = YearWindow.year;
         yearInfo = new Year(year);
@@ -113,7 +113,7 @@ class AddCustomer extends JDialog {
      * Create the dialog.
      */
     private void initUI() {
-        setPreferredSize(new Dimension(1920, 1080));
+        setSize(900, 600);
         getContentPane().setLayout(new BorderLayout());
         WrapLayout flow = new WrapLayout();
 
@@ -171,7 +171,7 @@ class AddCustomer extends JDialog {
             {
                 JPanel custDonationPnl = new JPanel(flow);
                 custDonationPnl.add(new JLabel("Donations"));
-                custDonationPnl.add(DonationsT = new JTextField((Config.getProp("CustomerDonations") == null) ? Config.getProp("CustomerDonations") : "0.0", 4));
+                custDonationPnl.add(DonationsT = new JTextField((Config.getProp("CustomerDonation") != null) ? Config.getProp("CustomerDonation") : "0.0", 4));
                 North.add(custDonationPnl);
             }
             getContentPane().add(North, BorderLayout.PAGE_START);
@@ -180,20 +180,7 @@ class AddCustomer extends JDialog {
             JScrollPane scrollPane = new JScrollPane();
             ProductTable = new JTable();
             ProductTable.setFillsViewportHeight(true);
-            ProductTable.getModel().addTableModelListener(e -> {
-                //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-                if ((e.getType() == 0) && (e.getColumn() == 4)) {
-                    int row = e.getFirstRow();
-                    int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                    //Removes $ from cost and multiplies to get the total cost for that item
-                    double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
-                    ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
-                    totalCostFinal = 0.0;
-                    for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                        totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(i, 5).toString());//Recalculate Order total
-                    }
-                }
-            });
+
             scrollPane.setViewportView(ProductTable);
             getContentPane().add(scrollPane, BorderLayout.CENTER);
 
@@ -207,9 +194,7 @@ class AddCustomer extends JDialog {
                 okButton.addActionListener(e -> {
                     if (infoEntered()) {
                         commitChanges();
-                        updateTots();
-                        dispose();
-                        setVisible(false);
+
                     } else {
                         String message = "<html><head><style>" +
                                 "h3 {text-align:center;}" +
@@ -271,6 +256,25 @@ class AddCustomer extends JDialog {
                 return columnEditables[column];
             }
         });
+        ProductTable.getModel().addTableModelListener(e -> {
+            //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
+            if ((e.getType() == 0) && (e.getColumn() == 4)) {
+                int row = e.getFirstRow();
+                int quantity = 0;
+                try {
+                    quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
+                } catch (NumberFormatException formatExcep) {
+                    JOptionPane.showMessageDialog(null, "You have not entered a number, please enter a number instead.", "", JOptionPane.ERROR_MESSAGE);
+                }
+                //Removes $ from cost and multiplies to get the total cost for that item
+                double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
+                ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
+                totalCostFinal = 0.0;
+                for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
+                    totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+                }
+            }
+        });
     }
 
     /**
@@ -279,7 +283,7 @@ class AddCustomer extends JDialog {
      * @param OrderID the Order Id of the customer whose order is being displayed
      */
     private void fillOrderedTable() {
-        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName());
+        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
         Object[][] rows = new Object[order.orderData.length][6];
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
@@ -293,11 +297,27 @@ class AddCustomer extends JDialog {
             i++;
         }
         ProductTable.setModel(new MyDefaultTableModel(rows));
+        ProductTable.getModel().addTableModelListener(e -> {
+            //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
+            if ((e.getType() == 0) && (e.getColumn() == 4)) {
+                int row = e.getFirstRow();
+                int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
+                //Removes $ from cost and multiplies to get the total cost for that item
+                double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
+                ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
+                totalCostFinal = 0.0;
+                for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
+                    totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+                }
+            }
+        });
         //Fills original totals to calculate new values to insert in TOTALS table
         preEditMulchSales = getNoMulchOrdered();
-        preEditLawnProductSales = getNoLivePlantsOrdered();
-        preEditLivePlantSales = getNoLawnProductsOrdered();
-
+        preEditLawnProductSales = getNoLawnProductsOrdered();
+        preEditLivePlantSales = getNoLivePlantsOrdered();
+        for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
+            totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+        }
     }
 
     /**
@@ -333,10 +353,17 @@ class AddCustomer extends JDialog {
                         case DONE:
                             try {
                                 int success = addCustWork.get();
+                                if (success == 1) {
+                                    updateTots();
+                                    dispose();
+                                    setVisible(false);
+                                }
                             } catch (CancellationException e) {
                                 JOptionPane.showMessageDialog(this, "The process was cancelled", "Add Order", JOptionPane.WARNING_MESSAGE);
+                                e.printStackTrace();
                             } catch (Exception e) {
                                 JOptionPane.showMessageDialog(this, "The process failed", "Add Order", JOptionPane.ERROR_MESSAGE);
+                                e.printStackTrace();
                             }
                             addCustWork = null;
                             progDial.dispose();
@@ -408,7 +435,7 @@ class AddCustomer extends JDialog {
         double commision = 0.0;
         if ((totalCost > 299.99) && (totalCost < 500.01)) {
             commision = totalCost * 0.05;
-        } else if ((totalCost < 500.01) && (totalCost < 1000.99)) {
+        } else if ((totalCost > 500.01) && (totalCost < 1000.99)) {
             commision = totalCost * 0.1;
         } else if (totalCost >= 1001.0) {
             commision = totalCost * 0.15;
@@ -435,14 +462,15 @@ class AddCustomer extends JDialog {
           update
          */
         try {
-            Double donations = Double.parseDouble(yearInfo.getDonations()) + (Double.parseDouble(DonationsT.getText()) - preEditDonations);
-            Double Lg = Double.parseDouble(yearInfo.getLG()) + (getNoLawnProductsOrdered() - preEditLivePlantSales);
-            Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLawnProductSales);
+            Double donationChange = Double.parseDouble((DonationsT.getText() == "") ? "0" : DonationsT.getText()) - preEditDonations;
+            Double donations = Double.parseDouble(yearInfo.getDonations()) + donationChange;
+            Double Lg = Double.parseDouble(yearInfo.getLG()) + (getNoLawnProductsOrdered() - preEditLawnProductSales);
+            Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLivePlantSales);
             Double Mulch = Double.parseDouble(yearInfo.getMulch()) + (getNoMulchOrdered() - preEditMulchSales);
             Double OT = Double.parseDouble(yearInfo.getOT()) + (totalCostFinal - preEditOrderCost);
-                Double Customers = Double.parseDouble(yearInfo.getNoCustomers());
-            Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - preEditOrderCost) + (Double.parseDouble(DonationsT.getText()) - preEditDonations);
-                Double Commis = getCommission(GTot);
+            Double Customers = Double.parseDouble(yearInfo.getNoCustomers() + newCustomer);
+            Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - preEditOrderCost) + donationChange;
+            Double Commis = getCommission(GTot);
             try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
                 totalInsertString.setString(1, Double.toString(donations));
                 totalInsertString.setString(2, Double.toString(Lg));
@@ -453,7 +481,7 @@ class AddCustomer extends JDialog {
                 totalInsertString.setString(7, Double.toString(Commis));
                 totalInsertString.setString(8, Double.toString(GTot));
                 totalInsertString.execute();
-                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -478,9 +506,8 @@ class AddCustomer extends JDialog {
             return columnEditables[column];
         }
 
+
     }
-
-
 
     private class MyTextActionListener implements ActionListener {
         /**
