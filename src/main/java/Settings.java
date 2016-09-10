@@ -27,6 +27,7 @@ import java.util.Properties;
  */
 class Settings extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane north;
     //General
     private JTextField DbLoc;

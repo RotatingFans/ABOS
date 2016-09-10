@@ -24,6 +24,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
     public Object[] cPoints;
     public JPanel infoPanel = new JPanel();
     public JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private LogToFile MyLogger = new LogToFile();
     private JLabel Orders = new JLabel("");
     private JMapViewerTree treeMap = null;
     private JLabel zoomLabel = null;

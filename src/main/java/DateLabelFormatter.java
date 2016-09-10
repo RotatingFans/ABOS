@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+    private LogToFile MyLogger = new LogToFile();
 
     private String datePattern = "yyyy-MM-dd";
     private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);

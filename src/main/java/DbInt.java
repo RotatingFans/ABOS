@@ -13,6 +13,7 @@ import java.util.logging.Logger;
  */
 class DbInt {
     public static Connection pCon = null;
+    private LogToFile MyLogger = new LogToFile();
 
     /**
      * Gets Data with specifed command and DB

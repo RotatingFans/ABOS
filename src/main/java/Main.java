@@ -12,6 +12,7 @@ import java.util.Collection;
 
 class Main extends JFrame {
 
+    public LogToFile MyLogger;
     private JFrame frame;
     private JPanel panel_1;
 
@@ -42,12 +43,15 @@ class Main extends JFrame {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-
-//        try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+/**
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+ **/
+        // Create the Log To File class
+        MyLogger = new LogToFile();
 
         if (!Config.doesConfExist()) {
             new Settings();
@@ -131,6 +135,7 @@ class Main extends JFrame {
             frame.getContentPane().add(panel_1, BorderLayout.CENTER);
             panel_1.setLayout(new GridLayout(2, 3, 1, 1));
         }
+
         addYears();
 
     }
@@ -159,13 +164,26 @@ class Main extends JFrame {
             }
         } catch (SQLException e) {
             //e.printStackTrace();
-            System.out.println("Error Start");
+            MyLogger.log(e, Severity.SEVERE, "addYears Error");
+            // System.out.println("Error Start");
 
-            System.out.println(e.getErrorCode());
-            System.out.println(e.getSQLState());
-            System.out.println(e.getLocalizedMessage());
-            System.out.println(e.getMessage());
-            System.out.println("Error end");
+            // System.out.println(e.getErrorCode());
+            // System.out.println(e.getSQLState());
+            // System.out.println(e.getLocalizedMessage());
+            // System.out.println(e.getMessage());
+            // System.out.println("Error end");
+
+
+        } catch (Exception e) {
+            //e.printStackTrace();
+            MyLogger.log(e, Severity.SEVERE, "addYears Error");
+            // System.out.println("Error Start");
+
+            // System.out.println(e.getErrorCode());
+            // System.out.println(e.getSQLState());
+            // System.out.println(e.getLocalizedMessage());
+            // System.out.println(e.getMessage());
+            // System.out.println("Error end");
 
 
         }

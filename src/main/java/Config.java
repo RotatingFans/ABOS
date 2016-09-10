@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 class Config {
+    private LogToFile MyLogger = new LogToFile();
 
 
     public static boolean doesConfExist() {

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 class AddYear extends JDialog {
+    private LogToFile MyLogger = new LogToFile();
 
     private JCheckBox chkboxCreateDatabase;
     private JTextField yearText;

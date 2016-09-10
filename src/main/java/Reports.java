@@ -38,6 +38,7 @@ class Reports extends JDialog {
     private final JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
     private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
     JLabel includeHeaderL;
+    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane SteptabbedPane;
     // --Commented out by Inspection (7/27/16 3:02 PM):private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
@@ -1329,6 +1330,103 @@ class Reports extends JDialog {
         }
     }
 
+    private void transf() throws SaxonApiException {
+        OutputStream os = new ByteArrayOutputStream();
+
+        Processor proc = new Processor(false);
+        XsltCompiler comp = proc.newXsltCompiler();
+
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("Report.xsl")) {
+
+
+            XsltExecutable exp = comp.compile(new StreamSource(in));
+            XdmNode source = proc.newDocumentBuilder().build(new StreamSource(xmlTempFile));
+            Serializer out = proc.newSerializer(os);
+            out.setOutputProperty(Property.METHOD, "html");
+            out.setOutputProperty(Property.INDENT, "yes");
+            XsltTransformer trans = exp.load();
+            trans.setInitialContextNode(source);
+            trans.setDestination(out);
+            trans.transform();
+            ByteArrayOutputStream baos;
+            baos = (ByteArrayOutputStream) os;
+
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+
+            Tidy tidy = new Tidy(); // obtain a new Tidy instance
+            // set desired config options using tidy setters
+            OutputStream osT = new ByteArrayOutputStream();
+            tidy.setQuiet(true);
+            tidy.setIndentContent(true);
+            tidy.setDocType("loose");
+            tidy.setFixBackslash(true);
+            tidy.setFixUri(true);
+            tidy.setShowWarnings(false);
+            tidy.setEscapeCdata(true);
+            tidy.setXHTML(true);
+            tidy.setInputEncoding("utf8");
+            tidy.setOutputEncoding("utf8");
+
+            File xhtml;
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+            String tmpDirectoryOp = System.getProperty("java.io.tmpdir");
+            File tmpDirectory = new File(tmpDirectoryOp);
+            xhtml = File.createTempFile("LGReportXhtml" + timeStamp, ".xhtml", tmpDirectory);
+            xhtml.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(pdfLoc.getText());
+                 FileOutputStream xhtmlfos = new FileOutputStream(xhtml)) {
+
+
+                tidy.parse(is, osT); // run tidy, providing an input and output streamp
+                ByteArrayOutputStream baosT;
+                baosT = (ByteArrayOutputStream) osT;
+
+                baosT.writeTo(xhtmlfos);
+                //fstream.deleteOnExit();
+
+
+                try (InputStream isT = new FileInputStream(xhtml)) {
+                    Document document = XMLResource.load(isT).getDocument();
+
+                    //preview.setDocument(document);
+
+                    ITextRenderer renderer = new ITextRenderer();
+                    renderer.setDocument(document, null);
+
+                    renderer.layout();
+
+
+                    renderer.createPDF(fos);
+                    fos.close();
+                }
+            } catch (FileNotFoundException e) {
+                MyLogger.log(e, Severity.SEVERE, "This file is currently open in another program. Please close this fle before continuing.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        /*
+          Compile and execute a simple transformation that applies a stylesheet to an input file,
+          and serializing the result to an output file
+         */
+
+
+    }
+
+    private String getDate(String catName){
+        Date ret = null;
+        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+
+
+            prep.setString(1, catName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
 
 // --Commented out by Inspection START (7/27/16 3:02 PM):
 //    private String getDate(String catName){
