@@ -18,8 +18,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -63,7 +61,7 @@ class Reports extends JDialog {
     private String repTitle = "";
     // --Commented out by Inspection (7/27/16 3:02 PM):private File xmlTempFile = null;
     // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
-    private ReportsWorker reportsWorker;
+    private ReportsWorker reportsWorker = null;
 
 
     public Reports() {
@@ -84,8 +82,6 @@ class Reports extends JDialog {
     /**
      * Get info on a product
      *
-     * @param info the info to be retrieved
-     * @param PID  The ID of the product to get info for
      * @return The info of the product specified
      */
 
@@ -503,39 +499,36 @@ class Reports extends JDialog {
                 String selectedYear = (cmbxYears.getSelectedItem() != null) ? cmbxYears.getSelectedItem().toString() : "";
                 String selectedCustomer = (cmbxCustomers.getSelectedItem() != null) ? cmbxCustomers.getSelectedItem().toString() : "";
 
-                reportsWorker = new ReportsWorker(cmbxReportType.getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), cmbxCategory.getSelectedItem().toString(), selectedCustomer, repTitle, Splitting, includeHeader.isSelected(), progDial.statusLbl, pdfLoc.getText().toString());
-                reportsWorker.addPropertyChangeListener(new PropertyChangeListener() {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent event) {
-                        switch (event.getPropertyName()) {
-                            case "progress":
-                                progDial.progressBar.setIndeterminate(false);
-                                progDial.progressBar.setValue((Integer) event.getNewValue());
-                                break;
-                            case "state":
-                                switch ((SwingWorker.StateValue) event.getNewValue()) {
-                                    case DONE:
-                                        try {
+                reportsWorker = new ReportsWorker(cmbxReportType.getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), cmbxCategory.getSelectedItem().toString(), selectedCustomer, repTitle, Splitting, includeHeader.isSelected(), progDial.statusLbl, pdfLoc.getText());
+                reportsWorker.addPropertyChangeListener(event -> {
+                    switch (event.getPropertyName()) {
+                        case "progress":
+                            progDial.progressBar.setIndeterminate(false);
+                            progDial.progressBar.setValue((Integer) event.getNewValue());
+                            break;
+                        case "state":
+                            switch ((SwingWorker.StateValue) event.getNewValue()) {
+                                case DONE:
+                                    try {
 
-                                        } catch (CancellationException e) {
-                                            JOptionPane.showMessageDialog(Reports.this, "The process was cancelled", "Generate Report",
-                                                    JOptionPane.WARNING_MESSAGE);
-                                        } catch (Exception e) {
-                                            JOptionPane.showMessageDialog(Reports.this, "The process failed", "Generate Report",
-                                                    JOptionPane.ERROR_MESSAGE);
-                                        }
+                                    } catch (CancellationException e1) {
+                                        JOptionPane.showMessageDialog(this, "The process was cancelled", "Generate Report",
+                                                JOptionPane.WARNING_MESSAGE);
+                                    } catch (Exception e1) {
+                                        JOptionPane.showMessageDialog(this, "The process failed", "Generate Report",
+                                                JOptionPane.ERROR_MESSAGE);
+                                    }
 
-                                        reportsWorker = null;
-                                        progDial.dispose();
-                                        break;
-                                    case STARTED:
-                                    case PENDING:
-                                        progDial.progressBar.setVisible(true);
-                                        progDial.progressBar.setIndeterminate(true);
-                                        break;
-                                }
-                                break;
-                        }
+                                    reportsWorker = null;
+                                    progDial.dispose();
+                                    break;
+                                case STARTED:
+                                case PENDING:
+                                    progDial.progressBar.setVisible(true);
+                                    progDial.progressBar.setIndeterminate(true);
+                                    break;
+                            }
+                            break;
                     }
                 });
                 reportsWorker.execute();

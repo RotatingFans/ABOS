@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -279,7 +280,6 @@ class AddCustomer extends JDialog {
     /**
      * Fills product table with info with quantities set to Amount customer ordered.
      *
-     * @param OrderID the Order Id of the customer whose order is being displayed
      */
     private void fillOrderedTable() {
         Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
@@ -461,7 +461,7 @@ class AddCustomer extends JDialog {
           update
          */
         try {
-            Double donationChange = Double.parseDouble((DonationsT.getText() == "") ? "0" : DonationsT.getText()) - preEditDonations;
+            Double donationChange = Double.parseDouble((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()) - preEditDonations;
             Double donations = Double.parseDouble(yearInfo.getDonations()) + donationChange;
             Double Lg = Double.parseDouble(yearInfo.getLG()) + (getNoLawnProductsOrdered() - preEditLawnProductSales);
             Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLivePlantSales);

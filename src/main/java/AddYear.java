@@ -27,18 +27,18 @@ import java.util.List;
 class AddYear extends JDialog {
     private LogToFile MyLogger = new LogToFile();
 
-    private JCheckBox chkboxCreateDatabase;
+    private JCheckBox chkboxCreateDatabase = null;
     private JTextField yearText;
     private JTable ProductTable;
     private JTextField itemTb;
     private JTextField sizeTb;
     private JTextField rateTb;
-    private JComboBox categoriesTb;
+    private JComboBox categoriesTb = null;
     private DefaultTableModel tableModel;
     private JTextField idTb;
     private JDialog parent;
     private boolean newYear = false;
-    private Iterable<String[]> rowsCats;
+    private Iterable<String[]> rowsCats = null;
 
     /**
      * Create the dialog.
@@ -507,7 +507,7 @@ class AddYear extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
-        boolean updateDb = true;
+        // boolean updateDb = true;
         fillTable();
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setVisible(true);

@@ -30,7 +30,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
     /**
      * Creates an instance of the worker
-     * @param address
      * @param name
      * @param zipCode
      * @param phone
@@ -66,7 +65,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     }
 
     @Override
-    protected Integer doInBackground() throws Exception {
+    protected Integer doInBackground() {
     /*    Insert Order
           Get ID via Name
           insert Customer INfo
@@ -255,6 +254,8 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         publish("Done");
 
@@ -295,8 +296,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     @Override
     protected void process(List<String> chunks) {
         // Updates the messages text area
-        for (String string : chunks) {
-            StatusLbl.setText(string);
-        }
+        chunks.forEach(StatusLbl::setText);
     }
 }

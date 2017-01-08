@@ -16,7 +16,6 @@ class YearWindow extends JDialog {
     private JTable table;
     private double QuantL = 0.0;
     private double totL = 0.0;
-    private Year yearInfo;
 
     /**
      * Create the application.
@@ -55,7 +54,7 @@ class YearWindow extends JDialog {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        yearInfo = new Year(year);
+        Year yearInfo = new Year(year);
         frame = new JFrame();
         frame.setBounds(100, 100, 750, 600);
 
@@ -199,12 +198,6 @@ class YearWindow extends JDialog {
 
     }
 
-    /**
-     * Gets a piece of info from the totals table
-     *
-     * @param info The info to be pulled
-     * @return The Result of the query
-     */
 
 
     /**

@@ -15,11 +15,8 @@ class CustomerReport extends JDialog {
     //public String year;
     private String name;
     private JTextField textField;
-    private double QuantL = 0.0;
-    private double totL = 0.0;
     private JLabel QuantityL;
     private JLabel TotL;
-    private Customer customerInfo;
 
     /**
      * Create the application.
@@ -53,7 +50,7 @@ class CustomerReport extends JDialog {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        customerInfo = new Customer(name, year);
+        Customer customerInfo = new Customer(name, year);
         frame = new JFrame();
         frame.setBounds(100, 100, 826, 595);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -128,7 +125,8 @@ class CustomerReport extends JDialog {
             lblTotalQuantity.setBounds(20, 395, 120, 20);
             west.add(lblTotalQuantity);
 
-            QuantityL = new JLabel(Double.toString(QuantL));
+            double quantL = 0.0;
+            QuantityL = new JLabel(Double.toString(quantL));
             QuantityL.setFont(Fonts.plainFont);
             QuantityL.setBounds(20, 413, 253, 37);
             west.add(QuantityL);
@@ -138,6 +136,7 @@ class CustomerReport extends JDialog {
             lblTotalOrder.setBounds(20, 453, 96, 20);
             west.add(lblTotalOrder);
 
+            double totL = 0.0;
             TotL = new JLabel(Double.toString(totL));
             TotL.setFont(Fonts.plainFont);
             TotL.setBounds(20, 474, 253, 37);

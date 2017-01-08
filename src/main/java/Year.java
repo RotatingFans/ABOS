@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by patrick on 7/27/16.
@@ -130,11 +131,11 @@ public class Year {
      * @return The Grand total amount
      */
     public String getGTot() {
-        return (getTots("GRANDTOTAL") == "") ? ("0") : getTots("GRANDTOTAL");
+        return (Objects.equals(getTots("GRANDTOTAL"), "")) ? ("0") : getTots("GRANDTOTAL");
     }
 
     public Product.formattedProduct[] getAllProducts() {
-        String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        //String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
         List<Product.formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 class CustomerView extends JDialog {
 
-    private static String year;
+    private static String year = null;
     private JFrame frame;
     private JPanel[] panel;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private JTextField textField;

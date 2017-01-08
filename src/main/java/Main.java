@@ -43,13 +43,13 @@ class Main extends JFrame {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-/**
+/*
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
- **/
+ */
         // Create the Log To File class
         MyLogger = new LogToFile();
 

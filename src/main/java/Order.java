@@ -62,19 +62,13 @@ public class Order {
             //Fills row array for table with info
 
 
-            if (quant > 0 && excludeZeroOrders) {
+            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
                 Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
                 allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
                 totL += ((double) quant * unitCost);
                 QuantL += (double) quant;
                 noProductsOrdered++;
 
-            } else if (!excludeZeroOrders) {
-                Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
-                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
-                totL += ((double) quant * unitCost);
-                QuantL += (double) quant;
-                noProductsOrdered++;
             }
         }
         //Re create rows to remove blank rows
@@ -150,7 +144,7 @@ public class Order {
         return new orderArray(orderedProducts, totL, QuantL);
     }
 
-    public class orderArray {
+    public static class orderArray {
         public final Product.formattedProduct[] orderData;
         public double totalCost;
         public double totalQuantity;

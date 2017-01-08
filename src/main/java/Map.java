@@ -25,11 +25,8 @@ public class Map extends JFrame implements JMapViewerEventListener {
     public JPanel infoPanel = new JPanel();
     public JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private LogToFile MyLogger = new LogToFile();
-    private JLabel Orders = new JLabel("");
     private JMapViewerTree treeMap = null;
-    private JLabel zoomLabel = null;
     private JLabel zoomValue = null;
-    private JLabel mperpLabelName = null;
     private JLabel mperpLabelValue = null;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private JFrame frame;
 
@@ -64,9 +61,9 @@ public class Map extends JFrame implements JMapViewerEventListener {
         JPanel helpPanel = new JPanel();
 
 
-        mperpLabelName = new JLabel("Meters/Pixels: ");
+        JLabel mperpLabelName = new JLabel("Meters/Pixels: ");
         mperpLabelValue = new JLabel(String.format("%s", new Object[]{Double.valueOf(map().getMeterPerPixel())}));
-        zoomLabel = new JLabel("Zoom: ");
+        JLabel zoomLabel = new JLabel("Zoom: ");
         zoomValue = new JLabel(String.format("%s", new Object[]{Integer.valueOf(map().getZoom())}));
         add(panel, "North");
         add(helpPanel, "South");
@@ -95,8 +92,9 @@ public class Map extends JFrame implements JMapViewerEventListener {
         infoPanel.add(Phone);
         Phone.setBorder(new EmptyBorder(0, 0, 15, 0));
         infoPanel.add(OrdersL);
-        infoPanel.add(Orders);
-        Orders.setBorder(new EmptyBorder(0, 0, 15, 0));
+        JLabel orders = new JLabel("");
+        infoPanel.add(orders);
+        orders.setBorder(new EmptyBorder(0, 0, 15, 0));
         infoPanel.add(buttonPanel);
 
 
