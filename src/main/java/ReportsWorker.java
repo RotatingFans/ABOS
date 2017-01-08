@@ -105,7 +105,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
             try {
                 domBuilder = domFactory.newDocumentBuilder();
             } catch (ParserConfigurationException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
             }
 
 
@@ -325,7 +325,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
             try {
                 domBuilder = domFactory.newDocumentBuilder();
             } catch (ParserConfigurationException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
             }
 
             doc = domBuilder.newDocument();
@@ -716,7 +716,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             ////DbInt.pCon.close();
 
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
                         }
                         setProgress(getProgress() + yearProgressInc);
                     }
@@ -766,27 +766,26 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 //fstream.deleteOnExit();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing temporary XML. Please try again.");
             }
 
 
         } catch (Exception exp) {
-            exp.printStackTrace();
-
+            LogToFile.log(exp, Severity.WARNING, "Error while genertating tempory XML. Please try again or contact support.");
         } finally {
             try {
                 if (osw != null) {
                     osw.close();
                 }
             } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.FINE, "Error closing temporary XML file.");
             }
 
         }
         try {
             convertXSLToPDF();
         } catch (SaxonApiException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error converting temporary XML to pdf. Try again or contact support.");
         }
         publish("Done");
 
@@ -872,11 +871,12 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 }
             } catch (FileNotFoundException e) {
                 //TODO Implement logger
+                LogToFile.log(e, Severity.WARNING, "Temporary xml file not found.");
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error ocurred while converting temporary XML to pdf. Try again or contact support.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing PDF file. Please try again.");
         }
 
 

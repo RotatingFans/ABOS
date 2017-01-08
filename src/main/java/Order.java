@@ -31,7 +31,7 @@ public class Order {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
         //Table rows array
@@ -57,7 +57,7 @@ public class Order {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
             //Fills row array for table with info
 
@@ -99,7 +99,7 @@ public class Order {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
         //Table rows array
@@ -123,7 +123,7 @@ public class Order {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
             //Fills row array for table with info
 

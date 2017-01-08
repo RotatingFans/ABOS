@@ -28,12 +28,12 @@ class Config {
 
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            return false;
         } catch (IOException ex) {
             if ("LGconfig.properties (No such file or directory)".equals(ex.getMessage())) {
                 return false;
             } else {
-                ex.printStackTrace();
+                LogToFile.log(ex, Severity.SEVERE, "Error reading config file state, ensure the software has access to the directory.");
             }
             //System.out.print(ex.getMessage());
         } finally {
@@ -42,7 +42,7 @@ class Config {
                     input.close();
                     loc = true;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.WARNING, "");
                 }
 
             }
@@ -72,13 +72,14 @@ class Config {
 
 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
+            //System.out.print(ex.getMessage());
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.WARNING, "");
                 }
             }
         }
@@ -163,15 +164,15 @@ class Config {
             // get the property value and print it out
             loc = prop.getProperty(property);
 
-
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
+            //System.out.print(ex.getMessage());
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.WARNING, "");
                 }
             }
         }

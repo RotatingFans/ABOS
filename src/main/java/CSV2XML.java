@@ -265,17 +265,17 @@ class CSV2XML extends JDialog {
 
 
             } catch (Exception exp) {
-                exp.printStackTrace();
+                LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
             } finally {
                 try {
                     osw.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
                 }
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error reading CSV file. Ensure the path exists, and the software has permission to read it.");
         }
     }
 }

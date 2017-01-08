@@ -17,7 +17,6 @@ import java.util.concurrent.CancellationException;
  */
 class AddCustomer extends JDialog {
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
-    private LogToFile MyLogger = new LogToFile();
     //private final JPanel contentPanel = new JPanel();
     //Editable Field for user to input customer info.
     private JCheckBox Delivered;
@@ -482,7 +481,7 @@ class AddCustomer extends JDialog {
                 totalInsertString.execute();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
     }
 
@@ -520,7 +519,7 @@ class AddCustomer extends JDialog {
                 try {
                     cityAndState = Geolocation.getCityState(zip);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LogToFile.log(e1, Severity.WARNING, "Couldn't contact geolocation service. Please try again or enter the adress manually and contact suport.");
                 }
                 String[] StateTown = cityAndState.split("&");
                 String state = StateTown[1];

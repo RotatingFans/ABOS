@@ -77,7 +77,7 @@ class AddCustomerNO extends JDialog {
             writeCust.setString(3, Boolean.toString(notHomeChckBx.isSelected()));
             writeCust.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
     }

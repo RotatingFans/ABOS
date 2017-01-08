@@ -41,7 +41,7 @@ public class Product {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         return ret;
     }

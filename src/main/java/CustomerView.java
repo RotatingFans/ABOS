@@ -39,7 +39,7 @@ class CustomerView extends JDialog {
                 CustomerView window = new CustomerView(args[1]);
                 window.frame.setVisible(true);
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error opening window. Please try again.");
             }
         });
     }
@@ -156,7 +156,7 @@ class CustomerView extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         CustomerNames = ret;
         //Create a button for wach name

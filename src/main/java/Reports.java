@@ -99,7 +99,7 @@ class Reports extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 
@@ -127,7 +127,7 @@ class Reports extends JDialog {
                 ////DbInt.pCon.close();
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
         }
 
@@ -194,8 +194,12 @@ class Reports extends JDialog {
 
                 }
             }
-        } catch (ParserConfigurationException | IOException | SAXException | RuntimeException e) {
-            e.printStackTrace();
+        } catch (ParserConfigurationException | SAXException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error Parsing geolaction data. Please try again or contact support.");
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error Reading geolaction data. Please try again or contact support.");
+        } catch (RuntimeException e) {
+            LogToFile.log(e, Severity.SEVERE, "Unknown error. Please contact support.");
         }
 
         //Formats City and state into one string to return
@@ -284,7 +288,7 @@ class Reports extends JDialog {
                             ////DbInt.pCon.close();
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
                     }
                     cmbxCategory.setSelectedIndex(0);
                     cmbxCategory.addItemListener(e -> {
@@ -512,11 +516,11 @@ class Reports extends JDialog {
                                     try {
 
                                     } catch (CancellationException e1) {
-                                        JOptionPane.showMessageDialog(this, "The process was cancelled", "Generate Report",
-                                                JOptionPane.WARNING_MESSAGE);
+                                        LogToFile.log(e1, Severity.INFO, "The process was cancelled.");
+
                                     } catch (Exception e1) {
-                                        JOptionPane.showMessageDialog(this, "The process failed", "Generate Report",
-                                                JOptionPane.ERROR_MESSAGE);
+                                        LogToFile.log(e1, Severity.SEVERE, "The process failed.");
+
                                     }
 
                                     reportsWorker = null;
@@ -537,7 +541,7 @@ class Reports extends JDialog {
                         File myFile = new File(pdfLoc.getText());
                         Desktop.getDesktop().open(myFile);
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        LogToFile.log(ex, Severity.SEVERE, "Error writing pdf file. Please try again or contacting support.");
                     }
                 }
                 dispose();
@@ -1387,7 +1391,7 @@ class Reports extends JDialog {
                 try {
                     FullName = getCityState(zip);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LogToFile.log(e1, Severity.WARNING, "Error getting geolocation info. Please try again later.");
                 }
                 String[] StateTown = FullName.split("&");
                 String state = StateTown[1];

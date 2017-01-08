@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -58,11 +57,11 @@ class DbInt {
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
 
-                lgr.log(Level.INFO, "Derby shut down normally");
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
 
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
             }
 
         }
@@ -96,7 +95,7 @@ class DbInt {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 
@@ -143,7 +142,7 @@ class DbInt {
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
 
-                lgr.log(Level.INFO, "Derby shut down normally");
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
                 if (Objects.equals(ex.getSQLState(), "XJ004")) {
@@ -160,9 +159,9 @@ class DbInt {
                     if (cont == 0) {
                         new Settings();
                     }
-
+                    LogToFile.log(ex, Severity.SEVERE, "");
                 } else {
-                    ex.printStackTrace();
+                    LogToFile.log(ex, Severity.WARNING, "");
                 }
             }
 
@@ -178,8 +177,7 @@ class DbInt {
 
 
             } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(DbInt.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
+                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
             }
         }
         return null;
@@ -197,7 +195,7 @@ class DbInt {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
 
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading database driver. Please try reinstalling the software or contacting support.");
         }
         int columnsNumber = 0;
 
@@ -222,11 +220,11 @@ class DbInt {
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
 
-                lgr.log(Level.INFO, "Derby shut down normally");
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
 
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
             }
 
         }
@@ -247,7 +245,7 @@ class DbInt {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
 
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading database driver. Please try reinstalling the software or contacting support.");
         }
 
         //String Db = String.format("L&G%3",year);
@@ -272,11 +270,11 @@ class DbInt {
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
 
-                lgr.log(Level.INFO, "Derby shut down normally");
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
 
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
             }
 
         }
@@ -298,7 +296,6 @@ class DbInt {
              Statement st = con.createStatement()) {
 
 
-            //  DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException ex) {
 
             Logger lgr = Logger.getLogger(DbInt.class.getName());
@@ -306,11 +303,11 @@ class DbInt {
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
 
-                lgr.log(Level.INFO, "Derby shut down normally", ex);
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
 
-                lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
             }
 
         }
@@ -330,7 +327,7 @@ class DbInt {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 
@@ -355,7 +352,7 @@ class DbInt {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         String output;
         SimpleDateFormat formatter;

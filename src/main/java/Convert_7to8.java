@@ -38,7 +38,7 @@ public class Convert_7to8 {
                 }
                 noOfCust = rs.getRow();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
             yearData = new Object[15][noOfCust + 1];
             System.out.println("Starting");
@@ -80,7 +80,7 @@ public class Convert_7to8 {
                 ////DbInt.pCon.close();
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
             //puts all the customer data into an array
             for (int i = 1; i < yearData[2].length; i++) {
@@ -122,14 +122,14 @@ public class Convert_7to8 {
             try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"CUSTOMERS\"")) {
                 addCol.execute();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
             //Recreate Year Customer table
 
             try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))")) {
                 addCol.execute();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
 
             //Write data back to year
@@ -153,7 +153,7 @@ public class Convert_7to8 {
                     addCol.execute();
 
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
                 }
             }
 
@@ -168,7 +168,7 @@ public class Convert_7to8 {
             }
             noOfCust = rs.getRow();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
         Object[][] setData = new Object[15][noOfCust + 1]; //this is generic can use String[] directly
@@ -198,7 +198,7 @@ public class Convert_7to8 {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //puts all the customer data into an array
         for (int i = 1; i < setData[2].length; i++) {
@@ -238,13 +238,13 @@ public class Convert_7to8 {
         try (PreparedStatement addCol = DbInt.getPrep("Set", "DROP TABLE \"CUSTOMERS\"")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //Recreate Settings Customer table
         try (PreparedStatement addCol = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //Write data back to Set
         for (int i = 1; i < setData[2].length; i++) {
@@ -264,7 +264,7 @@ public class Convert_7to8 {
                 addCol.execute();
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
         }
         System.out.println("Success");
@@ -294,7 +294,7 @@ public class Convert_7to8 {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 

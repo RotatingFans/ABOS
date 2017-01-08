@@ -146,7 +146,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
                 }
                 map().addMapMarker(m);
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
             }
 
         }
@@ -215,7 +215,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         return ret;
     }

@@ -32,7 +32,7 @@ public class Year {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 
@@ -57,7 +57,7 @@ public class Year {
             //////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         return ret;
     }
@@ -157,7 +157,7 @@ public class Year {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         return ProductInfoArray.toArray(new Product.formattedProduct[ProductInfoArray.size()]);
 

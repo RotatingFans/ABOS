@@ -423,7 +423,7 @@ class AddYear extends JDialog {
                                 ////DbInt.pCon.close();
                             }
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
                         }
                         categoriesCmbx.addItem(browse);
                         categoriesCmbx.addItemListener(e -> {
@@ -542,7 +542,7 @@ class AddYear extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 
@@ -563,7 +563,7 @@ class AddYear extends JDialog {
         try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
             prep.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //Insert products into Product table
         String col = "";
@@ -579,7 +579,7 @@ class AddYear extends JDialog {
 
                 prep.execute();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
             }
         });
         DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
@@ -594,14 +594,14 @@ class AddYear extends JDialog {
         try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //Recreate Year Customer table
 
         try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
         //Insert products into Product table
@@ -838,7 +838,7 @@ class AddYear extends JDialog {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
         //define array of rows
         Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];

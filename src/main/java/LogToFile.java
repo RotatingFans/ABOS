@@ -15,7 +15,15 @@ import java.util.logging.SimpleFormatter;
 public class LogToFile {
 
     protected static final Logger logger = Logger.getLogger("MYLOG");
-
+    /* Severities
+      SEVERE
+      WARNING
+      INFO
+      CONFIG
+      FINE
+      FINER
+      FINEST
+     */
     /**
      * log Method
      * enable to log all exceptions to a file and display user message on demand
@@ -24,7 +32,7 @@ public class LogToFile {
      * @param level
      * @param msg
      */
-    public void log(Exception ex, Severity level, String msg) {
+    public static void log(Exception ex, Severity level, String msg) {
 
         FileHandler fh = null;
         try {

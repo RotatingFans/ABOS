@@ -87,7 +87,7 @@ public class Geolocation {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
             }
         }
         //Formats City and state into one string to return
@@ -167,7 +167,7 @@ public class Geolocation {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
         }
         return coords;
     }

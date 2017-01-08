@@ -34,7 +34,7 @@ class Main extends JFrame {
                 Main window = new Main();
                 window.frame.setVisible(true);
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error starting application. Try reinstalling or contacting support.");
             }
         });
     }
@@ -164,7 +164,7 @@ class Main extends JFrame {
             }
         } catch (SQLException e) {
             //e.printStackTrace();
-            MyLogger.log(e, Severity.SEVERE, "addYears Error");
+            LogToFile.log(e, Severity.SEVERE, "addYears Error");
             // System.out.println("Error Start");
 
             // System.out.println(e.getErrorCode());
@@ -176,7 +176,7 @@ class Main extends JFrame {
 
         } catch (Exception e) {
             //e.printStackTrace();
-            MyLogger.log(e, Severity.SEVERE, "addYears Error");
+            LogToFile.log(e, Severity.SEVERE, "addYears Error");
             // System.out.println("Error Start");
 
             // System.out.println(e.getErrorCode());
@@ -193,8 +193,6 @@ class Main extends JFrame {
             b.addActionListener(e -> {
                 //On button click open Year window
                 new YearWindow(((AbstractButton) e.getSource()).getText());
-
-                System.out.print(((AbstractButton) e.getSource()).getText());
 
             });
             panel_1.add(b);
