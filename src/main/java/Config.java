@@ -2,10 +2,7 @@
   Created by patrick on 4/16/15.
  */
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 class Config {
@@ -165,6 +162,7 @@ class Config {
 
         } catch (IOException ex) {
             LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
+
             //System.out.print(ex.getMessage());
         } finally {
             if (input != null) {
@@ -172,11 +170,68 @@ class Config {
                     input.close();
                 } catch (IOException e) {
                     LogToFile.log(e, Severity.WARNING, "");
-                }
+
+            }
             }
         }
 
 
         return loc;
+    }
+
+    public static void createConfigFile() {
+        Properties prop = new Properties();
+        OutputStream output = null;
+
+        try {
+            output = new FileOutputStream("./LGconfig.properties");
+
+            //Add DB setting
+            prop.setProperty("databaseLocation", "");
+
+
+            //AddCustomer
+            {
+                prop.setProperty("CustomerName", "");
+                prop.setProperty("CustomerAddress", "");
+                prop.setProperty("CustomerZipCode", "");
+                prop.setProperty("CustomerTown", "");
+                prop.setProperty("CustomerState", "");
+                prop.setProperty("CustomerPhone", "");
+                prop.setProperty("CustomerEmail", "");
+                prop.setProperty("CustomerPaid", "");
+                prop.setProperty("CustomerDelivered", "");
+                prop.setProperty("CustomerDonation", "");
+            }
+            //Maps
+            //Reports
+            {
+                prop.setProperty("ReportType", "");
+                prop.setProperty("ScoutName", "");
+                prop.setProperty("ScoutAddress", "");
+                prop.setProperty("ScoutZip", "");
+                prop.setProperty("ScoutTown", "");
+                prop.setProperty("ScoutState", "");
+                prop.setProperty("ScoutPhone", "");
+
+                prop.setProperty("ScoutRank", "");
+                prop.setProperty("logoLoc", "");
+                prop.setProperty("pdfLoc", "");
+
+            }
+            prop.store(output, null);
+
+        } catch (IOException io) {
+            LogToFile.log(io, Severity.SEVERE, "Error writing settings file. Please try again.");
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error closing settings file. Please try again.");
+                }
+            }
+
+        }
     }
 }

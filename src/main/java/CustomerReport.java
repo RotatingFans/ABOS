@@ -2,7 +2,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowEvent;
-
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 class CustomerReport extends JDialog {
     public static String year = "2017";
@@ -151,6 +152,11 @@ class CustomerReport extends JDialog {
             //btnNewButton_1.setBounds(193, 0, 120, 42);
             north.add(btnNewButton_1);
 
+            JButton btnNewButton_3 = new JButton("Delete");
+            btnNewButton_3.addActionListener(e -> deleteCustomer(name));
+            //btnNewButton_1.setBounds(193, 0, 120, 42);
+            north.add(btnNewButton_3);
+
             JButton btnNewButton_2 = new JButton("Refresh");
             btnNewButton_2.addActionListener(e -> {
                 frame.setVisible(false);
@@ -241,6 +247,36 @@ class CustomerReport extends JDialog {
         table.setFillsViewportHeight(true);
 
 
+    }
+
+    private void deleteCustomer(String name) {
+        String message = "<html><head><style>" +
+                "h3 {text-align:center;}" +
+                "h4 {text-align:center;}" +
+                "</style></head>" +
+                "<body><h3>WARNING!</h3>" +
+                "<h3>BY CONTINUING YOU ARE PERMANENTLY REMOVING A CUSTOMER! ALL DATA MUST BE REENTERED!</h3>" +
+                "<h4>Would you like to continue?</h4>" +
+                "</body>" +
+                "</html>";
+        int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (cont == 1) {
+
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM ORDERS WHERE NAME=?")) {
+
+                prep.setString(1, name);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
+            }
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
+
+                prep.setString(1, name);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
+            }
+        }
     }
 
     private static class MyDefaultTableModel extends DefaultTableModel {

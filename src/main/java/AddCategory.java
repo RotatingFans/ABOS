@@ -119,7 +119,7 @@ class AddCategory extends JDialog {
             prep.setDate(2, new java.sql.Date(selectedDate.getTime()));
             prep.execute();
         } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Couldn't write data, Try again or contact support.");
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             return false;
         }
         return true;

@@ -99,7 +99,7 @@ class Reports extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
 
@@ -127,7 +127,7 @@ class Reports extends JDialog {
                 ////DbInt.pCon.close();
 
             } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         }
 
@@ -288,7 +288,7 @@ class Reports extends JDialog {
                             ////DbInt.pCon.close();
                         }
                     } catch (SQLException e) {
-                        LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                     }
                     cmbxCategory.setSelectedIndex(0);
                     cmbxCategory.addItemListener(e -> {

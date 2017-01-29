@@ -27,6 +27,7 @@ import java.util.Properties;
  */
 class Settings extends JDialog {
     private final JPanel contentPanel = new JPanel();
+    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane north;
     //General
     private JTextField DbLoc;
@@ -79,6 +80,9 @@ class Settings extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
+        if (!Config.doesConfExist()) {
+            Config.createConfigFile();
+        }
         //Main Content
         {
             north = new JTabbedPane();
@@ -522,12 +526,12 @@ class Settings extends JDialog {
                 try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
                     prep.execute();
                 } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
                 try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL, YEARS varchar(4))")) {
                     prep.execute();
                 } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
 
 
@@ -616,7 +620,7 @@ class Settings extends JDialog {
 
                 doc.getDocumentElement().normalize();
 
-                //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
                 NodeList nList = doc.getElementsByTagName("place");
 

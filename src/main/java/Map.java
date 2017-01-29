@@ -214,7 +214,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         return ret;
     }
