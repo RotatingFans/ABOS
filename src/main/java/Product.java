@@ -22,6 +22,7 @@ public class Product {
         this.productCategory = productCategory;
     }
 
+    @SuppressWarnings("unused")
     public static List<String> GetProductInfo(String info, String PID, String year) {
         List<String> ret = new ArrayList<>();
 

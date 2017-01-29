@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 /**
  *
  */
+@SuppressWarnings("unused")
 class DbInt {
     public static Connection pCon = null;
-    private LogToFile MyLogger = new LogToFile();
 
     /**
      * Gets Data with specifed command and DB
@@ -28,7 +27,7 @@ class DbInt {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
 
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
 
         //String Db = String.format("L&G%3",year);
@@ -52,7 +51,6 @@ class DbInt {
             //return rs;
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
@@ -114,7 +112,7 @@ class DbInt {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
 
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
         Statement st = null;
         ResultSet rs = null;
@@ -137,7 +135,6 @@ class DbInt {
 
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
@@ -215,7 +212,6 @@ class DbInt {
             //return rs;
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
@@ -265,7 +261,6 @@ class DbInt {
             //return rs;
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
@@ -298,7 +293,6 @@ class DbInt {
 
         } catch (SQLException ex) {
 
-            Logger lgr = Logger.getLogger(DbInt.class.getName());
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {

@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
  */
 class CSV2XML extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    private LogToFile MyLogger = new LogToFile();
     private String xmlFile = null;
     private JTextField CsvLoc;
     private JTextField XmlLoc;
@@ -252,13 +251,13 @@ class CSV2XML extends JDialog {
                 aTransformer.transform(src, result);
 
                 osw.flush();
-                System.out.println(new String(baos.toByteArray()));
+                //System.out.println(new String(baos.toByteArray()));
 
                 try (OutputStream outStream = new FileOutputStream(XmlLoc.getText())) {// writing bytes in to byte output stream
 
                     baos.writeTo(outStream);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, "Error writing XML file. Please try again.");
                 } finally {
                     xmlFile = XmlLoc.getText();
                 }

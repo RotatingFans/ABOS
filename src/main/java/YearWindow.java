@@ -14,8 +14,7 @@ class YearWindow extends JDialog {
     public static String year = "2015";
     private JFrame frame;
     private JTable table;
-    private double QuantL = 0.0;
-    private double totL = 0.0;
+
 
     /**
      * Create the application.
@@ -24,7 +23,7 @@ class YearWindow extends JDialog {
      */
     public YearWindow(String Years) {
         year = Years;
-        System.out.print(year);
+        //System.out.print(year);
         initialize();
         frame.setVisible(true);
 
@@ -234,6 +233,7 @@ class YearWindow extends JDialog {
      * @param PID  The ID of the product to get info for
      * @return The info of the product specified
      */
+    @SuppressWarnings("unused")
     private List<String> GetProductInfo(String info, String PID) {
         List<String> ret = new ArrayList<String>();
 

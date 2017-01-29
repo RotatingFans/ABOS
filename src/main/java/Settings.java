@@ -27,7 +27,6 @@ import java.util.Properties;
  */
 class Settings extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane north;
     //General
     private JTextField DbLoc;
@@ -60,6 +59,7 @@ class Settings extends JDialog {
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
+/*
 
     public static void main(String... args) {
         try {
@@ -69,6 +69,7 @@ class Settings extends JDialog {
             e.printStackTrace();
         }
     }
+*/
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
@@ -615,7 +616,7 @@ class Settings extends JDialog {
 
                 doc.getDocumentElement().normalize();
 
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
                 NodeList nList = doc.getElementsByTagName("place");
 

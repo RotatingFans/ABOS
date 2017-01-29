@@ -5,11 +5,9 @@ import java.awt.event.WindowEvent;
 
 
 class CustomerReport extends JDialog {
-    //TODO ADD ERROR HANDLING
-    public static String year = "2015";
+    public static String year = "2017";
 
     //TODO Add Active search with only results shown
-    private LogToFile MyLogger = new LogToFile();
     private JFrame frame;
     private JTable table;
     //public String year;

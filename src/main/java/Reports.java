@@ -69,7 +69,7 @@ class Reports extends JDialog {
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
-
+/*
     public static void main(String... args) {
         try {
             new Reports();
@@ -77,7 +77,7 @@ class Reports extends JDialog {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * Get info on a product
@@ -170,7 +170,7 @@ class Reports extends JDialog {
 
             doc.getDocumentElement().normalize();
 
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
             NodeList nList = doc.getElementsByTagName("place");
 

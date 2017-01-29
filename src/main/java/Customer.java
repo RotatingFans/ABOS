@@ -1,6 +1,7 @@
 /**
  * Created by patrick on 7/26/16.
  */
+@SuppressWarnings("unused")
 public class Customer {
     private final String name;
     private final String year;

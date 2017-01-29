@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 class AddYear extends JDialog {
-    private LogToFile MyLogger = new LogToFile();
 
     private JCheckBox chkboxCreateDatabase = null;
     private JTextField yearText;
@@ -516,7 +515,7 @@ class AddYear extends JDialog {
     /**
      * Launch the application.
      */
-    public static void main(String... args) {
+/*    public static void main(String... args) {
         try {
 
             AddYear dialog = new AddYear();
@@ -525,7 +524,7 @@ class AddYear extends JDialog {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     private static Iterable<String[]> getCategories(String year) {
         Collection<String[]> ret = new ArrayList<>();
@@ -634,7 +633,7 @@ class AddYear extends JDialog {
             //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
             doc.getDocumentElement().normalize();
 
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
             NodeList nListCats = doc.getElementsByTagName("Categories");
 
             Collection<String[]> rowsCatsL = new ArrayList<>();
@@ -695,7 +694,7 @@ class AddYear extends JDialog {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error Converting XML file to table. Please try again or contact support.");
         }
     }
 
@@ -792,11 +791,13 @@ class AddYear extends JDialog {
 
             transformer.transform(source, result);
 
-            System.out.println("File saved!");
-        } catch (ParserConfigurationException | TransformerException | FileNotFoundException e) {
-
-            e.printStackTrace();
-
+            //System.out.println("File saved!");
+        } catch (ParserConfigurationException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser error. Contact support.");
+        } catch (TransformerException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser Error. Contact support.");
+        } catch (FileNotFoundException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Error writing to file. Make sure the directory is readable by the software.");
         }
     }
 

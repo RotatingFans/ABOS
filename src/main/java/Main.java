@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -12,7 +11,6 @@ import java.util.Collection;
 
 class Main extends JFrame {
 
-    public LogToFile MyLogger;
     private JFrame frame;
     private JPanel panel_1;
 
@@ -51,7 +49,6 @@ class Main extends JFrame {
         }
  */
         // Create the Log To File class
-        MyLogger = new LogToFile();
 
         if (!Config.doesConfExist()) {
             new Settings();
@@ -162,21 +159,10 @@ class Main extends JFrame {
                 //DbInt.pCon.close();
                 DbInt.pCon = null;
             }
-        } catch (SQLException e) {
-            //e.printStackTrace();
-            LogToFile.log(e, Severity.SEVERE, "addYears Error");
-            // System.out.println("Error Start");
-
-            // System.out.println(e.getErrorCode());
-            // System.out.println(e.getSQLState());
-            // System.out.println(e.getLocalizedMessage());
-            // System.out.println(e.getMessage());
-            // System.out.println("Error end");
-
-
         } catch (Exception e) {
+            LogToFile.log(e, Severity.SEVERE, "Error while Selecting years from Database");
+
             //e.printStackTrace();
-            LogToFile.log(e, Severity.SEVERE, "addYears Error");
             // System.out.println("Error Start");
 
             // System.out.println(e.getErrorCode());

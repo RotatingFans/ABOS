@@ -22,6 +22,7 @@ import java.util.Collection;
 /**
  * Created by patrick on 1/26/16.
  */
+@SuppressWarnings("ALL")
 public class Convert_7to8 {
     private LogToFile MyLogger = new LogToFile();
 
@@ -95,7 +96,7 @@ public class Convert_7to8 {
                     lon = Double.valueOf(coords[0][1].toString());
                     address = GetAddress(addr.toString());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.WARNING, "Error accessing geolocation service. Please try again later.");
                 }
 
                 String streetAdd = address[3];

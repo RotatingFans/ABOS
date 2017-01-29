@@ -8,6 +8,7 @@ import java.util.Collection;
 /**
  * Created by patrick on 1/26/16.
  */
+@SuppressWarnings("ALL")
 public class Convert_8to9 {
     private LogToFile MyLogger = new LogToFile();
 

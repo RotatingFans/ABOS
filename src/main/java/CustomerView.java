@@ -172,7 +172,7 @@ class CustomerView extends JDialog {
                         //Open Customer Report on button click
                         new CustomerReport(((AbstractButton) e.getSource()).getText(), year);
 
-                        System.out.print(((AbstractButton) e.getSource()).getText());
+                        //System.out.print(((AbstractButton) e.getSource()).getText());
 
                     });
 

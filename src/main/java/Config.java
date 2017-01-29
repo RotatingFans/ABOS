@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 class Config {
-    private LogToFile MyLogger = new LogToFile();
 
 
     public static boolean doesConfExist() {
@@ -27,7 +26,7 @@ class Config {
             //loc = prop.getProperty("databaseLocation");
 
 
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException ignored) {
             return false;
         } catch (IOException ex) {
             if ("LGconfig.properties (No such file or directory)".equals(ex.getMessage())) {

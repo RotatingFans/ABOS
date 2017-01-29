@@ -95,18 +95,18 @@ class AddCustomer extends JDialog {
 
     }
 
-    /**
-     * Launch the application.
+    /*
+      Launch the application.
      */
-    public static void main(String... args) {
+/*    public static void main(String... args) {
         try {
             AddCustomer dialog = new AddCustomer();
             dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, );
         }
-    }
+    }*/
 
     /**
      * Create the dialog.
@@ -262,7 +262,7 @@ class AddCustomer extends JDialog {
                 int quantity = 0;
                 try {
                     quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                } catch (NumberFormatException formatExcep) {
+                } catch (NumberFormatException ignored) {
                     JOptionPane.showMessageDialog(null, "You have not entered a number, please enter a number instead.", "", JOptionPane.ERROR_MESSAGE);
                 }
                 //Removes $ from cost and multiplies to get the total cost for that item
@@ -357,11 +357,9 @@ class AddCustomer extends JDialog {
                                     setVisible(false);
                                 }
                             } catch (CancellationException e) {
-                                JOptionPane.showMessageDialog(this, "The process was cancelled", "Add Order", JOptionPane.WARNING_MESSAGE);
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
                             } catch (Exception e) {
-                                JOptionPane.showMessageDialog(this, "The process failed", "Add Order", JOptionPane.ERROR_MESSAGE);
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
                             }
                             addCustWork = null;
                             progDial.dispose();

@@ -1,5 +1,4 @@
 class cPoint {
-    private LogToFile MyLogger = new LogToFile();
 
     private String AddressM;
     private String CityM;

@@ -13,6 +13,7 @@ public class ProgressDialog extends JDialog {
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
+/*
 
     public static void main(String... args) {
         try {
@@ -22,6 +23,7 @@ public class ProgressDialog extends JDialog {
             e.printStackTrace();
         }
     }
+*/
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {

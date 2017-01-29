@@ -26,7 +26,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     private final Boolean Paid;
     private final Boolean Delivered;
     private final JLabel StatusLbl;
-    private Geolocation Geo = new Geolocation();
 
     /**
      * Creates an instance of the worker
