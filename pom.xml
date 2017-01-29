@@ -6,7 +6,7 @@
 
     <groupId>com.rotatingfans.LG</groupId>
     <artifactId>LG</artifactId>
-    <version>0.8</version>
+    <version>0.9.9</version>
     <dependencies>
         <dependency>
             <groupId>org.jdatepicker</groupId>
