@@ -10,7 +10,7 @@ import java.util.List;
 
 class CustomerView extends JDialog {
 
-    private static String year;
+    private static String year = null;
     private JFrame frame;
     private JPanel[] panel;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private JTextField textField;
@@ -39,7 +39,7 @@ class CustomerView extends JDialog {
                 CustomerView window = new CustomerView(args[1]);
                 window.frame.setVisible(true);
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error opening window. Please try again.");
             }
         });
     }
@@ -156,7 +156,7 @@ class CustomerView extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         CustomerNames = ret;
         //Create a button for wach name
@@ -172,7 +172,7 @@ class CustomerView extends JDialog {
                         //Open Customer Report on button click
                         new CustomerReport(((AbstractButton) e.getSource()).getText(), year);
 
-                        System.out.print(((AbstractButton) e.getSource()).getText());
+                        //System.out.print(((AbstractButton) e.getSource()).getText());
 
                     });
 

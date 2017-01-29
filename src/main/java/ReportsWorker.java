@@ -37,13 +37,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
     private final String scoutPhone;
     private final String logoLoc;
     private final String category;
-    private final String customer;
+    private final String customerName;
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
     private final JLabel statusLbl;
     private final String pdfLoc;
-    private Document doc;
+    private Document doc = null;
     private File xmlTempFile = null;
     // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
 
@@ -59,15 +59,14 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
      * @param scoutPhone
      * @param logoLoc
      * @param category
-     * @param customer
+     * @param customerName
      * @param repTitle
      * @param splitting
-     * @param pdfLoc
      * @param includeHeader
      * @param statusLbl
      * @param pdfLoc1
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customer, String repTitle, String splitting, Boolean includeHeader, JLabel statusLbl, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, JLabel statusLbl, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -78,7 +77,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
         this.scoutPhone = scoutPhone;
         this.logoLoc = logoLoc;
         this.category = category;
-        this.customer = customer;
+        this.customerName = customerName;
         this.repTitle = repTitle;
         Splitting = splitting;
         this.includeHeader = includeHeader;
@@ -95,18 +94,18 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
 // --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
     @Override
-    protected Integer doInBackground() throws Exception {
+    protected Integer doInBackground() {
         publish("Generating Report");
-        if (reportType == "Year Totals; Spilt by Customer") {
+        if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
             Year year = new Year(selectedYear);
             Iterable<String> customers = year.getCustomerNames();
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+            // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder = null;
             try {
                 domBuilder = domFactory.newDocumentBuilder();
             } catch (ParserConfigurationException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
             }
 
 
@@ -246,7 +245,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     double tCost = 0.0;
                     //For each product ordered, enter info
                     for (Product.formattedProduct aRowDataF : orderArray.orderData) {
-                        if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
+                        if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                             {
                                 Element Product = doc.createElement("Product");
@@ -322,7 +321,12 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
         } else {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+            DocumentBuilder domBuilder = null;
+            try {
+                domBuilder = domFactory.newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
+            }
 
             doc = domBuilder.newDocument();
             // Root element
@@ -441,7 +445,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         orderArray.totalQuantity = 0.0;
                         int productIncValue = 90 / orderArray.orderData.length;
                         for (Product.formattedProduct aRowDataF : orderArray.orderData) {
-                            if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
+                            if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                                 {
                                     Element Product = doc.createElement("Product");
@@ -515,7 +519,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 break;
                 case "Customer Year Totals": {
                     Order order = new Order();
-                    Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true);
+                    Order.orderArray orderArray = order.createOrderArray(selectedYear, customerName, true);
                     //Set Items
                     {
                         //Product Elements
@@ -550,7 +554,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
 
                         //For each product ordered, enter info
                         for (Product.formattedProduct aRowDataF : orderArray.orderData) {
-                            if (Objects.equals(aRowDataF.productCategory, category) || (category == "All")) {
+                            if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                                 {
                                     Element Product = doc.createElement("Product");
@@ -620,7 +624,6 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 break;
 
                 case "Customer All-time Totals": {
-                    String Qname = customer;
                     Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
@@ -632,7 +635,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         //Get Customer with name ?
                         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE NAME=?")) {
 
-                            prep.setString(1, Qname);
+                            prep.setString(1, customerName);
                             try (ResultSet rs = prep.executeQuery()) {
 
                                 //Loop through customers
@@ -654,7 +657,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                         products.appendChild(title);
                                     }
                                     Order order = new Order();
-                                    Order.orderArray orderArray = order.createOrderArray(year, customer, true);
+                                    Order.orderArray orderArray = order.createOrderArray(year, customerName, true);
                                     double tCost = 0.0;
                                     overallTotalCost = orderArray.totalCost;
                                     overallTotalQuantity = orderArray.totalQuantity;
@@ -700,7 +703,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                             Product.appendChild(TotalCost);
                                         }
                                     }
-                                    //Total for current customer
+                                    //Total for current customerName
                                     {
                                         Element tCostE = doc.createElement("totalCost");
                                         tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
@@ -713,7 +716,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             ////DbInt.pCon.close();
 
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
                         setProgress(getProgress() + yearProgressInc);
                     }
@@ -763,23 +766,27 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 //fstream.deleteOnExit();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error writing temporary XML. Please try again.");
             }
 
 
         } catch (Exception exp) {
-            exp.printStackTrace();
+            LogToFile.log(exp, Severity.WARNING, "Error while genertating tempory XML. Please try again or contact support.");
         } finally {
             try {
                 if (osw != null) {
                     osw.close();
                 }
             } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.FINE, "Error closing temporary XML file.");
             }
 
         }
-        convertXSLToPDF();
+        try {
+            convertXSLToPDF();
+        } catch (SaxonApiException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error converting temporary XML to pdf. Try again or contact support.");
+        }
         publish("Done");
 
 
@@ -790,10 +797,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
     @Override
     protected void process(List<String> chunks) {
         // Updates the messages text area
-        for (String string : chunks) {
-            statusLbl.setText(string);
-
-        }
+        chunks.forEach(statusLbl::setText);
     }
 
     private void convertXSLToPDF() throws SaxonApiException {
@@ -866,12 +870,12 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     fos.close();
                 }
             } catch (FileNotFoundException e) {
-                //TODO Implement logger
+                LogToFile.log(e, Severity.WARNING, "Temporary xml file not found.");
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error ocurred while converting temporary XML to pdf. Try again or contact support.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing PDF file. Please try again.");
         }
 
 

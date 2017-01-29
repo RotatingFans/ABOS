@@ -26,11 +26,9 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     private final Boolean Paid;
     private final Boolean Delivered;
     private final JLabel StatusLbl;
-    private Geolocation Geo = new Geolocation();
 
     /**
      * Creates an instance of the worker
-     * @param address
      * @param name
      * @param zipCode
      * @param phone
@@ -66,7 +64,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     }
 
     @Override
-    protected Integer doInBackground() throws Exception {
+    protected Integer doInBackground() {
     /*    Insert Order
           Get ID via Name
           insert Customer INfo
@@ -253,8 +251,12 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 setProgress(100);
 
             }
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        } catch (InterruptedException e) {
+            LogToFile.log(e, Severity.FINE, "Add Customer process canceled.");
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.WARNING, "Error contacting geolaction service. Please try again or contasct support.");
         }
         publish("Done");
 
@@ -295,8 +297,6 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
     @Override
     protected void process(List<String> chunks) {
         // Updates the messages text area
-        for (String string : chunks) {
-            StatusLbl.setText(string);
-        }
+        chunks.forEach(StatusLbl::setText);
     }
 }

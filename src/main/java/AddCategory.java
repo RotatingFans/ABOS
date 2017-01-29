@@ -16,7 +16,6 @@ import java.util.Properties;
 class AddCategory extends JDialog {
     private final JPanel contentPanel = new JPanel();
     JDatePickerImpl datePicker;
-    private LogToFile MyLogger = new LogToFile();
     private JTextField categoryTextField;
     private String year;
 
@@ -31,11 +30,10 @@ class AddCategory extends JDialog {
             new AddCategory(args[1]);
 
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.WARNING, "Error opening window. Please try again or contact support.");
         }
     }
 
-    //SetBounds(X,Y,Width,Height)
     private void initUI(String Year) {
         year = Year;
         setSize(600, 400);
@@ -98,9 +96,7 @@ class AddCategory extends JDialog {
                 }
                 //OKButton Action
                 okButton.addActionListener(e -> {
-                    saveData();
-
-                    dispose();
+                    if (saveData()) {dispose();}
                 });
                 okButton.setActionCommand("OK");
 
@@ -111,7 +107,7 @@ class AddCategory extends JDialog {
         }
     }
 
-    private void saveData() {
+    private boolean saveData() {
 
         //Add DB setting
 
@@ -123,8 +119,10 @@ class AddCategory extends JDialog {
             prep.setDate(2, new java.sql.Date(selectedDate.getTime()));
             prep.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            return false;
         }
+        return true;
 
 
     }

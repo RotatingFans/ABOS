@@ -24,7 +24,6 @@ import java.util.List;
  * @author Jan Peter Stotz
  */
 class MapController extends MouseAdapter {
-    private LogToFile MyLogger = new LogToFile();
 
     private JMapViewer map;
     private Map m;
@@ -81,8 +80,8 @@ class MapController extends MouseAdapter {
                             cPoint cP = (cPoint) cPoint;
                             if (cP.getLat() == mapMarker.getLat()) {
                                 if (cP.getLon() == mapMarker.getLon()) {
-                                    System.out.println(mapMarker + " is clicked");
-                                    System.out.println(cP.getAddress());
+                                    //System.out.println(mapMarker + " is clicked");
+                                    //System.out.println(cP.getAddress());
                                     m.Address.setText(String.format("%s %s, %s", cP.getAddress(), cP.getCity(), cP.getState()));
 
                                     List<String> o = getCustInfo("Set", "ORDERED", cP.getAddress());
@@ -159,7 +158,7 @@ class MapController extends MouseAdapter {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         return ret;
     }

@@ -14,9 +14,7 @@ class YearWindow extends JDialog {
     public static String year = "2015";
     private JFrame frame;
     private JTable table;
-    private double QuantL = 0.0;
-    private double totL = 0.0;
-    private Year yearInfo;
+
 
     /**
      * Create the application.
@@ -25,7 +23,7 @@ class YearWindow extends JDialog {
      */
     public YearWindow(String Years) {
         year = Years;
-        System.out.print(year);
+        //System.out.print(year);
         initialize();
         frame.setVisible(true);
 
@@ -55,7 +53,7 @@ class YearWindow extends JDialog {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        yearInfo = new Year(year);
+        Year yearInfo = new Year(year);
         frame = new JFrame();
         frame.setBounds(100, 100, 750, 600);
 
@@ -199,12 +197,6 @@ class YearWindow extends JDialog {
 
     }
 
-    /**
-     * Gets a piece of info from the totals table
-     *
-     * @param info The info to be pulled
-     * @return The Result of the query
-     */
 
 
     /**
@@ -241,6 +233,7 @@ class YearWindow extends JDialog {
      * @param PID  The ID of the product to get info for
      * @return The info of the product specified
      */
+    @SuppressWarnings("unused")
     private List<String> GetProductInfo(String info, String PID) {
         List<String> ret = new ArrayList<String>();
 
@@ -261,7 +254,7 @@ class YearWindow extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         return ret;
     }

@@ -25,20 +25,19 @@ import java.util.Collection;
 import java.util.List;
 
 class AddYear extends JDialog {
-    private LogToFile MyLogger = new LogToFile();
 
-    private JCheckBox chkboxCreateDatabase;
+    private JCheckBox chkboxCreateDatabase = null;
     private JTextField yearText;
     private JTable ProductTable;
     private JTextField itemTb;
     private JTextField sizeTb;
     private JTextField rateTb;
-    private JComboBox categoriesTb;
+    private JComboBox categoriesTb = null;
     private DefaultTableModel tableModel;
     private JTextField idTb;
     private JDialog parent;
     private boolean newYear = false;
-    private Iterable<String[]> rowsCats;
+    private Iterable<String[]> rowsCats = null;
 
     /**
      * Create the dialog.
@@ -423,7 +422,7 @@ class AddYear extends JDialog {
                                 ////DbInt.pCon.close();
                             }
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
                         categoriesCmbx.addItem(browse);
                         categoriesCmbx.addItemListener(e -> {
@@ -507,7 +506,7 @@ class AddYear extends JDialog {
                 buttonPane.add(cancelButton);
             }
         }
-        boolean updateDb = true;
+        // boolean updateDb = true;
         fillTable();
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setVisible(true);
@@ -516,7 +515,7 @@ class AddYear extends JDialog {
     /**
      * Launch the application.
      */
-    public static void main(String... args) {
+/*    public static void main(String... args) {
         try {
 
             AddYear dialog = new AddYear();
@@ -525,7 +524,7 @@ class AddYear extends JDialog {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     private static Iterable<String[]> getCategories(String year) {
         Collection<String[]> ret = new ArrayList<>();
@@ -542,7 +541,7 @@ class AddYear extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
 
@@ -563,7 +562,7 @@ class AddYear extends JDialog {
         try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
             prep.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         //Insert products into Product table
         String col = "";
@@ -579,7 +578,7 @@ class AddYear extends JDialog {
 
                 prep.execute();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         });
         DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
@@ -594,14 +593,14 @@ class AddYear extends JDialog {
         try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         //Recreate Year Customer table
 
         try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
             addCol.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
         //Insert products into Product table
@@ -634,7 +633,7 @@ class AddYear extends JDialog {
             //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
             doc.getDocumentElement().normalize();
 
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
             NodeList nListCats = doc.getElementsByTagName("Categories");
 
             Collection<String[]> rowsCatsL = new ArrayList<>();
@@ -695,7 +694,7 @@ class AddYear extends JDialog {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error Converting XML file to table. Please try again or contact support.");
         }
     }
 
@@ -792,11 +791,13 @@ class AddYear extends JDialog {
 
             transformer.transform(source, result);
 
-            System.out.println("File saved!");
-        } catch (ParserConfigurationException | TransformerException | FileNotFoundException e) {
-
-            e.printStackTrace();
-
+            //System.out.println("File saved!");
+        } catch (ParserConfigurationException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser error. Contact support.");
+        } catch (TransformerException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser Error. Contact support.");
+        } catch (FileNotFoundException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Error writing to file. Make sure the directory is readable by the software.");
         }
     }
 
@@ -838,7 +839,7 @@ class AddYear extends JDialog {
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         //define array of rows
         Object[][] rows = new Object[ProductInfoArray.get(1).size()][6];

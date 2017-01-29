@@ -7,7 +7,6 @@ import java.awt.*;
  * All creit goes to the original author Rob Camick
  */
 public class WrapLayout extends FlowLayout {
-    private LogToFile MyLogger = new LogToFile();
 
     // --Commented out by Inspection (1/25/16 10:13 AM):private Dimension preferredLayoutSize;
 

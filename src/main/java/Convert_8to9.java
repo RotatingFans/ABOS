@@ -8,6 +8,7 @@ import java.util.Collection;
 /**
  * Created by patrick on 1/26/16.
  */
+@SuppressWarnings("ALL")
 public class Convert_8to9 {
     private LogToFile MyLogger = new LogToFile();
 
@@ -131,7 +132,7 @@ public class Convert_8to9 {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error writing data. Please try again or contact support.");
         }
 
 

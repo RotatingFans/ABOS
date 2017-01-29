@@ -18,8 +18,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -63,7 +61,7 @@ class Reports extends JDialog {
     private String repTitle = "";
     // --Commented out by Inspection (7/27/16 3:02 PM):private File xmlTempFile = null;
     // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
-    private ReportsWorker reportsWorker;
+    private ReportsWorker reportsWorker = null;
 
 
     public Reports() {
@@ -71,7 +69,7 @@ class Reports extends JDialog {
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
-
+/*
     public static void main(String... args) {
         try {
             new Reports();
@@ -79,13 +77,11 @@ class Reports extends JDialog {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * Get info on a product
      *
-     * @param info the info to be retrieved
-     * @param PID  The ID of the product to get info for
      * @return The info of the product specified
      */
 
@@ -103,7 +99,7 @@ class Reports extends JDialog {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
 
@@ -131,7 +127,7 @@ class Reports extends JDialog {
                 ////DbInt.pCon.close();
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         }
 
@@ -174,7 +170,7 @@ class Reports extends JDialog {
 
             doc.getDocumentElement().normalize();
 
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
             NodeList nList = doc.getElementsByTagName("place");
 
@@ -198,8 +194,12 @@ class Reports extends JDialog {
 
                 }
             }
-        } catch (ParserConfigurationException | IOException | SAXException | RuntimeException e) {
-            e.printStackTrace();
+        } catch (ParserConfigurationException | SAXException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error Parsing geolaction data. Please try again or contact support.");
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error Reading geolaction data. Please try again or contact support.");
+        } catch (RuntimeException e) {
+            LogToFile.log(e, Severity.SEVERE, "Unknown error. Please contact support.");
         }
 
         //Formats City and state into one string to return
@@ -288,7 +288,7 @@ class Reports extends JDialog {
                             ////DbInt.pCon.close();
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                     }
                     cmbxCategory.setSelectedIndex(0);
                     cmbxCategory.addItemListener(e -> {
@@ -503,39 +503,36 @@ class Reports extends JDialog {
                 String selectedYear = (cmbxYears.getSelectedItem() != null) ? cmbxYears.getSelectedItem().toString() : "";
                 String selectedCustomer = (cmbxCustomers.getSelectedItem() != null) ? cmbxCustomers.getSelectedItem().toString() : "";
 
-                reportsWorker = new ReportsWorker(cmbxReportType.getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), cmbxCategory.getSelectedItem().toString(), selectedCustomer, repTitle, Splitting, includeHeader.isSelected(), progDial.statusLbl, pdfLoc.getText().toString());
-                reportsWorker.addPropertyChangeListener(new PropertyChangeListener() {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent event) {
-                        switch (event.getPropertyName()) {
-                            case "progress":
-                                progDial.progressBar.setIndeterminate(false);
-                                progDial.progressBar.setValue((Integer) event.getNewValue());
-                                break;
-                            case "state":
-                                switch ((SwingWorker.StateValue) event.getNewValue()) {
-                                    case DONE:
-                                        try {
+                reportsWorker = new ReportsWorker(cmbxReportType.getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), cmbxCategory.getSelectedItem().toString(), selectedCustomer, repTitle, Splitting, includeHeader.isSelected(), progDial.statusLbl, pdfLoc.getText());
+                reportsWorker.addPropertyChangeListener(event -> {
+                    switch (event.getPropertyName()) {
+                        case "progress":
+                            progDial.progressBar.setIndeterminate(false);
+                            progDial.progressBar.setValue((Integer) event.getNewValue());
+                            break;
+                        case "state":
+                            switch ((SwingWorker.StateValue) event.getNewValue()) {
+                                case DONE:
+                                    try {
 
-                                        } catch (CancellationException e) {
-                                            JOptionPane.showMessageDialog(Reports.this, "The process was cancelled", "Generate Report",
-                                                    JOptionPane.WARNING_MESSAGE);
-                                        } catch (Exception e) {
-                                            JOptionPane.showMessageDialog(Reports.this, "The process failed", "Generate Report",
-                                                    JOptionPane.ERROR_MESSAGE);
-                                        }
+                                    } catch (CancellationException e1) {
+                                        LogToFile.log(e1, Severity.INFO, "The process was cancelled.");
 
-                                        reportsWorker = null;
-                                        progDial.dispose();
-                                        break;
-                                    case STARTED:
-                                    case PENDING:
-                                        progDial.progressBar.setVisible(true);
-                                        progDial.progressBar.setIndeterminate(true);
-                                        break;
-                                }
-                                break;
-                        }
+                                    } catch (Exception e1) {
+                                        LogToFile.log(e1, Severity.SEVERE, "The process failed.");
+
+                                    }
+
+                                    reportsWorker = null;
+                                    progDial.dispose();
+                                    break;
+                                case STARTED:
+                                case PENDING:
+                                    progDial.progressBar.setVisible(true);
+                                    progDial.progressBar.setIndeterminate(true);
+                                    break;
+                            }
+                            break;
                     }
                 });
                 reportsWorker.execute();
@@ -544,7 +541,7 @@ class Reports extends JDialog {
                         File myFile = new File(pdfLoc.getText());
                         Desktop.getDesktop().open(myFile);
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        LogToFile.log(ex, Severity.SEVERE, "Error writing pdf file. Please try again or contacting support.");
                     }
                 }
                 dispose();
@@ -1394,7 +1391,7 @@ class Reports extends JDialog {
                 try {
                     FullName = getCityState(zip);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LogToFile.log(e1, Severity.WARNING, "Error getting geolocation info. Please try again later.");
                 }
                 String[] StateTown = FullName.split("&");
                 String state = StateTown[1];

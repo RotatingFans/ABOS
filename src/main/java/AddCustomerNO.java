@@ -9,7 +9,6 @@ import java.sql.SQLException;
  */
 class AddCustomerNO extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    private LogToFile MyLogger = new LogToFile();
     private JTextField Address;
     private JCheckBox notInterestedChckBx;
     private JCheckBox notHomeChckBx;
@@ -20,14 +19,14 @@ class AddCustomerNO extends JDialog {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
-    public static void main(String... args) {
+/*    public static void main(String... args) {
         try {
             new AddCustomerNO();
 
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
@@ -77,7 +76,7 @@ class AddCustomerNO extends JDialog {
             writeCust.setString(3, Boolean.toString(notHomeChckBx.isSelected()));
             writeCust.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
     }

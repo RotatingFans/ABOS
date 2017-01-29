@@ -62,7 +62,7 @@ public class Geolocation {
 
                 doc.getDocumentElement().normalize();
 
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
                 NodeList nList = doc.getElementsByTagName("place");
 
@@ -87,7 +87,7 @@ public class Geolocation {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
             }
         }
         //Formats City and state into one string to return
@@ -112,9 +112,9 @@ public class Geolocation {
         String USER_AGENT = "Mozilla/5.0";
         con.setRequestProperty("User-Agent", USER_AGENT);
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+        //int responseCode = con.getResponseCode();
+        //System.out.println("\nSending 'GET' request to URL : " + url);
+        //System.out.println("Response Code : " + responseCode);
 
         try (BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()))) {
@@ -144,7 +144,7 @@ public class Geolocation {
             //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
             doc.getDocumentElement().normalize();
 
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
             NodeList nList = doc.getElementsByTagName("place");
 
@@ -167,7 +167,7 @@ public class Geolocation {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
         }
         return coords;
     }

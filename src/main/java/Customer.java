@@ -1,6 +1,7 @@
 /**
  * Created by patrick on 7/26/16.
  */
+@SuppressWarnings("unused")
 public class Customer {
     private final String name;
     private final String year;
@@ -36,7 +37,6 @@ public class Customer {
     /**
      * Return Phone number of the customer whose name has been specified.
      *
-     * @param name The name of the customer
      * @return The Phone number of the specified customer
      */
     public String getPhone() {
@@ -46,7 +46,6 @@ public class Customer {
     /**
      * Returns if the customer has paid.
      *
-     * @param name The name of the customer
      * @return The Payment status of the specified customer
      */
     public String getPaid() {
@@ -56,7 +55,6 @@ public class Customer {
     /**
      * Return Delivery status of the customer whose name has been specified.
      *
-     * @param name The name of the customer
      * @return The Delivery status of the specified customer
      */
     public String getDelivered() {
@@ -66,7 +64,6 @@ public class Customer {
     /**
      * Return Email Address of the customer whose name has been specified.
      *
-     * @param name The name of the customer
      * @return The Email Address of the specified customer
      */
     public String getEmail() {
@@ -76,7 +73,6 @@ public class Customer {
     /**
      * Return Order ID of the customer whose name has been specified.
      *
-     * @param name The name of the customer
      * @return The Order ID of the specified customer
      */
     public String getOrderId() {
@@ -86,7 +82,6 @@ public class Customer {
     /**
      * Return Donation amount of the customer whose name has been specified.
      *
-     * @param name The name of the customer
      * @return The Donation Amount of the specified customer
      */
     public String getDontation() {

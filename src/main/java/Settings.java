@@ -60,6 +60,7 @@ class Settings extends JDialog {
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
+/*
 
     public static void main(String... args) {
         try {
@@ -69,6 +70,7 @@ class Settings extends JDialog {
             e.printStackTrace();
         }
     }
+*/
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
@@ -78,6 +80,9 @@ class Settings extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
+        if (!Config.doesConfExist()) {
+            Config.createConfigFile();
+        }
         //Main Content
         {
             north = new JTabbedPane();
@@ -521,12 +526,12 @@ class Settings extends JDialog {
                 try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
                     prep.execute();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
                 try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL, YEARS varchar(4))")) {
                     prep.execute();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
 
 
@@ -564,13 +569,13 @@ class Settings extends JDialog {
             prop.store(output, null);
 
         } catch (IOException io) {
-            io.printStackTrace();
+            LogToFile.log(io, Severity.SEVERE, "Error writing settings file. Please try again.");
         } finally {
             if (output != null) {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogToFile.log(e, Severity.SEVERE, "Error closing settings file. Please try again.");
                 }
             }
 
@@ -640,7 +645,7 @@ class Settings extends JDialog {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error parsing geolocation response. Please try again later or contacting support.");
             }
         }
         //Formats City and state into one string to return
@@ -686,7 +691,7 @@ class Settings extends JDialog {
                 try {
                     FullName = getCityState(zip);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LogToFile.log(e1, Severity.WARNING, "Error contacting geolocation server. PLease try again later or contacting support.");
                 }
                 String[] StateTown = FullName.split("&");
                 String state = StateTown[1];

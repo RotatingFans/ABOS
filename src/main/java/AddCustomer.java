@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -16,7 +17,6 @@ import java.util.concurrent.CancellationException;
  */
 class AddCustomer extends JDialog {
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
-    private LogToFile MyLogger = new LogToFile();
     //private final JPanel contentPanel = new JPanel();
     //Editable Field for user to input customer info.
     private JCheckBox Delivered;
@@ -95,18 +95,18 @@ class AddCustomer extends JDialog {
 
     }
 
-    /**
-     * Launch the application.
+    /*
+      Launch the application.
      */
-    public static void main(String... args) {
+/*    public static void main(String... args) {
         try {
             AddCustomer dialog = new AddCustomer();
             dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             dialog.setVisible(true);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, );
         }
-    }
+    }*/
 
     /**
      * Create the dialog.
@@ -262,7 +262,7 @@ class AddCustomer extends JDialog {
                 int quantity = 0;
                 try {
                     quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
-                } catch (NumberFormatException formatExcep) {
+                } catch (NumberFormatException ignored) {
                     JOptionPane.showMessageDialog(null, "You have not entered a number, please enter a number instead.", "", JOptionPane.ERROR_MESSAGE);
                 }
                 //Removes $ from cost and multiplies to get the total cost for that item
@@ -279,7 +279,6 @@ class AddCustomer extends JDialog {
     /**
      * Fills product table with info with quantities set to Amount customer ordered.
      *
-     * @param OrderID the Order Id of the customer whose order is being displayed
      */
     private void fillOrderedTable() {
         Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
@@ -358,11 +357,9 @@ class AddCustomer extends JDialog {
                                     setVisible(false);
                                 }
                             } catch (CancellationException e) {
-                                JOptionPane.showMessageDialog(this, "The process was cancelled", "Add Order", JOptionPane.WARNING_MESSAGE);
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
                             } catch (Exception e) {
-                                JOptionPane.showMessageDialog(this, "The process failed", "Add Order", JOptionPane.ERROR_MESSAGE);
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
                             }
                             addCustWork = null;
                             progDial.dispose();
@@ -461,7 +458,7 @@ class AddCustomer extends JDialog {
           update
          */
         try {
-            Double donationChange = Double.parseDouble((DonationsT.getText() == "") ? "0" : DonationsT.getText()) - preEditDonations;
+            Double donationChange = Double.parseDouble((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()) - preEditDonations;
             Double donations = Double.parseDouble(yearInfo.getDonations()) + donationChange;
             Double Lg = Double.parseDouble(yearInfo.getLG()) + (getNoLawnProductsOrdered() - preEditLawnProductSales);
             Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLivePlantSales);
@@ -482,7 +479,7 @@ class AddCustomer extends JDialog {
                 totalInsertString.execute();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
     }
 
@@ -520,7 +517,7 @@ class AddCustomer extends JDialog {
                 try {
                     cityAndState = Geolocation.getCityState(zip);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    LogToFile.log(e1, Severity.WARNING, "Couldn't contact geolocation service. Please try again or enter the adress manually and contact suport.");
                 }
                 String[] StateTown = cityAndState.split("&");
                 String state = StateTown[1];

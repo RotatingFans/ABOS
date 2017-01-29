@@ -22,6 +22,7 @@ public class Product {
         this.productCategory = productCategory;
     }
 
+    @SuppressWarnings("unused")
     public static List<String> GetProductInfo(String info, String PID, String year) {
         List<String> ret = new ArrayList<>();
 
@@ -41,7 +42,7 @@ public class Product {
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         return ret;
     }
