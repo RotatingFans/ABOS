@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -282,7 +283,7 @@ class DbInt {
      *
      * @param DB The name of the DB to create
      */
-    public static void createDb(String DB) {
+    public static Boolean createDb(String DB) {
 
 
         String url = String.format("jdbc:derby:%s/%s;create=true", Config.getDbLoc(), DB);//;create=true
@@ -299,12 +300,28 @@ class DbInt {
 
                 LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
+            } else if (ex.getErrorCode() == 1007) {
+                return false;
             } else {
 
                 LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
             }
 
         }
+        return true;
+    }
+
+    public static void deleteDb(String DB) {
+
+
+        String url = String.format("%s/%s", Config.getDbLoc(), DB);
+        File oldName = new File(url);
+
+        //create destination File object
+        File newName = new File(url + ".bak");
+        boolean isFileRenamed = oldName.renameTo(newName);
+
+
     }
 
     public static Iterable<String> getYears() {

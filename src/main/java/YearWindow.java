@@ -180,6 +180,29 @@ class YearWindow extends JDialog {
                 South.add(btnNewButton_1);
             }
             {
+                JButton btnNewButton_1 = new JButton("Delete Year");
+                //btnNewButton_1.setBounds(276, 232, 212, 247);
+                btnNewButton_1.addActionListener(e -> {
+                    String message = "<html><head><style>" +
+                            "h3 {text-align:center;}" +
+                            "h4 {text-align:center;}" +
+                            "</style></head>" +
+                            "<body><h3>WARNING !</h3>" +
+                            "<h3>You are about to delete an entire Year.</h3>" +
+                            "<h3>This action is irreversible.</h3>" +
+                            "<h4>Would you like to continue with the deletion?</h4>" +
+                            "</body>" +
+                            "</html>";
+                    int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+                    if (cont == 0) {
+                        DbInt.deleteDb(year);
+                        DbInt.writeData("Set", String.format("DELETE FROM YEARS WHERE YEARS='%s'", year));
+
+                    }
+                });
+                South.add(btnNewButton_1);
+            }
+            {
                 JButton btnRefresh = new JButton("Refresh");
                 btnRefresh.addActionListener(e -> {
                     frame.setVisible(false);

@@ -23,6 +23,7 @@ class AddCategory extends JDialog {
         initUI(year);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
     }
 
     public static void main(String... args) {
