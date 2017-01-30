@@ -49,7 +49,7 @@ class CSV2XML extends JDialog {
     private void initUI() {
         setModal(true);
 
-        setSize(450, 450);
+        //setSize(450, 450);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);

@@ -428,6 +428,8 @@ class AddYear extends JDialog {
                         categoriesCmbx.addItemListener(e -> {
                             if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
                                 new AddCategory(year);
+
+
                             }
                         });
                         //rateTb.setBounds(387, 104, 97, 19);
@@ -553,37 +555,40 @@ class AddYear extends JDialog {
      */
     private void CreateDb() {
         String year = yearText.getText();
-        DbInt.createDb(year);
-        //Create Tables
-        DbInt.writeData(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))");
-        DbInt.writeData(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))");
-        DbInt.writeData(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS varchar(255),LG varchar(255),LP varchar(255),MULCH varchar(255),TOTAL varchar(255),CUSTOMERS varchar(255),COMMISSIONS varchar(255),GRANDTOTAL varchar(255))");
-        DbInt.writeData(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))");
-        try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        //Insert products into Product table
-        String col = "";
-        for (int i = 0; i < ProductTable.getRowCount(); i++) {
-            String cat = (ProductTable.getModel().getValueAt(i, 4) != null) ? ProductTable.getModel().getValueAt(i, 4).toString() : "";
-            col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES ('%s','%s','%s','%s', '%s')", ProductTable.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 2).toString().replaceAll("'", "''"), cat.replaceAll("'", "''")));
-        }
-        rowsCats.forEach(cat -> {
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
-                prep.setString(1, cat[0]);
-                prep.setDate(2, Date.valueOf(cat[1]));
-
+        if (DbInt.createDb(year)) {
+            //Create Tables
+            DbInt.writeData(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))");
+            DbInt.writeData(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))");
+            DbInt.writeData(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS varchar(255),LG varchar(255),LP varchar(255),MULCH varchar(255),TOTAL varchar(255),CUSTOMERS varchar(255),COMMISSIONS varchar(255),GRANDTOTAL varchar(255))");
+            DbInt.writeData(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))");
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-        });
-        DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
-        DbInt.writeData(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES('0','0','0','0','0','0','0','0')");
-        DbInt.writeData("Set", String.format("INSERT INTO YEARS VALUES(%s, '%s')", year, year));
+            //Insert products into Product table
+            String col = "";
+            for (int i = 0; i < ProductTable.getRowCount(); i++) {
+                String cat = (ProductTable.getModel().getValueAt(i, 4) != null) ? ProductTable.getModel().getValueAt(i, 4).toString() : "";
+                col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
+                DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES ('%s','%s','%s','%s', '%s')", ProductTable.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 2).toString().replaceAll("'", "''"), cat.replaceAll("'", "''")));
+            }
+            rowsCats.forEach(cat -> {
+                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+                    prep.setString(1, cat[0]);
+                    prep.setDate(2, Date.valueOf(cat[1]));
+
+                    prep.execute();
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            });
+            DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
+            DbInt.writeData(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES('0','0','0','0','0','0','0','0')");
+            DbInt.writeData("Set", String.format("INSERT INTO YEARS VALUES(%s, '%s')", year, year));
+        } else {
+            LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
+        }
 
     }
 
@@ -668,7 +673,7 @@ class AddYear extends JDialog {
                     rows[temp][1] = eElement.getElementsByTagName("ProductName").item(0).getTextContent();
                     rows[temp][2] = eElement.getElementsByTagName("Size").item(0).getTextContent();
                     rows[temp][3] = eElement.getElementsByTagName("UnitCost").item(0).getTextContent();
-                    rows[temp][4] = eElement.getElementsByTagName("Category").item(0).getTextContent();
+                    rows[temp][4] = (eElement.getElementsByTagName("Category") == null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "";
                     //TODO add category to DB if not present
 
                     //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
