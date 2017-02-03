@@ -673,7 +673,7 @@ class AddYear extends JDialog {
                     rows[temp][1] = eElement.getElementsByTagName("ProductName").item(0).getTextContent();
                     rows[temp][2] = eElement.getElementsByTagName("Size").item(0).getTextContent();
                     rows[temp][3] = eElement.getElementsByTagName("UnitCost").item(0).getTextContent();
-                    rows[temp][4] = (eElement.getElementsByTagName("Category") =! null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "";
+                    rows[temp][4] = (eElement.getElementsByTagName("Category") != null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "";
                     //TODO add category to DB if not present
 
                     //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
