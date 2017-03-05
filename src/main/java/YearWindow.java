@@ -142,7 +142,7 @@ class YearWindow extends JDialog {
             //lblCustomers_1.setBounds(16, 136, 142, 14);
             East.add(lblCustomers_1);
 
-            JLabel CustomersR = new JLabel(yearInfo.getNoCustomers());
+            JLabel CustomersR = new JLabel(String.valueOf(yearInfo.getNoCustomers()));
             CustomersR.setFont(l);
             //CustomersR.setBounds(193, 136, 65, 14);
             East.add(CustomersR);
