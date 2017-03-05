@@ -113,7 +113,7 @@ public class Year {
      * @return The total amount of Customers
      */
     public Integer getNoCustomers() {
-        return Integer.getInteger(getTots("CUSTOMERS"));
+        return Integer.parseInt(getTots("CUSTOMERS"));
     }
 
     /**
