@@ -117,7 +117,7 @@ public class Order {
                 try (ResultSet rs = prep.executeQuery()) {
 
                     while (rs.next()) {
-                        quant = Integer.parseInt(rs.getString(String.valueOf(i)));
+                        quant += Integer.parseInt(rs.getString(String.valueOf(i)));
                         //DbInt.pCon.close();
                     }
                 }
