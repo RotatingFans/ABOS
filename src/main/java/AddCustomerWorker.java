@@ -226,7 +226,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 StringBuilder UpdateOrderString = new StringBuilder("UPDATE ORDERS SET NAME=?");
                 //loops through table and adds product number to order string with "=?"
                 for (int i = 0; i < ProductTable.getRowCount(); i++) {
-                    UpdateOrderString.append('"');
+                    UpdateOrderString.append(", \"");
                     UpdateOrderString.append(i);
                     UpdateOrderString.append("\"=?");
                     setProgress(getProgress() + progressIncrement);
@@ -235,6 +235,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
 
                 //Uses string to create PreparedStatement that is filled with quantities from table.
                 UpdateOrderString.append(" WHERE NAME = ?");
+                System.out.println(UpdateOrderString.toString());
                 try (PreparedStatement updateOrders = DbInt.getPrep(year, UpdateOrderString.toString())) {
                     updateOrders.setString(1, Name);
                     for (int i = 0; i < ProductTable.getRowCount(); i++) {
