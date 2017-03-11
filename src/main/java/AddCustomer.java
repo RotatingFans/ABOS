@@ -464,7 +464,7 @@ class AddCustomer extends JDialog {
             Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLivePlantSales);
             Double Mulch = Double.parseDouble(yearInfo.getMulch()) + (getNoMulchOrdered() - preEditMulchSales);
             Double OT = Double.parseDouble(yearInfo.getOT()) + (totalCostFinal - preEditOrderCost);
-            Double Customers = Double.parseDouble(yearInfo.getNoCustomers() + newCustomer);
+            Double Customers = (double) (yearInfo.getNoCustomers() + newCustomer);
             Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - preEditOrderCost) + donationChange;
             Double Commis = getCommission(GTot);
             try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
