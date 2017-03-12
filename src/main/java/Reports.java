@@ -514,7 +514,14 @@ class Reports extends JDialog {
                             switch ((SwingWorker.StateValue) event.getNewValue()) {
                                 case DONE:
                                     try {
-
+                                        if (Desktop.isDesktopSupported()) {
+                                            try {
+                                                File myFile = new File(pdfLoc.getText());
+                                                Desktop.getDesktop().open(myFile);
+                                            } catch (IOException ex) {
+                                                LogToFile.log(ex, Severity.SEVERE, "Error writing pdf file. Please try again or contacting support.");
+                                            }
+                                        }
                                     } catch (CancellationException e1) {
                                         LogToFile.log(e1, Severity.INFO, "The process was cancelled.");
 
@@ -536,14 +543,7 @@ class Reports extends JDialog {
                     }
                 });
                 reportsWorker.execute();
-                if (Desktop.isDesktopSupported()) {
-                    try {
-                        File myFile = new File(pdfLoc.getText());
-                        Desktop.getDesktop().open(myFile);
-                    } catch (IOException ex) {
-                        LogToFile.log(ex, Severity.SEVERE, "Error writing pdf file. Please try again or contacting support.");
-                    }
-                }
+
                 dispose();
             });
             okButton.setActionCommand("OK");
