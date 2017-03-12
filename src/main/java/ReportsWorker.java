@@ -776,6 +776,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
 
             TransformerFactory tranFactory = TransformerFactory.newInstance();
             Transformer aTransformer = tranFactory.newTransformer();
+            aTransformer.setOutputProperty(OutputKeys.ENCODING, osw.getEncoding());
             aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
             aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
             aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
