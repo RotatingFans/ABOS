@@ -97,71 +97,83 @@
                                 <xsl:value-of select="title"/>
                             </h2>
                         </div>
+                        <xsl:if test="prodTable">
 
-                        <table id="Bordered"
-                               style="width:100%; position:relative; padding-top:20px;clear:both;">
-                            <tr bgcolor="#9acd32">
-                                <xsl:for-each select="//column">
-                                    <th style="text-align:left">
-                                        <xsl:value-of select="name"/>
-                                    </th>
+                            <table id="Bordered"
+                                   style="width:100%; position:relative; padding-top:20px;clear:both;">
+                                <tr bgcolor="#9acd32">
+                                    <xsl:for-each select="//column">
+                                        <th style="text-align:left">
+                                            <xsl:value-of select="name"/>
+                                        </th>
+                                    </xsl:for-each>
+                                </tr>
+                                <xsl:for-each select="Product">
+                                    <tr id="Bordered">
+                                        <td id="Bordered">
+                                            <xsl:value-of select="ID"/>
+                                        </td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="Name"/>
+                                        </td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="Size"/>
+                                        </td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="UnitCost"/>
+                                        </td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="Quantity"/>
+                                        </td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="TotalCost"/>
+                                        </td>
+                                    </tr>
                                 </xsl:for-each>
-                            </tr>
-                            <xsl:for-each select="Product">
-                                <tr id="Bordered">
+                                <tr id="UBordered">
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="UBordered"></td>
+                                    <td id="Bordered">Sub Total:</td>
                                     <td id="Bordered">
-                                        <xsl:value-of select="ID"/>
-                                    </td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="Name"/>
-                                    </td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="Size"/>
-                                    </td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="UnitCost"/>
-                                    </td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="Quantity"/>
-                                    </td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="TotalCost"/>
+                                        <xsl:value-of select="totalCost"/>
                                     </td>
                                 </tr>
+                                <xsl:if test="includeDonation">
+                                    <tr id="UBordered">
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="Bordered">Total Pledged Donation:</td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="Donation"/>
+                                        </td>
+                                    </tr>
+                                    <tr id="UBordered">
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="UBordered"></td>
+                                        <td id="Bordered">Grand Total:</td>
+                                        <td id="Bordered">
+                                            <xsl:value-of select="GrandTotal"/>
+                                        </td>
+                                    </tr>
+                                </xsl:if>
+
+                            </table>
+                        </xsl:if>
+                        <div>
+                            <xsl:for-each select="DonationThanks">
+                                <h2 id="DonateGrat"
+                                    style="text-align:center; position:relative; display:block; padding-top:80px; padding-bottom:20px; width:100%;">
+                                    <xsl:value-of select="text"/>
+                                </h2>
                             </xsl:for-each>
-                            <tr id="UBordered">
-                                <td id="UBordered"></td>
-                                <td id="UBordered"></td>
-                                <td id="UBordered"></td>
-                                <td id="UBordered"></td>
-                                <td id="Bordered">Sub Total:</td>
-                                <td id="Bordered">
-                                    <xsl:value-of select="totalCost"/>
-                                </td>
-                            </tr>
-                            <xsl:if test="includeDonation">
-                                <tr id="UBordered">
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="Bordered">Total Pledged Donation:</td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="Donation"/>
-                                    </td>
-                                </tr>
-                                <tr id="UBordered">
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="Bordered">Grand Total:</td>
-                                    <td id="Bordered">
-                                        <xsl:value-of select="GrandTotal"/>
-                                    </td>
-                                </tr>
-                            </xsl:if>
-                        </table>
+                        </div>
+
                     </div>
                 </xsl:for-each>
                 <h2 style="text-align:right; position:relative; padding-top:20px; padding-bottom:20px">

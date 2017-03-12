@@ -134,6 +134,10 @@ public class Year {
         return (Objects.equals(getTots("GRANDTOTAL"), "")) ? ("0") : getTots("GRANDTOTAL");
     }
 
+    public String getQuant() {
+        return Double.toString(Double.parseDouble(getLG()) + Double.parseDouble(getLP()));
+    }
+
     public Product.formattedProduct[] getAllProducts() {
         //String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
         List<Product.formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
