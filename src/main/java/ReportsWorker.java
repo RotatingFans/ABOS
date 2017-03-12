@@ -437,6 +437,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             header.appendChild(doc.createTextNode("true"));
                             products.appendChild(header);
                         }
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
+                        }
                         //YearTitle
                         {
                             Element title = doc.createElement("title");
@@ -546,6 +551,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             Element header = doc.createElement("header");
                             header.appendChild(doc.createTextNode("true"));
                             products.appendChild(header);
+                        }
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
                         }
                         //YearTitle
                         {
@@ -666,6 +676,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                         header.appendChild(doc.createTextNode(headerS));
                                         headerS = "false";
                                         products.appendChild(header);
+                                    }
+                                    {
+                                        Element prodTable = doc.createElement("prodTable");
+                                        prodTable.appendChild(doc.createTextNode("true"));
+                                        products.appendChild(prodTable);
                                     }
                                     //YearTitle
                                     {
