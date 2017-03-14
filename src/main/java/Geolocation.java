@@ -3,9 +3,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -131,7 +133,7 @@ public class Geolocation {
         }
     }
 
-    public static Object[][] parseCoords(String xml) {
+    public static Object[][] parseCoords(String xml) throws addressException {
         Object[][] coords = new Object[1][2];
         try {
             InputSource is = new InputSource(new StringReader(xml));
@@ -148,7 +150,7 @@ public class Geolocation {
 
             NodeList nList = doc.getElementsByTagName("place");
 
-
+            if (nList.getLength() < 1) { throw new addressException();}
             for (int temp = 0; temp < nList.getLength(); temp++) {
 
                 Node nNode = nList.item(temp);
@@ -166,7 +168,7 @@ public class Geolocation {
 
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
         }
         return coords;

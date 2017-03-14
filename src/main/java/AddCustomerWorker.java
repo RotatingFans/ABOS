@@ -72,7 +72,16 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
         try {
             String address = String.format("%s %s, %s", Address, Town, State);//Formats address
             publish("Analyzing Address");
-            Object[][] coords = Geolocation.GetCoords(address);
+            Object[][] coords = new Object[0][];
+            try {
+                coords = Geolocation.GetCoords(address);
+
+            } catch (addressException e) {
+                LogToFile.log(null, Severity.WARNING, "Invalid Address. Please Verify spelling and numbers are correct.");
+
+            }
+
+
             double lat = Double.valueOf(coords[0][0].toString());
             double lon = Double.valueOf(coords[0][1].toString());
             AddCustomerWorker.failIfInterrupted();
