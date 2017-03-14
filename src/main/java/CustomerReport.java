@@ -124,8 +124,7 @@ class CustomerReport extends JDialog {
             lblTotalQuantity.setBounds(20, 395, 120, 20);
             west.add(lblTotalQuantity);
 
-            double quantL = 0.0;
-            QuantityL = new JLabel(Double.toString(quantL));
+            QuantityL = new JLabel("0");
             QuantityL.setFont(Fonts.plainFont);
             QuantityL.setBounds(20, 413, 253, 37);
             west.add(QuantityL);
@@ -135,8 +134,7 @@ class CustomerReport extends JDialog {
             lblTotalOrder.setBounds(20, 453, 96, 20);
             west.add(lblTotalOrder);
 
-            double totL = 0.0;
-            TotL = new JLabel(Double.toString(totL));
+            TotL = new JLabel("$0.00");
             TotL.setFont(Fonts.plainFont);
             TotL.setBounds(20, 474, 253, 37);
             west.add(TotL);
@@ -231,8 +229,8 @@ class CustomerReport extends JDialog {
             i++;
         }
 
-        QuantityL.setText(Double.toString(order.totalQuantity));
-        TotL.setText(Double.toString(order.totalCost));
+        QuantityL.setText(Integer.toString(order.totalQuantity));
+        TotL.setText("$" + order.totalCost.toPlainString());
 
         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
         table = new JTable();

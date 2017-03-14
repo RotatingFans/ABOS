@@ -1,3 +1,8 @@
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * Created by patrick on 7/26/16.
  */
@@ -84,7 +89,26 @@ public class Customer {
      *
      * @return The Donation Amount of the specified customer
      */
-    public String getDontation() {
-        return DbInt.getCustInf(year, name, "DONATION");
+    public BigDecimal getDontation() {
+        BigDecimal ret = BigDecimal.ZERO;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM CUSTOMERS WHERE NAME=?")) {
+
+
+            prep.setString(1, name);
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getBigDecimal("DONATION");
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        return ret;
     }
 }

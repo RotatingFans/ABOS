@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,8 +10,8 @@ import java.util.List;
  */
 public class Order {
     // --Commented out by Inspection (7/27/16 3:02 PM):Product product = new Product();
-    private double totL = 0.0;
-    private double QuantL = 0.0;
+    private BigDecimal totL = BigDecimal.ZERO;
+    private int QuantL = 0;
 
     public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
 
@@ -63,10 +64,10 @@ public class Order {
 
 
             if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
-                Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
-                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
-                totL += ((double) quant * unitCost);
-                QuantL += (double) quant;
+                BigDecimal unitCost = new BigDecimal(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
+                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
+                totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                QuantL += quant;
                 noProductsOrdered++;
 
             }
@@ -129,10 +130,10 @@ public class Order {
 
 
             if (quant > 0) {
-                Double unitCost = Double.parseDouble(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
-                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, quant * unitCost);
-                totL += ((double) quant * unitCost);
-                QuantL += (double) quant;
+                BigDecimal unitCost = new BigDecimal(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
+                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
+                totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                QuantL += quant;
                 noProductsOrdered++;
 
             }
@@ -146,10 +147,10 @@ public class Order {
 
     public static class orderArray {
         public final Product.formattedProduct[] orderData;
-        public double totalCost;
-        public double totalQuantity;
+        public BigDecimal totalCost;
+        public int totalQuantity;
 
-        public orderArray(Product.formattedProduct[] orderData, double totalCost, double totalQuantity) {
+        public orderArray(Product.formattedProduct[] orderData, BigDecimal totalCost, int totalQuantity) {
             this.orderData = orderData;
             this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;

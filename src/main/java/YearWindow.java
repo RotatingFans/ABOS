@@ -72,7 +72,7 @@ class YearWindow extends JDialog {
             //lblNewLabel.setBounds(16, 11, 97, 14);
             East.add(lblNewLabel);
 
-            JLabel DonationsR = new JLabel(yearInfo.getDonations());
+            JLabel DonationsR = new JLabel(yearInfo.getDonations().toPlainString());
             DonationsR.setFont(l);
             //DonationsR.setBounds(193, 11, 65, 14);
             East.add(DonationsR);
@@ -82,7 +82,7 @@ class YearWindow extends JDialog {
             //lblLawnAndGarden.setBounds(16, 36, 142, 14);
             East.add(lblLawnAndGarden);
 
-            JLabel LGR = new JLabel(yearInfo.getLG());
+            JLabel LGR = new JLabel(Integer.toString(yearInfo.getLG()));
             LGR.setFont(l);
             //LGR.setBounds(193, 36, 65, 14);
             East.add(LGR);
@@ -92,7 +92,7 @@ class YearWindow extends JDialog {
             //lblLivePlantProducts.setBounds(16, 61, 113, 14);
             East.add(lblLivePlantProducts);
 
-            JLabel LPR = new JLabel(yearInfo.getLP());
+            JLabel LPR = new JLabel(Integer.toString(yearInfo.getLP()));
             LPR.setFont(l);
             //LPR.setBounds(193, 61, 65, 14);
             East.add(LPR);
@@ -102,7 +102,7 @@ class YearWindow extends JDialog {
             //	lblF.setBounds(16, 86, 113, 14);
             East.add(lblF);
 
-            JLabel MulchR = new JLabel(yearInfo.getMulch());
+            JLabel MulchR = new JLabel(Integer.toString(yearInfo.getMulch()));
             MulchR.setFont(l);
             //MulchR.setBounds(193, 86, 65, 14);
             East.add(MulchR);
@@ -112,7 +112,7 @@ class YearWindow extends JDialog {
             //lblCustomers.setBounds(16, 111, 113, 14);
             East.add(lblCustomers);
 
-            JLabel OR = new JLabel(yearInfo.getOT());
+            JLabel OR = new JLabel(yearInfo.getOT().toPlainString());
             OR.setFont(l);
             //OR.setBounds(193, 111, 65, 14);
             East.add(OR);
@@ -123,7 +123,7 @@ class YearWindow extends JDialog {
             //lblCommision.setBounds(16, 160, 83, 14);
             East.add(lblGTot);
 
-            JLabel GTotR = new JLabel(yearInfo.getGTot());
+            JLabel GTotR = new JLabel(yearInfo.getGTot().toPlainString());
             //CommissionR.setBounds(193, 161, 65, 14);
             GTotR.setFont(l);
             East.add(GTotR);
@@ -132,7 +132,7 @@ class YearWindow extends JDialog {
             //lblCommision.setBounds(16, 160, 83, 14);
             East.add(lblCommision);
 
-            JLabel CommissionR = new JLabel(yearInfo.getCommis());
+            JLabel CommissionR = new JLabel(yearInfo.getCommis().toPlainString());
             //CommissionR.setBounds(193, 161, 65, 14);
             CommissionR.setFont(l);
             East.add(CommissionR);
@@ -141,7 +141,7 @@ class YearWindow extends JDialog {
             //lblCustomers_1.setBounds(16, 136, 142, 14);
             East.add(lblCustomers_1);
 
-            JLabel CustomersR = new JLabel(String.valueOf(yearInfo.getNoCustomers()));
+            JLabel CustomersR = new JLabel(Integer.toString(yearInfo.getNoCustomers()));
             CustomersR.setFont(l);
             //CustomersR.setBounds(193, 136, 65, 14);
             East.add(CustomersR);

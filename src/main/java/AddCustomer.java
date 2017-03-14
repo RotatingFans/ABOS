@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -32,14 +33,14 @@ class AddCustomer extends JDialog {
     private JTextField DonationsT;
     //Variables used to store regularly accessed info.
     private String year = null;
-    private double totalCostFinal = (double) 0.0;
+    private BigDecimal totalCostFinal = BigDecimal.ZERO;
     //Variables used to calculate difference of orders when in edit mode.
     private String NameEditCustomer = null;
-    private double preEditMulchSales = 0.0;
-    private double preEditLawnProductSales = 0.0;
-    private double preEditLivePlantSales = 0.0;
-    private double preEditDonations = 0.0;
-    private double preEditOrderCost = 0.0;
+    private int preEditMulchSales = 0;
+    private int preEditLawnProductSales = 0;
+    private int preEditLivePlantSales = 0;
+    private BigDecimal preEditDonations = BigDecimal.ZERO;
+    private BigDecimal preEditOrderCost = BigDecimal.ZERO;
 
     private AddCustomerWorker addCustWork = null;
     private Year yearInfo;
@@ -72,8 +73,8 @@ class AddCustomer extends JDialog {
         Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
         Email.setText(customerInfo.getEmail());
         Name.setText(customerName);
-        DonationsT.setText(customerInfo.getDontation());
-        preEditDonations = Double.parseDouble(DonationsT.getText());
+        DonationsT.setText(customerInfo.getDontation().toPlainString());
+        preEditDonations = customerInfo.getDontation();
         //Fill the table with their previous order info on record.
         fillOrderedTable();
 
@@ -266,11 +267,11 @@ class AddCustomer extends JDialog {
                     JOptionPane.showMessageDialog(null, "You have not entered a number, please enter a number instead.", "", JOptionPane.ERROR_MESSAGE);
                 }
                 //Removes $ from cost and multiplies to get the total cost for that item
-                double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
+                BigDecimal ItemTotalCost = new BigDecimal(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", "")).multiply(new BigDecimal(quantity));
                 ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
-                totalCostFinal = 0.0;
+                totalCostFinal = BigDecimal.ZERO;
                 for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
-                    totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+                    totalCostFinal = totalCostFinal.add(new BigDecimal(ProductTable.getModel().getValueAt(rowNo, 5).toString()));//Recalculate Order total
                 }
             }
         });
@@ -291,7 +292,7 @@ class AddCustomer extends JDialog {
             rows[i][3] = productOrder.productUnitPrice;
             rows[i][4] = productOrder.orderedQuantity;
             rows[i][5] = productOrder.extendedCost;
-            preEditOrderCost += productOrder.extendedCost;
+            preEditOrderCost = preEditOrderCost.add(productOrder.extendedCost);
             i++;
         }
         ProductTable.setModel(new MyDefaultTableModel(rows));
@@ -301,11 +302,11 @@ class AddCustomer extends JDialog {
                 int row = e.getFirstRow();
                 int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
                 //Removes $ from cost and multiplies to get the total cost for that item
-                double ItemTotalCost = quantity * Double.parseDouble(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", ""));
+                BigDecimal ItemTotalCost = new BigDecimal(ProductTable.getModel().getValueAt(row, 3).toString().replaceAll("\\$", "")).multiply(new BigDecimal(quantity));
                 ProductTable.getModel().setValueAt(ItemTotalCost, row, 5);
-                totalCostFinal = 0.0;
+                totalCostFinal = BigDecimal.ZERO;
                 for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
-                    totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+                    totalCostFinal = totalCostFinal.add(new BigDecimal(ProductTable.getModel().getValueAt(rowNo, 5).toString()));//Recalculate Order total
                 }
             }
         });
@@ -314,7 +315,8 @@ class AddCustomer extends JDialog {
         preEditLawnProductSales = getNoLawnProductsOrdered();
         preEditLivePlantSales = getNoLivePlantsOrdered();
         for (int rowNo = 0; rowNo < ProductTable.getRowCount(); rowNo++) {
-            totalCostFinal += Double.parseDouble(ProductTable.getModel().getValueAt(rowNo, 5).toString());//Recalculate Order total
+            totalCostFinal = totalCostFinal.add(new BigDecimal(ProductTable.getModel().getValueAt(rowNo, 5).toString()));//Recalculate Order total
+
         }
     }
 
@@ -381,11 +383,11 @@ class AddCustomer extends JDialog {
      *
      * @return The amount of Bulk mulch ordered
      */
-    private double getNoMulchOrdered() {
-        double quantMulchOrdered = 0.0;
+    private int getNoMulchOrdered() {
+        int quantMulchOrdered = 0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if ((ProductTable.getModel().getValueAt(i, 1).toString().contains("Mulch")) && (ProductTable.getModel().getValueAt(i, 1).toString().contains("Bulk"))) {
-                quantMulchOrdered += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                quantMulchOrdered += Integer.parseInt(ProductTable.getModel().getValueAt(i, 4).toString());
             }
         }
         return quantMulchOrdered;
@@ -396,11 +398,11 @@ class AddCustomer extends JDialog {
      *
      * @return The amount of Lawn and Garden Products ordered
      */
-    private double getNoLivePlantsOrdered() {
-        double livePlantsOrdered = 0.0;
+    private int getNoLivePlantsOrdered() {
+        int livePlantsOrdered = 0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-P") || ProductTable.getModel().getValueAt(i, 0).toString().contains("-FV")) {
-                livePlantsOrdered += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                livePlantsOrdered += Integer.parseInt((ProductTable.getModel().getValueAt(i, 4).toString()));
             }
         }
         return livePlantsOrdered;
@@ -411,11 +413,11 @@ class AddCustomer extends JDialog {
      *
      * @return The amount of Live Plants ordered
      */
-    private double getNoLawnProductsOrdered() {
-        double lawnProductsOrdered = 0.0;
+    private int getNoLawnProductsOrdered() {
+        int lawnProductsOrdered = 0;
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             if (ProductTable.getModel().getValueAt(i, 0).toString().contains("-L")) {
-                lawnProductsOrdered += Double.parseDouble(ProductTable.getModel().getValueAt(i, 4).toString());
+                lawnProductsOrdered += Integer.parseInt(ProductTable.getModel().getValueAt(i, 4).toString());
             }
         }
         return lawnProductsOrdered;
@@ -427,14 +429,14 @@ class AddCustomer extends JDialog {
      * @param totalCost the Sub total for all orders
      * @return Commission to be earned
      */
-    private double getCommission(double totalCost) {
-        double commision = 0.0;
-        if ((totalCost > 299.99) && (totalCost < 500.01)) {
-            commision = totalCost * 0.05;
-        } else if ((totalCost > 500.01) && (totalCost < 1000.99)) {
-            commision = totalCost * 0.1;
-        } else if (totalCost >= 1001.0) {
-            commision = totalCost * 0.15;
+    private BigDecimal getCommission(BigDecimal totalCost) {
+        BigDecimal commision = BigDecimal.ZERO;
+        if ((totalCost.compareTo(new BigDecimal("299.99")) == 1) && (totalCost.compareTo(new BigDecimal("500.01")) == -1)) {
+            commision = totalCost.multiply(new BigDecimal("0.05"));
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) == 1) && (totalCost.compareTo(new BigDecimal("1000.99")) == -1)) {
+            commision = totalCost.multiply(new BigDecimal("0.1"));
+        } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
+            commision = totalCost.multiply(new BigDecimal("0.15"));
         }
         return commision;
     }
@@ -458,24 +460,24 @@ class AddCustomer extends JDialog {
           update
          */
         try {
-            Double donationChange = Double.parseDouble((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()) - preEditDonations;
-            Double donations = Double.parseDouble(yearInfo.getDonations()) + donationChange;
-            Double Lg = Double.parseDouble(yearInfo.getLG()) + (getNoLawnProductsOrdered() - preEditLawnProductSales);
-            Double LP = Double.parseDouble(yearInfo.getLP()) + (getNoLivePlantsOrdered() - preEditLivePlantSales);
-            Double Mulch = Double.parseDouble(yearInfo.getMulch()) + (getNoMulchOrdered() - preEditMulchSales);
-            Double OT = Double.parseDouble(yearInfo.getOT()) + (totalCostFinal - preEditOrderCost);
-            Integer Customers = (yearInfo.getNoCustomers() + newCustomer);
-            Double GTot = Double.parseDouble(yearInfo.getGTot()) + (totalCostFinal - preEditOrderCost) + donationChange;
-            Double Commis = getCommission(GTot);
+            BigDecimal donationChange = new BigDecimal((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()).subtract(preEditDonations);
+            BigDecimal donations = yearInfo.getDonations().add(donationChange);
+            int Lg = yearInfo.getLG() + (getNoLawnProductsOrdered() - preEditLawnProductSales);
+            int LP = yearInfo.getLP() + (getNoLivePlantsOrdered() - preEditLivePlantSales);
+            int Mulch = yearInfo.getMulch() + (getNoMulchOrdered() - preEditMulchSales);
+            BigDecimal OT = yearInfo.getOT().add(totalCostFinal.subtract(preEditOrderCost));
+            int Customers = (yearInfo.getNoCustomers() + newCustomer);
+            BigDecimal GTot = yearInfo.getGTot().add(totalCostFinal.subtract(preEditOrderCost).add(donationChange));
+            BigDecimal Commis = getCommission(GTot);
             try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-                totalInsertString.setString(1, Double.toString(donations));
-                totalInsertString.setString(2, Double.toString(Lg));
-                totalInsertString.setString(3, Double.toString(LP));
-                totalInsertString.setString(4, Double.toString(Mulch));
-                totalInsertString.setString(5, Double.toString(OT));
-                totalInsertString.setString(6, Integer.toString(Customers));
-                totalInsertString.setString(7, Double.toString(Commis));
-                totalInsertString.setString(8, Double.toString(GTot));
+                totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(2, Lg);
+                totalInsertString.setInt(3, (LP));
+                totalInsertString.setInt(4, (Mulch));
+                totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(6, (Customers));
+                totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
                 totalInsertString.execute();
             }
         } catch (SQLException e) {
