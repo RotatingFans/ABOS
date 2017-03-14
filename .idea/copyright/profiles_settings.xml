@@ -1,3 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="" />
+  <settings default="Lawn Garden">
+    <module2copyright>
+      <element module="Project Files" copyright="Lawn Garden" />
+    </module2copyright>
+  </settings>
 </component>
