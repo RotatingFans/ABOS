@@ -920,7 +920,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     fos.close();
                 }
             } catch (FileNotFoundException e) {
-                LogToFile.log(e, Severity.WARNING, "Temporary xml file not found.");
+                LogToFile.log(e, Severity.WARNING, "Error accessing PDF file. Please check if it is open in any other programs and close it.");
             } catch (Exception e) {
                 LogToFile.log(e, Severity.SEVERE, "Error ocurred while converting temporary XML to pdf. Try again or contact support.");
             }

@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -128,8 +127,9 @@ class CustomerView extends JDialog {
             JButton btnRefresh = new JButton("Refresh");
             btnRefresh.addActionListener(e -> {
                 frame.setVisible(false);
-                new CustomerView(year).setVisible(true);
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                initialize();
+                frame.setVisible(true);
+
             });
             //btnRefresh.setBounds(181, 7, 51, 36);
             North.add(btnRefresh);
@@ -159,7 +159,7 @@ class CustomerView extends JDialog {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         CustomerNames = ret;
-        //Create a button for wach name
+        //Create a button for each name
         panel = new JPanel[CustomerNames.size()];
         for (int i = 0; i < CustomerNames.size(); i++) {
             int pg = (int) Math.ceil((double) (i / 6));

@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -206,8 +205,9 @@ class YearWindow extends JDialog {
                 JButton btnRefresh = new JButton("Refresh");
                 btnRefresh.addActionListener(e -> {
                     frame.setVisible(false);
-                    new YearWindow(year).setVisible(true);
-                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                    initialize();
+                    frame.setVisible(true);
+
 
                 });
 
