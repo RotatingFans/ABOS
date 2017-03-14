@@ -468,7 +468,7 @@ class Settings extends JDialog {
             {
                 final URI uri;
                 try {
-                    uri = new URI("http://rotatingFans.github.io/LG/License.html");
+                    uri = new URI("https://www.gnu.org/licenses/agpl.html");
 
                     class OpenUrlAction implements ActionListener {
                         @Override
@@ -477,8 +477,8 @@ class Settings extends JDialog {
                         }
                     }
                     JButton button = new JButton();
-                    button.setText("<HTML>Click <FONT color=\"#000099\"><U>Here</U></FONT>"
-                            + " to access the license.</HTML>");
+                    button.setText("<HTML><h2>This software is released under the AGPLv3 license.</h2> Click <FONT size=14px color=\"#000099\"><U>Here</U></FONT>"
+                            + " to access the AGPLv3 license.</HTML>");
                     button.setHorizontalAlignment(SwingConstants.LEFT);
                     button.setBorderPainted(false);
                     button.setOpaque(false);
