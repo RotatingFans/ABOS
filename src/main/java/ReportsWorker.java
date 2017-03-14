@@ -241,12 +241,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         }
                     }
                     setProgress(getProgress() + (custProgressIncValue / 10));
+                    double tCost = 0.0;
+
                     if (orderArray.totalQuantity > 0) {
                         Element prodTable = doc.createElement("prodTable");
                         prodTable.appendChild(doc.createTextNode("true"));
                         products.appendChild(prodTable);
                         int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length;
-                        double tCost = 0.0;
                         //For each product ordered, enter info
                         for (Product.formattedProduct aRowDataF : orderArray.orderData) {
                             if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
@@ -328,6 +329,22 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             title.appendChild(text);
                         }
                         products.appendChild(title);
+
+                        {
+                            Element prodTable = doc.createElement("includeDonation");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
+                        }
+                        {
+                            Element text = doc.createElement("Donation");
+                            text.appendChild(doc.createTextNode(donation));
+                            products.appendChild(text);
+                        }
+                        {
+                            Element text = doc.createElement("GrandTotal");
+                            text.appendChild(doc.createTextNode(Double.toString(tCost + Double.parseDouble(donation))));
+                            products.appendChild(text);
+                        }
 
                     }
                     rootElement.appendChild(products);
@@ -436,6 +453,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             Element header = doc.createElement("header");
                             header.appendChild(doc.createTextNode("true"));
                             products.appendChild(header);
+                        }
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
                         }
                         //YearTitle
                         {
@@ -546,6 +568,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             Element header = doc.createElement("header");
                             header.appendChild(doc.createTextNode("true"));
                             products.appendChild(header);
+                        }
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
                         }
                         //YearTitle
                         {
@@ -666,6 +693,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                         header.appendChild(doc.createTextNode(headerS));
                                         headerS = "false";
                                         products.appendChild(header);
+                                    }
+                                    {
+                                        Element prodTable = doc.createElement("prodTable");
+                                        prodTable.appendChild(doc.createTextNode("true"));
+                                        products.appendChild(prodTable);
                                     }
                                     //YearTitle
                                     {
