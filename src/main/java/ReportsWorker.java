@@ -14,6 +14,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -241,7 +242,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         }
                     }
                     setProgress(getProgress() + (custProgressIncValue / 10));
-                    double tCost = 0.0;
+                    BigDecimal tCost = BigDecimal.ZERO;
 
                     if (orderArray.totalQuantity > 0) {
                         Element prodTable = doc.createElement("prodTable");
@@ -289,7 +290,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     {
                                         Element TotalCost = doc.createElement("TotalCost");
                                         TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
-                                        tCost += aRowDataF.extendedCost;
+                                        tCost = tCost.add(aRowDataF.extendedCost);
                                         Product.appendChild(TotalCost);
                                     }
                                 }
@@ -310,13 +311,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     Year curYear = new Year(selectedYear);
                     {
                         Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(curYear.getGTot()));
+                        TotalCost.appendChild(doc.createTextNode(curYear.getGTot().toPlainString()));
                         info.appendChild(TotalCost);
                     }
                     // OverallTotalQuantity elements
                     {
                         Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(curYear.getQuant()));
+                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(curYear.getQuant())));
                         info.appendChild(TotalQuantity);
                     }
                     String donation = DbInt.getCustInf(selectedYear, customer, "DONATION");
@@ -342,7 +343,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         }
                         {
                             Element text = doc.createElement("GrandTotal");
-                            text.appendChild(doc.createTextNode(Double.toString(tCost + Double.parseDouble(donation))));
+                            text.appendChild(doc.createTextNode(tCost.add(new BigDecimal(donation)).toPlainString()));
                             products.appendChild(text);
                         }
 
@@ -479,9 +480,9 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
 
                         }
                         setProgress(10);
-                        double tCost = 0.0;
-                        orderArray.totalCost = 0.0;
-                        orderArray.totalQuantity = 0.0;
+                        BigDecimal tCost = BigDecimal.ZERO;
+                        orderArray.totalCost = BigDecimal.ZERO;
+                        orderArray.totalQuantity = 0;
                         int productIncValue = 90 / orderArray.orderData.length;
                         for (Product.formattedProduct aRowDataF : orderArray.orderData) {
                             if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
@@ -516,17 +517,17 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     //Quantity
                                     {
                                         Element Quantity = doc.createElement("Quantity");
-                                        orderArray.totalQuantity += (double) aRowDataF.orderedQuantity;
+                                        orderArray.totalQuantity = orderArray.totalQuantity + aRowDataF.orderedQuantity;
                                         Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
                                         Product.appendChild(Quantity);
                                     }
                                     //TotalCost
                                     {
                                         Element TotalCost = doc.createElement("TotalCost");
-                                        orderArray.totalCost += aRowDataF.extendedCost;
+                                        orderArray.totalCost = orderArray.totalCost.add(aRowDataF.extendedCost);
 
                                         TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
-                                        tCost += aRowDataF.extendedCost;
+                                        tCost = tCost.add(aRowDataF.extendedCost);
                                         Product.appendChild(TotalCost);
                                     }
                                 }
@@ -542,13 +543,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         // OverallTotalCost elements
                         {
                             Element TotalCost = doc.createElement("TotalCost");
-                            TotalCost.appendChild(doc.createTextNode(Double.toString(orderArray.totalCost)));
+                            TotalCost.appendChild(doc.createTextNode((orderArray.totalCost).toPlainString()));
                             info.appendChild(TotalCost);
                         }
                         // OverallTotalQuantity elements
                         {
                             Element TotalQuantity = doc.createElement("totalQuantity");
-                            TotalQuantity.appendChild(doc.createTextNode(Double.toString(orderArray.totalQuantity)));
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(orderArray.totalQuantity)));
                             info.appendChild(TotalQuantity);
                         }
 
@@ -593,7 +594,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                             }
                         }
                         setProgress(5);
-                        double tCost = 0.0;
+                        BigDecimal tCost = BigDecimal.ZERO;
                         int productIncValue = 90 / orderArray.orderData.length;
 
                         //For each product ordered, enter info
@@ -637,7 +638,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     {
                                         Element TotalCost = doc.createElement("TotalCost");
                                         TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
-                                        tCost += aRowDataF.extendedCost;
+                                        tCost = tCost.add(aRowDataF.extendedCost);
                                         Product.appendChild(TotalCost);
                                     }
                                 }
@@ -653,13 +654,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         // OverallTotalCost elements
                         {
                             Element TotalCost = doc.createElement("TotalCost");
-                            TotalCost.appendChild(doc.createTextNode(Double.toString(orderArray.totalCost)));
+                            TotalCost.appendChild(doc.createTextNode(orderArray.totalCost.toPlainString()));
                             info.appendChild(TotalCost);
                         }
                         // OverallTotalQuantity elements
                         {
                             Element TotalQuantity = doc.createElement("totalQuantity");
-                            TotalQuantity.appendChild(doc.createTextNode(Double.toString(orderArray.totalQuantity)));
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(orderArray.totalQuantity)));
                             info.appendChild(TotalQuantity);
                         }
                     }
@@ -671,8 +672,8 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
-                    Double overallTotalCost = 0.0;
-                    Double overallTotalQuantity = 0.0;
+                    BigDecimal overallTotalCost = BigDecimal.ZERO;
+                    int overallTotalQuantity = 0;
                     int yearProgressInc = 95 / ((years instanceof Collection<?>) ? ((Collection<?>) years).size() : 1);
                     //For Each Year
                     for (String year : years) {
@@ -707,7 +708,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                     }
                                     Order order = new Order();
                                     Order.orderArray orderArray = order.createOrderArray(year, customerName, true);
-                                    double tCost = 0.0;
+                                    BigDecimal tCost = BigDecimal.ZERO;
                                     overallTotalCost = orderArray.totalCost;
                                     overallTotalQuantity = orderArray.totalQuantity;
                                     //For each product in the table set the data
@@ -748,7 +749,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                                         {
                                             Element TotalCost = doc.createElement("TotalCost");
                                             TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
-                                            tCost += orderedProduct.extendedCost;
+                                            tCost = tCost.add(orderedProduct.extendedCost);
                                             Product.appendChild(TotalCost);
                                         }
                                     }
@@ -772,13 +773,13 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                     // OverallTotalCost elements
                     {
                         Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(Double.toString(overallTotalCost)));
+                        TotalCost.appendChild(doc.createTextNode((overallTotalCost.toPlainString())));
                         info.appendChild(TotalCost);
                     }
                     // OverallTotalQuantity elements
                     {
                         Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Double.toString(overallTotalQuantity)));
+                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity)));
                         info.appendChild(TotalQuantity);
                     }
                     setProgress(100);

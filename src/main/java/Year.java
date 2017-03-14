@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,9 @@ import java.util.Objects;
  * Created by patrick on 7/27/16.
  */
 public class Year {
+    private static final int retInteger = 1;
+    private static final int retString = 2;
+    private static final int retBigDec = 3;
     private final String year;
 
     public Year(String year) {
@@ -39,8 +43,8 @@ public class Year {
         return ret;
     }
 
-    public String getTots(String info) {
-        String ret = "";
+    public Object getTots(String info, int retType) {
+        Object ret = "";
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
              ResultSet rs = prep.executeQuery()
@@ -50,8 +54,18 @@ public class Year {
 
 
             while (rs.next()) {
+                switch (retType) {
+                    case retInteger:
+                        ret = rs.getInt(info);
+                        break;
+                    case retString:
+                        ret = rs.getString(info);
+                        break;
+                    case retBigDec:
+                        ret = rs.getBigDecimal(info);
+                        break;
 
-                ret = rs.getString(info);
+                }
 
             }
             //////DbInt.pCon.close();
@@ -67,8 +81,8 @@ public class Year {
      *
      * @return The total donation amount
      */
-    public String getDonations() {
-        return getTots("Donations");
+    public BigDecimal getDonations() {
+        return (BigDecimal) getTots("Donations", retBigDec);
     }
 
     /**
@@ -76,8 +90,8 @@ public class Year {
      *
      * @return The total Lawn ANd Garden quantities amount
      */
-    public String getLG() {
-        return getTots("LG");
+    public int getLG() {
+        return (int) getTots("LG", retInteger);
     }
 
     /**
@@ -85,8 +99,8 @@ public class Year {
      *
      * @return The total Live Plants quantities amount
      */
-    public String getLP() {
-        return getTots("LP");
+    public int getLP() {
+        return (int) getTots("LP", retInteger);
     }
 
     /**
@@ -94,8 +108,8 @@ public class Year {
      *
      * @return The total Mulch quantities amount
      */
-    public String getMulch() {
-        return getTots("MULCH");
+    public int getMulch() {
+        return (int) getTots("MULCH", retInteger);
     }
 
     /**
@@ -103,8 +117,8 @@ public class Year {
      *
      * @return The Order total amount
      */
-    public String getOT() {
-        return getTots("TOTAL");
+    public BigDecimal getOT() {
+        return (BigDecimal) getTots("TOTAL", retBigDec);
     }
 
     /**
@@ -112,8 +126,8 @@ public class Year {
      *
      * @return The total amount of Customers
      */
-    public Integer getNoCustomers() {
-        return Integer.parseInt(getTots("CUSTOMERS"));
+    public int getNoCustomers() {
+        return (int) getTots("CUSTOMERS", retInteger);
     }
 
     /**
@@ -121,8 +135,8 @@ public class Year {
      *
      * @return The total Commissions amount
      */
-    public String getCommis() {
-        return getTots("COMMISSIONS");
+    public BigDecimal getCommis() {
+        return (BigDecimal) getTots("COMMISSIONS", retBigDec);
     }
 
     /**
@@ -130,12 +144,12 @@ public class Year {
      *
      * @return The Grand total amount
      */
-    public String getGTot() {
-        return (Objects.equals(getTots("GRANDTOTAL"), "")) ? ("0") : getTots("GRANDTOTAL");
+    public BigDecimal getGTot() {
+        return (Objects.equals(getTots("GRANDTOTAL", retBigDec), "")) ? (BigDecimal.ZERO) : (BigDecimal) getTots("GRANDTOTAL", retBigDec);
     }
 
-    public String getQuant() {
-        return Double.toString(Double.parseDouble(getLG()) + Double.parseDouble(getLP()));
+    public int getQuant() {
+        return getLG() + getLP();
     }
 
     public Product.formattedProduct[] getAllProducts() {
@@ -148,7 +162,7 @@ public class Year {
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
 
-                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category"), 0, 0.0));
+                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
             }
             DbInt.pCon.commit();
             ////DbInt.pCon.close();

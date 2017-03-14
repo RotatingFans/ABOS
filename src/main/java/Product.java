@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,9 +55,9 @@ public class Product {
         public final String productUnitPrice;
         public final String productCategory;
         public final int orderedQuantity;
-        public final Double extendedCost;
+        public final BigDecimal extendedCost;
 
-        public formattedProduct(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, Double extendedCost) {
+        public formattedProduct(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
             this.productID = productID;
             this.productName = productName;
             this.productSize = productSize;
