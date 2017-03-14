@@ -12,6 +12,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,6 +35,7 @@ class AddYear extends JDialog {
     private JTextField sizeTb;
     private JTextField rateTb;
     private JComboBox categoriesTb = null;
+    private JComboBox categoriesCmbx = null;
     private DefaultTableModel tableModel;
     private JTextField idTb;
     private JDialog parent;
@@ -343,7 +346,6 @@ class AddYear extends JDialog {
         {
             JPanel center = new JPanel(new BorderLayout());
             //North
-            JComboBox categoriesCmbx;
             {
                 JPanel CenterNorth = new JPanel(new FlowLayout());
                 //North
@@ -429,8 +431,13 @@ class AddYear extends JDialog {
                         categoriesCmbx.addItem(browse);
                         categoriesCmbx.addItemListener(e -> {
                             if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
-                                new AddCategory(year);
-
+                                AddCategory addCat = new AddCategory(year);
+                                addCat.addWindowListener(new WindowAdapter() {
+                                    @Override
+                                    public void windowClosed(WindowEvent e) {
+                                        refreshCmbx(year);
+                                    }
+                                });
 
                             }
                         });
@@ -516,20 +523,6 @@ class AddYear extends JDialog {
         setVisible(true);
     }
 
-    /**
-     * Launch the application.
-     */
-/*    public static void main(String... args) {
-        try {
-
-            AddYear dialog = new AddYear();
-            dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-    }*/
-
     private static Iterable<String[]> getCategories(String year) {
         Collection<String[]> ret = new ArrayList<>();
 
@@ -550,6 +543,42 @@ class AddYear extends JDialog {
 
 
         return ret;
+    }
+
+    /**
+     * Launch the application.
+     */
+/*    public static void main(String... args) {
+        try {
+
+            AddYear dialog = new AddYear();
+            dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            dialog.setVisible(true);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+    }*/
+    private void refreshCmbx(String year) {
+        categoriesCmbx.removeAllItems();
+        categoriesTb.removeAllItems();
+        categoriesTb.insertItemAt("", 0);
+        categoriesCmbx.insertItemAt("", 0);
+        String browse = "Add Category";
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Categories")) {
+            prep.execute();
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    categoriesTb.addItem(rs.getString(1));
+                    categoriesCmbx.addItem(rs.getString(1));
+                }
+                ////DbInt.pCon.close();
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        categoriesCmbx.addItem(browse);
     }
 
     /**
