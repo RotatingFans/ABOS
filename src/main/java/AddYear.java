@@ -104,7 +104,9 @@ class AddYear extends JDialog {
                 openCSV.addActionListener(e -> {
                     CSV2XML csv = new CSV2XML(parent);
                     String xmlFile = csv.getXML();
-                    createTable(xmlFile);
+                    if (!xmlFile.isEmpty()) {
+                        createTable(xmlFile);
+                    }
                 });
                 //chckbxNewCheckBox.setBounds(149, 57, 235, 23);
                 northSouth.add(openCSV);
