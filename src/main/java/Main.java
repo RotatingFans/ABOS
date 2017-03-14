@@ -49,9 +49,10 @@ class Main extends JFrame {
         }
  */
         // Create the Log To File class
-
+        Boolean addYears = true;
         if (!Config.doesConfExist()) {
             new Settings();
+            addYears = false;
         }
 
 
@@ -132,8 +133,10 @@ class Main extends JFrame {
             frame.getContentPane().add(panel_1, BorderLayout.CENTER);
             panel_1.setLayout(new GridLayout(2, 3, 1, 1));
         }
+        if (addYears) {
 
-        addYears();
+            addYears();
+        }
 
     }
 
