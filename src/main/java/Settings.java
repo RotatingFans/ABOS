@@ -17,6 +17,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -71,6 +73,14 @@ class Settings extends JDialog {
         }
     }
 */
+
+    private static void open(URI uri) {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().browse(uri);
+            } catch (IOException e) { /* TODO: error handling */ }
+        } else { /* TODO: error handling */ }
+    }
 
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
@@ -309,14 +319,7 @@ class Settings extends JDialog {
             }
             north.addTab("Add Customer", AddCustomer);
 
-            //Map Options
-            JPanel MapOptions = new JPanel(flow);
-            {
-                //Area to Display
-                //Default zoom
 
-            }
-            north.addTab("Map", MapOptions);
 
             //Report Options
             JPanel ReportInfo = new JPanel(flow);
@@ -463,9 +466,41 @@ class Settings extends JDialog {
             //license
             JPanel License = new JPanel(flow);
             {
-                //Display license info
+                final URI uri;
+                try {
+                    uri = new URI("http://rotatingFans.github.io/LG/License.html");
 
+                    class OpenUrlAction implements ActionListener {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            open(uri);
+                        }
+                    }
+                    JButton button = new JButton();
+                    button.setText("<HTML>Click <FONT color=\"#000099\"><U>Here</U></FONT>"
+                            + " to access the license.</HTML>");
+                    button.setHorizontalAlignment(SwingConstants.LEFT);
+                    button.setBorderPainted(false);
+                    button.setOpaque(false);
+                    button.setBackground(Color.WHITE);
+                    button.setToolTipText(uri.toString());
+                    button.addActionListener(new OpenUrlAction());
+                    License.add(button);
 
+                } catch (URISyntaxException e) {
+
+                }
+                JLabel libs = new JLabel("<HTML><h2>Included Libraries:</h2>" +
+                        "<ul>" +
+                        "<li>jDatePicker Version 1.3.4</li>" +
+                        "<li>xHtmlRenderer Core Version 5</li>" +
+                        "<li>Apache Derby Version 10.11</li>" +
+                        "<li>iText Version 2.0.8</li>" +
+                        "<li>JMapViewer Version 1.0.0</li>" +
+                        "<li>JTidy Version 938</li>" +
+                        "<li>Saxon Version 9</li>" +
+                        "</ul></HTML>");
+                License.add(libs);
             }
             north.addTab("License", License);
             contentPanel.add(north, BorderLayout.CENTER);
