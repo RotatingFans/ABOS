@@ -85,7 +85,7 @@
                         <xsl:if test="header">
                             <table border="0" style="position:relative; width:100%">
                                 <tr>
-                                    <td width="80%">
+                                    <td>
                                         <img alt="logo" style="position:relative; width:200px; display:inline;">
                                     <xsl:attribute name="src">
                                         <xsl:value-of select="/LawnGardenReports/info/logo"/>
@@ -93,7 +93,7 @@
 
                                 </img>
                                     </td>
-                                    <td width="20%" style="text-align:right;">
+                                    <td style="text-align:right;">
                                     <h4>
                                         <xsl:value-of select="/LawnGardenReports/info/name"/>
                                     </h4>
@@ -157,7 +157,7 @@
                         </div>
                         <xsl:if test="prodTable">
 
-                            <table class="Bordered"
+                            <table cellspacing="5" cellpadding="5" class="Bordered"
                                    style="width:100%; position:relative; padding-top:20px;clear:both;">
                                 <tr bgcolor="#9acd32">
                                     <xsl:for-each select="//column">
@@ -171,19 +171,19 @@
                                         <td style="border-bottom:1px solid black;" width="5%">
                                             <xsl:value-of select="ID"/>
                                         </td>
-                                        <td class="LBordered" width="35%">
+                                        <td class="LBordered" width="45%">
                                             <xsl:value-of select="Name"/>
                                         </td>
                                         <td class="LBordered" width="10%">
                                             <xsl:value-of select="Size"/>
                                         </td>
-                                        <td class="LBordered" width="10%">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="UnitCost"/>
                                         </td>
-                                        <td class="LBordered" width="10%">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="Quantity"/>
                                         </td>
-                                        <td class="LBordered" width="10%">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="TotalCost"/>
                                         </td>
                                     </tr>

@@ -966,11 +966,11 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                         "                table > tr {\n" +
                         "                vertical-align: middle;\n" +
                         "                }\n" +
-                        "                td {\n" +
+                        "                table, td {\n" +
                         "                background-color:#FFF;\n" +
                         "                font-size:10pt;\n" +
-                        "                padding: 5px;\n" +
-                        "                margin: 5px;\n" +
+                        "                padding: 50px;\n" +
+                        "                border-spacing: 50px;\n" +
 
                         "                text-align: inherit;\n" +
                         "                vertical-align: inherit;\n" +
