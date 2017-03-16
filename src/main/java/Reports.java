@@ -286,6 +286,20 @@ class Reports extends JDialog {
                                 cmbxCustomers.setSelectedItem("");
                                 customersY.forEach(cmbxCustomers::addItem);
                                 cmbxCustomers.setEnabled(true);
+                                try (PreparedStatement prep = DbInt.getPrep(cmbxYears.getSelectedItem().toString(), "SELECT NAME FROM Categories")) {
+                                    prep.execute();
+                                    try (ResultSet rs = prep.executeQuery()) {
+
+                                        while (rs.next()) {
+
+                                            cmbxCategory.addItem(rs.getString(1));
+
+                                        }
+                                        ////DbInt.pCon.close();
+                                    }
+                                } catch (SQLException e) {
+                                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                                }
                             }
                         }
 
@@ -295,20 +309,7 @@ class Reports extends JDialog {
                     cmbxCategory = new JComboBox<>();
                     cmbxCategory.addItem("All");
 
-                    try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
-                        prep.execute();
-                        try (ResultSet rs = prep.executeQuery()) {
 
-                            while (rs.next()) {
-
-                                cmbxCategory.addItem(rs.getString(1));
-
-                            }
-                            ////DbInt.pCon.close();
-                        }
-                    } catch (SQLException e) {
-                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                    }
                     cmbxCategory.setSelectedIndex(0);
                     cmbxCategory.addItemListener(e -> {
                         if ((e.getStateChange() == ItemEvent.SELECTED) && !e.getItem().equals("All")) {

@@ -27,18 +27,53 @@
                 <xsl:value-of select="LawnGardenReports/info/reportTitle"/>
             </title>
             <style type="text/css">
-                #Bordered {
+                .LBordered {
+                border-left: 1px solid black;
+                border-collapse: collapse;
+                }
+                .Bordered {
                 border: 1px solid black;
                 border-collapse: collapse;
                 }
-                #UBordered {
+                .UBordered {
                 border: 0px solid black;
                 border-collapse: collapse;
                 }
-                #SplitTitle {display:inline;}
+                .splitTitle {display:inline;}
                 h4{
                 margin:1px;
                 padding:1px;
+                }
+                table {
+                width:100%;
+                margin-bottom: 0.4pt;
+                margin-top: 0;
+                margin-left: 0;
+                margin-right: 0;
+                text-indent: 0;
+                }
+                tr {
+                vertical-align: inherit;
+                border:0;
+                }
+                table > tr {
+                vertical-align: middle;
+                }
+                td {
+                background-color:#FFF;
+                font-size:10pt;
+                padding: 1px;
+                text-align: inherit;
+                vertical-align: inherit;
+                }
+                th {
+                background-color: #FFF;
+                font-size:10pt;
+                color:#000;
+                display: table-cell;
+                font-weight: bold;
+                padding: 1px;
+                vertical-align: inherit;
                 }
             </style>
         </head>
@@ -48,14 +83,17 @@
                 <xsl:for-each select="LawnGardenReports/customerYear">
                     <div style="page-break-after: always;">
                         <xsl:if test="header">
-                            <div style="position:relative; width:100%">
-                                <img alt="logo" style="position:relative; width:200px;">
+                            <table border="0" style="position:relative; width:100%">
+                                <tr>
+                                    <td>
+                                        <img alt="logo" style="position:relative; width:200px; display:inline;">
                                     <xsl:attribute name="src">
                                         <xsl:value-of select="/LawnGardenReports/info/logo"/>
                                     </xsl:attribute>
 
                                 </img>
-                                <div style="position:relative; float:right">
+                                    </td>
+                                    <td style="text-align:right;">
                                     <h4>
                                         <xsl:value-of select="/LawnGardenReports/info/name"/>
                                     </h4>
@@ -72,8 +110,9 @@
                                         <xsl:value-of select="/LawnGardenReports/info/rank"/>
                                     </h4>
 
-                                </div>
-                            </div>
+                                    </td>
+                                </tr>
+                            </table>
                             <div>
                                 <h2 style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
                                     <xsl:value-of select="/LawnGardenReports/info/reportTitle"/>
@@ -81,7 +120,7 @@
                             </div>
                         </xsl:if>
                         <div>
-                            <h2 id="SplitTitle"
+                            <h2 class="SplitTitle"
                                 style="text-align:left; position:relative; padding-top:20px; padding-bottom:20px">
                                 <xsl:value-of select="//splitting"/>
                             </h2>
@@ -105,78 +144,78 @@
                             </xsl:if>
                             <div>
                                 <xsl:for-each select="specialInfo">
-                                    <h2 id="specialInfo"
+                                    <h2 class="specialInfo"
                                         style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
                                         <xsl:value-of select="text"/>
                                     </h2>
                                 </xsl:for-each>
                             </div>
-                            <h2 id="SplitTitle"
+                            <h2 class="SplitTitle"
                                 style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
                                 <xsl:value-of select="title"/>
                             </h2>
                         </div>
                         <xsl:if test="prodTable">
 
-                            <table id="Bordered"
+                            <table cellspacing="5" cellpadding="5" class="Bordered"
                                    style="width:100%; position:relative; padding-top:20px;clear:both;">
                                 <tr bgcolor="#9acd32">
                                     <xsl:for-each select="//column">
-                                        <th style="text-align:left">
+                                        <th style="text-align:left; border-bottom:1px solid black;">
                                             <xsl:value-of select="name"/>
                                         </th>
                                     </xsl:for-each>
                                 </tr>
                                 <xsl:for-each select="Product">
-                                    <tr id="Bordered">
-                                        <td id="Bordered">
+                                    <tr class="">
+                                        <td style="border-bottom:1px solid black;" width="5%">
                                             <xsl:value-of select="ID"/>
                                         </td>
-                                        <td id="Bordered">
+                                        <td class="LBordered" width="45%">
                                             <xsl:value-of select="Name"/>
                                         </td>
-                                        <td id="Bordered">
+                                        <td class="LBordered" width="10%">
                                             <xsl:value-of select="Size"/>
                                         </td>
-                                        <td id="Bordered">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="UnitCost"/>
                                         </td>
-                                        <td id="Bordered">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="Quantity"/>
                                         </td>
-                                        <td id="Bordered">
+                                        <td class="LBordered" width="8%">
                                             <xsl:value-of select="TotalCost"/>
                                         </td>
                                     </tr>
                                 </xsl:for-each>
-                                <tr id="UBordered">
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="UBordered"></td>
-                                    <td id="Bordered">Sub Total:</td>
-                                    <td id="Bordered">
+                                <tr class="UBordered">
+                                    <td class="UBordered"></td>
+                                    <td class="UBordered"></td>
+                                    <td class="UBordered"></td>
+                                    <td class="UBordered"></td>
+                                    <td class="LBordered">Sub Total:</td>
+                                    <td class="LBordered">
                                         <xsl:value-of select="totalCost"/>
                                     </td>
                                 </tr>
                                 <xsl:if test="includeDonation">
-                                    <tr id="UBordered">
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="Bordered">Total Pledged Donation:</td>
-                                        <td id="Bordered">
+                                    <tr class="UBordered">
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td class="LBordered">Total Pledged Donation:</td>
+                                        <td class="LBordered">
                                             <xsl:value-of select="Donation"/>
                                         </td>
                                     </tr>
-                                    <tr id="UBordered">
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="UBordered"></td>
-                                        <td id="Bordered">Grand Total:</td>
-                                        <td id="Bordered">
+                                    <tr class="UBordered">
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td class="UBordered"></td>
+                                        <td style="border-left:1px solid black;">Grand Total:</td>
+                                        <td style="border-left:1px solid black;">
                                             <xsl:value-of select="GrandTotal"/>
                                         </td>
                                     </tr>
@@ -186,7 +225,7 @@
                         </xsl:if>
                         <div>
                             <xsl:for-each select="DonationThanks">
-                                <h2 id="DonateGrat"
+                                <h2 class="DonateGrat"
                                     style="text-align:center; position:relative; display:block; padding-top:80px; padding-bottom:20px; width:100%;">
                                     <xsl:value-of select="text"/>
                                 </h2>
@@ -199,17 +238,17 @@
                     TOTALS
                 </h2>
                 <div style="position:relative;">
-                    <table id="Bordered" border="0" style="position:absolute; top:0px; right:0px;">
+                    <table class="Bordered" border="0" style="position:absolute; top:0px; right:0px;">
 
 
-                        <tr id="Bordered">
+                        <tr class="Bordered">
 
                             <td>Total Cost:</td>
                             <td>
                                 <xsl:value-of select="LawnGardenReports/info/TotalCost"/>
                             </td>
                         </tr>
-                        <tr id="Bordered">
+                        <tr class="Bordered">
 
                             <td>Total Quantity:</td>
                             <td>

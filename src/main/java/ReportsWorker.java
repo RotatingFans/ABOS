@@ -17,12 +17,21 @@
  *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorker;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.tool.xml.css.CssFile;
+import com.itextpdf.tool.xml.html.Tags;
+import com.itextpdf.tool.xml.parser.XMLParser;
+import com.itextpdf.tool.xml.pipeline.css.CSSResolver;
+import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
+import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
+import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
+import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import net.sf.saxon.s9api.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.tidy.Tidy;
-import org.xhtmlrenderer.pdf.ITextRenderer;
-import org.xhtmlrenderer.resource.XMLResource;
 
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -39,6 +48,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+//import com.itextpdf.text.Document;
 
 /**
  * Searches the text files under the given directory and counts the number of instances a given word is found
@@ -922,23 +933,102 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 baosT = (ByteArrayOutputStream) osT;
 
                 baosT.writeTo(xhtmlfos);
+                String cssText = "  .LBordered {\n" +
+                        "                border-left: 1px solid black;\n" +
+                        "                border-bottom: 1px solid black;\n" +
+
+                        "                border-collapse: collapse;\n" +
+                        "                }\n" +
+                        "                .Bordered {\n" +
+                        "                border: 1px solid black;\n" +
+                        "                border-collapse: collapse;\n" +
+                        "                }\n" +
+                        "                .UBordered {\n" +
+                        "                border: 0px solid black;\n" +
+                        "                border-collapse: collapse;\n" +
+                        "                }\n" +
+                        "                .splitTitle {display:inline;}\n" +
+                        "                h4{\n" +
+                        "                margin:1px;\n" +
+                        "                padding:1px;\n" +
+                        "                }\n" +
+                        "                table {\n" +
+                        "                width:100%;\n" +
+                        "                margin-bottom: 0.4pt;\n" +
+                        "                margin-top: 0;\n" +
+                        "                margin-left: 0;\n" +
+                        "                margin-right: 0;\n" +
+                        "                text-indent: 0;\n" +
+                        "                }\n" +
+                        "                tr {\n" +
+                        "                vertical-align: inherit;\n" +
+                        "                }\n" +
+                        "                table > tr {\n" +
+                        "                vertical-align: middle;\n" +
+                        "                }\n" +
+                        "                table, td {\n" +
+                        "                background-color:#FFF;\n" +
+                        "                font-size:10pt;\n" +
+                        "                padding: 50px;\n" +
+                        "                border-spacing: 50px;\n" +
+
+                        "                text-align: inherit;\n" +
+                        "                vertical-align: inherit;\n" +
+                        "                }\n" +
+                        "                th {\n" +
+                        "                background-color: #FFF;\n" +
+                        "                font-size:10pt;\n" +
+                        "                color:#000;\n" +
+                        "                display: table-cell;\n" +
+                        "                font-weight: bold;\n" +
+                        "                padding: 1px;\n" +
+                        "                vertical-align: inherit;\n" +
+                        "                }";
                 //fstream.deleteOnExit();
+                com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+
+                // step 2
+                PdfWriter writer = PdfWriter.getInstance(document, fos);
+                writer.setInitialLeading(12.5f);
+                writer.setTagged();
+                // step 3
+                document.open();
+
+                // step 4
+
+                // CSS
+                CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+                CssFile cssFile = XMLWorkerHelper.getCSS(new ByteArrayInputStream(cssText.getBytes()));
+                cssResolver.addCss(cssFile);
+                // HTML
+                HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
+                htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+                htmlContext.autoBookmark(false);
+
+                // Pipelines
+                PdfWriterPipeline pdf = new PdfWriterPipeline(document, writer);
+                HtmlPipeline html = new HtmlPipeline(htmlContext, pdf);
+                CssResolverPipeline css = new CssResolverPipeline(cssResolver, html);
+
+                // XML Worker
+                XMLWorker worker = new XMLWorker(css, true);
+                XMLParser p = new XMLParser(worker);
+                p.parse(new FileInputStream(xhtml));
+
+                // step 5
+                document.close();
+                /*com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+                // step 2
+                PdfWriter writer = PdfWriter.getInstance(document, fos);
+                // step 3
+                document.open();
+                // step 4
+                XMLWorkerHelper.getInstance().parseXHtml(writer, document,
+                        new FileInputStream(xhtml));
+                // step 5
+                document.close();*/
 
 
-                try (InputStream isT = new FileInputStream(xhtml)) {
-                    Document document = XMLResource.load(isT).getDocument();
-
-                    //preview.setDocument(document);
-
-                    ITextRenderer renderer = new ITextRenderer();
-                    renderer.setDocument(document, null);
-
-                    renderer.layout();
-
-
-                    renderer.createPDF(fos);
-                    fos.close();
-                }
             } catch (FileNotFoundException e) {
                 LogToFile.log(e, Severity.WARNING, "Error accessing PDF file. Please check if it is open in any other programs and close it.");
             } catch (Exception e) {
