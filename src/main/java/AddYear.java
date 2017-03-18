@@ -76,7 +76,7 @@ class AddYear extends JDialog {
             {
                 JPanel northNorth = new JPanel(new FlowLayout());
                 {
-                    JLabel lblYear = new JLabel("Year:");
+                    JLabel lblYear = new JLabel("Year Name:");
                     lblYear.setFont(new Font("Tahoma", Font.PLAIN, 16));
                     //lblYear.setBounds(10, 0, 89, 40);
                     northNorth.add(lblYear);
@@ -325,7 +325,7 @@ class AddYear extends JDialog {
             {
                 JPanel northSouth = new JPanel(new FlowLayout());
                 {
-                    JLabel lblYear = new JLabel("Year:");
+                    JLabel lblYear = new JLabel("Year Name:");
                     lblYear.setFont(new Font("Tahoma", Font.PLAIN, 16));
                     //lblYear.setBounds(10, 0, 89, 40);
                     northSouth.add(lblYear);
@@ -650,7 +650,12 @@ private void refreshCmbx() {
     }
 
     private void addYear() {
-        DbInt.writeData("Set", String.format("INSERT INTO YEARS(ID, YEARS) VALUES('%s', '%s')", yearText.getText(), yearText.getText()));
+        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO YEARS(YEARS) VALUES(?)")) {
+            prep.setString(1, yearText.getText());
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
     }
 
     /**
