@@ -26,8 +26,6 @@ import org.xml.sax.InputSource;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,7 +46,6 @@ import java.util.Properties;
  */
 class Settings extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    private LogToFile MyLogger = new LogToFile();
     private JTabbedPane north;
     //General
     private JTextField DbLoc;
@@ -229,7 +226,6 @@ class Settings extends JDialog {
                         ZipCode = new JTextField(Config.getProp("CustomerZipCode"));
                         ZipCode.setColumns(5);
                         ZipCode.addActionListener(new MyTextActionListener());
-                        ZipCode.getDocument().addDocumentListener(new MyDocumentListener());
                         name.add(ZipCode);
                     }
                     AddCustomer.add(name);
@@ -378,7 +374,6 @@ class Settings extends JDialog {
                     scoutRank = new JTextField(Config.getProp("ScoutRank"), 20);
                     logoLoc = new JTextField(Config.getProp("logoLoc"), 25);
                     scoutZip.addActionListener(new MyTextActionListener());
-                    scoutZip.getDocument().addDocumentListener(new MyDocumentListener());
                     JButton logoButton = new JButton("...");
                     logoButton.addActionListener(e -> {
                         //Creates a JFileChooser to select a directory to store the Databases
@@ -506,7 +501,7 @@ class Settings extends JDialog {
                     button.addActionListener(new OpenUrlAction());
                     License.add(button);
 
-                } catch (URISyntaxException e) {
+                } catch (URISyntaxException ignored) {
 
                 }
                 JLabel libs = new JLabel("<HTML><h2>Included Libraries:</h2>" +
@@ -710,28 +705,7 @@ class Settings extends JDialog {
         return fullName;
     }
 
-    static class MyDocumentListener implements DocumentListener {
-        // --Commented out by Inspection (1/2/2016 12:01 PM):final String newline = "\n";
 
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            updateLog();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            updateLog();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            //Plain text components don't fire these events.
-        }
-
-        public void updateLog() {
-
-        }
-    }
 
     private class MyTextActionListener implements ActionListener {
         /**

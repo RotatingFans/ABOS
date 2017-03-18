@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -36,9 +37,9 @@ import java.util.Properties;
  */
 class AddCategory extends JDialog implements ActionListener {
     private final JPanel contentPanel = new JPanel();
-    public String catName = "";
-    public String catDate = "";
-    JDatePickerImpl datePicker;
+    private String catName = "";
+    private String catDate = "";
+    private JDatePickerImpl datePicker;
     private JTextField categoryTextField;
     private String year;
     private JButton okButton;
@@ -74,7 +75,7 @@ class AddCategory extends JDialog implements ActionListener {
     }
 
     private void initUI(String Year) {
-        if (Year != "") {
+        if (!Objects.equals(Year, "")) {
             year = Year;
         }
         setSize(600, 400);
@@ -159,7 +160,7 @@ class AddCategory extends JDialog implements ActionListener {
 
         //Add DB setting
 
-        if (year != "" && year != null) {
+        if (!Objects.equals(year, "") && year != null) {
 
 
             try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {

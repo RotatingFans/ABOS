@@ -27,8 +27,6 @@ import org.xml.sax.SAXException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,9 +50,9 @@ import java.util.concurrent.CancellationException;
  */
 class Reports extends JDialog {
     private final JPanel contentPanel = new JPanel();
-    private final JComboBox cmbxYears = new JComboBox(new DefaultComboBoxModel<>());
-    private final JComboBox cmbxCustomers = new JComboBox(new DefaultComboBoxModel<>());
-    JLabel includeHeaderL;
+    private final JComboBox<Object> cmbxYears = new JComboBox<>(new DefaultComboBoxModel<>());
+    private final JComboBox<Object> cmbxCustomers = new JComboBox<>(new DefaultComboBoxModel<>());
+    private JLabel includeHeaderL;
     private JTabbedPane SteptabbedPane;
     // --Commented out by Inspection (7/27/16 3:02 PM):private Object[][] rowDataF = new Object[0][];
     private JButton nextButton;
@@ -346,7 +344,6 @@ class Reports extends JDialog {
                     includeHeader = new JCheckBox();
                     includeHeader.setVisible(false);
                     scoutZip.addActionListener(new MyTextActionListener());
-                    scoutZip.getDocument().addDocumentListener(new MyDocumentListener());
                     JButton logoButton = new JButton("...");
                     logoButton.addActionListener(e -> {
                         //Creates a JFileChooser to select a directory to store the Databases
@@ -664,28 +661,7 @@ class Reports extends JDialog {
 //    }
 // --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
-    static class MyDocumentListener implements DocumentListener {
-        // --Commented out by Inspection (12/31/15 1:42 PM):final String newline = "\n";
 
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            updateLog();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            updateLog();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            //Plain text components don't fire these events.
-        }
-
-        public void updateLog() {
-
-        }
-    }
 
     private class MyTextActionListener implements ActionListener {
         /**

@@ -18,6 +18,7 @@
  */
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,6 +38,7 @@ import java.util.concurrent.CancellationException;
  */
 class AddCustomer extends JDialog {
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
+    private final Year yearInfo;
     //private final JPanel contentPanel = new JPanel();
     //Editable Field for user to input customer info.
     private JCheckBox Delivered;
@@ -60,9 +62,7 @@ class AddCustomer extends JDialog {
     private int preEditLivePlantSales = 0;
     private BigDecimal preEditDonations = BigDecimal.ZERO;
     private BigDecimal preEditOrderCost = BigDecimal.ZERO;
-
     private AddCustomerWorker addCustWork = null;
-    private Year yearInfo;
     private Customer customerInfo = null;
     private int newCustomer = 0;
     /**
@@ -266,7 +266,7 @@ class AddCustomer extends JDialog {
         ProductTable.setModel(new DefaultTableModel(
                 rows,
                 new String[]{"ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"}) {
-            boolean[] columnEditables = new boolean[]{
+            final boolean[] columnEditables = new boolean[]{
                     false, false, false, false, true, false
             };
 
@@ -277,7 +277,7 @@ class AddCustomer extends JDialog {
         });
         ProductTable.getModel().addTableModelListener(e -> {
             //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-            if ((e.getType() == 0) && (e.getColumn() == 4)) {
+            if ((e.getType() == TableModelEvent.UPDATE) && (e.getColumn() == 4)) {
                 int row = e.getFirstRow();
                 int quantity = 0;
                 try {
@@ -317,7 +317,7 @@ class AddCustomer extends JDialog {
         ProductTable.setModel(new MyDefaultTableModel(rows));
         ProductTable.getModel().addTableModelListener(e -> {
             //If A cell in column 5, Quantity column, Then get the row, multiply the quantity by unit and add it to the total cost.
-            if ((e.getType() == 0) && (e.getColumn() == 4)) {
+            if ((e.getType() == TableModelEvent.UPDATE) && (e.getColumn() == 4)) {
                 int row = e.getFirstRow();
                 int quantity = Integer.parseInt(ProductTable.getModel().getValueAt(row, 4).toString());
                 //Removes $ from cost and multiplies to get the total cost for that item
@@ -478,7 +478,6 @@ class AddCustomer extends JDialog {
           add to them
           update
          */
-        try {
             BigDecimal donationChange = new BigDecimal((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()).subtract(preEditDonations);
             BigDecimal donations = yearInfo.getDonations().add(donationChange);
             int Lg = yearInfo.getLG() + (getNoLawnProductsOrdered() - preEditLawnProductSales);
@@ -498,7 +497,7 @@ class AddCustomer extends JDialog {
                 totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
                 totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
                 totalInsertString.execute();
-            }
+
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
@@ -506,7 +505,7 @@ class AddCustomer extends JDialog {
 
     private static class MyDefaultTableModel extends DefaultTableModel {
 
-        boolean[] columnEditables;
+        final boolean[] columnEditables;
 
         public MyDefaultTableModel(Object[][] rows) {
 

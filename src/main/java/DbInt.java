@@ -20,6 +20,7 @@
 import javax.swing.*;
 import java.io.File;
 import java.sql.*;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +55,7 @@ class DbInt {
         String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 Config.getDbLoc());
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         command = command.replaceAll("''", "/0027");
 
         try (Connection con = DriverManager.getConnection(url);
@@ -146,7 +147,6 @@ class DbInt {
 
             pCon = DriverManager.getConnection(url);
             pCon.setAutoCommit(true);
-
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
@@ -335,9 +335,10 @@ class DbInt {
 
         String url = String.format("%s/%s", Config.getDbLoc(), DB);
         File oldName = new File(url);
-
+        DateFormat df = new SimpleDateFormat("MMDDYYYY-HH:MM:SS");
+        java.util.Date dateobj = new java.util.Date();
         //create destination File object
-        File newName = new File(url + ".bak");
+        File newName = new File(url + ".bak-" + df.format(dateobj));
         boolean isFileRenamed = oldName.renameTo(newName);
 
 

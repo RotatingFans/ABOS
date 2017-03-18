@@ -23,7 +23,7 @@ import java.awt.*;
 /**
  * Created by patrick on 7/26/16.
  */
-public class ProgressDialog extends JDialog {
+class ProgressDialog extends JDialog {
     public JProgressBar progressBar;
     public JLabel statusLbl;
 

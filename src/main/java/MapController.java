@@ -44,8 +44,8 @@ import java.util.List;
  */
 class MapController extends MouseAdapter {
 
-    private JMapViewer map;
-    private Map m;
+    private final JMapViewer map;
+    private final Map m;
     // --Commented out by Inspection (1/2/2016 12:01 PM):private Point lastDragPoint;
 
     // --Commented out by Inspection (1/2/2016 12:01 PM):private boolean isMoving = false;
@@ -115,27 +115,43 @@ class MapController extends MouseAdapter {
                                         Display name Phone  Order status
                                         Creates a button for each ordered year to view more information
                                         */
-                                        List<String> yearsD = DbInt.getData("Set", "SELECT YEARS From YEARS");
-                                        List<String> Name = new ArrayList<String>();
-                                        List<String> Phone = new ArrayList<String>();
-                                        Collection<String> Years = new ArrayList<String>();
-                                        for (int i1 = 0; i1 < yearsD.size(); i1++) {
-                                            List<String> NameD = getCustInfo(yearsD.get(i1), "NAME", cP.getAddress());
+                                        Collection<String> yearsD = new ArrayList<>();
+                                        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
+                                             ResultSet rs = prep.executeQuery()
+                                        ) {
+                                            while (rs.next()) {
+
+                                                yearsD.add(rs.getString(1));
+
+                                            }
+
+                                            rs.close();
+                                            if (DbInt.pCon != null) {
+                                                DbInt.pCon = null;
+                                            }
+                                        } catch (SQLException Se) {
+                                            LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
+                                        }
+                                        List<String> Name = new ArrayList<>();
+                                        List<String> Phone = new ArrayList<>();
+
+                                        yearsD.forEach(year -> {
+
+
+                                            List<String> NameD = getCustInfo(year, "NAME", cP.getAddress());
                                             if (!NameD.isEmpty()) {
                                                 Name.add(NameD.get(NameD.size() - 1));
-                                                List<String> PhoneD = getCustInfo(yearsD.get(i1), "PHONE", cP.getAddress());
+                                                List<String> PhoneD = getCustInfo(year, "PHONE", cP.getAddress());
                                                 Phone.add(PhoneD.get(PhoneD.size() - 1));
-                                                Years.add(yearsD.get(i1));
 /*                                                if (m.infoPanel.getComponentCount() > 8) {
                                                     m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
 
                                                 }*/
-                                                JButton b = new JButton(yearsD.get(i1));
-                                                int finalI = i1;
-                                                b.addActionListener(e1 -> new CustomerReport(NameD.get(NameD.size() - 1), yearsD.get(finalI)));
+                                                JButton b = new JButton(year);
+                                                b.addActionListener(e1 -> new CustomerReport(NameD.get(NameD.size() - 1), year));
                                                 m.buttonPanel.add(b);
                                             }
-                                        }
+                                        });
                                         m.name.setText(Name.get(Name.size() - 1));
                                         m.Phone.setText(Phone.get(Phone.size() - 1));
                                     }
@@ -159,7 +175,7 @@ class MapController extends MouseAdapter {
     }
 
     private List<String> getCustInfo(String Db, String info, String Address) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
 
         try (PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM Customers WHERE ADDRESS=?")) {

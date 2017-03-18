@@ -163,7 +163,7 @@ class Main extends JFrame {
      * Adds the year buttons to the main panel.
      */
     private void addYears() {
-        Collection<String> ret = new ArrayList<String>();
+        Collection<String> ret = new ArrayList<>();
         ///Select all years
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
              ResultSet rs = prep.executeQuery()

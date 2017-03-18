@@ -47,7 +47,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 //import com.itextpdf.text.Document;
 
@@ -57,7 +60,7 @@ import java.util.*;
  *
  * @author Albert Attard
  */
-public class ReportsWorker extends SwingWorker<Integer, String> {
+class ReportsWorker extends SwingWorker<Integer, String> {
 
     private final String reportType;
     private final String selectedYear;
@@ -699,7 +702,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
                 break;
 
                 case "Customer All-time Totals": {
-                    Collection<String> customerYears = new ArrayList<>();
+                    // Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
                     BigDecimal overallTotalCost = BigDecimal.ZERO;
@@ -715,7 +718,7 @@ public class ReportsWorker extends SwingWorker<Integer, String> {
 
                                 //Loop through customers
                                 while (rs.next()) {
-                                    customerYears.add(year);
+                                    //    customerYears.add(year);
                                     //Product Elements
                                     Element products = doc.createElement("customerYear");
                                     rootElement.appendChild(products);

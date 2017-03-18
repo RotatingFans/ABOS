@@ -160,7 +160,7 @@ class CustomerView extends JDialog {
     }
 
     private void addCustomers() {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         //get all customer names
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Customers.Name FROM Customers");
              ResultSet rs = prep.executeQuery()

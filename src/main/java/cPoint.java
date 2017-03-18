@@ -19,11 +19,11 @@
 
 class cPoint {
 
-    private String AddressM;
-    private String CityM;
-    private String StateM;
-    private Double LatM;
-    private Double LonM;
+    private final String AddressM;
+    private final String CityM;
+    private final String StateM;
+    private final Double LatM;
+    private final Double LonM;
 
 
     public cPoint(Double Lat, Double Lon, String Address, String City, String State) {
