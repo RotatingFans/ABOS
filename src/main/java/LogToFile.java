@@ -31,9 +31,9 @@ import java.util.logging.SimpleFormatter;
  *
  * @author Ibrabel <ibrabel@gmail.com>
  */
-public class LogToFile {
+class LogToFile {
 
-    protected static final Logger logger = Logger.getLogger("MYLOG");
+    private static final Logger logger = Logger.getLogger("MYLOG");
     /* Severities
       SEVERE
       WARNING

@@ -31,8 +31,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,33 +38,31 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
 
 class AddYear extends JDialog {
 
+    private final JTextField yearText;
+    private final JTable ProductTable;
+    private final JTextField itemTb;
+    private final JTextField sizeTb;
+    private final JTextField rateTb;
+    private final JTextField idTb;
+    private final JDialog parent;
+    private final Collection<String[]> rowsCats = new ArrayList<>();
     private JCheckBox chkboxCreateDatabase = null;
-    private JTextField yearText;
-    private JTable ProductTable;
-    private JTextField itemTb;
-    private JTextField sizeTb;
-    private JTextField rateTb;
-    private JComboBox categoriesTb = null;
-    private JComboBox categoriesCmbx = null;
+    private JComboBox<String> categoriesTb = null;
+    private JComboBox<String> categoriesCmbx = null;
     private DefaultTableModel tableModel;
-    private JTextField idTb;
-    private JDialog parent;
     private boolean newYear = false;
-    private Iterable<String[]> rowsCats = null;
 
     /**
      * Create the dialog.
      */
     public AddYear() {
         parent = this;
-        setSize(700, 500);
+        setSize(825, 500);
         getContentPane().setLayout(new BorderLayout());
         JPanel contentPanel = new JPanel();
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -80,7 +76,7 @@ class AddYear extends JDialog {
             {
                 JPanel northNorth = new JPanel(new FlowLayout());
                 {
-                    JLabel lblYear = new JLabel("Year:");
+                    JLabel lblYear = new JLabel("Year Name:");
                     lblYear.setFont(new Font("Tahoma", Font.PLAIN, 16));
                     //lblYear.setBounds(10, 0, 89, 40);
                     northNorth.add(lblYear);
@@ -132,7 +128,18 @@ class AddYear extends JDialog {
                 });
                 //chckbxNewCheckBox.setBounds(149, 57, 235, 23);
                 northSouth.add(openCSV);
+                JButton btnGenerateTableFrom = new JButton("Generate table from XML");
+                btnGenerateTableFrom.addActionListener(e -> {
 
+                    FileDialog f = new FileDialog((Frame) getParent(), "Open", FileDialog.LOAD);
+                    f.setVisible(true);
+                    if (f.getFile() != null) {
+                        createTable(f.getDirectory() + f.getFile());
+                    }
+
+                });
+                //btnGenerateTableFrom.setBounds(387, 57, 154, 23);
+                northSouth.add(btnGenerateTableFrom);
                 north.add(northSouth, BorderLayout.SOUTH);
 
             }
@@ -198,65 +205,46 @@ class AddYear extends JDialog {
                         rateTb.setColumns(4);
                         CenterNorth.add(ID);
                     }
-/*                    //Category
+//Category
                     {
                         JPanel ID = new JPanel();
                         ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
                         JLabel lblNewLabel_2 = new JLabel("Category");
                         //	lblNewLabel_2.setBounds(390, 87, 70, 14);
                         ID.add(lblNewLabel_2);
-                        categoriesCmbx = new JComboBox();
-                        categoriesTb = new JComboBox();
-                        categoriesTb.insertItemAt("",0);
-                        categoriesCmbx.insertItemAt("",0);
+                        categoriesCmbx = new JComboBox<>();
+                        categoriesTb = new JComboBox<>();
+                        categoriesTb.insertItemAt("", 0);
+                        categoriesCmbx.insertItemAt("", 0);
                         String browse = "Add Category";
-                        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
-                            prep.execute();
-                            try (ResultSet rs = prep.executeQuery()) {
 
-                                while (rs.next()) {
-
-                                    categoriesTb.addItem(rs.getString(1));
-                                    categoriesCmbx.addItem(rs.getString(1));
-                                }
-                                ////DbInt.pCon.close();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
                         categoriesCmbx.addItem(browse);
-                        categoriesCmbx.addItemListener(new ItemListener() {
-                            @Override
-                            public void itemStateChanged(ItemEvent e) {
-                                if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
-                                    new AddCategory();
+                        categoriesCmbx.addItemListener(e -> {
+                            if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
+                                AddCategory addCat = new AddCategory();
+                                String[] cat = addCat.showDialog();
+                                if (!Objects.equals(cat[0], "") && cat[0] != null) {
+                                    rowsCats.add(new String[]{cat[0], cat[1]});
+                                    refreshCmbx();
                                 }
+
+
                             }
                         });
                         //rateTb.setBounds(387, 104, 97, 19);
                         ID.add(categoriesCmbx);
                         CenterNorth.add(ID);
-                    }*/
+                    }
+
                     JButton btnNewButton = new JButton("Add");
                     btnNewButton.addActionListener(e -> {
                         int count = tableModel.getRowCount() + 1;
-                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
+                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectedItem()});
                     });
                     //btnNewButton.setBounds(484, 105, 57, 19);
                     CenterNorth.add(btnNewButton);
 
-                    JButton btnGenerateTableFrom = new JButton("Generate table from XML");
-                    btnGenerateTableFrom.addActionListener(e -> {
 
-                        FileDialog f = new FileDialog((Frame) getParent(), "Open", FileDialog.LOAD);
-                        f.setVisible(true);
-                        if (f.getFile() != null) {
-                            createTable(f.getDirectory() + f.getFile());
-                        }
-
-                    });
-                    //btnGenerateTableFrom.setBounds(387, 57, 154, 23);
-                    CenterNorth.add(btnGenerateTableFrom);
 
                 }
 
@@ -273,10 +261,13 @@ class AddYear extends JDialog {
                 ProductTable.setFillsViewportHeight(true);
                 ProductTable.setColumnSelectionAllowed(true);
                 ProductTable.setCellSelectionEnabled(true);
-                tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item"}, 0);
+                tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item", "Category"}, 0);
                 ProductTable.setModel(tableModel);
                 ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
                 ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
+                TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
+                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
+
                 scrollPane.setViewportView(ProductTable);
             }
             contentPanel.add(center, BorderLayout.CENTER);
@@ -334,7 +325,7 @@ class AddYear extends JDialog {
             {
                 JPanel northSouth = new JPanel(new FlowLayout());
                 {
-                    JLabel lblYear = new JLabel("Year:");
+                    JLabel lblYear = new JLabel("Year Name:");
                     lblYear.setFont(new Font("Tahoma", Font.PLAIN, 16));
                     //lblYear.setBounds(10, 0, 89, 40);
                     northSouth.add(lblYear);
@@ -428,8 +419,8 @@ class AddYear extends JDialog {
                         JLabel lblNewLabel_2 = new JLabel("Category");
                         //	lblNewLabel_2.setBounds(390, 87, 70, 14);
                         ID.add(lblNewLabel_2);
-                        categoriesCmbx = new JComboBox();
-                        categoriesTb = new JComboBox();
+                        categoriesCmbx = new JComboBox<>();
+                        categoriesTb = new JComboBox<>();
                         categoriesTb.insertItemAt("", 0);
                         categoriesCmbx.insertItemAt("", 0);
                         String browse = "Add Category";
@@ -451,12 +442,12 @@ class AddYear extends JDialog {
                         categoriesCmbx.addItemListener(e -> {
                             if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
                                 AddCategory addCat = new AddCategory(year);
-                                addCat.addWindowListener(new WindowAdapter() {
-                                    @Override
-                                    public void windowClosed(WindowEvent e) {
-                                        refreshCmbx(year);
-                                    }
-                                });
+                                String[] cat = addCat.showDialog();
+                                if (!Objects.equals(cat[0], "") && cat[0] != null) {
+                                    rowsCats.add(new String[]{cat[0], cat[1]});
+                                    refreshCmbx();
+                                }
+
 
                             }
                         });
@@ -467,7 +458,7 @@ class AddYear extends JDialog {
                     JButton btnNewButton = new JButton("Add");
                     btnNewButton.addActionListener(e -> {
                         int count = tableModel.getRowCount() + 1;
-                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
+                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectedItem()});
                     });
                     //btnNewButton.setBounds(484, 105, 57, 19);
                     CenterNorth.add(btnNewButton);
@@ -505,7 +496,7 @@ class AddYear extends JDialog {
                 ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
                 ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
                 TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
-                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesCmbx));
+                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
 
 
                 scrollPane.setViewportView(ProductTable);
@@ -564,39 +555,29 @@ class AddYear extends JDialog {
         return ret;
     }
 
-    /**
-     * Launch the application.
-     */
-/*    public static void main(String... args) {
-        try {
+    /*    public static void main(String... args) {
+            try {
 
-            AddYear dialog = new AddYear();
-            dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-    }*/
-    private void refreshCmbx(String year) {
+                AddYear dialog = new AddYear();
+                dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                dialog.setVisible(true);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }*/
+    private void refreshCmbx() {
         categoriesCmbx.removeAllItems();
         categoriesTb.removeAllItems();
         categoriesTb.insertItemAt("", 0);
         categoriesCmbx.insertItemAt("", 0);
         String browse = "Add Category";
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Categories")) {
-            prep.execute();
-            try (ResultSet rs = prep.executeQuery()) {
 
-                while (rs.next()) {
+        rowsCats.forEach(cat -> {
+            categoriesTb.addItem(cat[0]);
+            categoriesCmbx.addItem(cat[0]);
+        });
 
-                    categoriesTb.addItem(rs.getString(1));
-                    categoriesCmbx.addItem(rs.getString(1));
-                }
-                ////DbInt.pCon.close();
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+
         categoriesCmbx.addItem(browse);
     }
 
@@ -607,10 +588,33 @@ class AddYear extends JDialog {
         String year = yearText.getText();
         if (DbInt.createDb(year)) {
             //Create Tables
-            DbInt.writeData(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))");
-            DbInt.writeData(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))");
-            DbInt.writeData(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS DECIMAL(7,2),LG INTEGER,LP INTEGER,MULCH INTEGER,TOTAL DECIMAL(7,2),CUSTOMERS INTEGER,COMMISSIONS DECIMAL(7,2),GRANDTOTAL DECIMAL(7,2))");
-            DbInt.writeData(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))");
+            //Create Customers Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Create Products Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Create Totals Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS DECIMAL(7,2),LG INTEGER,LP INTEGER,MULCH INTEGER,TOTAL DECIMAL(7,2),CUSTOMERS INTEGER,COMMISSIONS DECIMAL(7,2),GRANDTOTAL DECIMAL(7,2))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+
+/*            //Create Residence Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }*/
+
+            //Create Categories Table
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
                 prep.execute();
             } catch (SQLException e) {
@@ -621,8 +625,19 @@ class AddYear extends JDialog {
             for (int i = 0; i < ProductTable.getRowCount(); i++) {
                 String cat = (ProductTable.getModel().getValueAt(i, 4) != null) ? ProductTable.getModel().getValueAt(i, 4).toString() : "";
                 col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-                DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES ('%s','%s','%s','%s', '%s')", ProductTable.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 2).toString().replaceAll("'", "''"), cat.replaceAll("'", "''")));
+                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
+                    prep.setString(1, ProductTable.getModel().getValueAt(i, 0).toString());
+                    prep.setString(2, ProductTable.getModel().getValueAt(i, 1).toString());
+                    prep.setString(3, ProductTable.getModel().getValueAt(i, 3).toString());
+                    prep.setString(4, ProductTable.getModel().getValueAt(i, 2).toString());
+                    prep.setString(5, cat);
+
+                    prep.execute();
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
             }
+            //Add Categories
             rowsCats.forEach(cat -> {
                 try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
                     prep.setString(1, cat[0]);
@@ -633,9 +648,21 @@ class AddYear extends JDialog {
                     LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
             });
-            DbInt.writeData(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col));
-            DbInt.writeData(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(0,0,0,0,0,0,0,0)");
-            DbInt.writeData("Set", String.format("INSERT INTO YEARS VALUES(%s, '%s')", year, year));
+
+            //ORDers Table
+            try (PreparedStatement prep = DbInt.getPrep(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col))) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Add default values to TOTALS
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(0,0,0,0,0,0,0,0)")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //ADD to Year
+            addYear();
         } else {
             LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
         }
@@ -663,12 +690,26 @@ class AddYear extends JDialog {
         for (int i = 0; i < ProductTable.getRowCount(); i++) {
             String cat = (ProductTable.getModel().getValueAt(i, 4) != null) ? ProductTable.getModel().getValueAt(i, 4).toString() : "";
             col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            DbInt.writeData(year, String.format("INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES ('%s','%s','%s','%s', '%s')", ProductTable.getModel().getValueAt(i, 0).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 1).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 3).toString().replaceAll("'", "''"), ProductTable.getModel().getValueAt(i, 2).toString().replaceAll("'", "''"), cat.replaceAll("'", "''")));
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
+                prep.setString(1, ProductTable.getModel().getValueAt(i, 0).toString());
+                prep.setString(2, ProductTable.getModel().getValueAt(i, 1).toString());
+                prep.setString(3, ProductTable.getModel().getValueAt(i, 3).toString());
+                prep.setString(4, ProductTable.getModel().getValueAt(i, 2).toString());
+                prep.setString(5, cat);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
         }
     }
 
     private void addYear() {
-        DbInt.writeData("Set", String.format("INSERT INTO YEARS(ID, YEARS) VALUES('%s', '%s')", yearText.getText(), yearText.getText()));
+        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO YEARS(YEARS) VALUES(?)")) {
+            prep.setString(1, yearText.getText());
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
     }
 
     /**
@@ -691,7 +732,7 @@ class AddYear extends JDialog {
             //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
             NodeList nListCats = doc.getElementsByTagName("Categories");
 
-            Collection<String[]> rowsCatsL = new ArrayList<>();
+            // Collection<String[]> rowsCatsL = new ArrayList<>();
 
             for (int temp = 0; temp < nListCats.getLength(); temp++) {
 
@@ -701,10 +742,10 @@ class AddYear extends JDialog {
                 if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
-                    rowsCatsL.add(new String[]{eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()});
+                    rowsCats.add(new String[]{eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()});
                 }
             }
-            rowsCats = rowsCatsL;
+            //rowsCats = rowsCatsL;
             NodeList nList = doc.getElementsByTagName("Products");
 
             Object[][] rows = new Object[nList.getLength()][5];
@@ -734,7 +775,7 @@ class AddYear extends JDialog {
                             }
                     ) {
 
-                        boolean[] columnEditables = new boolean[]{
+                        final boolean[] columnEditables = new boolean[]{
                                 false, false, false, true, false, newYear
                         };
 
@@ -867,7 +908,7 @@ class AddYear extends JDialog {
         //Variables for inserting info into table
 
         String[] toGet = {"ID", "PNAME", "SIZE", "UNIT", "Category"};
-        List<ArrayList<String>> ProductInfoArray = new ArrayList<ArrayList<String>>(); //Single array to store all data to add to table.
+        List<ArrayList<String>> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
@@ -875,7 +916,7 @@ class AddYear extends JDialog {
         ) {
             //Run through Data set and add info to ProductInfoArray
             for (int i = 0; i < 5; i++) {
-                ProductInfoArray.add(new ArrayList<String>());
+                ProductInfoArray.add(new ArrayList<>());
                 while (ProductInfoResultSet.next()) {
 
                     ProductInfoArray.get(i).add(ProductInfoResultSet.getString(toGet[i]));
@@ -938,7 +979,7 @@ class AddYear extends JDialog {
 
     private static class MyDefaultTableModel extends DefaultTableModel {
 
-        boolean[] columnEditables;
+        final boolean[] columnEditables;
 
         public MyDefaultTableModel(Object[][] rows) {
             super(rows, new String[]{

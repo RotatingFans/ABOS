@@ -214,9 +214,25 @@ class YearWindow extends JDialog {
                     int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                     if (cont == 0) {
                         DbInt.deleteDb(year);
-                        DbInt.writeData("Set", String.format("DELETE FROM YEARS WHERE YEARS='%s'", year));
+                        try (PreparedStatement prep = DbInt.getPrep("Set", "DELETE FROM YEARS WHERE YEARS=?")) {
+                            prep.setString(1, year);
+                            prep.execute();
+                        } catch (SQLException Se) {
+                            LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
+                        }
 
                     }
+                    message = "<html><head><style>" +
+                            "h3 {text-align:center;}" +
+                            "h4 {text-align:center;}" +
+                            "</style></head>" +
+                            "<body><h3>WARNING !</h3>" +
+                            "<h3>The application must now manuallly restart</h3>" +
+                            "<h4>Please re-open the application once it closes.</h4>" +
+                            "</body>" +
+                            "</html>";
+                    JOptionPane.showConfirmDialog(null, message, "", JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
+                    System.exit(0);
                 });
                 South.add(btnNewButton_1);
             }
@@ -277,7 +293,7 @@ class YearWindow extends JDialog {
      */
     @SuppressWarnings("unused")
     private List<String> GetProductInfo(String info, String PID) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")
         ) {

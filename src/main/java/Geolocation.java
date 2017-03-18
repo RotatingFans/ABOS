@@ -37,7 +37,7 @@ import java.net.URL;
 /**
  * Created by patrick on 7/26/16.
  */
-public class Geolocation {
+class Geolocation {
 
     /**
      * Takes a zipcode and returns the city and state of the customer.
@@ -108,7 +108,7 @@ public class Geolocation {
                     }
                 }
             } catch (Exception e) {
-                LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
+                LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please Check the address and try again");
             }
         }
         //Formats City and state into one string to return
@@ -152,7 +152,7 @@ public class Geolocation {
         }
     }
 
-    public static Object[][] parseCoords(String xml) throws addressException {
+    private static Object[][] parseCoords(String xml) throws addressException {
         Object[][] coords = new Object[1][2];
         try {
             InputSource is = new InputSource(new StringReader(xml));

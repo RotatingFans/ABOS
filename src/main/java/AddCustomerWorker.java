@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @author Patrick Magauran
  */
-public class AddCustomerWorker extends SwingWorker<Integer, String> {
+class AddCustomerWorker extends SwingWorker<Integer, String> {
 
     private final String Address;
     private final String Town;
@@ -114,7 +114,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                     StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
 
                     int progressDivisor = 2 * ProductTable.getRowCount();
-                    int progressIncrement = (progressDivisor - 15) / progressDivisor;
+                    int progressIncrement = 50 / progressDivisor;
                     //Loops through And adds product numbers to Order string
                     int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
                     for (int i = 0; i < ProductTable.getRowCount(); i++) {
@@ -149,7 +149,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 {
                     int progressIncrement = (100 - getProgress()) / 3;
                     //Gets order ID of customer
-                    List<String> Ids = new ArrayList<String>();
+                    List<String> Ids = new ArrayList<>();
 
                     try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?")) {
 
@@ -211,7 +211,7 @@ public class AddCustomerWorker extends SwingWorker<Integer, String> {
                 Customer customerInfo = new Customer(Name, year);
                 publish("Updating Customer Data");
                 int progressDivisor = (2 * ProductTable.getRowCount());
-                int progressIncrement = (progressDivisor - 10) / progressDivisor;
+                int progressIncrement = 50 / progressDivisor;
 
                 try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 

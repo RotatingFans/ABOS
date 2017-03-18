@@ -17,12 +17,12 @@
  *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class addressException extends RuntimeException {
+class addressException extends RuntimeException {
     public addressException() { super(); }
 
-    public addressException(String message) { super(message); }
+    // --Commented out by Inspection (3/18/17 4:41 PM):public addressException(String message) { super(message); }
 
-    public addressException(String message, Throwable cause) { super(message, cause); }
+    // --Commented out by Inspection (3/18/17 4:41 PM):public addressException(String message, Throwable cause) { super(message, cause); }
 
-    public addressException(Throwable cause) { super(cause); }
+    // --Commented out by Inspection (3/18/17 4:41 PM):public addressException(Throwable cause) { super(cause); }
 }

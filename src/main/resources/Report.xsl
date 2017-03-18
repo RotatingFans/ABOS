@@ -22,7 +22,7 @@
     <xsl:template match="/">
 
         <head>
-            <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+            <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
             <title>
                 <xsl:value-of select="LawnGardenReports/info/reportTitle"/>
             </title>

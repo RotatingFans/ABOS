@@ -34,15 +34,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Map extends JFrame implements JMapViewerEventListener {
+class Map extends JFrame implements JMapViewerEventListener {
     // --Commented out by Inspection (1/2/2016 12:01 PM):private static final long serialVersionUID = 1L;
-    public JLabel Address = new JLabel("");
-    public JLabel OrderStat = new JLabel("");
-    public JLabel name = new JLabel("");
-    public JLabel Phone = new JLabel("");
-    public Object[] cPoints;
-    public JPanel infoPanel = new JPanel();
-    public JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    public final JLabel Address = new JLabel("");
+    public final JLabel OrderStat = new JLabel("");
+    public final JLabel name = new JLabel("");
+    public final JLabel Phone = new JLabel("");
+    public final Object[] cPoints;
+    public final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private JMapViewerTree treeMap = null;
     private JLabel zoomValue = null;
     private JLabel mperpLabelValue = null;
@@ -97,6 +96,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
         JLabel OrdersL = new JLabel("Orders:");
 
 
+        JPanel infoPanel = new JPanel();
         infoPanel.add(AddressL);
         infoPanel.add(Address);
         Address.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -218,7 +218,7 @@ public class Map extends JFrame implements JMapViewerEventListener {
      * @return The info requested in ArrayList form
      */
     private List<String> getAllCustomersInfo(String info) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
              ResultSet rs = prep.executeQuery()
@@ -244,11 +244,11 @@ public class Map extends JFrame implements JMapViewerEventListener {
 
     private void updateZoomParameters() {
         if (mperpLabelValue != null) {
-            mperpLabelValue.setText(String.format("%s", Double.valueOf(map().getMeterPerPixel())));
+            mperpLabelValue.setText(String.format("%s", map().getMeterPerPixel()));
         }
 
         if (zoomValue != null) {
-            zoomValue.setText(String.format("%s", Integer.valueOf(map().getZoom())));
+            zoomValue.setText(String.format("%s", map().getZoom()));
         }
 
     }

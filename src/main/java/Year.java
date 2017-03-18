@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Created by patrick on 7/27/16.
  */
-public class Year {
+class Year {
     private static final int retInteger = 1;
     private static final int retString = 2;
     private static final int retBigDec = 3;
@@ -62,7 +62,7 @@ public class Year {
         return ret;
     }
 
-    public Object getTots(String info, int retType) {
+    private Object getTots(String info, int retType) {
         Object ret = "";
 
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");

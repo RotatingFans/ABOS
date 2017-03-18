@@ -25,7 +25,7 @@ import java.awt.*;
  * Retrieved From https://tips4java.wordpress.com/2008/11/06/wrap-layout/
  * All creit goes to the original author Rob Camick
  */
-public class WrapLayout extends FlowLayout {
+class WrapLayout extends FlowLayout {
 
     // --Commented out by Inspection (1/25/16 10:13 AM):private Dimension preferredLayoutSize;
 

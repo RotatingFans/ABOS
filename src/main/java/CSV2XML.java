@@ -55,10 +55,6 @@ class CSV2XML extends JDialog {
 
     }
 
-    public static void main(String... args) {
-
-    }
-
     public String getXML() {
 
         return xmlFile;
@@ -193,7 +189,7 @@ class CSV2XML extends JDialog {
      * Converts the CSV to XML
      */
     private void convert() {
-        List<String> headers = new ArrayList<String>(5);
+        List<String> headers = new ArrayList<>(5);
 
 
         File file = new File(CsvLoc.getText());
