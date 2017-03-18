@@ -31,8 +31,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,9 +38,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
 
 class AddYear extends JDialog {
@@ -59,7 +55,7 @@ class AddYear extends JDialog {
     private JTextField idTb;
     private JDialog parent;
     private boolean newYear = false;
-    private Iterable<String[]> rowsCats = null;
+    private Collection<String[]> rowsCats = new ArrayList<>();
 
     /**
      * Create the dialog.
@@ -198,7 +194,7 @@ class AddYear extends JDialog {
                         rateTb.setColumns(4);
                         CenterNorth.add(ID);
                     }
-/*                    //Category
+//Category
                     {
                         JPanel ID = new JPanel();
                         ID.setLayout(new BoxLayout(ID, BoxLayout.PAGE_AXIS));
@@ -207,40 +203,32 @@ class AddYear extends JDialog {
                         ID.add(lblNewLabel_2);
                         categoriesCmbx = new JComboBox();
                         categoriesTb = new JComboBox();
-                        categoriesTb.insertItemAt("",0);
-                        categoriesCmbx.insertItemAt("",0);
+                        categoriesTb.insertItemAt("", 0);
+                        categoriesCmbx.insertItemAt("", 0);
                         String browse = "Add Category";
-                        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT NAME FROM Categories")) {
-                            prep.execute();
-                            try (ResultSet rs = prep.executeQuery()) {
 
-                                while (rs.next()) {
-
-                                    categoriesTb.addItem(rs.getString(1));
-                                    categoriesCmbx.addItem(rs.getString(1));
-                                }
-                                ////DbInt.pCon.close();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
                         categoriesCmbx.addItem(browse);
-                        categoriesCmbx.addItemListener(new ItemListener() {
-                            @Override
-                            public void itemStateChanged(ItemEvent e) {
-                                if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
-                                    new AddCategory();
+                        categoriesCmbx.addItemListener(e -> {
+                            if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
+                                AddCategory addCat = new AddCategory();
+                                String[] cat = addCat.showDialog();
+                                if (!Objects.equals(cat[0], "") && cat[0] != null) {
+                                    rowsCats.add(new String[]{cat[0], cat[1]});
+                                    refreshCmbx();
                                 }
+
+
                             }
                         });
                         //rateTb.setBounds(387, 104, 97, 19);
                         ID.add(categoriesCmbx);
                         CenterNorth.add(ID);
-                    }*/
+                    }
+
                     JButton btnNewButton = new JButton("Add");
                     btnNewButton.addActionListener(e -> {
                         int count = tableModel.getRowCount() + 1;
-                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
+                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectedItem()});
                     });
                     //btnNewButton.setBounds(484, 105, 57, 19);
                     CenterNorth.add(btnNewButton);
@@ -273,10 +261,13 @@ class AddYear extends JDialog {
                 ProductTable.setFillsViewportHeight(true);
                 ProductTable.setColumnSelectionAllowed(true);
                 ProductTable.setCellSelectionEnabled(true);
-                tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item"}, 0);
+                tableModel = new DefaultTableModel(new Object[]{"ID", "Item", "Size", "Price/Item", "Category"}, 0);
                 ProductTable.setModel(tableModel);
                 ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
                 ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
+                TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
+                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
+
                 scrollPane.setViewportView(ProductTable);
             }
             contentPanel.add(center, BorderLayout.CENTER);
@@ -451,12 +442,12 @@ class AddYear extends JDialog {
                         categoriesCmbx.addItemListener(e -> {
                             if ((e.getStateChange() == ItemEvent.SELECTED) && browse.equals(e.getItem())) {
                                 AddCategory addCat = new AddCategory(year);
-                                addCat.addWindowListener(new WindowAdapter() {
-                                    @Override
-                                    public void windowClosed(WindowEvent e) {
-                                        refreshCmbx(year);
-                                    }
-                                });
+                                String[] cat = addCat.showDialog();
+                                if (!Objects.equals(cat[0], "") && cat[0] != null) {
+                                    rowsCats.add(new String[]{cat[0], cat[1]});
+                                    refreshCmbx();
+                                }
+
 
                             }
                         });
@@ -467,7 +458,7 @@ class AddYear extends JDialog {
                     JButton btnNewButton = new JButton("Add");
                     btnNewButton.addActionListener(e -> {
                         int count = tableModel.getRowCount() + 1;
-                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText()});
+                        tableModel.addRow(new Object[]{idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectedItem()});
                     });
                     //btnNewButton.setBounds(484, 105, 57, 19);
                     CenterNorth.add(btnNewButton);
@@ -505,7 +496,7 @@ class AddYear extends JDialog {
                 ProductTable.getColumnModel().getColumn(0).setPreferredWidth(15);
                 ProductTable.getColumnModel().getColumn(0).setMinWidth(10);
                 TableColumn categoryColumn = ProductTable.getColumnModel().getColumn(4);
-                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesCmbx));
+                categoryColumn.setCellEditor(new DefaultCellEditor(categoriesTb));
 
 
                 scrollPane.setViewportView(ProductTable);
@@ -564,9 +555,7 @@ class AddYear extends JDialog {
         return ret;
     }
 
-    /**
-     * Launch the application.
-     */
+
 /*    public static void main(String... args) {
         try {
 
@@ -577,26 +566,19 @@ class AddYear extends JDialog {
             e.printStackTrace();
         }
     }*/
-    private void refreshCmbx(String year) {
+private void refreshCmbx() {
         categoriesCmbx.removeAllItems();
         categoriesTb.removeAllItems();
         categoriesTb.insertItemAt("", 0);
         categoriesCmbx.insertItemAt("", 0);
         String browse = "Add Category";
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Categories")) {
-            prep.execute();
-            try (ResultSet rs = prep.executeQuery()) {
 
-                while (rs.next()) {
+    rowsCats.forEach(cat -> {
+        categoriesTb.addItem(cat[0]);
+        categoriesCmbx.addItem(cat[0]);
+    });
 
-                    categoriesTb.addItem(rs.getString(1));
-                    categoriesCmbx.addItem(rs.getString(1));
-                }
-                ////DbInt.pCon.close();
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+
         categoriesCmbx.addItem(browse);
     }
 
@@ -691,7 +673,7 @@ class AddYear extends JDialog {
             //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
             NodeList nListCats = doc.getElementsByTagName("Categories");
 
-            Collection<String[]> rowsCatsL = new ArrayList<>();
+            // Collection<String[]> rowsCatsL = new ArrayList<>();
 
             for (int temp = 0; temp < nListCats.getLength(); temp++) {
 
@@ -701,10 +683,10 @@ class AddYear extends JDialog {
                 if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
-                    rowsCatsL.add(new String[]{eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()});
+                    rowsCats.add(new String[]{eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()});
                 }
             }
-            rowsCats = rowsCatsL;
+            //rowsCats = rowsCatsL;
             NodeList nList = doc.getElementsByTagName("Products");
 
             Object[][] rows = new Object[nList.getLength()][5];

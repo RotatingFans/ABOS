@@ -24,6 +24,8 @@ import org.jdatepicker.impl.UtilDateModel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
@@ -32,15 +34,27 @@ import java.util.Properties;
 /**
  * Created by patrick on 4/5/16.
  */
-class AddCategory extends JDialog {
+class AddCategory extends JDialog implements ActionListener {
     private final JPanel contentPanel = new JPanel();
+    public String catName = "";
+    public String catDate = "";
     JDatePickerImpl datePicker;
     private JTextField categoryTextField;
     private String year;
+    private JButton okButton;
 
     public AddCategory(String year) {
         initUI(year);
-        setVisible(true);
+        this.setModal(true);
+        //setVisible(true);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+    }
+
+    public AddCategory() {
+        this.setModal(true);
+
+        initUI("");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
     }
@@ -54,8 +68,15 @@ class AddCategory extends JDialog {
         }
     }
 
+    public String[] showDialog() {
+        setVisible(true);
+        return new String[]{catName, catDate};
+    }
+
     private void initUI(String Year) {
-        year = Year;
+        if (Year != "") {
+            year = Year;
+        }
         setSize(600, 400);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -101,7 +122,6 @@ class AddCategory extends JDialog {
                 buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
                 getContentPane().add(buttonPane, BorderLayout.SOUTH);
                 //OKButton
-                JButton okButton;
                 {
                     okButton = new JButton("OK");
                     buttonPane.add(okButton);
@@ -115,37 +135,48 @@ class AddCategory extends JDialog {
                     buttonPane.add(cancelButton);
                 }
                 //OKButton Action
-                okButton.addActionListener(e -> {
-                    if (saveData()) {dispose();}
-                });
+                okButton.addActionListener(this);
                 okButton.setActionCommand("OK");
 
                 //CancelButton Action
-                cancelButton.addActionListener(e -> dispose());
+                cancelButton.addActionListener(this);
                 cancelButton.setActionCommand("Cancel");
             }
         }
     }
 
+    public void actionPerformed(ActionEvent ae) {
+        Object source = ae.getSource();
+        if (source == okButton) {
+            if (saveData()) {
+                catDate = datePicker.getModel().getYear() + "-" + datePicker.getModel().getMonth() + "-" + datePicker.getModel().getDay();
+                catName = categoryTextField.getText();
+            }
+        }
+        dispose();
+    }
     private boolean saveData() {
 
         //Add DB setting
 
+        if (year != "" && year != null) {
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
-            prep.setString(1, categoryTextField.getText());
-            Date selectedDate = (Date) datePicker.getModel().getValue();
 
-            prep.setDate(2, new java.sql.Date(selectedDate.getTime()));
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            return false;
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories (Name, Date) VALUES (?,?)")) {
+                prep.setString(1, categoryTextField.getText());
+                Date selectedDate = (Date) datePicker.getModel().getValue();
+
+                prep.setDate(2, new java.sql.Date(selectedDate.getTime()));
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                return false;
+            }
+
+
         }
         return true;
 
 
     }
-
-
 }
