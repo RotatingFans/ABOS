@@ -77,8 +77,8 @@ class YearWindow extends JDialog {
 
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
-        this.setTitle("ABOS - Year Overview - " + year);
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        frame.setTitle("ABOS - Year Overview - " + year);
 
         //West
         {
@@ -167,12 +167,7 @@ class YearWindow extends JDialog {
             East.add(CustomersR);
             frame.getContentPane().add(East, BorderLayout.WEST);
         }
-        //East
-        {
 
-
-            frame.setTitle(year);
-        }
         //CENTER
         {
             JScrollPane scrollPane = new JScrollPane();

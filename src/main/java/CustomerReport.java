@@ -74,8 +74,8 @@ class CustomerReport extends JDialog {
         frame.setBounds(100, 100, 826, 595);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
-        this.setTitle("ABOS - Customer View - " + name + " - " + year);
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        frame.setTitle("ABOS - Customer View - " + name + " - " + year);
         //West
         {
             JPanel west = new JPanel();
