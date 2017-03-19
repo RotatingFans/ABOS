@@ -54,6 +54,8 @@ class AddCustomerNO extends JDialog {
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Add Customer");
         //North
         {
             JPanel addressPnl = new JPanel(new FlowLayout());

@@ -235,7 +235,8 @@ class Reports extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Reports");
         //Main
         {
             SteptabbedPane = new JTabbedPane();

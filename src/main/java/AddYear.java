@@ -68,7 +68,8 @@ class AddYear extends JDialog {
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Add Year");
         //North
         {
             JPanel north = new JPanel(new BorderLayout());

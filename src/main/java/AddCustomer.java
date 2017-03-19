@@ -134,6 +134,8 @@ class AddCustomer extends JDialog {
     private void initUI() {
         setSize(900, 600);
         getContentPane().setLayout(new BorderLayout());
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Add Customer");
         WrapLayout flow = new WrapLayout();
 
         //Add Customer info fields and lables

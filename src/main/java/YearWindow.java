@@ -29,7 +29,7 @@ import java.util.List;
 
 class YearWindow extends JDialog {
 
-    public static String year = "2015";
+    public static String year = "2017";
     private JFrame frame;
     private JTable table;
 
@@ -77,7 +77,8 @@ class YearWindow extends JDialog {
 
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Year Overview - " + year);
 
         //West
         {

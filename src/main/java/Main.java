@@ -67,6 +67,7 @@ class Main extends JFrame {
             e.printStackTrace();
         }
  */
+        //ImageIcon img = new ImageIcon(getClass().getClassLoader().getResource("Report.xsl"));
         // Create the Log To File class
         Boolean addYears = true;
         if (!Config.doesConfExist()) {
@@ -76,10 +77,11 @@ class Main extends JFrame {
 
 
         frame = new JFrame();
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        frame.setTitle("ABOS");
         frame.setBounds(100, 100, 690, 470);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-
         //JSeparator separator = new JSeparator();
         //separator.setBounds(0, 0, 682, 39);
         //frame.getContentPane().add(separator);

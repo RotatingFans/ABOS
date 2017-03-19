@@ -65,7 +65,8 @@ class Map extends JFrame implements JMapViewerEventListener {
 	}*/
     public Map() {
         super("JMapViewer Map");
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Map");
         setSize(600, 400);
         treeMap = new JMapViewerTree("Zones");
         map().addJMVListener(this);
