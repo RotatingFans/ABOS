@@ -76,6 +76,8 @@ class AddCustomer extends JDialog {
         customerInfo = new Customer(customerName, year);
         edit = true;
         initUI();
+        this.setTitle("ABOS - Edit Customer - " + customerName);
+
         //Set the address
         String[] addr = customerInfo.getCustAddressFrmName();
         String city = addr[0];
