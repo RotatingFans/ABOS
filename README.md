@@ -10,6 +10,8 @@ The software boasts quite a few features:
  - Save default settings for adding a customer
  - 100% open source
  - Ability to edit customers
+
+
 Development
 ----------
 This software has been developed as a side project of mine, starting back in 2013. The software is developed in Java using the IntelliJ IDE. The database is designed around Apache Derby. Reports are generated using Itext Version 5.10 with the XMLworker to use an XSL file, an XML file, Jtidy, and Saxon to generate a PDF.
