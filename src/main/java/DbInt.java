@@ -365,9 +365,9 @@ class DbInt {
         return ret;
     }
 
-    public static String getCategoryDate(String catName) {
+    public static String getCategoryDate(String catName, String year) {
         Date ret = null;
-        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Date FROM Categories WHERE Name=?")) {
 
 
             prep.setString(1, catName);

@@ -235,7 +235,8 @@ class Reports extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Reports");
         //Main
         {
             SteptabbedPane = new JTabbedPane();
@@ -275,7 +276,7 @@ class Reports extends JDialog {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
 
                         Object selected = comboBox.getSelectedItem();
-                        if (cmbxReportType.getSelectedIndex() == 3) {
+                        if (cmbxReportType.getSelectedIndex() == 2) {
                             if (cmbxYears.getSelectedItem() != "") {
                                 Year year = new Year(cmbxYears.getSelectedItem().toString());
                                 Iterable<String> customersY = year.getCustomerNames();

@@ -83,6 +83,8 @@ class AddCategory extends JDialog implements ActionListener {
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
+        this.setTitle("ABOS - Add Category");
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
         //Main Content
         {

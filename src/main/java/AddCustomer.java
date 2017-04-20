@@ -76,6 +76,8 @@ class AddCustomer extends JDialog {
         customerInfo = new Customer(customerName, year);
         edit = true;
         initUI();
+        this.setTitle("ABOS - Edit Customer - " + customerName);
+
         //Set the address
         String[] addr = customerInfo.getCustAddressFrmName();
         String city = addr[0];
@@ -134,6 +136,8 @@ class AddCustomer extends JDialog {
     private void initUI() {
         setSize(900, 600);
         getContentPane().setLayout(new BorderLayout());
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Add Customer");
         WrapLayout flow = new WrapLayout();
 
         //Add Customer info fields and lables

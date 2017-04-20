@@ -70,7 +70,8 @@ class CustomerView extends JDialog {
         frame.setBounds(100, 100, 741, 494);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
-
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        frame.setTitle("ABOS - Customers - " + year);
         {
             JPanel North = new JPanel(new FlowLayout());
 

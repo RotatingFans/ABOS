@@ -215,7 +215,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                 // Root element
 
                 Order order = new Order();
-                Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true);
+                Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true, category);
                 //Set Items
                 {
                     //Product Elements
@@ -267,7 +267,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                             Element title = doc.createElement("specialInfo");
                             {
                                 Element text = doc.createElement("text");
-                                String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category) + ". Please Have the total payment listed below ready and be present on that date.";
+                                String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please have the total payment listed below ready and be present on that date.";
                                 text.appendChild(doc.createTextNode(notice));
                                 title.appendChild(text);
                             }
@@ -504,7 +504,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category) + ". Please Have the total payment listed below ready and be present on that date.";
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please Have the total payment listed below ready and be present on that date.";
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }
@@ -619,7 +619,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category) + ". Please Have the total payment listed below ready and be present on that date.";
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please Have the total payment listed below ready and be present on that date.";
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }

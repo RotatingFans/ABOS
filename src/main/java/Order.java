@@ -33,11 +33,17 @@ public class Order {
     private int QuantL = 0;
 
     public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
+        return createOrderArray(year, name, excludeZeroOrders, "*");
+    }
+
+    public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders, String Category) {
 
         List<Product> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
-             ResultSet ProductInfoResultSet = prep.executeQuery()) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE Category = ?")
+        ) {
+            prep.setString(1, Category);
+            ResultSet ProductInfoResultSet = prep.executeQuery();
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
                 ProductInfoArray.add(new Product(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category")));

@@ -63,7 +63,8 @@ class CSV2XML extends JDialog {
     //SetBounds(X,Y,Width,Height)
     private void initUI() {
         setModal(true);
-
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Convert CSV to XML");
         //setSize(450, 450);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

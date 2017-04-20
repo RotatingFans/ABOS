@@ -106,6 +106,8 @@ class Settings extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout());
         FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+        this.setTitle("ABOS - Settings");
         if (!Config.doesConfExist()) {
             Config.createConfigFile();
         }
@@ -507,9 +509,8 @@ class Settings extends JDialog {
                 JLabel libs = new JLabel("<HTML><h2>Included Libraries:</h2>" +
                         "<ul>" +
                         "<li>jDatePicker Version 1.3.4</li>" +
-                        "<li>xHtmlRenderer Core Version 5</li>" +
                         "<li>Apache Derby Version 10.11</li>" +
-                        "<li>iText Version 2.0.8</li>" +
+                        "<li>iText Version 5.5.10</li>" +
                         "<li>JMapViewer Version 1.0.0</li>" +
                         "<li>JTidy Version 938</li>" +
                         "<li>Saxon Version 9</li>" +
