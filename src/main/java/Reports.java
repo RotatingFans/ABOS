@@ -276,7 +276,7 @@ class Reports extends JDialog {
                         JComboBox comboBox = (JComboBox) actionEvent.getSource();
 
                         Object selected = comboBox.getSelectedItem();
-                        if (cmbxReportType.getSelectedIndex() == 3) {
+                        if (cmbxReportType.getSelectedIndex() == 2) {
                             if (cmbxYears.getSelectedItem() != "") {
                                 Year year = new Year(cmbxYears.getSelectedItem().toString());
                                 Iterable<String> customersY = year.getCustomerNames();
