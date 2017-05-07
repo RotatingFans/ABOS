@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by patrick on 7/27/16.
@@ -40,9 +41,11 @@ public class Order {
 
         List<Product> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE Category = ?")
+        try (PreparedStatement prep = DbInt.getPrep(year, Objects.equals(Category, "*") ? "SELECT * FROM PRODUCTS" : "SELECT * FROM PRODUCTS WHERE Category = ?")
         ) {
-            prep.setString(1, Category);
+            if (!Objects.equals(Category, "*")) {
+                prep.setString(1, Category);
+            }
             ResultSet ProductInfoResultSet = prep.executeQuery();
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
