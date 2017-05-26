@@ -1,7 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="">
+  <settings default="ABOS">
     <module2copyright>
-      <element module="Project Files" copyright="Lawn Garden" />
+      <element module="All" copyright="ABOS" />
     </module2copyright>
   </settings>
 </component>
