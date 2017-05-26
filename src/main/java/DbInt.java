@@ -31,7 +31,7 @@ import java.util.Objects;
  *
  */
 @SuppressWarnings("unused")
-class DbInt {
+public class DbInt {
     public static Connection pCon = null;
 
     /**

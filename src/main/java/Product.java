@@ -17,6 +17,10 @@
  *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,6 +88,54 @@ public class Product {
             this.productCategory = productCategory;
             this.orderedQuantity = orderedQuantity;
             this.extendedCost = extendedCost;
+        }
+    }
+
+    public static class formattedProductProps {
+        public final SimpleStringProperty productID = new SimpleStringProperty();
+        public final SimpleStringProperty productName = new SimpleStringProperty();
+        public final SimpleStringProperty productSize = new SimpleStringProperty();
+        public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
+        public final SimpleStringProperty productCategory = new SimpleStringProperty();
+        public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
+        public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
+
+        public formattedProductProps(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+            this.productID.set(productID);
+            this.productName.set(productName);
+            this.productSize.set(productSize);
+            this.productUnitPrice.set(productUnitPrice);
+            this.productCategory.set(productCategory);
+            this.orderedQuantity.set(orderedQuantity);
+            this.extendedCost.set(extendedCost);
+        }
+
+        public String getProductID() {
+            return productID.get();
+        }
+
+        public String getProductName() {
+            return productName.get();
+        }
+
+        public String getProductSize() {
+            return productSize.get();
+        }
+
+        public String getProductUnitPrice() {
+            return productUnitPrice.get();
+        }
+
+        public String getProductCategory() {
+            return productCategory.get();
+        }
+
+        public int getOrderedQuantity() {
+            return orderedQuantity.get();
+        }
+
+        public Object getExtendedCost() {
+            return extendedCost.get();
         }
     }
 }

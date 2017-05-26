@@ -55,7 +55,7 @@ class CustomerReport extends JDialog {
 //        EventQueue.invokeLater(new Runnable() {
 //            public void run() {
 //                try {
-//                    CustomerReport window = new CustomerReport(Name, Year);
+//                    customerController window = new customerController(Name, Year);
 //                    window.frame.setVisible(true);
 //                } catch (Exception e) {
 //                    e.printStackTrace();

@@ -70,8 +70,8 @@ class AddCustomer extends JDialog {
      *
      * @param customerName the name of the customer being edited.
      */
-    public AddCustomer(String customerName) {
-        year = CustomerReport.year;
+    public AddCustomer(String customerName, String aYear) {
+        year = aYear;
         yearInfo = new Year(year);
         customerInfo = new Customer(customerName, year);
         edit = true;
@@ -106,10 +106,10 @@ class AddCustomer extends JDialog {
         setVisible(true);
     }
 
-    public AddCustomer() {
+    public AddCustomer(String aYear) {
         newCustomer = 1;
 
-        year = YearWindow.year;
+        year = aYear;
         yearInfo = new Year(year);
 
         initUI();

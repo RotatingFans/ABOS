@@ -1,0 +1,8 @@
+#YearDescription, #CustomerDescription {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+#YearValue, #CustomerValue {
+    -fx-font-size: 20px;
+
+}

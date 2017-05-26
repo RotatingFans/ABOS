@@ -109,7 +109,7 @@ class CustomerView extends JDialog {
             North.add(forbtn);
 
             JButton btnNewButton_2 = new JButton("Add Customer");
-            btnNewButton_2.addActionListener(e -> new AddCustomer());
+            btnNewButton_2.addActionListener(e -> new AddCustomer(year));
             //btnNewButton_2.setBounds(582, 14, 133, 36);
             North.add(btnNewButton_2);
             textField_1 = new JTextField();

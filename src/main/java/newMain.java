@@ -18,8 +18,6 @@
  */
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -46,7 +44,7 @@ public class newMain extends Application {
         // grabs the UI controller for the view from the loader.
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
         final Parent root = loader.load();
-        final MyControllerClass controller = loader.getController();
+        final MainController controller = loader.getController();
 
         // continuously refresh the TreeItems.
         // demonstrates using controller methods to manipulate the controlled UI.
@@ -69,6 +67,7 @@ public class newMain extends Application {
 
         // initialize the stage.
         stage.setScene(new Scene(root));
+        stage.getScene().getStylesheets().add("UI/Main.css");
         stage.initStyle(StageStyle.UNIFIED);
 //        stage.getIcons().add(new Image(getClass().getResourceAsStream("myIcon.png")));
         TreeItem<String> rootItem = new TreeItem<String>("Inbox");
@@ -88,23 +87,7 @@ public class newMain extends Application {
         System.out.println(newValue);
     }
 
-    /**
-     * small helper class for handling tree loading events.
-     */
-    private class TreeLoadingEventHandler implements EventHandler<ActionEvent> {
-        private MyControllerClass controller;
-        private int idx = 0;
 
-        TreeLoadingEventHandler(MyControllerClass controller) {
-            this.controller = controller;
-        }
-
-        @Override
-        public void handle(ActionEvent t) {
-            controller.loadTreeItems("Loaded " + idx, "Loaded " + (idx + 1), "Loaded " + (idx + 2));
-            idx += 3;
-        }
-    }
 
 
     /**

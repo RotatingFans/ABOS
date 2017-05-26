@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Created by patrick on 7/27/16.
  */
-class Year {
+public class Year {
     private static final int retInteger = 1;
     private static final int retString = 2;
     private static final int retBigDec = 3;
