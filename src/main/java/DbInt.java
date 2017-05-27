@@ -174,7 +174,7 @@ public class DbInt {
                             "</html>";
                     int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                     if (cont == 0) {
-                        new Settings();
+                        //new Settings();
                     }
                     LogToFile.log(ex, Severity.SEVERE, "");
                 } else {

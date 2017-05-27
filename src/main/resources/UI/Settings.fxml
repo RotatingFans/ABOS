@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.web.WebView?>
+
+<!--
+  ~ Copyright (c) Patrick Magauran 2017.
+  ~   Licensed under the AGPLv3. All conditions of said license apply.
+  ~       This file is part of ABOS.
+  ~  
+  ~       ABOS is free software: you can redistribute it and/or modify
+  ~       it under the terms of the GNU Affero General Public License as published by
+  ~       the Free Software Foundation, either version 3 of the License, or
+  ~       (at your option) any later version.
+  ~  
+  ~       ABOS is distributed in the hope that it will be useful,
+  ~       but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~       GNU Affero General Public License for more details.
+  ~  
+  ~       You should have received a copy of the GNU Affero General Public License
+  ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<AnchorPane prefHeight="686.0" prefWidth="1314.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SettingsController">
+   <children>
+      <BorderPane prefHeight="686.0" prefWidth="1314.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+              <tabs>
+                <Tab text="General">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <FlowPane layoutX="302.0" layoutY="207.0" prefHeight="613.0" prefWidth="1314.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                     <HBox>
+                                         <children>
+                                             <Label alignment="CENTER" prefHeight="26.0" prefWidth="126.0" text="Database Location:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                 <opaqueInsets>
+                                                     <Insets />
+                                                 </opaqueInsets>
+                                                 <HBox.margin>
+                                                     <Insets right="5.0" />
+                                                 </HBox.margin>
+                                             </Label>
+                                             <TextField fx:id="DbLoc" promptText="Database Location" />
+                                             <Button mnemonicParsing="false" onAction="#promptDB" text="..." />
+                                          <CheckBox fx:id="CreateDb" mnemonicParsing="false" onAction="#createDbChecked" prefHeight="26.0" prefWidth="134.0" text="Create Database">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                         </children>
+                                         <FlowPane.margin>
+                                             <Insets right="5.0" />
+                                         </FlowPane.margin>
+                                     </HBox>
+                                 </children>
+                              </FlowPane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Add Customer">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <FlowPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Customer Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="Name" promptText="Customer Name" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Street Address" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="Address" promptText="Street Address" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Zip Code" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="ZipCode" promptText="Zip Code" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Town" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="Town" promptText="Town" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="State" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="State" promptText="State" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Phone" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="Phone" promptText="Phone" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Email" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="Email" promptText="Email" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Donations" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="DonationsT" promptText="Donations" />
+                                            </children>
+                                        </HBox>
+                                        <HBox>
+                                            <children>
+                                                <CheckBox fx:id="Delivered" mnemonicParsing="false" text="Delivered">
+                                                    <HBox.margin>
+                                                        <Insets right="5.0" />
+                                                    </HBox.margin>
+                                                </CheckBox>
+                                                <CheckBox fx:id="Paid" mnemonicParsing="false" text="Paid" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </FlowPane>
+                            </children>
+                    </AnchorPane>
+                  </content>
+                </Tab>
+                  <Tab text="Reports">
+                      <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                              <children>
+                                  <FlowPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                      <children>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="96.0" text="Report Type" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                          <ComboBox fx:id="cmbxReportType" prefHeight="26.0" prefWidth="199.0" promptText="Choose A Report Type">
+                                              <items>
+                                                  <FXCollections fx:factory="observableArrayList">
+                                                      <String fx:value="Year Totals" />
+                                                      <String fx:value="Customer Year Totals" />
+                                                      <String fx:value="Customer All-Time Totals" />
+                                                  </FXCollections>
+                                              </items>
+                                          </ComboBox>
+                                              </children>
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" />
+                                       </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="92.0" text="Scout Name" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutName" promptText="Scout Name" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="155.0" text="Scout Street Address" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutStAddr" promptText="Street Address" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Scout Zip Code" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutZip" promptText="Scout Zip Code" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Scout Town" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutTown" promptText="Scout Town" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Scout State" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutState" promptText="Scout State" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Scout Phone" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutPhone" promptText="Scout Phone" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Scout Rank" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="scoutRank" promptText="Scout Rank" />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0" text="Logo Location:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="logoLoc" promptText="Logo Location" />
+                                          <Button mnemonicParsing="false" onAction="#promptLogo" text="..." />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          <HBox>
+                                              <children>
+                                                  <Label alignment="CENTER" prefHeight="26.0" prefWidth="126.0" text="PDF Save Location:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <opaqueInsets>
+                                                          <Insets />
+                                                      </opaqueInsets>
+                                                      <HBox.margin>
+                                                          <Insets right="5.0" />
+                                                      </HBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="pdfLoc" promptText="PDF Save Location" />
+                                                  <Button mnemonicParsing="false" onAction="#promptPDF" text="..." />
+                                              </children>
+                                              <FlowPane.margin>
+                                                  <Insets right="5.0" />
+                                              </FlowPane.margin>
+                                          </HBox>
+                                          
+                                      </children>
+                                  </FlowPane>
+                              </children>
+                          </AnchorPane>
+                      </content>
+                  </Tab>
+                  <Tab text="License">
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <children>
+                           <WebView fx:id="licenseWebView" layoutX="92.0" layoutY="132.0" prefHeight="613.0" prefWidth="1314.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        </children>
+                      </AnchorPane>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </center>
+         <bottom>
+            <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <buttons>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK" />
+                  <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
+              </buttons>
+            </ButtonBar>
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>

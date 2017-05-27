@@ -71,7 +71,7 @@ class Main extends JFrame {
         // Create the Log To File class
         Boolean addYears = true;
         if (!Config.doesConfExist()) {
-            new Settings();
+            //new Settings();
             addYears = false;
         }
 
@@ -93,7 +93,7 @@ class Main extends JFrame {
         //Settings
         {
             JButton btnNewButton = new JButton("Settings");
-            btnNewButton.addActionListener(e -> new Settings());
+         //   btnNewButton.addActionListener(e -> new Settings());
             //btnNewButton.setBounds(429, 5, 107, 39);
             panel.add(btnNewButton);
         }

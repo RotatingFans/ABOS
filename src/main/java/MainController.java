@@ -78,7 +78,7 @@ public class MainController {
                     new AddYear();
                     break;
                 case "Settings":
-                    new Settings();
+                    new Settings(tabPane2.getScene().getWindow());
                     break;
                 default:
 
