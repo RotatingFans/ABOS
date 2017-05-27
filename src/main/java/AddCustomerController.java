@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -213,12 +214,18 @@ public class AddCustomerController {
         quantityCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
         quantityCol.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
-            int quantity = t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.get();
+            //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
+            int quantity = Integer.valueOf(t.getNewValue());
             BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
             t.getRowValue().extendedCost.set(ItemTotalCost);
+            t.getRowValue().orderedQuantity.set(quantity);
+            t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
+
+            data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
+            data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
+            t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
                 totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
@@ -227,6 +234,22 @@ public class AddCustomerController {
 
         });
         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
+/*        priceCol.setCellValueFactory(cellData -> {
+            Product.formattedProductProps data = cellData.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        try {
+                            BigDecimal price = new BigDecimal(data.getProductUnitPrice());
+                            int quantity = data.getOrderedQuantity();
+                            return price.multiply(new BigDecimal(quantity)).toPlainString();
+                        } catch (NumberFormatException nfe) {
+                            return "0.0" ;
+                        }
+                    },
+                    data.productUnitPrice,
+                    data.orderedQuantity
+            );
+        });*/
 
         ProductTable.getColumns().addAll(quantityCol, priceCol);
 
