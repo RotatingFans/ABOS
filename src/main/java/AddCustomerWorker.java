@@ -120,17 +120,12 @@ class AddCustomerWorker extends Task<Integer> {
 
     @Override
     protected Integer call() throws Exception {
-        try {
             String address = String.format("%s %s, %s", Address, Town, State);//Formats address
             updateMessage("Analyzing Address");
             Object[][] coords = new Object[0][];
-            try {
                 coords = Geolocation.GetCoords(address);
 
-            } catch (addressException e) {
-                LogToFile.log(null, Severity.WARNING, "Invalid Address. Please Verify spelling and numbers are correct.");
 
-            }
             int numRows = ProductTable.getItems().size();
 
             double lat = Double.valueOf(coords[0][0].toString());
@@ -311,16 +306,7 @@ class AddCustomerWorker extends Task<Integer> {
                 updateProgress(100, 100);
 
             }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        } catch (InterruptedException e) {
-            if (isCancelled()) {
-                updateMessage("Cancelled");
-            }
-            LogToFile.log(e, Severity.FINE, "Add Customer process canceled.");
-        } catch (IOException e) {
-            LogToFile.log(e, Severity.WARNING, "Error contacting geolaction service. Please try again or contasct support.");
-        }
+
         updateMessage("Done");
 
 

@@ -21,17 +21,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 
 public class CustomerController {
     public static String year = "2017";
@@ -50,10 +55,12 @@ public class CustomerController {
     private String totCost = "$0.00";
     private Boolean columnsFilled = false;
     private ObservableList<Product.formattedProductProps> data;
+    private MainController mainController;
 
-    public void initCustomer(String cYear, String cName) {
+    public void initCustomer(String cYear, String cName, MainController mainCont) {
         year = cYear;
         name = cName;
+        mainController = mainCont;
         customerDbInfo = new Customer(name, year);
         fillTable();
 
@@ -91,7 +98,7 @@ public class CustomerController {
 
     @FXML
     public void editCustomer(ActionEvent event) {
-        new AddCustomer(name, year);
+        mainController.openEditCustomer(year, customerDbInfo.getName());
     }
 
     @FXML
@@ -187,7 +194,7 @@ public class CustomerController {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
             }
-
+            mainController.fillTreeView();
         }
     }
 

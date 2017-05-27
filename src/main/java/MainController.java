@@ -34,9 +34,9 @@ public class MainController {
     @FXML
     private TreeView<String> selectNav;
     @FXML
-    private Pane tabPane;
+    public Pane tabPane;
     @FXML
-    private Tab tab1;
+    public Tab tab1;
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize() {
         //loadTreeItems("initial 1", "initial 2", "initial 3");
@@ -56,7 +56,6 @@ public class MainController {
                         e.printStackTrace();
                     }
                     AddCustomerController addCustCont = loader.getController();
-                    addCustCont.initAddCust(newValue.getParent().getValue());
                     tab1.setText("Add Customer - " + newValue.getParent().getValue());
                     // get children of parent of secPane (the VBox)
                     List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
@@ -66,6 +65,8 @@ public class MainController {
 
                     // store the new pane in the secPane field to allow replacing it the same way later
                     tabPane = newPane;
+                    addCustCont.initAddCust(newValue.getParent().getValue(),this);
+
                     break;
                 }
                 case "Reports":
@@ -92,7 +93,7 @@ public class MainController {
                             e.printStackTrace();
                         }
                         YearController yearCont = loader.getController();
-                        yearCont.initYear(newValue.getValue());
+                        yearCont.initYear(newValue.getValue(), this);
                         tab1.setText("Year View - " + newValue.getValue());
 
                     } else {
@@ -103,7 +104,7 @@ public class MainController {
                             e.printStackTrace();
                         }
                         CustomerController customerCont = loader.getController();
-                        customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue());
+                        customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue(), this);
                         tab1.setText("Customer View - " + newValue.getValue() + " - " + observable.getValue().getParent().getValue());
                     }
                     // get children of parent of secPane (the VBox)
@@ -119,10 +120,53 @@ public class MainController {
         });
     }
 
+    public void openAddCustomer(String year) {
+        Pane newPane = null;
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+        try {
+            newPane = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        AddCustomerController addCustCont = loader.getController();
+        tab1.setText("Add Customer - " + year);
+        // get children of parent of secPane (the VBox)
+        List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
+
+        // replace the child that contained the old secPane
+        parentChildren.set(parentChildren.indexOf(tabPane), newPane);
+
+        // store the new pane in the secPane field to allow replacing it the same way later
+        tabPane = newPane;
+        addCustCont.initAddCust(year, this);
+    }
+
+    public void openEditCustomer(String year, String custName) {
+        Pane newPane = null;
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+        try {
+            newPane = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        AddCustomerController addCustCont = loader.getController();
+        tab1.setText("Edit Customer - " + custName + " - " + year);
+        // get children of parent of secPane (the VBox)
+        List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
+
+        // replace the child that contained the old secPane
+        parentChildren.set(parentChildren.indexOf(tabPane), newPane);
+
+        // store the new pane in the secPane field to allow replacing it the same way later
+        tabPane = newPane;
+        addCustCont.initAddCust(year, custName, this);
+    }
     /**
      * Adds the year buttons to the main panel.
      */
-    private void fillTreeView() {
+    public void fillTreeView() {
         Iterable<String> ret = DbInt.getYears();
         TreeItem<String> root = new TreeItem<String>("Root Node");
         root.getChildren().add(new TreeItem<>("Reports"));

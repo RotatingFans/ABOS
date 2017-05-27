@@ -40,7 +40,7 @@ public class YearController {
     @FXML
     private VBox yearInfo;
     private Boolean columnsFilled = false;
-
+    private MainController mainController;
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
@@ -64,9 +64,9 @@ public class YearController {
     /**
      * Initialize the contents of the frame.
      */
-    public void initYear(String Years) {
+    public void initYear(String Years, MainController mainCont) {
         year = Years;
-
+        mainController = mainCont;
         Year yearDbInfo = new Year(year);
         yearInfo.getChildren().removeAll();
         //West
@@ -128,17 +128,8 @@ public class YearController {
             }
 
 
-            message = "<html><head><style>" +
-                    "h3 {text-align:center;}" +
-                    "h4 {text-align:center;}" +
-                    "</style></head>" +
-                    "<body><h3>WARNING !</h3>" +
-                    "<h3>The application must now manuallly restart</h3>" +
-                    "<h4>Please re-open the application once it closes.</h4>" +
-                    "</body>" +
-                    "</html>";
-            JOptionPane.showConfirmDialog(null, message, "", JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
-            System.exit(0);
+
+            mainController.fillTreeView();
         }
     }
 

@@ -23,19 +23,25 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -76,6 +82,9 @@ public class AddCustomerController {
     private TextField DonationsT;
     @FXML
     private Button okButton;
+    private Tab parentTab;
+    private Pane tPane;
+
     //Variables used to store regularly accessed info.
     private String year = null;
     private BigDecimal totalCostFinal = BigDecimal.ZERO;
@@ -86,18 +95,21 @@ public class AddCustomerController {
     private int preEditLivePlantSales = 0;
     private BigDecimal preEditDonations = BigDecimal.ZERO;
     private BigDecimal preEditOrderCost = BigDecimal.ZERO;
-    private AddCustomerWorker addCustWork = null;
     private Customer customerInfo = null;
     private int newCustomer = 0;
     private Boolean columnsFilled = false;
     private ObservableList<Product.formattedProductProps> data;
-
+    private MainController mainCont;
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
      * @param customerName the name of the customer being edited.
      */
-    public void initAddCust(String customerName, String aYear) {
+    public void initAddCust( String aYear, String customerName, MainController mainController) {
+        parentTab = mainController.tab1;
+        tPane = mainController.tabPane;
+        mainCont = mainController;
+
         year = aYear;
         yearInfo = new Year(year);
         customerInfo = new Customer(customerName, year);
@@ -130,9 +142,11 @@ public class AddCustomerController {
 
     }
 
-    public void initAddCust(String aYear) {
+    public void initAddCust(String aYear, MainController mainController) {
+        mainCont = mainController;
         newCustomer = 1;
-
+        parentTab = mainController.tab1;
+        tPane = mainController.tabPane;
         year = aYear;
         yearInfo = new Year(year);
 
@@ -142,7 +156,23 @@ public class AddCustomerController {
         Town.setText(Config.getProp("CustomerTown"));
         State.setText(Config.getProp("CustomerState"));
         ZipCode.setText(Config.getProp("CustomerZipCode"));
+        ZipCode.setOnKeyTyped(keyEvent -> {
+            if (ZipCode.getCharacters().length() >= 4) {
+                String zip = ZipCode.getText() + keyEvent.getCharacter();
 
+                String cityAndState = "";
+                try {
+                    cityAndState = Geolocation.getCityState(zip);
+                } catch (IOException e1) {
+                    LogToFile.log(e1, Severity.WARNING, "Couldn't contact geolocation service. Please try again or enter the adress manually and contact suport.");
+                }
+                String[] StateTown = cityAndState.split("&");
+                String state = StateTown[1];
+                String town = StateTown[0];
+                Town.setText(town);
+                State.setText(state);
+            }
+        });
         Phone.setText(Config.getProp("CustomerPhone"));
         Email.setText(Config.getProp("CustomerEmail"));
 
@@ -162,7 +192,7 @@ public class AddCustomerController {
     public void submit(ActionEvent event) {
         if (infoEntered()) {
             commitChanges();
-
+            updateTots();
         } else {
             //javafx.scene.control.Dialog dialog = new Dialog();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -264,7 +294,7 @@ public class AddCustomerController {
      * Fills product table with info with quantities set to Amount customer ordered.
      */
     private void fillOrderedTable() {
-        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), true);
+        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
         data = FXCollections.observableArrayList();
 
         int i = 0;
@@ -285,15 +315,23 @@ public class AddCustomerController {
         //{"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}
         TableColumn<Product.formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
         TableColumn<Product.formattedProductProps, String> priceCol = new TableColumn<>("Price");
+        quantityCol.setCellValueFactory(new PropertyValueFactory<>("orderedQuantityString"));
 
         quantityCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
         quantityCol.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
-            int quantity = t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.get();
+            //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
+            int quantity = Integer.valueOf(t.getNewValue());
             BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
+            t.getRowValue().extendedCost.set(ItemTotalCost);
+            t.getRowValue().orderedQuantity.set(quantity);
+            t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
+
+            data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
+            data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
+            t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
                 totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
@@ -301,6 +339,7 @@ public class AddCustomerController {
             });
 
         });
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
         ProductTable.getColumns().addAll(quantityCol, priceCol);
 
         columnsFilled = true;
@@ -322,7 +361,7 @@ public class AddCustomerController {
         //ProgressDialog progDial = new ProgressDialog();
         ProgressForm progDial = new ProgressForm();
 
-        addCustWork = new AddCustomerWorker(Address.getText(),
+        AddCustomerWorker addCustWork = new AddCustomerWorker(Address.getText(),
                 Town.getText(),
                 State.getText(),
                 year,
@@ -372,11 +411,56 @@ public class AddCustomerController {
         });*/
         progDial.activateProgressBar(addCustWork);
         addCustWork.setOnSucceeded(event -> {
+            Pane newPane = null;
+            FXMLLoader loader;
             progDial.getDialogStage().close();
-        });
-        progDial.getDialogStage().show();
+            updateTots();
+            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+            try {
+                newPane = loader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            YearController yearCont = loader.getController();
+            yearCont.initYear(year, mainCont);
+            parentTab.setText("Year View - " + year);
+            // get children of parent of secPane (the VBox)
+            List<Node> parentChildren = ((Pane) tPane.getParent()).getChildren();
 
-        new Thread(addCustWork).start();
+            // replace the child that contained the old secPane
+            parentChildren.set(parentChildren.indexOf(tPane), newPane);
+
+            // store the new pane in the secPane field to allow replacing it the same way later
+            mainCont.tabPane = newPane;
+        });
+        addCustWork.setOnFailed(event -> {
+            progDial.getDialogStage().close();
+
+            Throwable e = addCustWork.getException();
+            if (e instanceof addressException) {
+                LogToFile.log(null, Severity.WARNING, "Invalid Address. Please Verify spelling and numbers are correct.");
+
+            }
+            if (e instanceof SQLException) {
+                LogToFile.log((SQLException) e, Severity.SEVERE, CommonErrors.returnSqlMessage(((SQLException) addCustWork.getException())));
+
+            }
+            if (e instanceof InterruptedException) {
+                if (addCustWork.isCancelled()) {
+                    LogToFile.log((InterruptedException) e, Severity.FINE, "Add Customer process canceled.");
+
+                }
+            }
+            if (e instanceof IOException) {
+                LogToFile.log((IOException) e, Severity.WARNING, "Error contacting geolaction service. Please try again or contasct support.");
+            }
+
+        });
+
+
+        progDial.getDialogStage().show();
+        addCustWork.run();
+
     }
 
     /**
@@ -489,7 +573,7 @@ public class AddCustomerController {
         final Label label = new Label();
         private final Stage dialogStage;
         private final ProgressBar pb = new ProgressBar();
-        private final ProgressIndicator pin = new ProgressIndicator();
+      //  private final ProgressIndicator pin = new ProgressIndicator();
 
         public ProgressForm() {
             dialogStage = new Stage();
@@ -500,12 +584,11 @@ public class AddCustomerController {
             // PROGRESS BAR
             label.setText("alerto");
             pb.setProgress(-1F);
-            pin.setProgress(-1F);
 
             final HBox hb = new HBox();
             hb.setSpacing(5);
             hb.setAlignment(Pos.CENTER);
-            hb.getChildren().addAll(pb, pin);
+            hb.getChildren().addAll(label, pb);
 
             Scene scene = new Scene(hb);
             dialogStage.setScene(scene);
@@ -513,7 +596,6 @@ public class AddCustomerController {
 
         public void activateProgressBar(final Task<?> task) {
             pb.progressProperty().bind(task.progressProperty());
-            pin.progressProperty().bind(task.progressProperty());
             label.textProperty().bind(task.messageProperty());
 
             dialogStage.show();
