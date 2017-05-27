@@ -27,6 +27,7 @@ import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class MainController {
     // the FXML annotation tells the loader to inject this variable before invoking initialize.
@@ -44,22 +45,47 @@ public class MainController {
 
         selectNav.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Pane newPane = null;
-
+            FXMLLoader loader;
             // load new pane
             switch (newValue.getValue()) {
-                case "Add Customer":
-                    new AddCustomer(observable.getValue().getParent().getValue());
+                case "Add Customer": {
+                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    AddCustomerController addCustCont = loader.getController();
+                    addCustCont.initAddCust(newValue.getParent().getValue());
+                    tab1.setText("Add Customer - " + newValue.getParent().getValue());
+                    // get children of parent of secPane (the VBox)
+                    List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
+
+                    // replace the child that contained the old secPane
+                    parentChildren.set(parentChildren.indexOf(tabPane), newPane);
+
+                    // store the new pane in the secPane field to allow replacing it the same way later
+                    tabPane = newPane;
                     break;
+                }
                 case "Reports":
                     new Reports();
                     break;
                 case "View Map":
-                    new Map();
+                    Map window = new Map();
+                    window.setVisible(true);
+                    window.map().setDisplayToFitMapElements(true, false, false);
+                    break;
+                case "Add Year":
+                    new AddYear();
+                    break;
+                case "Settings":
+                    new Settings();
                     break;
                 default:
 
-                    if (observable.getValue().getParent().getValue() == "Root Node") {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                    if (Objects.equals(observable.getValue().getParent().getValue(), "Root Node")) {
+                        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -70,7 +96,7 @@ public class MainController {
                         tab1.setText("Year View - " + newValue.getValue());
 
                     } else {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -101,6 +127,8 @@ public class MainController {
         TreeItem<String> root = new TreeItem<String>("Root Node");
         root.getChildren().add(new TreeItem<>("Reports"));
         root.getChildren().add(new TreeItem<>("View Map"));
+        root.getChildren().add(new TreeItem<>("Settings"));
+
 
         ///Select all years
         //Create a button for each year
@@ -123,6 +151,8 @@ public class MainController {
             tIYear.getChildren().add(new TreeItem<>("Add Customer"));
             root.getChildren().add(tIYear);
         }
+        root.getChildren().add(new TreeItem<>("Add Year"));
+
         selectNav.setRoot(root);
 
     }

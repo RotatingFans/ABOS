@@ -97,6 +97,8 @@ public class Product {
         public final SimpleStringProperty productSize = new SimpleStringProperty();
         public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
         public final SimpleStringProperty productCategory = new SimpleStringProperty();
+        public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
+
         public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
         public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
 
@@ -107,6 +109,7 @@ public class Product {
             this.productUnitPrice.set(productUnitPrice);
             this.productCategory.set(productCategory);
             this.orderedQuantity.set(orderedQuantity);
+            this.orderedQuantityString.set(String.valueOf(orderedQuantity));
             this.extendedCost.set(extendedCost);
         }
 
@@ -133,6 +136,8 @@ public class Product {
         public int getOrderedQuantity() {
             return orderedQuantity.get();
         }
+
+        public String getOrderedQuantityString() {return orderedQuantityString.get();}
 
         public Object getExtendedCost() {
             return extendedCost.get();

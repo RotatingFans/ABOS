@@ -168,7 +168,7 @@ class CustomerReport extends JDialog {
 
 
             JButton btnNewButton_1 = new JButton("Edit");
-            btnNewButton_1.addActionListener(e -> new AddCustomer(name));
+            btnNewButton_1.addActionListener(e -> new AddCustomer(name, year));
             //btnNewButton_1.setBounds(193, 0, 120, 42);
             north.add(btnNewButton_1);
 

@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
 
 /**
  * A dialog that allows the user to add a new customer or edit an existing customer.
@@ -348,57 +347,57 @@ class AddCustomer extends JDialog {
      */
     private void commitChanges() {
 
-        ProgressDialog progDial = new ProgressDialog();
-
-        addCustWork = new AddCustomerWorker(Address.getText(),
-                Town.getText(),
-                State.getText(),
-                year,
-                edit,
-                ProductTable,
-                Name.getText(),
-                ZipCode.getText(),
-                Phone.getText(),
-                Email.getText(),
-                DonationsT.getText(),
-                NameEditCustomer,
-                Paid.isSelected(),
-                Delivered.isSelected(),
-                progDial.statusLbl);
-        addCustWork.addPropertyChangeListener(event -> {
-            switch (event.getPropertyName()) {
-                case "progress":
-                    progDial.progressBar.setIndeterminate(false);
-                    progDial.progressBar.setValue((Integer) event.getNewValue());
-                    break;
-                case "state":
-                    switch ((SwingWorker.StateValue) event.getNewValue()) {
-                        case DONE:
-                            try {
-                                int success = addCustWork.get();
-                                if (success == 1) {
-                                    updateTots();
-                                    dispose();
-                                    setVisible(false);
-                                }
-                            } catch (CancellationException e) {
-                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
-                            } catch (Exception e) {
-                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
-                            }
-                            addCustWork = null;
-                            progDial.dispose();
-                            break;
-                        case STARTED:
-                        case PENDING:
-                            progDial.progressBar.setVisible(true);
-                            progDial.progressBar.setIndeterminate(true);
-                            break;
-                    }
-                    break;
-            }
-        });
-        addCustWork.execute();
+//        ProgressDialog progDial = new ProgressDialog();
+//
+//        addCustWork = new AddCustomerWorker(Address.getText(),
+//                Town.getText(),
+//                State.getText(),
+//                year,
+//                edit,
+//                ProductTable,
+//                Name.getText(),
+//                ZipCode.getText(),
+//                Phone.getText(),
+//                Email.getText(),
+//                DonationsT.getText(),
+//                NameEditCustomer,
+//                Paid.isSelected(),
+//                Delivered.isSelected(),
+//                progDial.statusLbl);
+//        addCustWork.addPropertyChangeListener(event -> {
+//            switch (event.getPropertyName()) {
+//                case "progress":
+//                    progDial.progressBar.setIndeterminate(false);
+//                    progDial.progressBar.setValue((Integer) event.getNewValue());
+//                    break;
+//                case "state":
+//                    switch ((SwingWorker.StateValue) event.getNewValue()) {
+//                        case DONE:
+//                            try {
+//                                int success = addCustWork.get();
+//                                if (success == 1) {
+//                                    updateTots();
+//                                    dispose();
+//                                    setVisible(false);
+//                                }
+//                            } catch (CancellationException e) {
+//                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
+//                            } catch (Exception e) {
+//                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
+//                            }
+//                            addCustWork = null;
+//                            progDial.dispose();
+//                            break;
+//                        case STARTED:
+//                        case PENDING:
+//                            progDial.progressBar.setVisible(true);
+//                            progDial.progressBar.setIndeterminate(true);
+//                            break;
+//                    }
+//                    break;
+//            }
+//        });
+//        addCustWork.execute();
     }
 
     /**

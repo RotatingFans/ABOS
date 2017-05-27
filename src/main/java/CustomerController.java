@@ -91,7 +91,7 @@ public class CustomerController {
 
     @FXML
     public void editCustomer(ActionEvent event) {
-        new AddCustomer(name);
+        new AddCustomer(name, year);
     }
 
     @FXML
