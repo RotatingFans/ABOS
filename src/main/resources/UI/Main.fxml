@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
 <!--
   ~ Copyright (c) Patrick Magauran 2017.
   ~   Licensed under the AGPLv3. All conditions of said license apply.
@@ -23,15 +24,11 @@
   ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-            xmlns="http://javafx.com/javafx/8.0.112" fx:controller="MainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                 AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+        <TabPane fx:id="tabPane2" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
             <tabs>
-                <Tab fx:id="tab1" closable="false" text="Main">
+                <!--<Tab fx:id="Welcome" closable="false" text="Welcome">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -41,11 +38,11 @@
                             </children>
                         </AnchorPane>
                     </content>
-                </Tab>
+                </Tab>-->
             </tabs>
         </TabPane>
     </center>
     <left>
-        <TreeView fx:id="selectNav" BorderPane.alignment="CENTER"/>
+        <TreeView fx:id="selectNav" BorderPane.alignment="CENTER" />
     </left>
 </BorderPane>

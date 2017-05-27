@@ -21,8 +21,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
@@ -33,10 +35,11 @@ public class MainController {
     // the FXML annotation tells the loader to inject this variable before invoking initialize.
     @FXML
     private TreeView<String> selectNav;
-    @FXML
-    public Pane tabPane;
-    @FXML
-    public Tab tab1;
+   // @FXML
+    //public Pane tabPane;
+    //@FXML
+   // public Tab tab1;
+    @FXML private TabPane tabPane2;
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize() {
         //loadTreeItems("initial 1", "initial 2", "initial 3");
@@ -46,6 +49,7 @@ public class MainController {
         selectNav.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Pane newPane = null;
             FXMLLoader loader;
+            String tabTitle = "";
             // load new pane
             switch (newValue.getValue()) {
                 case "Add Customer": {
@@ -56,15 +60,8 @@ public class MainController {
                         e.printStackTrace();
                     }
                     AddCustomerController addCustCont = loader.getController();
-                    tab1.setText("Add Customer - " + newValue.getParent().getValue());
-                    // get children of parent of secPane (the VBox)
-                    List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
+                    addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
 
-                    // replace the child that contained the old secPane
-                    parentChildren.set(parentChildren.indexOf(tabPane), newPane);
-
-                    // store the new pane in the secPane field to allow replacing it the same way later
-                    tabPane = newPane;
                     addCustCont.initAddCust(newValue.getParent().getValue(),this);
 
                     break;
@@ -94,7 +91,7 @@ public class MainController {
                         }
                         YearController yearCont = loader.getController();
                         yearCont.initYear(newValue.getValue(), this);
-                        tab1.setText("Year View - " + newValue.getValue());
+                        tabTitle = ("Year View - " + newValue.getValue());
 
                     } else {
                         loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
@@ -105,19 +102,26 @@ public class MainController {
                         }
                         CustomerController customerCont = loader.getController();
                         customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue(), this);
-                        tab1.setText("Customer View - " + newValue.getValue() + " - " + observable.getValue().getParent().getValue());
+                        tabTitle = ("Customer View - " + newValue.getValue() + " - " + observable.getValue().getParent().getValue());
                     }
-                    // get children of parent of secPane (the VBox)
-                    List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
-
-                    // replace the child that contained the old secPane
-                    parentChildren.set(parentChildren.indexOf(tabPane), newPane);
-
-                    // store the new pane in the secPane field to allow replacing it the same way later
-                    tabPane = newPane;
+                    addTab(newPane, tabTitle);
                     break;
             }
         });
+    }
+
+    public void addTab(Pane fillPane, String tabTitle) {
+        Tab tab = new Tab(tabTitle);
+        AnchorPane tabContentPane = new AnchorPane(fillPane);
+        AnchorPane.setBottomAnchor(tabContentPane, 0.0);
+        AnchorPane.setTopAnchor(tabContentPane, 0.0);
+        AnchorPane.setLeftAnchor(tabContentPane, 0.0);
+        AnchorPane.setRightAnchor(tabContentPane, 0.0);
+        tab.setContent(tabContentPane);
+        tab.setClosable(true);
+
+        tabPane2.getTabs().add(tab);
+        tabPane2.getSelectionModel().select(tab);
     }
 
     public void openAddCustomer(String year) {
@@ -130,15 +134,9 @@ public class MainController {
             e.printStackTrace();
         }
         AddCustomerController addCustCont = loader.getController();
-        tab1.setText("Add Customer - " + year);
+        addTab(newPane, "Add Customer - " + year);
         // get children of parent of secPane (the VBox)
-        List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
 
-        // replace the child that contained the old secPane
-        parentChildren.set(parentChildren.indexOf(tabPane), newPane);
-
-        // store the new pane in the secPane field to allow replacing it the same way later
-        tabPane = newPane;
         addCustCont.initAddCust(year, this);
     }
 
@@ -152,15 +150,9 @@ public class MainController {
             e.printStackTrace();
         }
         AddCustomerController addCustCont = loader.getController();
-        tab1.setText("Edit Customer - " + custName + " - " + year);
+        addTab(newPane,"Edit Customer - " + custName + " - " + year);
         // get children of parent of secPane (the VBox)
-        List<Node> parentChildren = ((Pane) tabPane.getParent()).getChildren();
 
-        // replace the child that contained the old secPane
-        parentChildren.set(parentChildren.indexOf(tabPane), newPane);
-
-        // store the new pane in the secPane field to allow replacing it the same way later
-        tabPane = newPane;
         addCustCont.initAddCust(year, custName, this);
     }
     /**

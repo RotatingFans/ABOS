@@ -106,8 +106,7 @@ public class AddCustomerController {
      * @param customerName the name of the customer being edited.
      */
     public void initAddCust( String aYear, String customerName, MainController mainController) {
-        parentTab = mainController.tab1;
-        tPane = mainController.tabPane;
+
         mainCont = mainController;
 
         year = aYear;
@@ -145,8 +144,7 @@ public class AddCustomerController {
     public void initAddCust(String aYear, MainController mainController) {
         mainCont = mainController;
         newCustomer = 1;
-        parentTab = mainController.tab1;
-        tPane = mainController.tabPane;
+
         year = aYear;
         yearInfo = new Year(year);
 
@@ -423,15 +421,8 @@ public class AddCustomerController {
             }
             YearController yearCont = loader.getController();
             yearCont.initYear(year, mainCont);
-            parentTab.setText("Year View - " + year);
-            // get children of parent of secPane (the VBox)
-            List<Node> parentChildren = ((Pane) tPane.getParent()).getChildren();
+            mainCont.addTab(newPane,"Year View - " + year);
 
-            // replace the child that contained the old secPane
-            parentChildren.set(parentChildren.indexOf(tPane), newPane);
-
-            // store the new pane in the secPane field to allow replacing it the same way later
-            mainCont.tabPane = newPane;
         });
         addCustWork.setOnFailed(event -> {
             progDial.getDialogStage().close();
