@@ -135,7 +135,7 @@ public class YearController {
 
     @FXML
     public void editYear(ActionEvent event) {
-        new AddYear(year);
+        new AddYear(year, mainController.getWindow());
     }
 
     /**

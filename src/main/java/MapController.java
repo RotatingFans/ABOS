@@ -18,7 +18,6 @@
  */
 
 import com.lynden.gmapsfx.GoogleMapView;
-import com.lynden.gmapsfx.javascript.event.GMapMouseEvent;
 import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.*;
 import javafx.fxml.FXML;
@@ -67,12 +66,7 @@ public class MapController implements Initializable {
                 .mapType(MapTypeIdEnum.ROADMAP).zoom(9);
         map = googleMapView.createMap(mapOptions, false);
 
-        map.addMouseEventHandler(UIEventType.click, (GMapMouseEvent event) -> {
 
-            LatLong latLong = event.getLatLong();
-            //latitudeLabel.setText(formatter.format(latLong.getLatitude()));
-            //longitudeLabel.setText(formatter.format(latLong.getLongitude()));
-        });
         //initMap();
         double totLat = 0;
         double totLon = 0;

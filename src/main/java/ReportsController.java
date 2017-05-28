@@ -24,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import net.sf.saxon.s9api.SaxonApiException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -455,7 +456,9 @@ public class ReportsController {
     }
 
     private void close() {
-
+        Stage stage = (Stage) pdfLoc.getScene().getWindow();
+        // do what you have to do
+        stage.close();
     }
 
     //SetBounds(X,Y,Width,Height)

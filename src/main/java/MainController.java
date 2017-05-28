@@ -80,7 +80,7 @@ public class MainController {
 
                     break;
                 case "Add Year":
-                    new AddYear();
+                    new AddYear(getWindow());
                     break;
                 case "Settings":
                     new Settings(tabPane2.getScene().getWindow());
@@ -113,6 +113,10 @@ public class MainController {
                     break;
             }
         });
+    }
+
+    public javafx.stage.Window getWindow() {
+        return tabPane2.getScene().getWindow();
     }
 
     public void addTab(Pane fillPane, String tabTitle) {
