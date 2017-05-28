@@ -68,9 +68,16 @@ public class MainController {
                     new Reports(tabPane2.getScene().getWindow());
                     break;
                 case "View Map":
-                    Map window = new Map();
-                    window.setVisible(true);
-                    window.map().setDisplayToFitMapElements(true, false, false);
+                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    MapController mapCont = loader.getController();
+                    mapCont.initMap(this);
+                    addTab(newPane, "Map");
+
                     break;
                 case "Add Year":
                     new AddYear();

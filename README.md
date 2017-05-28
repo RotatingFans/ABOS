@@ -24,7 +24,7 @@ License
 *   JMapViewer Version 1.0.0   GPL+
 *   JTidy Version 938  Custom license
 *   Saxon Version 9   MPLv2
-
+*   GMapsFX Versopm 2.12.0 Apache Version 2
     ABOS
     Copyright (C) 2017 Patrick Magauran
 

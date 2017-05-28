@@ -17,16 +17,13 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.scene.layout.HBox;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.JMapViewerTree;
-import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
-import org.openstreetmap.gui.jmapviewer.OsmTileLoader;
 import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,8 +37,9 @@ class Map extends JFrame implements JMapViewerEventListener {
     public final JLabel OrderStat = new JLabel("");
     public final JLabel name = new JLabel("");
     public final JLabel Phone = new JLabel("");
-    public final Object[] cPoints;
     public final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    public Object[] cPoints;
+    public HBox custOrders;
     private JMapViewerTree treeMap = null;
     private JLabel zoomValue = null;
     private JLabel mperpLabelValue = null;
@@ -63,9 +61,8 @@ class Map extends JFrame implements JMapViewerEventListener {
 			}
 		});
 	}*/
-    public Map() {
-        super("JMapViewer Map");
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
+    public void initMap() {
+/*        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
         this.setTitle("ABOS - Map");
         setSize(600, 400);
         treeMap = new JMapViewerTree("Zones");
@@ -76,21 +73,17 @@ class Map extends JFrame implements JMapViewerEventListener {
         JPanel panel = new JPanel();
         JPanel panelTop = new JPanel();
         JPanel panelBottom = new JPanel();
-        JPanel helpPanel = new JPanel();
+        JPanel helpPanel = new JPanel();*/
 
 
-        JLabel mperpLabelName = new JLabel("Meters/Pixels: ");
-        mperpLabelValue = new JLabel(String.format("%s", new Object[]{Double.valueOf(map().getMeterPerPixel())}));
-        JLabel zoomLabel = new JLabel("Zoom: ");
-        zoomValue = new JLabel(String.format("%s", new Object[]{Integer.valueOf(map().getZoom())}));
-        add(panel, "North");
+        /*add(panel, "North");
         add(helpPanel, "South");
         panel.setLayout(new BorderLayout());
         panel.add(panelTop, "North");
         panel.add(panelBottom, "South");
         JLabel helpLabel = new JLabel("Use right mouse button to move,\n left double click or mouse wheel to zoom.");
-        helpPanel.add(helpLabel);
-        JLabel AddressL = new JLabel("Address:");
+        helpPanel.add(helpLabel);*/
+/*        JLabel AddressL = new JLabel("Address:");
         JLabel OrderStatL = new JLabel("Order Status:");
         JLabel nameL = new JLabel("Name:");
         JLabel PhoneL = new JLabel("Phone:");
@@ -114,10 +107,10 @@ class Map extends JFrame implements JMapViewerEventListener {
         JLabel orders = new JLabel("");
         infoPanel.add(orders);
         orders.setBorder(new EmptyBorder(0, 0, 15, 0));
-        infoPanel.add(buttonPanel);
+        infoPanel.add(buttonPanel);*/
 
 
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
+        /*infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
         //infoPanel.setLayout(new GridLayout(10, 1, 3, 50));
         //infoPanel.setLayout(new FlowLayout());
         add(infoPanel, "East");
@@ -131,7 +124,7 @@ class Map extends JFrame implements JMapViewerEventListener {
         panelTop.add(zoomValue);
         panelTop.add(mperpLabelName);
         panelTop.add(mperpLabelValue);
-        add(treeMap, "Center");
+        add(treeMap, "Center");*/
 
         //Add customers to map
         List<String> Addr = getAllCustomersInfo("ADDRESS");
@@ -144,11 +137,15 @@ class Map extends JFrame implements JMapViewerEventListener {
         List<String> NI = getAllCustomersInfo("NI");
         List<String> NH = getAllCustomersInfo("NH");
         cPoints = new Object[Addr.size()];
-        for (int i = 0; i < Addr.size(); i++) {
+        /*for (int i = 0; i < Addr.size(); i++) {
             try {
                 double lat = Double.valueOf(latL.get(i));
                 double lon = Double.valueOf(lonL.get(i));
-                MapMarkerDot m = new MapMarkerDot(lat, lon);
+                MarkerOptions opts = new MarkerOptions();
+                //opts.title("")
+                opts.position(new LatLong(lat, lon));
+                Marker m = new Marker(opts);
+
                 cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
                 //Determine color of dot
                 //Green = orderd
@@ -168,10 +165,10 @@ class Map extends JFrame implements JMapViewerEventListener {
                 LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
             }
 
-        }
+        }*/
         map().setDisplayToFitMapElements(true, true, true);
         map().zoomIn();
-        new MapController(map(), this);
+        //new MapController(map(), this);
 
 
     }
