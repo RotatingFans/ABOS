@@ -17,154 +17,83 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javax.swing.*;
-import java.awt.*;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Collection;
+import javafx.application.Application;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
- *
+ * Sample application to demonstrate programming an FXML interface.
  */
+public class Main extends Application {
+    @FXML
+    private TreeView<String> selectNav;
 
-class Main extends JFrame {
+    // main method is only for legacy support - java 8 won't call it for a javafx application.
+    public static void main(String[] args) { launch(args); }
 
-    private JFrame frame;
-    private JPanel panel_1;
+    @Override
+    public void start(final Stage stage) throws Exception {
+        // load the scene fxml UI.
+        // grabs the UI scenegraph view from the loader.
+        // grabs the UI controller for the view from the loader.
+        final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
+        final Parent root = loader.load();
+        final MainController controller = loader.getController();
 
-    /**
-     * Create the application.
-     */
-    private Main() {
-        initialize();
-    }
+        // continuously refresh the TreeItems.
+        // demonstrates using controller methods to manipulate the controlled UI.
+       /* final Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.seconds(3),
+                        new TreeLoadingEventHandler(controller)
+                )
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();*/
 
-    /**
-     * Launch the application.
-     *
-     * @param args command line arguments
-     */
-    public static void main(String... args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Main window = new Main();
-                window.frame.setVisible(true);
-            } catch (RuntimeException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error starting application. Try reinstalling or contacting support.");
+        // close the app if the user clicks on anywhere on the window.
+        // just provides a simple way to kill the demo app.
+       /* root.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override public void handle(MouseEvent t) {
+                stage.hide();
             }
-        });
+        });*/
+
+        // initialize the stage.
+        stage.setScene(new Scene(root));
+        stage.getScene().getStylesheets().add("UI/Main.css");
+        stage.initStyle(StageStyle.UNIFIED);
+//        stage.getIcons().add(new Image(getClass().getResourceAsStream("myIcon.png")));
+        TreeItem<String> rootItem = new TreeItem<String>("Inbox");
+        rootItem.setExpanded(true);
+        for (int i = 1; i < 6; i++) {
+            TreeItem<String> item = new TreeItem<String>("Message" + i);
+            rootItem.getChildren().add(item);
+        }
+
+
+        stage.setMaximized(true);
+
+        stage.show();
     }
 
-    /**
-     * Initialize the contents of the frame.
-     */
-    private void initialize() {
-/*
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
- */
-        //ImageIcon img = new ImageIcon(getClass().getClassLoader().getResource("Report.xsl"));
-        // Create the Log To File class
-        Boolean addYears = true;
-        if (!Config.doesConfExist()) {
-            //new Settings();
-            addYears = false;
-        }
-
-
-        frame = new JFrame();
-        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("ABOS-LOGO.png")));
-        frame.setTitle("ABOS");
-        frame.setBounds(100, 100, 690, 470);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
-        //JSeparator separator = new JSeparator();
-        //separator.setBounds(0, 0, 682, 39);
-        //frame.getContentPane().add(separator);
-
-        JPanel panel = new JPanel();
-        panel.setBounds(0, 0, 682, 44);
-        frame.getContentPane().add(panel, BorderLayout.NORTH);
-        panel.setLayout(new FlowLayout());
-        //Settings
-        {
-            JButton btnNewButton = new JButton("Settings");
-         //   btnNewButton.addActionListener(e -> new Settings());
-            //btnNewButton.setBounds(429, 5, 107, 39);
-            panel.add(btnNewButton);
-        }
-        //Reports
-        {
-            JButton btnNewButton = new JButton("Reports");
-            //btnNewButton.addActionListener(e -> new Reports());
-            //btnNewButton.setBounds(429, 5, 107, 39);
-            panel.add(btnNewButton);
-        }
-        //Add Year
-        {
-            JButton btnNewButton = new JButton("Add Year");
-            // btnNewButton.addActionListener(e -> new AddYear());
-            //btnNewButton.setBounds(429, 5, 107, 39);
-            panel.add(btnNewButton);
-        }
-        //Add Customer
-        {
-            JButton AddCustomerB = new JButton("Add Customer");
-            AddCustomerB.addActionListener(e -> new AddCustomerNO());
-            //AddCustomerB.setBounds(274, 5, 140, 39);
-            panel.add(AddCustomerB);
-        }
-        //View Map
-        {
-            JButton ViewMap = new JButton("View Map");
-            ViewMap.addActionListener(e -> {
-                Map window = new Map();
-                window.setVisible(true);
-                window.map().setDisplayToFitMapElements(true, false, false);
-
-            });
-            //	ViewMap.setBounds(165, 5, 107, 39);
-            panel.add(ViewMap);
-        }
-        //Refresh Button
-        {
-            JButton refresh = new JButton("Refresh");
-            refresh.addActionListener(e -> {
-                //Refreshes the Window
-                panel_1.removeAll();
-
-                addYears();
-
-                frame.invalidate();
-                frame.validate();
-                frame.repaint();
-                panel_1.repaint();
-
-            });
-            panel.add(refresh);
-        }
-        //GridLayoutPanel
-        {
-            panel_1 = new JPanel();
-            panel_1.setBounds(0, 50, 682, 386);
-            frame.getContentPane().add(panel_1, BorderLayout.CENTER);
-            panel_1.setLayout(new GridLayout(2, 3, 1, 1));
-        }
-        if (addYears) {
-
-            addYears();
-        }
-
+    private void updateSelectedItem(Object newValue) {
+        System.out.println(newValue);
     }
+
+
+
 
     /**
      * Adds the year buttons to the main panel.
      */
-    private void addYears() {
+/*    private void addYears() {
         Collection<String> ret = new ArrayList<>();
         ///Select all years
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
@@ -208,5 +137,5 @@ class Main extends JFrame {
             panel_1.add(b);
         }
 
-    }
+    }*/
 }

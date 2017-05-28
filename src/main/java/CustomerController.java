@@ -21,31 +21,28 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Optional;
+
+//import javax.swing.*;
+//import javax.swing.table.DefaultTableModel;
 
 public class CustomerController {
     public static String year = "2017";
     //public String year;
     private String name;
     //TODO Add Active search with only results shown
-    private JTextField textField;
-    private JLabel QuantityL;
-    private JLabel TotL;
+
     private Customer customerDbInfo;
     @FXML
     private VBox customerInfo;
@@ -140,17 +137,14 @@ public class CustomerController {
 
     @FXML
     private void deleteCustomer(ActionEvent event) {
-        String message = "<html><head><style>" +
-                "h3 {text-align:center;}" +
-                "h4 {text-align:center;}" +
-                "</style></head>" +
-                "<body><h3>WARNING!</h3>" +
-                "<h3>BY CONTINUING YOU ARE PERMANENTLY REMOVING A CUSTOMER! ALL DATA MUST BE REENTERED!</h3>" +
-                "<h4>Would you like to continue?</h4>" +
-                "</body>" +
-                "</html>";
-        int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (cont == 0) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("WARNING!");
+        alert.setHeaderText("BY CONTINUING YOU ARE PERMANENTLY REMOVING A CUSTOMER! ALL DATA MUST BE REENTERED!");
+        alert.setContentText("Would you like to continue?");
+
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
             fillTable();
             BigDecimal preEditOrderCost = BigDecimal.ZERO;
             Order.orderArray order = new Order().createOrderArray(year, customerDbInfo.getName(), false);
@@ -261,24 +255,6 @@ public class CustomerController {
         return commision;
     }
 
-    private static class MyDefaultTableModel extends DefaultTableModel {
-
-        final boolean[] columnEditables;
-
-        public MyDefaultTableModel(Object[][] rowDataF) {
-            super(rowDataF, new String[]{
-                    "ID", "Product Name", "Size", "Price/Item", "Quantity", "Total Cost"
-            });
-            columnEditables = new boolean[]{
-                    false, false, false, false, false, false
-            };
-        }
-
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return columnEditables[column];
-        }
-    }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    public void setTable(JTable customerOrders) {

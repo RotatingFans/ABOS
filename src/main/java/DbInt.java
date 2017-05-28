@@ -17,15 +17,17 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javax.swing.*;
+//import javax.swing.*;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import java.io.File;
 import java.sql.*;
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *
@@ -163,17 +165,14 @@ public class DbInt {
 
             } else {
                 if (Objects.equals(ex.getSQLState(), "XJ004")) {
-                    String message = "<html><head><style>" +
-                            "h3 {text-align:center;}" +
-                            "h4 {text-align:center;}" +
-                            "</style></head>" +
-                            "<body><h3>ERROR!</h3>" +
-                            "<h3>The program cannot find the specified database</h3>" +
-                            "<h4>Would you like to open the settings Dialog to create it?</h4>" +
-                            "</body>" +
-                            "</html>";
-                    int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-                    if (cont == 0) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("ERROR!");
+                    alert.setHeaderText("The program cannot find the specified database");
+                    alert.setContentText("Would you like to open the settings Dialog to create it?");
+
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK) {
                         //new Settings();
                     }
                     LogToFile.log(ex, Severity.SEVERE, "");

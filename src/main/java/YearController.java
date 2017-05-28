@@ -21,16 +21,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import javax.swing.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Optional;
+
+//import javax.swing.*;
 
 public class YearController {
 
@@ -106,19 +106,14 @@ public class YearController {
 
     @FXML
     public void deleteYear(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("WARNING!");
+        alert.setHeaderText("You are about to delete an entire Year. This cannot be reversed");
+        alert.setContentText("Would you like to continue with the deletion?");
 
-        String message = "<html><head><style>" +
-                "h3 {text-align:center;}" +
-                "h4 {text-align:center;}" +
-                "</style></head>" +
-                "<body><h3>WARNING !</h3>" +
-                "<h3>You are about to delete an entire Year.</h3>" +
-                "<h3>This action is irreversible.</h3>" +
-                "<h4>Would you like to continue with the deletion?</h4>" +
-                "</body>" +
-                "</html>";
-        int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-        if (cont == 0) {
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
             DbInt.deleteDb(year);
             try (PreparedStatement prep = DbInt.getPrep("Set", "DELETE FROM YEARS WHERE YEARS=?")) {
                 prep.setString(1, year);

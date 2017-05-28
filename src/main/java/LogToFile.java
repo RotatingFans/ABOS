@@ -17,7 +17,10 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javax.swing.*;
+//import javax.swing.*;
+
+import javafx.scene.control.Alert;
+
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -66,22 +69,32 @@ class LogToFile {
                 case SEVERE:
                     logger.log(Level.SEVERE, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
+
                     }
                     break;
                 case WARNING:
                     logger.log(Level.WARNING, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Warning", JOptionPane.WARNING_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Warning");
+                        alert.setHeaderText("Warning");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
                     }
                     break;
                 case INFO:
                     logger.log(Level.INFO, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Info", JOptionPane.INFORMATION_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Info");
+                        // alert.setHeaderText("");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
                     }
                     break;
                 case CONFIG:
