@@ -28,7 +28,6 @@
     <orderEntry type="library" name="Maven: org.apache.derby:derby:10.13.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.itextpdf:itextpdf:5.5.10" level="project" />
     <orderEntry type="library" name="Maven: com.itextpdf.tool:xmlworker:5.5.10" level="project" />
-    <orderEntry type="library" name="Maven: org.openstreetmap.gui.jmapviewer:JMapViewer:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.w3c.tidy:jtidy:938" level="project" />
     <orderEntry type="library" name="Maven: net.sf.saxon:saxon:9" level="project" />
   </component>

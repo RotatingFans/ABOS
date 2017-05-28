@@ -59,12 +59,7 @@
             <artifactId>xmlworker</artifactId>
             <version>5.5.10</version>
         </dependency>
-        <dependency>
-            <groupId>org.openstreetmap.gui.jmapviewer</groupId>
-            <artifactId>JMapViewer</artifactId>
-            <version>1.0.0</version>
 
-        </dependency>
         <dependency>
             <groupId>org.w3c.tidy</groupId>
             <artifactId>jtidy</artifactId>
