@@ -46,6 +46,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 //import javax.swing.*;
@@ -325,12 +326,60 @@ public class AddYearController {
     @FXML
     private void catCmbxChanged(ActionEvent event) {
         if (Objects.equals(categoriesCmbx.getSelectionModel().getSelectedItem(), "Add Category")) {
-            AddCategory addCat = new AddCategory();
-            String[] cat = addCat.showDialog();
-            if (!Objects.equals(cat[0], "") && cat[0] != null) {
-                rowsCats.add(new String[]{cat[0], cat[1]});
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Add new category");
+
+// Set the button types.
+            ButtonType addCat = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(addCat, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            TextField catName = new TextField();
+            catName.setPromptText("Category Name");
+            DatePicker catDate = new DatePicker(LocalDate.now());
+            catDate.setPromptText("Category Due Date");
+
+            grid.add(new Label("Category Name:"), 0, 0);
+            grid.add(catName, 1, 0);
+            grid.add(new Label("Category Due Date:"), 0, 1);
+            grid.add(catDate, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+            javafx.scene.Node addCatButton = dialog.getDialogPane().lookupButton(addCat);
+            addCatButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+            catName.textProperty().addListener((observable, oldValue, newValue) -> {
+                addCatButton.setDisable(newValue.trim().isEmpty());
+            });
+
+            dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+            Platform.runLater(() -> catName.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == addCat) {
+                    return new Pair<String, String>(catName.getText(), catDate.getValue().toString());
+                }
+                return null;
+            });
+
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+
+            result.ifPresent(category -> {
+                rowsCats.add(new String[]{category.getKey(), category.getValue()});
                 refreshCmbx();
-            }
+
+            });
+
 
 
         }
