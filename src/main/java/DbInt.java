@@ -173,7 +173,17 @@ public class DbInt {
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK) {
-                        //new Settings();
+                        new Settings(null);
+                        return getPrep(Db, Command);
+                    } else {
+                        Alert closingWarning = new Alert(Alert.AlertType.WARNING);
+                        closingWarning.setTitle("Warning!");
+                        closingWarning.setHeaderText("The program cannot run withou the database");
+                        closingWarning.setContentText("Application is closing. Please restart application and create the database in the setting dialog.");
+
+
+                        closingWarning.showAndWait();
+                        System.exit(0);
                     }
                     LogToFile.log(ex, Severity.SEVERE, "");
                 } else {
