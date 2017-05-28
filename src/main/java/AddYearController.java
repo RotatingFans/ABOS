@@ -17,20 +17,21 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Pair;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,18 +40,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 //import javax.swing.*;
 //import javax.swing.border.EmptyBorder;
@@ -126,8 +122,199 @@ public class AddYearController {
         }
     }
 
+    private void convert(String csvLoc, String xmlLoc) {
+        List<String> headers = new ArrayList<>(5);
+
+
+        File file = new File(csvLoc);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+
+            Document newDoc = domBuilder.newDocument();
+            // Root element
+            Element rootElement = newDoc.createElement("LawnGarden");
+            newDoc.appendChild(rootElement);
+
+            int line = 0;
+
+            String text;
+            while ((text = reader.readLine()) != null) {
+
+                StringTokenizer st = new StringTokenizer(text, ";", false);
+                String[] rowValues = new String[st.countTokens()];
+                int index = 0;
+                while (st.hasMoreTokens()) {
+
+                    String next = st.nextToken();
+                    rowValues[index] = next;
+                    index++;
+
+                }
+
+                //String[] rowValues = text.split(",");
+
+                if (line == 0) { // Header row
+                    Collections.addAll(headers, rowValues);
+                } else { // Data row
+                    Element rowElement = newDoc.createElement("Products");
+                    rootElement.appendChild(rowElement);
+                    Attr attr = newDoc.createAttribute("id");
+                    attr.setValue(Integer.toString(line - 1));
+                    rowElement.setAttributeNode(attr);
+                    for (int col = 0; col < headers.size(); col++) {
+                        String header = headers.get(col);
+                        String value;
+
+                        if (col < rowValues.length) {
+                            value = rowValues[col].trim();
+                        } else {
+                            // ?? Default value
+                            value = "";
+                        }
+
+                        Element curElement = newDoc.createElement(header);
+                        curElement.appendChild(newDoc.createTextNode(value));
+                        rowElement.appendChild(curElement);
+                    }
+                }
+                line++;
+            }
+
+            OutputStreamWriter osw = null;
+
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                osw = new OutputStreamWriter(baos);
+
+                TransformerFactory tranFactory = TransformerFactory.newInstance();
+                Transformer aTransformer = tranFactory.newTransformer();
+                aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                //aTransformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+                aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                Source src = new DOMSource(newDoc);
+                Result result = new StreamResult(osw);
+                aTransformer.transform(src, result);
+
+                osw.flush();
+                //System.out.println(new String(baos.toByteArray()));
+
+                try (OutputStream outStream = new FileOutputStream(xmlLoc)) {// writing bytes in to byte output stream
+
+                    baos.writeTo(outStream);
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error writing XML file. Please try again.");
+                }
+
+
+            } catch (Exception exp) {
+                LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
+            } finally {
+                try {
+                    osw.close();
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
+                }
+
+            }
+        } catch (Exception e) {
+            LogToFile.log(e, Severity.SEVERE, "Error reading CSV file. Ensure the path exists, and the software has permission to read it.");
+        }
+    }
+
     @FXML
     private void csvToXml(ActionEvent event) {
+        // Create the custom dialog.
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("CSV to XML conversion");
+
+// Set the button types.
+        ButtonType convertButtonType = new ButtonType("Convert", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(convertButtonType, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField csvLoc = new TextField();
+        csvLoc.setPromptText("CSV file Location");
+        TextField xmlLoc = new TextField();
+        xmlLoc.setPromptText("XML Location");
+        Button getCsvLoc = new Button("...");
+        getCsvLoc.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("CSV files", "*.csv", "*.CSV");
+            chooser.getExtensionFilters().add(filter);
+            chooser.setSelectedExtensionFilter(filter);
+            File csv = chooser.showOpenDialog(grid.getScene().getWindow());
+            if (csv != null) {
+                String path = csv.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".csv")) {
+                    path += ".csv";
+                }
+                csvLoc.setText(path);
+            }
+        });
+        Button getXmlLoc = new Button("...");
+        getXmlLoc.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("XML files", "*.xml", "*.XML");
+            chooser.getExtensionFilters().add(filter);
+            chooser.setSelectedExtensionFilter(filter);
+            File XML = chooser.showSaveDialog(grid.getScene().getWindow());
+            if (XML != null) {
+                String path = XML.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".xml")) {
+                    path += ".xml";
+                }
+                xmlLoc.setText(path);
+            }
+        });
+        grid.add(new Label("CSV file Location:"), 0, 0);
+        grid.add(csvLoc, 1, 0);
+        grid.add(getCsvLoc, 2, 0);
+        grid.add(new Label("XML Location:"), 0, 1);
+        grid.add(xmlLoc, 1, 1);
+        grid.add(getXmlLoc, 2, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node convertButton = dialog.getDialogPane().lookupButton(convertButtonType);
+        convertButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        csvLoc.textProperty().addListener((observable, oldValue, newValue) -> {
+            convertButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> csvLoc.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == convertButtonType) {
+                return new Pair<>(csvLoc.getText(), xmlLoc.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(fileLocations -> {
+            convert(fileLocations.getKey(), fileLocations.getValue());
+            createTable(fileLocations.getValue());
+        });
+
+
+
+
 /*        CSV2XML csv = new CSV2XML(parent);
         String xmlFile = csv.getXML();
         if (!xmlFile.isEmpty()) {
@@ -172,7 +359,7 @@ public class AddYearController {
 
     @FXML
     private void cancel(ActionEvent event) {
-
+        close();
     }
 
     private void close() {

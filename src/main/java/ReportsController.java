@@ -348,7 +348,7 @@ public class ReportsController {
 
     @FXML
     public void cancel(ActionEvent event) {
-        //close
+        close();
     }
 
     @FXML
