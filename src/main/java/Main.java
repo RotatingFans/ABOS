@@ -100,7 +100,7 @@ class Main extends JFrame {
         //Reports
         {
             JButton btnNewButton = new JButton("Reports");
-            btnNewButton.addActionListener(e -> new Reports());
+            //btnNewButton.addActionListener(e -> new Reports());
             //btnNewButton.setBounds(429, 5, 107, 39);
             panel.add(btnNewButton);
         }

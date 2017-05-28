@@ -19,7 +19,6 @@
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -28,7 +27,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 public class MainController {
@@ -67,7 +65,7 @@ public class MainController {
                     break;
                 }
                 case "Reports":
-                    new Reports();
+                    new Reports(tabPane2.getScene().getWindow());
                     break;
                 case "View Map":
                     Map window = new Map();

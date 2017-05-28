@@ -17,31 +17,21 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -560,42 +550,6 @@ public class AddCustomerController {
         }
     }
 
-    public static class ProgressForm {
-        final Label label = new Label();
-        private final Stage dialogStage;
-        private final ProgressBar pb = new ProgressBar();
-      //  private final ProgressIndicator pin = new ProgressIndicator();
-
-        public ProgressForm() {
-            dialogStage = new Stage();
-            dialogStage.initStyle(StageStyle.UTILITY);
-            dialogStage.setResizable(false);
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-
-            // PROGRESS BAR
-            label.setText("alerto");
-            pb.setProgress(-1F);
-
-            final HBox hb = new HBox();
-            hb.setSpacing(5);
-            hb.setAlignment(Pos.CENTER);
-            hb.getChildren().addAll(label, pb);
-
-            Scene scene = new Scene(hb);
-            dialogStage.setScene(scene);
-        }
-
-        public void activateProgressBar(final Task<?> task) {
-            pb.progressProperty().bind(task.progressProperty());
-            label.textProperty().bind(task.messageProperty());
-
-            dialogStage.show();
-        }
-
-        public Stage getDialogStage() {
-            return dialogStage;
-        }
-    }
 
 
 }

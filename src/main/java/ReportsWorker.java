@@ -4,7 +4,7 @@
  *       This file is part of ABOS.
  *
  *       ABOS is free software: you can redistribute it and/or modify
- *       it under the terms of the GNU Affero General Public License as published by
+ *       it under the terms of the GNU Affero General Public License as updateMessageed by
  *       the Free Software Foundation, either version 3 of the License, or
  *       (at your option) any later version.
  *
@@ -28,15 +28,14 @@ import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
+import javafx.concurrent.Task;
 import net.sf.saxon.s9api.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.tidy.Tidy;
 
-import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -45,12 +44,12 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
+
+//import javax.swing.*;
 
 //import com.itextpdf.text.Document;
 
@@ -60,7 +59,7 @@ import java.util.Objects;
  *
  * @author Albert Attard
  */
-class ReportsWorker extends SwingWorker<Integer, String> {
+class ReportsWorker extends Task<Integer> {
 
     private final String reportType;
     private final String selectedYear;
@@ -75,7 +74,6 @@ class ReportsWorker extends SwingWorker<Integer, String> {
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
-    private final JLabel statusLbl;
     private final String pdfLoc;
     private Document doc = null;
     private File xmlTempFile = null;
@@ -97,10 +95,9 @@ class ReportsWorker extends SwingWorker<Integer, String> {
      * @param repTitle
      * @param splitting
      * @param includeHeader
-     * @param statusLbl
      * @param pdfLoc1
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, JLabel statusLbl, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -115,7 +112,6 @@ class ReportsWorker extends SwingWorker<Integer, String> {
         this.repTitle = repTitle;
         Splitting = splitting;
         this.includeHeader = includeHeader;
-        this.statusLbl = statusLbl;
         pdfLoc = pdfLoc1;
     }
 
@@ -128,19 +124,16 @@ class ReportsWorker extends SwingWorker<Integer, String> {
 // --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
     @Override
-    protected Integer doInBackground() {
-        publish("Generating Report");
+    protected Integer call() throws Exception {
+        updateMessage("Generating Report");
         if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
             Year year = new Year(selectedYear);
             Iterable<String> customers = year.getCustomerNames();
             // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder = null;
-            try {
-                domBuilder = domFactory.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
-            }
+            domBuilder = domFactory.newDocumentBuilder();
+
 
 
             doc = domBuilder.newDocument();
@@ -213,9 +206,14 @@ class ReportsWorker extends SwingWorker<Integer, String> {
 
 
                 // Root element
-
+                Order.orderArray orderArray;
                 Order order = new Order();
-                Order.orderArray orderArray = order.createOrderArray(selectedYear, customer, true, category);
+                if (Objects.equals(category, "All")) {
+                    orderArray = order.createOrderArray(selectedYear, customer, true);
+
+                } else {
+                    orderArray = order.createOrderArray(selectedYear, customer, true, category);
+                }
                 //Set Items
                 {
                     //Product Elements
@@ -263,7 +261,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                         products.appendChild(title);
                     }
                     {
-                        if (includeHeader) {
+                        if (includeHeader && !Objects.equals(category, "All")) {
                             Element title = doc.createElement("specialInfo");
                             {
                                 Element text = doc.createElement("text");
@@ -390,11 +388,8 @@ class ReportsWorker extends SwingWorker<Integer, String> {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder = null;
-            try {
                 domBuilder = domFactory.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                LogToFile.log(e, Severity.WARNING, "Error configuring parser. Please reinstall or contact support.");
-            }
+
 
             doc = domBuilder.newDocument();
             // Root element
@@ -500,7 +495,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                             products.appendChild(title);
                         }
                         {
-                            if (includeHeader) {
+                            if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
@@ -615,7 +610,7 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                             products.appendChild(title);
                         }
                         {
-                            if (includeHeader) {
+                            if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
@@ -798,8 +793,6 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                             }
                             ////DbInt.pCon.close();
 
-                        } catch (SQLException e) {
-                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
                         setProgress(getProgress() + yearProgressInc);
                     }
@@ -850,12 +843,14 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                 //fstream.deleteOnExit();
 
             } catch (IOException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error writing temporary XML. Please try again.");
+                updateMessage("Error writing temporary XML. Please try again.");
+                throw e;
             }
 
 
         } catch (Exception exp) {
-            LogToFile.log(exp, Severity.WARNING, "Error while genertating tempory XML. Please try again or contact support.");
+            updateMessage("Error while genertating tempory XML. Please try again or contact support.");
+            throw exp;
         } finally {
             try {
                 if (osw != null) {
@@ -866,25 +861,15 @@ class ReportsWorker extends SwingWorker<Integer, String> {
             }
 
         }
-        try {
-            convertXSLToPDF();
-        } catch (SaxonApiException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error converting temporary XML to pdf. Try again or contact support.");
-        }
-        publish("Done");
+        convertXSLToPDF();
+        updateMessage("Done");
 
 
         // Return the number of matches found
         return 1;
     }
 
-    @Override
-    protected void process(List<String> chunks) {
-        // Updates the messages text area
-        chunks.forEach(statusLbl::setText);
-    }
-
-    private void convertXSLToPDF() throws SaxonApiException {
+    private void convertXSLToPDF() throws Exception {
         OutputStream os = new ByteArrayOutputStream();
 
         Processor proc = new Processor(false);
@@ -1032,13 +1017,13 @@ class ReportsWorker extends SwingWorker<Integer, String> {
                 document.close();*/
 
 
-            } catch (FileNotFoundException e) {
-                LogToFile.log(e, Severity.WARNING, "Error accessing PDF file. Please check if it is open in any other programs and close it.");
             } catch (Exception e) {
-                LogToFile.log(e, Severity.SEVERE, "Error ocurred while converting temporary XML to pdf. Try again or contact support.");
+                updateMessage("Error ocurred while converting temporary XML to pdf. Try again or contact support.");
+                throw e;
             }
         } catch (IOException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error writing PDF file. Please try again.");
+            updateMessage("Error writing PDF file. Please try again.");
+            throw e;
         }
 
 
@@ -1048,5 +1033,9 @@ class ReportsWorker extends SwingWorker<Integer, String> {
          */
 
 
+    }
+
+    private void setProgress(double progress) {
+        updateProgress(progress, 100.0);
     }
 }
