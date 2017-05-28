@@ -31,7 +31,8 @@ import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 //import javax.swing.*;
@@ -63,20 +64,20 @@ public class CustomerController {
 
         //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
 
-        HashMap<String, String> customerInfoStrings = new HashMap<>();
-        customerInfoStrings.put("Name", name);
-        customerInfoStrings.put("Address", customerDbInfo.getAddr());
-        customerInfoStrings.put("Phone #", customerDbInfo.getPhone());
-        customerInfoStrings.put("Email", customerDbInfo.getEmail());
-        customerInfoStrings.put("Paid", customerDbInfo.getPaid());
-        customerInfoStrings.put("Delivered", customerDbInfo.getDelivered());
-        customerInfoStrings.put("Total Quantity", totQuant);
-        customerInfoStrings.put("Total Cost", totCost);
+        List<infoValPair> customerInfoStrings = new ArrayList<>();
+        customerInfoStrings.add(new infoValPair("Name", name));
+        customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
+        customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
+        customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
+        customerInfoStrings.add(new infoValPair("Total Cost", totCost));
 
 
-        customerInfoStrings.forEach((key, val) -> {
-            javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(key + ":");
-            javafx.scene.control.Label valLabel = new javafx.scene.control.Label(val);
+        customerInfoStrings.forEach((pair) -> {
+            javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
+            javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
             keyLabel.setId("CustomerDescription");
             valLabel.setId("CustomerValue");
             customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
@@ -261,6 +262,14 @@ public class CustomerController {
 //        this.customerOrders = customerOrders;
 //    }
 // --Commented out by Inspection STOP (1/2/2016 12:01 PM)
+private class infoValPair {
+    public String info;
+    public String value;
 
+    public infoValPair(String inf, String val) {
+        this.info = inf;
+        this.value = val;
+    }
+}
 
 }

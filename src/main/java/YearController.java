@@ -27,7 +27,8 @@ import javafx.scene.layout.VBox;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 //import javax.swing.*;
@@ -72,20 +73,23 @@ public class YearController {
         //West
 
         VBox East = new VBox();
-        HashMap<String, String> yearInfoStrings = new HashMap<>();
-        yearInfoStrings.put("Donations", yearDbInfo.getDonations().toPlainString());
-        yearInfoStrings.put("Lawn and Garden Products", Integer.toString(yearDbInfo.getLG()));
-        yearInfoStrings.put("Live Plant Products", Integer.toString(yearDbInfo.getLP()));
-        yearInfoStrings.put("Mulch", Integer.toString(yearDbInfo.getMulch()));
-        yearInfoStrings.put("Order Total", yearDbInfo.getOT().toPlainString());
-        yearInfoStrings.put("Grand Total", yearDbInfo.getGTot().toPlainString());
-        yearInfoStrings.put("Commission", yearDbInfo.getCommis().toPlainString());
-        yearInfoStrings.put("Customers", Integer.toString(yearDbInfo.getNoCustomers()));
+        List<infoValPair> yearInfoStrings = new ArrayList<>();
+        yearInfoStrings.add(new infoValPair("Customers", Integer.toString(yearDbInfo.getNoCustomers())));
+        yearDbInfo.getCategories().forEach(category -> {
+            yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG())));
+        });
+        /*yearInfoStrings.add(new infoValPair("Lawn and Garden Products", Integer.toString(yearDbInfo.getLG())));
+        yearInfoStrings.add(new infoValPair("Live Plant Products", Integer.toString(yearDbInfo.getLP())));
+        yearInfoStrings.add(new infoValPair("Mulch", Integer.toString(yearDbInfo.getMulch())));*/
+        yearInfoStrings.add(new infoValPair("Order Total", yearDbInfo.getOT().toPlainString()));
+        yearInfoStrings.add(new infoValPair("Donations", yearDbInfo.getDonations().toPlainString()));
+        yearInfoStrings.add(new infoValPair("Grand Total", yearDbInfo.getGTot().toPlainString()));
+        yearInfoStrings.add(new infoValPair("Commission", yearDbInfo.getCommis().toPlainString()));
 
 
-        yearInfoStrings.forEach((key, val) -> {
-            Label keyLabel = new Label(key + ":");
-            Label valLabel = new Label(val);
+        yearInfoStrings.forEach((pair) -> {
+            Label keyLabel = new Label(pair.info + ":");
+            Label valLabel = new Label(pair.value);
             keyLabel.setId("YearDescription");
             valLabel.setId("YearValue");
             yearInfo.getChildren().add(new VBox(keyLabel, valLabel));
@@ -162,6 +166,15 @@ public class YearController {
 
     }
 
+    private class infoValPair {
+        public String info;
+        public String value;
+
+        public infoValPair(String inf, String val) {
+            this.info = inf;
+            this.value = val;
+        }
+    }
 
 }
 

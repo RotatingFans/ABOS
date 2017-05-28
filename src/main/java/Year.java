@@ -62,6 +62,26 @@ public class Year {
         return ret;
     }
 
+    public Iterable<category> getCategories() {
+        Collection<category> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories");
+             ResultSet rs = prep.executeQuery()) {
+
+
+            while (rs.next()) {
+
+                ret.add(new category(rs.getString("NAME"), rs.getString("DATE")));
+                ////DbInt.pCon.close();
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
     private Object getTots(String info, int retType) {
         Object ret = "";
 
@@ -198,5 +218,15 @@ public class Year {
         }
         return ProductInfoArray.toArray(new Product.formattedProduct[ProductInfoArray.size()]);
 
+    }
+
+    public class category {
+        public String catName;
+        public String catDate;
+
+        public category(String name, String date) {
+            catName = name;
+            catDate = date;
+        }
     }
 }
