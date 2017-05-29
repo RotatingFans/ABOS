@@ -18,13 +18,12 @@ This software has been developed as a side project of mine, starting back in 201
 
 License
 ------------
-*   jDatePicker Version 1.3.4  BSD 2 Clause
 *   Apache Derby Version 10.11  Apache Version 2
 *   iText Version 5.10  AGPL v3
 *   JTidy Version 938  Custom license
 *   Saxon Version 9   MPLv2
 *   GMapsFX Versopm 2.12.0 Apache Version 2
-
+*   Maven Model Apache Version 2
 
     ABOS
     Copyright (C) 2017 Patrick Magauran

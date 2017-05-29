@@ -22,10 +22,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
+import java.awt.*;
+import java.io.*;
+import java.net.*;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Sample application to demonstrate programming an FXML interface.
@@ -37,6 +45,45 @@ public class Main extends Application {
     // main method is only for legacy support - java 8 won't call it for a javafx application.
     public static void main(String[] args) { launch(args); }
 
+    public Boolean checkUpdates() {
+// Make a URL to the web page
+        try {
+            URL url = new URL("https://roatingfans.gitlab.io/ABOS/version.html");
+
+            // Get the input stream through URL Connection
+            URLConnection con = url.openConnection();
+            InputStream is = con.getInputStream();
+
+            // Once you have the Input Stream, it's just plain old Java IO stuff.
+
+            // For this case, since you are interested in getting plain-text web page
+            // I'll use a reader and output the text content to System.out.
+
+            // For binary content, it's better to directly read the bytes from stream and write
+            // to the target file.
+
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+            String line = null;
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model model = reader.read(new FileReader("pom.xml"));
+            // read each line and write to System.out
+            while ((line = br.readLine()) != null) {
+                if (!Objects.equals(model.getVersion(), line)) {
+                    return true;
+                }
+            }
+        } catch (MalformedURLException | XmlPullParserException | FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return false;
+    }
+
     @Override
     public void start(final Stage stage) throws Exception {
         // load the scene fxml UI.
@@ -45,7 +92,37 @@ public class Main extends Application {
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
         final Parent root = loader.load();
         final MainController controller = loader.getController();
+        if (checkUpdates()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Update Available");
+            alert.setHeaderText("An Update is Available");
+            alert.setContentText("If you choose to download, download the latest tag's java Artifacts");
 
+            ButtonType buttonTypeOne = new ButtonType("Download");
+            ButtonType buttonTypeTwo = new ButtonType("Remind Me Later");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeOne) {
+                if (Desktop.isDesktopSupported()) {
+                    new Thread(() -> {
+                        try {
+                            Desktop.getDesktop().browse(new URI("https://gitlab.com/RoatingFans/ABOS/tags"));
+
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+
+                }
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        }
         // continuously refresh the TreeItems.
         // demonstrates using controller methods to manipulate the controlled UI.
        /* final Timeline timeline = new Timeline(
