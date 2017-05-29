@@ -454,7 +454,12 @@ public class AddYearController {
 
     @FXML
     private void submit(ActionEvent event) {
-        if (chkboxCreateDatabase.isSelected()) {
+        DbInt.getYears().forEach(year -> {
+            if (year == yearText.getText()) {
+                newYear = false;
+            }
+        });
+        if (chkboxCreateDatabase.isSelected() && newYear) {
             CreateDb();
         } else if (newYear) {
             addYear();
@@ -480,7 +485,7 @@ public class AddYearController {
     public void initAddYear(Window parWindow) {
         parentWindow = parWindow;
         newYear = true;
-
+        chkboxCreateDatabase.setSelected(true);
         yearText.setText(Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
         categoriesTb.addAll("", "Add Category");
         categoriesCmbx.getItems().setAll(categoriesTb);
@@ -594,6 +599,7 @@ public class AddYearController {
      */
     private void CreateDb() {
         String year = yearText.getText();
+        DbInt.deleteDb(year);
         if (DbInt.createDb(year)) {
             //Create Tables
             //Create Customers Table
@@ -686,6 +692,12 @@ public class AddYearController {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
+
+        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"Categories\"")) {
+            addCol.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
         //Recreate Year Customer table
 
         try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
@@ -694,6 +706,22 @@ public class AddYearController {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
+        try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        //Add Categories
+        rowsCats.forEach(cat -> {
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+                prep.setString(1, cat[0]);
+                prep.setDate(2, Date.valueOf(cat[1]));
+
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        });
         //Insert products into Product table
         String col = "";
         for (int i = 0; i < ProductTable.getItems().size(); i++) {

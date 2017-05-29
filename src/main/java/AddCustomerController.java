@@ -95,10 +95,10 @@ public class AddCustomerController {
      *
      * @param customerName the name of the customer being edited.
      */
-    public void initAddCust( String aYear, String customerName, MainController mainController) {
+    public void initAddCust(String aYear, String customerName, MainController mainController, Tab parent) {
 
         mainCont = mainController;
-
+        parentTab = parent;
         year = aYear;
         yearInfo = new Year(year);
         customerInfo = new Customer(customerName, year);
@@ -131,9 +131,10 @@ public class AddCustomerController {
 
     }
 
-    public void initAddCust(String aYear, MainController mainController) {
+    public void initAddCust(String aYear, MainController mainController, Tab parent) {
         mainCont = mainController;
         newCustomer = 1;
+        parentTab = parent;
 
         year = aYear;
         yearInfo = new Year(year);
@@ -178,9 +179,27 @@ public class AddCustomerController {
 
     @FXML
     public void submit(ActionEvent event) {
+
         if (infoEntered()) {
-            commitChanges();
-            updateTots();
+            if (!edit && yearInfo.addressExists(Address.getText(), ZipCode.getText())) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Duplicate");
+                alert.setHeaderText("The address you have entered appears to be a duplicate");
+                alert.setContentText("Would you like to continue?");
+
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    commitChanges();
+                    //updateTots();
+                    //close
+                    // ... user chose OK
+                }
+            } else {
+                commitChanges();
+
+            }
+
         } else {
             //javafx.scene.control.Dialog dialog = new Dialog();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -411,6 +430,7 @@ public class AddCustomerController {
             }
             YearController yearCont = loader.getController();
             yearCont.initYear(year, mainCont);
+            mainCont.closeTab(parentTab);
             mainCont.addTab(newPane,"Year View - " + year);
 
         });

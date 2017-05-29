@@ -58,9 +58,9 @@ public class MainController {
                         e.printStackTrace();
                     }
                     AddCustomerController addCustCont = loader.getController();
-                    addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
+                    Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
 
-                    addCustCont.initAddCust(newValue.getParent().getValue(),this);
+                    addCustCont.initAddCust(newValue.getParent().getValue(), this, tab);
 
                     break;
                 }
@@ -119,7 +119,7 @@ public class MainController {
         return tabPane2.getScene().getWindow();
     }
 
-    public void addTab(Pane fillPane, String tabTitle) {
+    public Tab addTab(Pane fillPane, String tabTitle) {
         Tab tab = new Tab(tabTitle);
         AnchorPane tabContentPane = new AnchorPane(fillPane);
         AnchorPane.setBottomAnchor(tabContentPane, 0.0);
@@ -131,6 +131,11 @@ public class MainController {
 
         tabPane2.getTabs().add(tab);
         tabPane2.getSelectionModel().select(tab);
+        return tab;
+    }
+
+    public void closeTab(Tab tab) {
+        tabPane2.getTabs().remove(tab);
     }
 
     public void openAddCustomer(String year) {
@@ -143,10 +148,10 @@ public class MainController {
             e.printStackTrace();
         }
         AddCustomerController addCustCont = loader.getController();
-        addTab(newPane, "Add Customer - " + year);
+        Tab tab = addTab(newPane, "Add Customer - " + year);
         // get children of parent of secPane (the VBox)
 
-        addCustCont.initAddCust(year, this);
+        addCustCont.initAddCust(year, this, tab);
     }
 
     public void openEditCustomer(String year, String custName) {
@@ -159,10 +164,10 @@ public class MainController {
             e.printStackTrace();
         }
         AddCustomerController addCustCont = loader.getController();
-        addTab(newPane,"Edit Customer - " + custName + " - " + year);
+        Tab tab = addTab(newPane, "Edit Customer - " + custName + " - " + year);
         // get children of parent of secPane (the VBox)
 
-        addCustCont.initAddCust(year, custName, this);
+        addCustCont.initAddCust(year, custName, this, tab);
     }
     /**
      * Adds the year buttons to the main panel.

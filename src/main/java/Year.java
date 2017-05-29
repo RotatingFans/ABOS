@@ -220,6 +220,26 @@ public class Year {
 
     }
 
+    public boolean addressExists(String address, String zipCode) {
+        Boolean exists = false;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE ADDRESS=? AND ZIPCODE=?")) {
+            prep.setString(1, address);
+            prep.setString(2, zipCode);
+            ResultSet rs = prep.executeQuery();
+
+            while (rs.next()) {
+
+                exists = true;
+
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return exists;
+    }
+
     public class category {
         public String catName;
         public String catDate;
