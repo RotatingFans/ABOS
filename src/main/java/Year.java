@@ -1,20 +1,20 @@
 /*
  * Copyright (c) Patrick Magauran 2017.
- * Licensed under the AGPLv3. All conditions of said license apply.
- *     This file is part of LawnAndGarden.
+ *   Licensed under the AGPLv3. All conditions of said license apply.
+ *       This file is part of ABOS.
  *
- *     LawnAndGarden is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ *       ABOS is free software: you can redistribute it and/or modify
+ *       it under the terms of the GNU Affero General Public License as published by
+ *       the Free Software Foundation, either version 3 of the License, or
+ *       (at your option) any later version.
  *
- *     LawnAndGarden is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *       ABOS is distributed in the hope that it will be useful,
+ *       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *       GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
+ *       You should have received a copy of the GNU Affero General Public License
+ *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 import java.math.BigDecimal;
@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Created by patrick on 7/27/16.
  */
-class Year {
+public class Year {
     private static final int retInteger = 1;
     private static final int retString = 2;
     private static final int retBigDec = 3;
@@ -54,6 +54,26 @@ class Year {
             }
             ////DbInt.pCon.close();
 
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<category> getCategories() {
+        Collection<category> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories");
+             ResultSet rs = prep.executeQuery()) {
+
+
+            while (rs.next()) {
+
+                ret.add(new category(rs.getString("NAME"), rs.getString("DATE")));
+                ////DbInt.pCon.close();
+            }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -198,5 +218,35 @@ class Year {
         }
         return ProductInfoArray.toArray(new Product.formattedProduct[ProductInfoArray.size()]);
 
+    }
+
+    public boolean addressExists(String address, String zipCode) {
+        Boolean exists = false;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE ADDRESS=? AND ZIPCODE=?")) {
+            prep.setString(1, address);
+            prep.setString(2, zipCode);
+            ResultSet rs = prep.executeQuery();
+
+            while (rs.next()) {
+
+                exists = true;
+
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return exists;
+    }
+
+    public class category {
+        public String catName;
+        public String catDate;
+
+        public category(String name, String date) {
+            catName = name;
+            catDate = date;
+        }
     }
 }

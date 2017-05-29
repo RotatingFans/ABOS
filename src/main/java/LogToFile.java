@@ -1,23 +1,26 @@
 /*
  * Copyright (c) Patrick Magauran 2017.
- * Licensed under the AGPLv3. All conditions of said license apply.
- *     This file is part of LawnAndGarden.
+ *   Licensed under the AGPLv3. All conditions of said license apply.
+ *       This file is part of ABOS.
  *
- *     LawnAndGarden is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ *       ABOS is free software: you can redistribute it and/or modify
+ *       it under the terms of the GNU Affero General Public License as published by
+ *       the Free Software Foundation, either version 3 of the License, or
+ *       (at your option) any later version.
  *
- *     LawnAndGarden is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *       ABOS is distributed in the hope that it will be useful,
+ *       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *       GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
+ *       You should have received a copy of the GNU Affero General Public License
+ *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javax.swing.*;
+//import javax.swing.*;
+
+import javafx.scene.control.Alert;
+
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -66,22 +69,32 @@ class LogToFile {
                 case SEVERE:
                     logger.log(Level.SEVERE, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
+
                     }
                     break;
                 case WARNING:
                     logger.log(Level.WARNING, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Warning", JOptionPane.WARNING_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Warning");
+                        alert.setHeaderText("Warning");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
                     }
                     break;
                 case INFO:
                     logger.log(Level.INFO, msg, ex);
                     if (!msg.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, msg,
-                                "Info", JOptionPane.INFORMATION_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Info");
+                        // alert.setHeaderText("");
+                        alert.setContentText(msg);
+                        alert.showAndWait();
                     }
                     break;
                 case CONFIG:

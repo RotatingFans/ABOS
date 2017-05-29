@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) Patrick Magauran 2017.
+  ~   Licensed under the AGPLv3. All conditions of said license apply.
+  ~       This file is part of ABOS.
+  ~
+  ~       ABOS is free software: you can redistribute it and/or modify
+  ~       it under the terms of the GNU Affero General Public License as published by
+  ~       the Free Software Foundation, either version 3 of the License, or
+  ~       (at your option) any later version.
+  ~
+  ~       ABOS is distributed in the hope that it will be useful,
+  ~       but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~       GNU Affero General Public License for more details.
+  ~
+  ~       You should have received a copy of the GNU Affero General Public License
+  ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="740.0" prefWidth="1135.0"
+            xmlns="http://javafx.com/javafx/8.0.111" fx:controller="ReportsController">
+    <children>
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+            <center>
+                <TabPane fx:id="reportTabPane" prefHeight="740.0" prefWidth="1135.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab closable="false" text="Report Type">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <HBox>
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="25.0" prefWidth="96.0"
+                                                       text="Report Type" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                    <opaqueInsets>
+                                                        <Insets/>
+                                                    </opaqueInsets>
+                                                    <HBox.margin>
+                                                        <Insets right="5.0"/>
+                                                    </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbxReportType" onAction="#reportTypeChange"
+                                                          prefHeight="26.0" prefWidth="199.0"
+                                                          promptText="Choose A Report Type">
+                                                    <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                            <String fx:value="Year Totals"/>
+                                                            <String fx:value="Year Totals; Spilt by Customer"/>
+
+                                                            <String fx:value="Customer Year Totals"/>
+                                                            <String fx:value="Customer All-Time Totals"/>
+                                                        </FXCollections>
+                                                    </items>
+                                                </ComboBox>
+                                            </children>
+                                            <FlowPane.margin>
+                                                <Insets right="5.0"/>
+                                            </FlowPane.margin>
+                                        </HBox>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+                        <Tab closable="false" text="Report Info">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <FlowPane prefHeight="707.0" prefWidth="1135.0" AnchorPane.bottomAnchor="0.0"
+                                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                  AnchorPane.topAnchor="0.0">
+                                            <children>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="92.0"
+                                                               text="Scout Name" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutName" promptText="Scout Name"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="155.0"
+                                                               text="Scout Street Address" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutStAddr" promptText="Street Address"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Scout Zip Code" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutZip" promptText="Scout Zip Code"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Scout Town" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutTown" promptText="Scout Town"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Scout State" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutState" promptText="Scout State"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Scout Phone" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutPhone" promptText="Scout Phone"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Scout Rank" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="scoutRank" promptText="Scout Rank"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="106.0"
+                                                               text="Logo Location:" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="logoLoc" promptText="Logo Location"/>
+                                                        <Button mnemonicParsing="false" onAction="#promptLogo"
+                                                                text="..."/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox>
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="26.0" prefWidth="126.0"
+                                                               text="PDF Save Location:" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <TextField fx:id="pdfLoc" promptText="PDF Save Location"/>
+                                                        <Button mnemonicParsing="false" onAction="#promptPDF"
+                                                                text="..."/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox fx:id="categoryPane">
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="96.0"
+                                                               text="Category" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <ComboBox fx:id="cmbxCategory"
+                                                                  onAction="#selectedCategoryChanged" prefHeight="26.0"
+                                                                  prefWidth="199.0" promptText="Choose A Category">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList">
+                                                                    <String fx:value="All"/>
+
+                                                                </FXCollections>
+                                                            </items>
+                                                            <value>
+                                                                <String fx:value="All"/>
+                                                            </value>
+                                                        </ComboBox>
+                                                    </children>
+                                                    <FlowPane.margin>
+                                                        <Insets right="5.0"/>
+                                                    </FlowPane.margin>
+                                                </HBox>
+                                                <HBox fx:id="customerPane">
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="96.0"
+                                                               text="Customer" textAlignment="CENTER"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <ComboBox fx:id="cmbxCustomers" prefHeight="26.0"
+                                                                  prefWidth="199.0" promptText="Choose A Customer">
+
+                                                        </ComboBox>
+                                                    </children>
+                                                    <FlowPane.margin>
+                                                        <Insets right="5.0"/>
+                                                    </FlowPane.margin>
+                                                </HBox>
+                                                <HBox fx:id="yearPane">
+                                                    <children>
+                                                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="96.0"
+                                                               text="Year" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0"/>
+                                                            </HBox.margin>
+                                                        </Label>
+                                                        <ComboBox fx:id="cmbxYears" onAction="#selectedYearChanged"
+                                                                  prefHeight="26.0" prefWidth="199.0"
+                                                                  promptText="Choose A Year">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList">
+                                                                </FXCollections>
+                                                            </items>
+                                                        </ComboBox>
+                                                    </children>
+                                                    <FlowPane.margin>
+                                                        <Insets right="5.0"/>
+                                                    </FlowPane.margin>
+                                                </HBox>
+                                                <CheckBox fx:id="includeHeader" mnemonicParsing="false"
+                                                          text="Include Due Header">
+                                                    <HBox.margin>
+                                                        <Insets right="5.0"/>
+                                                    </HBox.margin>
+                                                </CheckBox>
+                                            </children>
+                                        </FlowPane>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </center>
+            <bottom>
+                <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <buttons>
+                        <Button fx:id="nextButton" mnemonicParsing="false" onAction="#next" text="Next"/>
+                        <Button fx:id="okButton" disable="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
+                        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
+                    </buttons>
+                </ButtonBar>
+            </bottom>
+        </BorderPane>
+    </children>
+</AnchorPane>

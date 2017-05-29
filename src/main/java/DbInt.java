@@ -1,37 +1,39 @@
 /*
  * Copyright (c) Patrick Magauran 2017.
- * Licensed under the AGPLv3. All conditions of said license apply.
- *     This file is part of LawnAndGarden.
+ *   Licensed under the AGPLv3. All conditions of said license apply.
+ *       This file is part of ABOS.
  *
- *     LawnAndGarden is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ *       ABOS is free software: you can redistribute it and/or modify
+ *       it under the terms of the GNU Affero General Public License as published by
+ *       the Free Software Foundation, either version 3 of the License, or
+ *       (at your option) any later version.
  *
- *     LawnAndGarden is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *       ABOS is distributed in the hope that it will be useful,
+ *       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *       GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
+ *       You should have received a copy of the GNU Affero General Public License
+ *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import javax.swing.*;
+//import javax.swing.*;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import java.io.File;
 import java.sql.*;
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *
  */
 @SuppressWarnings("unused")
-class DbInt {
+public class DbInt {
     public static Connection pCon = null;
 
     /**
@@ -163,18 +165,25 @@ class DbInt {
 
             } else {
                 if (Objects.equals(ex.getSQLState(), "XJ004")) {
-                    String message = "<html><head><style>" +
-                            "h3 {text-align:center;}" +
-                            "h4 {text-align:center;}" +
-                            "</style></head>" +
-                            "<body><h3>ERROR!</h3>" +
-                            "<h3>The program cannot find the specified database</h3>" +
-                            "<h4>Would you like to open the settings Dialog to create it?</h4>" +
-                            "</body>" +
-                            "</html>";
-                    int cont = JOptionPane.showConfirmDialog(null, message, "", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-                    if (cont == 0) {
-                        new Settings();
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("ERROR!");
+                    alert.setHeaderText("The program cannot find the specified database");
+                    alert.setContentText("Would you like to open the settings Dialog to create it?");
+
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK) {
+                        new Settings(null);
+                        return getPrep(Db, Command);
+                    } else {
+                        Alert closingWarning = new Alert(Alert.AlertType.WARNING);
+                        closingWarning.setTitle("Warning!");
+                        closingWarning.setHeaderText("The program cannot run withou the database");
+                        closingWarning.setContentText("Application is closing. Please restart application and create the database in the setting dialog.");
+
+
+                        closingWarning.showAndWait();
+                        System.exit(0);
                     }
                     LogToFile.log(ex, Severity.SEVERE, "");
                 } else {

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<!--
+  ~ Copyright (c) Patrick Magauran 2017.
+  ~   Licensed under the AGPLv3. All conditions of said license apply.
+  ~       This file is part of ABOS.
+  ~
+  ~       ABOS is free software: you can redistribute it and/or modify
+  ~       it under the terms of the GNU Affero General Public License as published by
+  ~       the Free Software Foundation, either version 3 of the License, or
+  ~       (at your option) any later version.
+  ~
+  ~       ABOS is distributed in the hope that it will be useful,
+  ~       but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~       GNU Affero General Public License for more details.
+  ~
+  ~       You should have received a copy of the GNU Affero General Public License
+  ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            xmlns="http://javafx.com/javafx/8.0.112" fx:controller="YearController">
+    <BorderPane prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <center>
+
+            <SplitPane dividerPositions="0.29797979797979796" prefHeight="668.0" prefWidth="1288.0"
+                       BorderPane.alignment="CENTER">
+                <items>
+                    <VBox fx:id="yearInfo" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <content>
+                                <AnchorPane>
+                                    <children>
+                                        <TableView fx:id="yearOrders" AnchorPane.bottomAnchor="0.0"
+                                                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                   AnchorPane.topAnchor="0.0"/>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </ScrollPane>
+                    </AnchorPane>
+                </items>
+            </SplitPane>
+        </center>
+        <bottom>
+            <HBox prefHeight="27.0" prefWidth="1288.0" BorderPane.alignment="CENTER">
+                <children>
+                    <Button maxWidth="Infinity" mnemonicParsing="false" text="Refresh" HBox.hgrow="ALWAYS"
+                            onAction="#refresh">
+                        <HBox.margin>
+                            <Insets right="5.0"/>
+                        </HBox.margin>
+                    </Button>
+                    <Button maxWidth="Infinity" mnemonicParsing="false" text="Edit Year" HBox.hgrow="ALWAYS"
+                            onAction="#editYear">
+                        <HBox.margin>
+                            <Insets right="5.0"/>
+                        </HBox.margin>
+                    </Button>
+                    <Button maxWidth="Infinity" mnemonicParsing="false" text="Delete Year" HBox.hgrow="ALWAYS"
+                            onAction="#deleteYear"/>
+                </children>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</AnchorPane>

@@ -1,3 +1,5 @@
+image: kaiwinter/docker-java8-maven
+
 java:
   script:
     - call mvn clean compile package

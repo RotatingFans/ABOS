@@ -1,20 +1,20 @@
 /*
  * Copyright (c) Patrick Magauran 2017.
- * Licensed under the AGPLv3. All conditions of said license apply.
- *     This file is part of LawnAndGarden.
+ *   Licensed under the AGPLv3. All conditions of said license apply.
+ *       This file is part of ABOS.
  *
- *     LawnAndGarden is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ *       ABOS is free software: you can redistribute it and/or modify
+ *       it under the terms of the GNU Affero General Public License as published by
+ *       the Free Software Foundation, either version 3 of the License, or
+ *       (at your option) any later version.
  *
- *     LawnAndGarden is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *       ABOS is distributed in the hope that it will be useful,
+ *       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *       GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with LawnAndGarden.  If not, see <http://www.gnu.org/licenses/>.
+ *       You should have received a copy of the GNU Affero General Public License
+ *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 import javax.swing.*;
@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
 
 /**
  * A dialog that allows the user to add a new customer or edit an existing customer.
@@ -70,8 +69,8 @@ class AddCustomer extends JDialog {
      *
      * @param customerName the name of the customer being edited.
      */
-    public AddCustomer(String customerName) {
-        year = CustomerReport.year;
+    public AddCustomer(String customerName, String aYear) {
+        year = aYear;
         yearInfo = new Year(year);
         customerInfo = new Customer(customerName, year);
         edit = true;
@@ -106,10 +105,10 @@ class AddCustomer extends JDialog {
         setVisible(true);
     }
 
-    public AddCustomer() {
+    public AddCustomer(String aYear) {
         newCustomer = 1;
 
-        year = YearWindow.year;
+        year = aYear;
         yearInfo = new Year(year);
 
         initUI();
@@ -348,57 +347,57 @@ class AddCustomer extends JDialog {
      */
     private void commitChanges() {
 
-        ProgressDialog progDial = new ProgressDialog();
-
-        addCustWork = new AddCustomerWorker(Address.getText(),
-                Town.getText(),
-                State.getText(),
-                year,
-                edit,
-                ProductTable,
-                Name.getText(),
-                ZipCode.getText(),
-                Phone.getText(),
-                Email.getText(),
-                DonationsT.getText(),
-                NameEditCustomer,
-                Paid.isSelected(),
-                Delivered.isSelected(),
-                progDial.statusLbl);
-        addCustWork.addPropertyChangeListener(event -> {
-            switch (event.getPropertyName()) {
-                case "progress":
-                    progDial.progressBar.setIndeterminate(false);
-                    progDial.progressBar.setValue((Integer) event.getNewValue());
-                    break;
-                case "state":
-                    switch ((SwingWorker.StateValue) event.getNewValue()) {
-                        case DONE:
-                            try {
-                                int success = addCustWork.get();
-                                if (success == 1) {
-                                    updateTots();
-                                    dispose();
-                                    setVisible(false);
-                                }
-                            } catch (CancellationException e) {
-                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
-                            } catch (Exception e) {
-                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
-                            }
-                            addCustWork = null;
-                            progDial.dispose();
-                            break;
-                        case STARTED:
-                        case PENDING:
-                            progDial.progressBar.setVisible(true);
-                            progDial.progressBar.setIndeterminate(true);
-                            break;
-                    }
-                    break;
-            }
-        });
-        addCustWork.execute();
+//        ProgressDialog progDial = new ProgressDialog();
+//
+//        addCustWork = new AddCustomerWorker(Address.getText(),
+//                Town.getText(),
+//                State.getText(),
+//                year,
+//                edit,
+//                ProductTable,
+//                Name.getText(),
+//                ZipCode.getText(),
+//                Phone.getText(),
+//                Email.getText(),
+//                DonationsT.getText(),
+//                NameEditCustomer,
+//                Paid.isSelected(),
+//                Delivered.isSelected(),
+//                progDial.statusLbl);
+//        addCustWork.addPropertyChangeListener(event -> {
+//            switch (event.getPropertyName()) {
+//                case "progress":
+//                    progDial.progressBar.setIndeterminate(false);
+//                    progDial.progressBar.setValue((Integer) event.getNewValue());
+//                    break;
+//                case "state":
+//                    switch ((SwingWorker.StateValue) event.getNewValue()) {
+//                        case DONE:
+//                            try {
+//                                int success = addCustWork.get();
+//                                if (success == 1) {
+//                                    updateTots();
+//                                    dispose();
+//                                    setVisible(false);
+//                                }
+//                            } catch (CancellationException e) {
+//                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
+//                            } catch (Exception e) {
+//                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
+//                            }
+//                            addCustWork = null;
+//                            progDial.dispose();
+//                            break;
+//                        case STARTED:
+//                        case PENDING:
+//                            progDial.progressBar.setVisible(true);
+//                            progDial.progressBar.setIndeterminate(true);
+//                            break;
+//                    }
+//                    break;
+//            }
+//        });
+//        addCustWork.execute();
     }
 
     /**
