@@ -19,12 +19,10 @@
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -113,6 +111,43 @@ public class MainController {
                     break;
             }
         });
+        selectNav.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
+            @Override
+            public TreeCell<String> call(TreeView<String> p) {
+                TreeCell<String> cell = new TreeCell<String>() {
+                    @Override
+                    protected void updateItem(String file, boolean empty) {
+                        super.updateItem(file, empty);
+                        if (empty) {
+                            setText(null);
+                        } else {
+                            // maybe use a more appropriate string for display here
+                            // e.g. if you were using a regular java.io.File you would
+                            // likely want file.getName()
+                            setText(file.toString());
+                        }
+                    }
+                };
+                ContextMenu cm = createContextMenu(cell);
+                cell.setContextMenu(cm);
+                return cell;
+            }
+        });
+
+    }
+
+    private ContextMenu createContextMenu(TreeCell<String> cell) {
+        ContextMenu cm = new ContextMenu();
+        MenuItem openItem = new MenuItem("Open File");
+        openItem.setOnAction(event -> {
+            String file = cell.getItem();
+            if (file != null) {
+                // open the file...
+            }
+        });
+        cm.getItems().add(openItem);
+        // other menu items...
+        return cm;
     }
 
     public javafx.stage.Window getWindow() {
