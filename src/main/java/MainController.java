@@ -114,7 +114,10 @@ public class MainController {
         selectNav.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
             @Override
             public TreeCell<String> call(TreeView<String> p) {
+                ContextMenu cm = createContextMenu(p.getSelectionModel().getSelectedItem());
                 TreeCell<String> cell = new TreeCell<String>() {
+
+
                     @Override
                     protected void updateItem(String file, boolean empty) {
                         super.updateItem(file, empty);
@@ -126,9 +129,10 @@ public class MainController {
                             // likely want file.getName()
                             setText(file.toString());
                         }
+                        p.setContextMenu(createContextMenu(p.getSelectionModel().getSelectedItem()));
                     }
                 };
-                ContextMenu cm = createContextMenu(cell);
+
                 cell.setContextMenu(cm);
                 return cell;
             }
@@ -136,17 +140,150 @@ public class MainController {
 
     }
 
-    private ContextMenu createContextMenu(TreeCell<String> cell) {
+    private ContextMenu createContextMenu(TreeItem<String> cell) {
         ContextMenu cm = new ContextMenu();
-        MenuItem openItem = new MenuItem("Open File");
-        openItem.setOnAction(event -> {
-            String file = cell.getItem();
-            if (file != null) {
-                // open the file...
+        ContextMenu cmContent = new ContextMenu();
+        Pane newPane = null;
+        FXMLLoader loader;
+        // String tabTitle = "";
+        if (cell != null && cell.getValue() != null) {
+            switch (cell.getValue()) {
+                case "Add Customer": {
+                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    AddCustomerController addCustCont = loader.getController();
+    /*                Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
+
+                    addCustCont.initAddCust(newValue.getParent().getValue(), this, tab);*/
+
+                    break;
+                }
+                case "Reports":
+                    //  new Reports(tabPane2.getScene().getWindow());
+                    break;
+                case "View Map":
+                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // MapController mapCont = loader.getController();
+                    // mapCont.initMap(this);
+                    // addTab(newPane, "Map");
+
+                    break;
+                case "Add Year":
+                    // new AddYear(getWindow());
+                    break;
+                case "Settings":
+                    // new Settings(tabPane2.getScene().getWindow());
+                    break;
+                default:
+
+                    if (Objects.equals(cell.getParent().getValue(), "Root Node")) {
+                        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                        try {
+                            newPane = loader.load();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Pane finalNewPane = newPane;
+                        cmContent = createContextMenuContent(
+                                //Open
+                                () -> {
+                                    YearController yearCont = loader.getController();
+                                    yearCont.initYear(cell.getValue(), this);
+                                    String tabTitle = ("Year View - " + cell.getValue());
+                                    addTab(finalNewPane, tabTitle);
+                                }, () -> { //Open In New Tab
+                                    YearController yearCont = loader.getController();
+                                    yearCont.initYear(cell.getValue(), this);
+                                    String tabTitle = ("Year View - " + cell.getValue());
+                                    addTab(finalNewPane, tabTitle);
+                                }, () -> { //Open In New Window
+                                    YearController yearCont = loader.getController();
+                                    yearCont.initYear(cell.getValue(), this);
+                                    String tabTitle = ("Year View - " + cell.getValue());
+                                    //openInNewWindow(finalNewPane, tabTitle);
+                                }, () -> { //Edit
+
+                                });
+
+
+                    } else {
+                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                        try {
+                            newPane = loader.load();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Pane finalNewPane = newPane;
+
+                        cmContent = createContextMenuContent(
+                                //Open
+                                () -> {
+                                    CustomerController customerCont = loader.getController();
+                                    customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
+                                    String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
+                                    addTab(finalNewPane, tabTitle);
+                                }, () -> { //Open In New Tab
+                                    CustomerController customerCont = loader.getController();
+                                    customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
+                                    String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
+                                    addTab(finalNewPane, tabTitle);
+                                }, () -> { //Open In New Window
+                                    CustomerController customerCont = loader.getController();
+                                    customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
+                                    String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
+                                    //openInNewWindow(finalNewPane, tabTitle);
+                                }, () -> { //Edit
+
+                                });
+
+                    }
+                    //addTab(newPane, tabTitle);
+                    break;
             }
+
+        }
+        cm.getItems().addAll(cmContent.getItems());
+        MenuItem refresh = new MenuItem("Refresh");
+        refresh.setOnAction(event -> {
+            //Refresh List
         });
-        cm.getItems().add(openItem);
+        cm.getItems().add(refresh);
         // other menu items...
+        return cm;
+    }
+
+    private ContextMenu createContextMenuContent(contextActionCallback open, contextActionCallback openInNewTab, contextActionCallback openInNewWindow, contextActionCallback edit) {
+        ContextMenu cm = new ContextMenu();
+        if (open != null) {
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(event -> open.doAction());
+            cm.getItems().add(openItem);
+        }
+        if (openInNewTab != null) {
+            MenuItem openItem = new MenuItem("Open in New Tab");
+            openItem.setOnAction(event -> openInNewTab.doAction());
+            cm.getItems().add(openItem);
+        }
+        if (openInNewWindow != null) {
+            MenuItem openItem = new MenuItem("Open in New Window");
+            openItem.setOnAction(event -> openInNewWindow.doAction());
+            cm.getItems().add(openItem);
+        }
+        if (edit != null) {
+            MenuItem openItem = new MenuItem("Edit");
+            openItem.setOnAction(event -> edit.doAction());
+            cm.getItems().add(openItem);
+        }
+
         return cm;
     }
 
@@ -240,5 +377,9 @@ public class MainController {
 
         selectNav.setRoot(root);
 
+    }
+
+    interface contextActionCallback {
+        void doAction();
     }
 }
