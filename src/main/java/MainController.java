@@ -20,14 +20,16 @@
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.Objects;
 
 public class MainController {
+    private boolean isRightClick;
+
     // the FXML annotation tells the loader to inject this variable before invoking initialize.
     @FXML
     private TreeView<String> selectNav;
@@ -41,102 +43,88 @@ public class MainController {
         //loadTreeItems("initial 1", "initial 2", "initial 3");
         fillTreeView();
         selectNav.setShowRoot(false);
+        selectNav.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.isSecondaryButtonDown()) {
+                isRightClick = true;
 
+            }
+        });
         selectNav.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            Pane newPane = null;
-            FXMLLoader loader;
-            String tabTitle = "";
-            // load new pane
-            switch (newValue.getValue()) {
-                case "Add Customer": {
-                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
-                    try {
-                        newPane = loader.load();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    AddCustomerController addCustCont = loader.getController();
-                    Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
+            if (isRightClick) {
+                //reset the flag
+                isRightClick = false;
+            } else {
+                Pane newPane = null;
+                FXMLLoader loader;
+                String tabTitle = "";
 
-                    addCustCont.initAddCust(newValue.getParent().getValue(), this, tab);
-
-                    break;
-                }
-                case "Reports":
-                    new Reports(tabPane2.getScene().getWindow());
-                    break;
-                case "View Map":
-                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
-                    try {
-                        newPane = loader.load();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    MapController mapCont = loader.getController();
-                    mapCont.initMap(this);
-                    addTab(newPane, "Map");
-
-                    break;
-                case "Add Year":
-                    new AddYear(getWindow());
-                    break;
-                case "Settings":
-                    new Settings(tabPane2.getScene().getWindow());
-                    break;
-                default:
-
-                    if (Objects.equals(observable.getValue().getParent().getValue(), "Root Node")) {
-                        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                // load new pane
+                switch (newValue.getValue()) {
+                    case "Add Customer": {
+                        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        YearController yearCont = loader.getController();
-                        yearCont.initYear(newValue.getValue(), this);
-                        tabTitle = ("Year View - " + newValue.getValue());
+                        AddCustomerController addCustCont = loader.getController();
+                        Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
 
-                    } else {
-                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                        addCustCont.initAddCust(newValue.getParent().getValue(), this, tab);
+
+                        break;
+                    }
+                    case "Reports":
+                        new Reports(tabPane2.getScene().getWindow());
+                        break;
+                    case "View Map":
+                        loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        CustomerController customerCont = loader.getController();
-                        customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue(), this);
-                        tabTitle = ("Customer View - " + newValue.getValue() + " - " + observable.getValue().getParent().getValue());
-                    }
-                    addTab(newPane, tabTitle);
-                    break;
-            }
-        });
-        selectNav.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
-            @Override
-            public TreeCell<String> call(TreeView<String> p) {
-                ContextMenu cm = createContextMenu(p.getSelectionModel().getSelectedItem());
-                TreeCell<String> cell = new TreeCell<String>() {
+                        MapController mapCont = loader.getController();
+                        mapCont.initMap(this);
+                        addTab(newPane, "Map");
 
+                        break;
+                    case "Add Year":
+                        new AddYear(getWindow());
+                        break;
+                    case "Settings":
+                        new Settings(tabPane2.getScene().getWindow());
+                        break;
+                    default:
 
-                    @Override
-                    protected void updateItem(String file, boolean empty) {
-                        super.updateItem(file, empty);
-                        if (empty) {
-                            setText(null);
+                        if (Objects.equals(observable.getValue().getParent().getValue(), "Root Node")) {
+                            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                            try {
+                                newPane = loader.load();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            YearController yearCont = loader.getController();
+                            yearCont.initYear(newValue.getValue(), this);
+                            tabTitle = ("Year View - " + newValue.getValue());
+
                         } else {
-                            // maybe use a more appropriate string for display here
-                            // e.g. if you were using a regular java.io.File you would
-                            // likely want file.getName()
-                            setText(file.toString());
+                            loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                            try {
+                                newPane = loader.load();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            CustomerController customerCont = loader.getController();
+                            customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue(), this);
+                            tabTitle = ("Customer View - " + newValue.getValue() + " - " + observable.getValue().getParent().getValue());
                         }
-                        p.setContextMenu(createContextMenu(p.getSelectionModel().getSelectedItem()));
-                    }
-                };
-
-                cell.setContextMenu(cm);
-                return cell;
+                        addTab(newPane, tabTitle);
+                        break;
+                }
             }
         });
+        selectNav.setCellFactory(p -> new TreeCellImpl());
 
     }
 
@@ -199,7 +187,7 @@ public class MainController {
                                     YearController yearCont = loader.getController();
                                     yearCont.initYear(cell.getValue(), this);
                                     String tabTitle = ("Year View - " + cell.getValue());
-                                    addTab(finalNewPane, tabTitle);
+                                    openTabInCurrentWindow(finalNewPane, tabTitle);
                                 }, () -> { //Open In New Tab
                                     YearController yearCont = loader.getController();
                                     yearCont.initYear(cell.getValue(), this);
@@ -310,6 +298,20 @@ public class MainController {
         tabPane2.getTabs().remove(tab);
     }
 
+    public Tab openTabInCurrentWindow(Pane fillPane, String tabTitle) {
+        Tab tab = new Tab(tabTitle);
+        AnchorPane tabContentPane = new AnchorPane(fillPane);
+        AnchorPane.setBottomAnchor(tabContentPane, 0.0);
+        AnchorPane.setTopAnchor(tabContentPane, 0.0);
+        AnchorPane.setLeftAnchor(tabContentPane, 0.0);
+        AnchorPane.setRightAnchor(tabContentPane, 0.0);
+        tab.setContent(tabContentPane);
+        tab.setClosable(true);
+
+        tabPane2.getTabs().set(tabPane2.getSelectionModel().getSelectedIndex(), tab);
+        tabPane2.getSelectionModel().select(tab);
+        return tab;
+    }
     public void openAddCustomer(String year) {
         Pane newPane = null;
         FXMLLoader loader;
@@ -347,9 +349,9 @@ public class MainController {
     public void fillTreeView() {
         Iterable<String> ret = DbInt.getYears();
         TreeItem<String> root = new TreeItem<String>("Root Node");
-        root.getChildren().add(new TreeItem<>("Reports"));
-        root.getChildren().add(new TreeItem<>("View Map"));
-        root.getChildren().add(new TreeItem<>("Settings"));
+        root.getChildren().add(new contextTreeItem("Reports"));
+        root.getChildren().add(new contextTreeItem("View Map"));
+        root.getChildren().add(new contextTreeItem("Settings"));
 
 
         ///Select all years
@@ -364,16 +366,16 @@ public class MainController {
             panel_1.add(b);
         }*/
         for (String itemString : ret) {
-            TreeItem<String> tIYear = new TreeItem<String>(itemString);
+            contextTreeItem tIYear = new contextTreeItem(itemString);
             Year year = new Year(itemString);
             Iterable<String> customers = year.getCustomerNames();
             for (String customer : customers) {
-                tIYear.getChildren().add(new TreeItem<String>(customer));
+                tIYear.getChildren().add(new contextTreeItem(customer));
             }
-            tIYear.getChildren().add(new TreeItem<>("Add Customer"));
+            tIYear.getChildren().add(new contextTreeItem("Add Customer"));
             root.getChildren().add(tIYear);
         }
-        root.getChildren().add(new TreeItem<>("Add Year"));
+        root.getChildren().add(new contextTreeItem("Add Year"));
 
         selectNav.setRoot(root);
 
@@ -381,5 +383,39 @@ public class MainController {
 
     interface contextActionCallback {
         void doAction();
+    }
+
+    public abstract class AbstractTreeItem extends TreeItem {
+        public abstract ContextMenu getMenu();
+    }
+
+    public class contextTreeItem extends AbstractTreeItem {
+        // make class vars here like psswd
+        public contextTreeItem(String name) {
+            this.setValue(name);
+        }
+
+        @Override
+        public ContextMenu getMenu() {
+
+            return createContextMenu(this);
+        }
+    }
+
+    private final class TreeCellImpl extends TreeCell<String> {
+
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setText(getItem() == null ? "" : getItem().toString());
+                setGraphic(getTreeItem().getGraphic());
+                setContextMenu(((AbstractTreeItem) getTreeItem()).getMenu());
+            }
+        }
     }
 }
