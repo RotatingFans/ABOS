@@ -19,10 +19,12 @@
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -133,6 +135,7 @@ public class MainController {
         ContextMenu cmContent = new ContextMenu();
         Pane newPane = null;
         FXMLLoader loader;
+        Pane finalNewPane;
         // String tabTitle = "";
         if (cell != null && cell.getValue() != null) {
             switch (cell.getValue()) {
@@ -143,14 +146,33 @@ public class MainController {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    AddCustomerController addCustCont = loader.getController();
-    /*                Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
+                    finalNewPane = newPane;
 
-                    addCustCont.initAddCust(newValue.getParent().getValue(), this, tab);*/
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                AddCustomerController addCustCont = loader.getController();
+                                String tabTitle = ("Add Customer - " + cell.getParent().getValue());
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, openTabInCurrentWindow(finalNewPane, tabTitle));
 
+                            }, () -> { //Open In New Tab
+                                AddCustomerController addCustCont = loader.getController();
+                                String tabTitle = ("Add Customer - " + cell.getParent().getValue());
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, addTab(finalNewPane, tabTitle));
+                            }, () -> { //Open In New Window
+                                AddCustomerController addCustCont = loader.getController();
+                                String tabTitle = ("Add Customer - " + cell.getParent().getValue());
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, openInNewWindow(finalNewPane, tabTitle));
+                            }, null);
                     break;
                 }
                 case "Reports":
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                new Reports(tabPane2.getScene().getWindow());
+
+                            }, null, null, null);
                     //  new Reports(tabPane2.getScene().getWindow());
                     break;
                 case "View Map":
@@ -163,12 +185,42 @@ public class MainController {
                     // MapController mapCont = loader.getController();
                     // mapCont.initMap(this);
                     // addTab(newPane, "Map");
+                    finalNewPane = newPane;
 
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                MapController mapCont = loader.getController();
+                                mapCont.initMap(this);
+                                String tabTitle = ("Map");
+                                openTabInCurrentWindow(finalNewPane, tabTitle);
+
+                            }, () -> { //Open In New Tab
+                                MapController mapCont = loader.getController();
+                                mapCont.initMap(this);
+                                String tabTitle = ("Map");
+                                addTab(finalNewPane, tabTitle);
+                            }, () -> { //Open In New Window
+                                MapController mapCont = loader.getController();
+                                mapCont.initMap(this);
+                                String tabTitle = ("Map");
+                                openInNewWindow(finalNewPane, tabTitle);
+                            }, null);
                     break;
                 case "Add Year":
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                new AddYear(getWindow());
+                            }, null, null, null);
                     // new AddYear(getWindow());
                     break;
                 case "Settings":
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                new Settings(tabPane2.getScene().getWindow());
+                            }, null, null, null);
                     // new Settings(tabPane2.getScene().getWindow());
                     break;
                 default:
@@ -180,7 +232,7 @@ public class MainController {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        Pane finalNewPane = newPane;
+                        finalNewPane = newPane;
                         cmContent = createContextMenuContent(
                                 //Open
                                 () -> {
@@ -197,9 +249,9 @@ public class MainController {
                                     YearController yearCont = loader.getController();
                                     yearCont.initYear(cell.getValue(), this);
                                     String tabTitle = ("Year View - " + cell.getValue());
-                                    //openInNewWindow(finalNewPane, tabTitle);
-                                }, () -> { //Edit
-
+                                    openInNewWindow(finalNewPane, tabTitle);
+                                }, () -> {
+                                    new AddYear(cell.getValue(), this.getWindow());
                                 });
 
 
@@ -210,7 +262,7 @@ public class MainController {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        Pane finalNewPane = newPane;
+                        finalNewPane = newPane;
 
                         cmContent = createContextMenuContent(
                                 //Open
@@ -218,7 +270,7 @@ public class MainController {
                                     CustomerController customerCont = loader.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
-                                    addTab(finalNewPane, tabTitle);
+                                    openTabInCurrentWindow(finalNewPane, tabTitle);
                                 }, () -> { //Open In New Tab
                                     CustomerController customerCont = loader.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
@@ -228,9 +280,9 @@ public class MainController {
                                     CustomerController customerCont = loader.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
-                                    //openInNewWindow(finalNewPane, tabTitle);
+                                    openInNewWindow(finalNewPane, tabTitle);
                                 }, () -> { //Edit
-
+                                    openEditCustomer(cell.getParent().getValue(), cell.getValue());
                                 });
 
                     }
@@ -242,7 +294,7 @@ public class MainController {
         cm.getItems().addAll(cmContent.getItems());
         MenuItem refresh = new MenuItem("Refresh");
         refresh.setOnAction(event -> {
-            //Refresh List
+            fillTreeView();
         });
         cm.getItems().add(refresh);
         // other menu items...
@@ -307,10 +359,22 @@ public class MainController {
         AnchorPane.setRightAnchor(tabContentPane, 0.0);
         tab.setContent(tabContentPane);
         tab.setClosable(true);
-
-        tabPane2.getTabs().set(tabPane2.getSelectionModel().getSelectedIndex(), tab);
+        if (tabPane2.getTabs().isEmpty()) {
+            tabPane2.getTabs().add(tab);
+        } else {
+            tabPane2.getTabs().set(tabPane2.getSelectionModel().getSelectedIndex(), tab);
+        }
         tabPane2.getSelectionModel().select(tab);
         return tab;
+    }
+
+    public Stage openInNewWindow(Pane fillPane, String tabTitle) {
+        Stage stage = new Stage();
+        stage.setTitle(tabTitle);
+        stage.setScene(new Scene(fillPane));
+        stage.show();
+
+        return stage;
     }
     public void openAddCustomer(String year) {
         Pane newPane = null;

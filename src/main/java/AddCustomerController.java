@@ -72,7 +72,8 @@ public class AddCustomerController {
     private TextField DonationsT;
     @FXML
     private Button okButton;
-    private Tab parentTab;
+    private Tab parentTab = null;
+    private Stage parentStage = null;
     private Pane tPane;
 
     //Variables used to store regularly accessed info.
@@ -131,6 +132,10 @@ public class AddCustomerController {
 
     }
 
+    public void initAddCust(String aYear, MainController mainController, Stage parent) {
+        parentStage = parent;
+        initAddCust(aYear, mainController, (Tab) null);
+    }
     public void initAddCust(String aYear, MainController mainController, Tab parent) {
         mainCont = mainController;
         newCustomer = 1;
@@ -430,7 +435,12 @@ public class AddCustomerController {
             }
             YearController yearCont = loader.getController();
             yearCont.initYear(year, mainCont);
-            mainCont.closeTab(parentTab);
+            if (parentTab == null) {
+                parentStage.close();
+            } else {
+                mainCont.closeTab(parentTab);
+
+            }
             mainCont.addTab(newPane,"Year View - " + year);
 
         });
