@@ -37,6 +37,7 @@ import java.util.Optional;
 
 //import javax.swing.*;
 //import javax.swing.table.DefaultTableModel;
+@SuppressWarnings("WeakerAccess")
 
 public class CustomerController {
     public static String year = "2017";
@@ -200,9 +201,9 @@ public class CustomerController {
      */
     private int getNoMulchOrdered() {
         int quantMulchOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if ((data.get(i).getProductName().contains("Mulch")) && (data.get(i).getProductName().contains("Bulk"))) {
-                quantMulchOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if ((aData.getProductName().contains("Mulch")) && (aData.getProductName().contains("Bulk"))) {
+                quantMulchOrdered += aData.getOrderedQuantity();
             }
         }
         return quantMulchOrdered;
@@ -215,9 +216,9 @@ public class CustomerController {
      */
     private int getNoLivePlantsOrdered() {
         int livePlantsOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).getProductName().contains("-P") || data.get(i).getProductName().contains("-FV")) {
-                livePlantsOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if (aData.getProductName().contains("-P") || aData.getProductName().contains("-FV")) {
+                livePlantsOrdered += aData.getOrderedQuantity();
             }
         }
         return livePlantsOrdered;
@@ -230,9 +231,9 @@ public class CustomerController {
      */
     private int getNoLawnProductsOrdered() {
         int lawnProductsOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).getProductName().contains("-L")) {
-                lawnProductsOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if (aData.getProductName().contains("-L")) {
+                lawnProductsOrdered += aData.getOrderedQuantity();
             }
         }
         return lawnProductsOrdered;
@@ -246,9 +247,9 @@ public class CustomerController {
      */
     private BigDecimal getCommission(BigDecimal totalCost) {
         BigDecimal commision = BigDecimal.ZERO;
-        if ((totalCost.compareTo(new BigDecimal("299.99")) == 1) && (totalCost.compareTo(new BigDecimal("500.01")) == -1)) {
+        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
             commision = totalCost.multiply(new BigDecimal("0.05"));
-        } else if ((totalCost.compareTo(new BigDecimal("500.01")) == 1) && (totalCost.compareTo(new BigDecimal("1000.99")) == -1)) {
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
             commision = totalCost.multiply(new BigDecimal("0.1"));
         } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
             commision = totalCost.multiply(new BigDecimal("0.15"));
@@ -256,20 +257,19 @@ public class CustomerController {
         return commision;
     }
 
-
-// --Commented out by Inspection START (1/2/2016 12:01 PM):
+    // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    public void setTable(JTable customerOrders) {
 //        this.customerOrders = customerOrders;
 //    }
 // --Commented out by Inspection STOP (1/2/2016 12:01 PM)
-private class infoValPair {
-    public String info;
-    public String value;
+    private class infoValPair {
+        public String info;
+        public String value;
 
-    public infoValPair(String inf, String val) {
-        this.info = inf;
-        this.value = val;
+        public infoValPair(String inf, String val) {
+            this.info = inf;
+            this.value = val;
+        }
     }
-}
 
 }

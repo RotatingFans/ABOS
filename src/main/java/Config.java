@@ -26,9 +26,8 @@ import java.util.Properties;
 
 class Config {
 
-
     public static boolean doesConfExist() {
-        Properties prop = new Properties();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") Properties prop = new Properties();
         InputStream input = null;
         boolean loc = false;
         try {
@@ -190,7 +189,7 @@ class Config {
                 } catch (IOException e) {
                     LogToFile.log(e, Severity.WARNING, "");
 
-            }
+                }
             }
         }
 

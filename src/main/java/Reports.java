@@ -46,7 +46,7 @@ class Reports extends Window {
             stage.initOwner(owner);
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
         }
 
     }

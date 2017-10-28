@@ -58,6 +58,8 @@ import java.util.concurrent.CancellationException;
 /**
  * Created by patrick on 12/24/15.
  */
+@SuppressWarnings("WeakerAccess")
+
 public class ReportsController {
     @FXML
     private ComboBox<Object> cmbxReportType;
@@ -107,7 +109,6 @@ public class ReportsController {
 
     private Reports reports;
 
-    private String addrFormat = null;
     // --Commented out by Inspection (7/27/16 3:02 PM):private double totL = 0.0;
     // --Commented out by Inspection (7/27/16 3:02 PM):private double QuantL = 0.0;
     private String Splitting = "";
@@ -361,7 +362,7 @@ public class ReportsController {
 
     @FXML
     public void submit(ActionEvent actionEvent) {
-        addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
+        String addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
         switch (cmbxReportType.getSelectionModel().getSelectedIndex()) {
             case 1:
                 repTitle = "Year of " + cmbxYears.getSelectionModel().getSelectedItem();
@@ -481,7 +482,7 @@ public class ReportsController {
             if (scoutZip.getCharacters().length() >= 4) {
                 String zip = scoutZip.getText() + keyEvent.getCharacter();
 
-                String cityAndState = "";
+                String cityAndState;
                 try {
                     cityAndState = Geolocation.getCityState(zip);
                     String[] StateTown = cityAndState.split("&");

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 //import javax.swing.*;
+@SuppressWarnings("WeakerAccess")
 
 public class YearController {
 
@@ -75,9 +76,7 @@ public class YearController {
         VBox East = new VBox();
         List<infoValPair> yearInfoStrings = new ArrayList<>();
         yearInfoStrings.add(new infoValPair("Customers", Integer.toString(yearDbInfo.getNoCustomers())));
-        yearDbInfo.getCategories().forEach(category -> {
-            yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG())));
-        });
+        yearDbInfo.getCategories().forEach(category -> yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG()))));
         /*yearInfoStrings.add(new infoValPair("Lawn and Garden Products", Integer.toString(yearDbInfo.getLG())));
         yearInfoStrings.add(new infoValPair("Live Plant Products", Integer.toString(yearDbInfo.getLP())));
         yearInfoStrings.add(new infoValPair("Mulch", Integer.toString(yearDbInfo.getMulch())));*/
@@ -125,7 +124,6 @@ public class YearController {
             } catch (SQLException Se) {
                 LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
             }
-
 
 
             mainController.fillTreeView();

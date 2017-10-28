@@ -25,16 +25,12 @@ import javafx.stage.Window;
 
 import java.io.IOException;
 
-
 /**
  * Created by patrick on 12/24/15.
  */
 class Settings extends Window {
     //private final JPanel contentPanel = new JPanel();
     //private JTabbedPane north;
-
-
-
 
     public Settings(Window owner) {
         Stage stage = new Stage();
@@ -52,7 +48,7 @@ class Settings extends Window {
             stage.initOwner(owner);
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
         }
 
     }

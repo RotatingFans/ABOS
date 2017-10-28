@@ -39,6 +39,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("WeakerAccess")
+
 public class MapController implements Initializable {
 
     public HBox custOrders;
@@ -51,7 +53,6 @@ public class MapController implements Initializable {
     @FXML
     private GoogleMapView googleMapView;
 
-    private GoogleMap map;
     private MainController mainCont;
 
     @Override
@@ -64,7 +65,7 @@ public class MapController implements Initializable {
 
         mapOptions.center(new LatLong(47.6097, -122.3331))
                 .mapType(MapTypeIdEnum.ROADMAP).zoom(9);
-        map = googleMapView.createMap(mapOptions, false);
+        GoogleMap map = googleMapView.createMap(mapOptions, false);
 
 
         //initMap();
@@ -108,7 +109,7 @@ public class MapController implements Initializable {
                 //String id = getCustInfo("Set", "CUSTOMERID", Addr.get(i)).get(0);
                 map.addMarker(m);
                 int finalI = i;
-                map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> { markerClicked(Addr.get(finalI)); });
+                map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> markerClicked(Addr.get(finalI)));
             } catch (Exception e) {
                 LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
             }
@@ -185,12 +186,12 @@ public class MapController implements Initializable {
                     b.setOnAction(e1 -> {
                         Pane newPane = null;
                         FXMLLoader loader;
-                        String tabTitle = "";
+                        String tabTitle;
                         loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                         }
                         CustomerController customerCont = loader.getController();
 

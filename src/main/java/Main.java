@@ -31,7 +31,10 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.awt.*;
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -65,7 +68,7 @@ public class Main extends Application {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            String line = null;
+            String line;
             MavenXpp3Reader reader = new MavenXpp3Reader();
             Model model = reader.read(new FileReader("pom.xml"));
             // read each line and write to System.out
@@ -74,10 +77,8 @@ public class Main extends Application {
                     return true;
                 }
             }
-        } catch (MalformedURLException | XmlPullParserException | FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (XmlPullParserException | IOException e) {
+            LogToFile.log(e, Severity.WARNING, "Error checking for updates. If error persists, reinstall and contact developer.");
         }
 
 
@@ -99,10 +100,9 @@ public class Main extends Application {
             alert.setContentText("If you choose to download, download the latest tag's java Artifacts");
 
             ButtonType buttonTypeOne = new ButtonType("Download");
-            ButtonType buttonTypeTwo = new ButtonType("Remind Me Later");
-            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            ButtonType buttonTypeTwo = new ButtonType("Remind Me Later", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == buttonTypeOne) {
@@ -111,16 +111,12 @@ public class Main extends Application {
                         try {
                             Desktop.getDesktop().browse(new URI("https://gitlab.com/RoatingFans/ABOS/tags"));
 
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        } catch (URISyntaxException | IOException e) {
+                            LogToFile.log(e, Severity.WARNING, "Error opening download window. Please try navigating to https://gitlab.com/RoatingFans/ABOS/tags");
                         }
                     }).start();
 
                 }
-            } else {
-                // ... user chose CANCEL or closed the dialog
             }
         }
         // continuously refresh the TreeItems.
@@ -161,14 +157,13 @@ public class Main extends Application {
     }
 
     private void updateSelectedItem(Object newValue) {
-        System.out.println(newValue);
     }
 
 
 
 
-    /**
-     * Adds the year buttons to the main panel.
+    /*
+      Adds the year buttons to the main panel.
      */
 /*    private void addYears() {
         Collection<String> ret = new ArrayList<>();

@@ -29,17 +29,21 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
+@SuppressWarnings("WeakerAccess")
+
 public class MainController {
     private boolean isRightClick;
 
     // the FXML annotation tells the loader to inject this variable before invoking initialize.
     @FXML
     private TreeView<String> selectNav;
-   // @FXML
+    // @FXML
     //public Pane tabPane;
     //@FXML
-   // public Tab tab1;
-    @FXML private TabPane tabPane2;
+    // public Tab tab1;
+    @FXML
+    private TabPane tabPane2;
+
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize() {
         //loadTreeItems("initial 1", "initial 2", "initial 3");
@@ -58,7 +62,7 @@ public class MainController {
             } else {
                 Pane newPane = null;
                 FXMLLoader loader;
-                String tabTitle = "";
+                String tabTitle;
 
                 // load new pane
                 switch (newValue.getValue()) {
@@ -67,7 +71,7 @@ public class MainController {
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                         }
                         AddCustomerController addCustCont = loader.getController();
                         Tab tab = addTab(newPane, "Add Customer - " + newValue.getParent().getValue());
@@ -84,7 +88,7 @@ public class MainController {
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                         }
                         MapController mapCont = loader.getController();
                         mapCont.initMap(this);
@@ -104,7 +108,7 @@ public class MainController {
                             try {
                                 newPane = loader.load();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                             }
                             YearController yearCont = loader.getController();
                             yearCont.initYear(newValue.getValue(), this);
@@ -115,7 +119,7 @@ public class MainController {
                             try {
                                 newPane = loader.load();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                             }
                             CustomerController customerCont = loader.getController();
                             customerCont.initCustomer(observable.getValue().getParent().getValue(), newValue.getValue(), this);
@@ -140,43 +144,64 @@ public class MainController {
         if (cell != null && cell.getValue() != null) {
             switch (cell.getValue()) {
                 case "Add Customer": {
-                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+/*                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
                     try {
                         newPane = loader.load();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    finalNewPane = newPane;
+                    finalNewPane = newPane;*/
 
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                AddCustomerController addCustCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                AddCustomerController addCustCont = loader2.getController();
                                 String tabTitle = ("Add Customer - " + cell.getParent().getValue());
-                                addCustCont.initAddCust(cell.getParent().getValue(), this, openTabInCurrentWindow(finalNewPane, tabTitle));
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, openTabInCurrentWindow(NewPane2, tabTitle));
 
                             }, () -> { //Open In New Tab
-                                AddCustomerController addCustCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                AddCustomerController addCustCont = loader2.getController();
                                 String tabTitle = ("Add Customer - " + cell.getParent().getValue());
-                                addCustCont.initAddCust(cell.getParent().getValue(), this, addTab(finalNewPane, tabTitle));
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, addTab(NewPane2, tabTitle));
                             }, () -> { //Open In New Window
-                                AddCustomerController addCustCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                AddCustomerController addCustCont = loader2.getController();
                                 String tabTitle = ("Add Customer - " + cell.getParent().getValue());
-                                addCustCont.initAddCust(cell.getParent().getValue(), this, openInNewWindow(finalNewPane, tabTitle));
+                                addCustCont.initAddCust(cell.getParent().getValue(), this, openInNewWindow(NewPane2, tabTitle));
                             }, null);
                     break;
                 }
                 case "Reports":
                     cmContent = createContextMenuContent(
                             //Open
-                            () -> {
-                                new Reports(tabPane2.getScene().getWindow());
-
-                            }, null, null, null);
+                            () -> new Reports(tabPane2.getScene().getWindow()), null, null, null);
                     //  new Reports(tabPane2.getScene().getWindow());
                     break;
                 case "View Map":
-                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+/*                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
                     try {
                         newPane = loader.load();
                     } catch (IOException e) {
@@ -185,102 +210,168 @@ public class MainController {
                     // MapController mapCont = loader.getController();
                     // mapCont.initMap(this);
                     // addTab(newPane, "Map");
-                    finalNewPane = newPane;
+                    finalNewPane = newPane;*/
 
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                MapController mapCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                MapController mapCont = loader2.getController();
                                 mapCont.initMap(this);
                                 String tabTitle = ("Map");
-                                openTabInCurrentWindow(finalNewPane, tabTitle);
+                                openTabInCurrentWindow(NewPane2, tabTitle);
 
                             }, () -> { //Open In New Tab
-                                MapController mapCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                MapController mapCont = loader2.getController();
                                 mapCont.initMap(this);
                                 String tabTitle = ("Map");
-                                addTab(finalNewPane, tabTitle);
+                                addTab(NewPane2, tabTitle);
                             }, () -> { //Open In New Window
-                                MapController mapCont = loader.getController();
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+
+                                Pane NewPane2 = null;
+                                try {
+                                    NewPane2 = loader2.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                MapController mapCont = loader2.getController();
                                 mapCont.initMap(this);
                                 String tabTitle = ("Map");
-                                openInNewWindow(finalNewPane, tabTitle);
+                                openInNewWindow(NewPane2, tabTitle);
                             }, null);
                     break;
                 case "Add Year":
                     cmContent = createContextMenuContent(
                             //Open
-                            () -> {
-                                new AddYear(getWindow());
-                            }, null, null, null);
+                            () -> new AddYear(getWindow()), null, null, null);
                     // new AddYear(getWindow());
                     break;
                 case "Settings":
                     cmContent = createContextMenuContent(
                             //Open
-                            () -> {
-                                new Settings(tabPane2.getScene().getWindow());
-                            }, null, null, null);
+                            () -> new Settings(tabPane2.getScene().getWindow()), null, null, null);
                     // new Settings(tabPane2.getScene().getWindow());
                     break;
                 default:
 
                     if (Objects.equals(cell.getParent().getValue(), "Root Node")) {
-                        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
-                        try {
+                /*        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                       try {
                             newPane = loader.load();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        finalNewPane = newPane;
+                        finalNewPane = newPane;*/
                         cmContent = createContextMenuContent(
                                 //Open
                                 () -> {
-                                    YearController yearCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    YearController yearCont = loader2.getController();
                                     yearCont.initYear(cell.getValue(), this);
                                     String tabTitle = ("Year View - " + cell.getValue());
-                                    openTabInCurrentWindow(finalNewPane, tabTitle);
+                                    openTabInCurrentWindow(NewPane2, tabTitle);
                                 }, () -> { //Open In New Tab
-                                    YearController yearCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    YearController yearCont = loader2.getController();
                                     yearCont.initYear(cell.getValue(), this);
                                     String tabTitle = ("Year View - " + cell.getValue());
-                                    addTab(finalNewPane, tabTitle);
+                                    addTab(NewPane2, tabTitle);
                                 }, () -> { //Open In New Window
-                                    YearController yearCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    YearController yearCont = loader2.getController();
                                     yearCont.initYear(cell.getValue(), this);
                                     String tabTitle = ("Year View - " + cell.getValue());
-                                    openInNewWindow(finalNewPane, tabTitle);
-                                }, () -> {
-                                    new AddYear(cell.getValue(), this.getWindow());
-                                });
+                                    openInNewWindow(NewPane2, tabTitle);
+                                }, () -> new AddYear(cell.getValue(), this.getWindow()));
 
 
                     } else {
-                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+/*                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogToFile.log(e,Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                         }
-                        finalNewPane = newPane;
+                        finalNewPane = newPane;*/
 
                         cmContent = createContextMenuContent(
                                 //Open
                                 () -> {
-                                    CustomerController customerCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    CustomerController customerCont = loader2.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
-                                    openTabInCurrentWindow(finalNewPane, tabTitle);
+                                    openTabInCurrentWindow(NewPane2, tabTitle);
                                 }, () -> { //Open In New Tab
-                                    CustomerController customerCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    CustomerController customerCont = loader2.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
-                                    addTab(finalNewPane, tabTitle);
+                                    addTab(NewPane2, tabTitle);
                                 }, () -> { //Open In New Window
-                                    CustomerController customerCont = loader.getController();
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+
+                                    Pane NewPane2 = null;
+                                    try {
+                                        NewPane2 = loader2.load();
+                                    } catch (IOException e) {
+                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                    }
+                                    CustomerController customerCont = loader2.getController();
                                     customerCont.initCustomer(cell.getParent().getValue(), cell.getValue(), this);
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
-                                    openInNewWindow(finalNewPane, tabTitle);
+                                    openInNewWindow(NewPane2, tabTitle);
                                 }, () -> { //Edit
                                     openEditCustomer(cell.getParent().getValue(), cell.getValue());
                                 });
@@ -293,9 +384,7 @@ public class MainController {
         }
         cm.getItems().addAll(cmContent.getItems());
         MenuItem refresh = new MenuItem("Refresh");
-        refresh.setOnAction(event -> {
-            fillTreeView();
-        });
+        refresh.setOnAction(event -> fillTreeView());
         cm.getItems().add(refresh);
         // other menu items...
         return cm;
@@ -350,7 +439,7 @@ public class MainController {
         tabPane2.getTabs().remove(tab);
     }
 
-    public Tab openTabInCurrentWindow(Pane fillPane, String tabTitle) {
+    private Tab openTabInCurrentWindow(Pane fillPane, String tabTitle) {
         Tab tab = new Tab(tabTitle);
         AnchorPane tabContentPane = new AnchorPane(fillPane);
         AnchorPane.setBottomAnchor(tabContentPane, 0.0);
@@ -368,7 +457,7 @@ public class MainController {
         return tab;
     }
 
-    public Stage openInNewWindow(Pane fillPane, String tabTitle) {
+    private Stage openInNewWindow(Pane fillPane, String tabTitle) {
         Stage stage = new Stage();
         stage.setTitle(tabTitle);
         stage.setScene(new Scene(fillPane));
@@ -376,21 +465,23 @@ public class MainController {
 
         return stage;
     }
-    public void openAddCustomer(String year) {
-        Pane newPane = null;
-        FXMLLoader loader;
-        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
-        try {
-            newPane = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        AddCustomerController addCustCont = loader.getController();
-        Tab tab = addTab(newPane, "Add Customer - " + year);
-        // get children of parent of secPane (the VBox)
-
-        addCustCont.initAddCust(year, this, tab);
-    }
+// --Commented out by Inspection START (10/28/17 5:02 PM):
+//    public void openAddCustomer(String year) {
+//        Pane newPane = null;
+//        FXMLLoader loader;
+//        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+//        try {
+//            newPane = loader.load();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        AddCustomerController addCustCont = loader.getController();
+//        Tab tab = addTab(newPane, "Add Customer - " + year);
+//        // get children of parent of secPane (the VBox)
+//
+//        addCustCont.initAddCust(year, this, tab);
+//    }
+// --Commented out by Inspection STOP (10/28/17 5:02 PM)
 
     public void openEditCustomer(String year, String custName) {
         Pane newPane = null;
@@ -399,7 +490,7 @@ public class MainController {
         try {
             newPane = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
         }
         AddCustomerController addCustCont = loader.getController();
         Tab tab = addTab(newPane, "Edit Customer - " + custName + " - " + year);
@@ -407,12 +498,13 @@ public class MainController {
 
         addCustCont.initAddCust(year, custName, this, tab);
     }
+
     /**
      * Adds the year buttons to the main panel.
      */
-    public void fillTreeView() {
+    void fillTreeView() {
         Iterable<String> ret = DbInt.getYears();
-        TreeItem<String> root = new TreeItem<String>("Root Node");
+        TreeItem<String> root = new TreeItem<>("Root Node");
         root.getChildren().add(new contextTreeItem("Reports"));
         root.getChildren().add(new contextTreeItem("View Map"));
         root.getChildren().add(new contextTreeItem("Settings"));
@@ -449,13 +541,13 @@ public class MainController {
         void doAction();
     }
 
-    public abstract class AbstractTreeItem extends TreeItem {
-        public abstract ContextMenu getMenu();
+    abstract class AbstractTreeItem extends TreeItem {
+        protected abstract ContextMenu getMenu();
     }
 
-    public class contextTreeItem extends AbstractTreeItem {
+    protected class contextTreeItem extends AbstractTreeItem {
         // make class vars here like psswd
-        public contextTreeItem(String name) {
+        contextTreeItem(String name) {
             this.setValue(name);
         }
 
@@ -476,7 +568,7 @@ public class MainController {
                 setText(null);
                 setGraphic(null);
             } else {
-                setText(getItem() == null ? "" : getItem().toString());
+                setText(getItem() == null ? "" : getItem());
                 setGraphic(getTreeItem().getGraphic());
                 setContextMenu(((AbstractTreeItem) getTreeItem()).getMenu());
             }

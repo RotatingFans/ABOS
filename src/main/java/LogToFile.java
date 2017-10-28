@@ -46,13 +46,21 @@ class LogToFile {
       FINER
       FINEST
      */
+
     /**
      * log Method
      * enable to log all exceptions to a file and display user message on demand
      *
-     * @param ex
-     * @param level
-     * @param msg
+     * @param ex    the exception
+     * @param level the severity level
+     *              SEVERE
+     *              WARNING
+     *              INFO
+     *              CONFIG
+     *              FINE
+     *              FINER
+     *              FINEST
+     * @param msg   the message to print
      */
     public static void log(Exception ex, Severity level, String msg) {
 

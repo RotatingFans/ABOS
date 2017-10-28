@@ -43,6 +43,8 @@ import java.util.Optional;
  * @author patrick
  * @version 1.0
  */
+
+@SuppressWarnings("WeakerAccess")
 public class AddCustomerController {
     private static boolean edit = false; //States whether this is an edit or creation of a customer.
     private Year yearInfo;
@@ -91,6 +93,7 @@ public class AddCustomerController {
     private Boolean columnsFilled = false;
     private ObservableList<Product.formattedProductProps> data;
     private MainController mainCont;
+
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
@@ -136,6 +139,7 @@ public class AddCustomerController {
         parentStage = parent;
         initAddCust(aYear, mainController, (Tab) null);
     }
+
     public void initAddCust(String aYear, MainController mainController, Tab parent) {
         mainCont = mainController;
         newCustomer = 1;
@@ -431,7 +435,7 @@ public class AddCustomerController {
             try {
                 newPane = loader.load();
             } catch (IOException e) {
-                e.printStackTrace();
+                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
             }
             YearController yearCont = loader.getController();
             yearCont.initYear(year, mainCont);
@@ -441,7 +445,7 @@ public class AddCustomerController {
                 mainCont.closeTab(parentTab);
 
             }
-            mainCont.addTab(newPane,"Year View - " + year);
+            mainCont.addTab(newPane, "Year View - " + year);
 
         });
         addCustWork.setOnFailed(event -> {
@@ -481,9 +485,9 @@ public class AddCustomerController {
      */
     private int getNoMulchOrdered() {
         int quantMulchOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if ((data.get(i).getProductName().contains("Mulch")) && (data.get(i).getProductName().contains("Bulk"))) {
-                quantMulchOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if ((aData.getProductName().contains("Mulch")) && (aData.getProductName().contains("Bulk"))) {
+                quantMulchOrdered += aData.getOrderedQuantity();
             }
         }
         return quantMulchOrdered;
@@ -496,9 +500,9 @@ public class AddCustomerController {
      */
     private int getNoLivePlantsOrdered() {
         int livePlantsOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).getProductName().contains("-P") || data.get(i).getProductName().contains("-FV")) {
-                livePlantsOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if (aData.getProductName().contains("-P") || aData.getProductName().contains("-FV")) {
+                livePlantsOrdered += aData.getOrderedQuantity();
             }
         }
         return livePlantsOrdered;
@@ -511,9 +515,9 @@ public class AddCustomerController {
      */
     private int getNoLawnProductsOrdered() {
         int lawnProductsOrdered = 0;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).getProductName().contains("-L")) {
-                lawnProductsOrdered += data.get(i).getOrderedQuantity();
+        for (Product.formattedProductProps aData : data) {
+            if (aData.getProductName().contains("-L")) {
+                lawnProductsOrdered += aData.getOrderedQuantity();
             }
         }
         return lawnProductsOrdered;
@@ -527,9 +531,9 @@ public class AddCustomerController {
      */
     private BigDecimal getCommission(BigDecimal totalCost) {
         BigDecimal commision = BigDecimal.ZERO;
-        if ((totalCost.compareTo(new BigDecimal("299.99")) == 1) && (totalCost.compareTo(new BigDecimal("500.01")) == -1)) {
+        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
             commision = totalCost.multiply(new BigDecimal("0.05"));
-        } else if ((totalCost.compareTo(new BigDecimal("500.01")) == 1) && (totalCost.compareTo(new BigDecimal("1000.99")) == -1)) {
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
             commision = totalCost.multiply(new BigDecimal("0.1"));
         } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
             commision = totalCost.multiply(new BigDecimal("0.15"));
@@ -579,7 +583,6 @@ public class AddCustomerController {
             LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
     }
-
 
 
 }
