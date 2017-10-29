@@ -54,6 +54,8 @@ import java.util.*;
 //import javax.swing.table.DefaultTableModel;
 //import java.awt.*;
 //import java.awt.*;
+@SuppressWarnings("WeakerAccess")
+
 public class AddYearController {
 
     @FXML
@@ -289,9 +291,7 @@ public class AddYearController {
         convertButton.setDisable(true);
 
 // Do some validation (using the Java 8 lambda syntax).
-        csvLoc.textProperty().addListener((observable, oldValue, newValue) -> {
-            convertButton.setDisable(newValue.trim().isEmpty());
-        });
+        csvLoc.textProperty().addListener((observable, oldValue, newValue) -> convertButton.setDisable(newValue.trim().isEmpty()));
 
         dialog.getDialogPane().setContent(grid);
 
@@ -355,9 +355,7 @@ public class AddYearController {
             addCatButton.setDisable(true);
 
 // Do some validation (using the Java 8 lambda syntax).
-            catName.textProperty().addListener((observable, oldValue, newValue) -> {
-                addCatButton.setDisable(newValue.trim().isEmpty());
-            });
+            catName.textProperty().addListener((observable, oldValue, newValue) -> addCatButton.setDisable(newValue.trim().isEmpty()));
 
             dialog.getDialogPane().setContent(grid);
 
@@ -379,7 +377,6 @@ public class AddYearController {
                 refreshCmbx();
 
             });
-
 
 
         }
@@ -416,9 +413,7 @@ public class AddYearController {
             addCatButton.setDisable(true);
 
 // Do some validation (using the Java 8 lambda syntax).
-            catName.textProperty().addListener((observable, oldValue, newValue) -> {
-                addCatButton.setDisable(newValue.trim().isEmpty());
-            });
+            catName.textProperty().addListener((observable, oldValue, newValue) -> addCatButton.setDisable(newValue.trim().isEmpty()));
 
             dialog.getDialogPane().setContent(grid);
 
@@ -455,7 +450,7 @@ public class AddYearController {
     @FXML
     private void submit(ActionEvent event) {
         DbInt.getYears().forEach(year -> {
-            if (year == yearText.getText()) {
+            if (Objects.equals(year, yearText.getText())) {
                 newYear = false;
             }
         });
@@ -529,13 +524,15 @@ public class AddYearController {
         categoriesTb.clear();
         categoriesTb.add("");
         String browse = "Add Category";
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Categories")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories")) {
             prep.execute();
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
 
-                    categoriesTb.add(rs.getString(1));
+                    categoriesTb.add(rs.getString("NAME"));
+                    rowsCats.add(new String[]{rs.getString("NAME"), rs.getString("DATE")});
+
                 }
                 ////DbInt.pCon.close();
             }
@@ -584,9 +581,7 @@ public class AddYearController {
         categoriesTb.add("");
         String browse = "Add Category";
 
-        rowsCats.forEach(cat -> {
-            categoriesTb.add(cat[0]);
-        });
+        rowsCats.forEach(cat -> categoriesTb.add(cat[0]));
 
 
         categoriesTb.add(browse);
@@ -840,13 +835,9 @@ public class AddYearController {
             Element rootElement = doc.createElement("LawnGarden");
             doc.appendChild(rootElement);
             Iterable<String[]> caters;
-            if (!newYear) {
-                caters = getCategories(yearText.getText());
-            } else {
-                caters = rowsCats;
-            }
+            caters = rowsCats;
             int[] i = {0};
-            caters = getCategories(yearText.getText());
+            //caters = getCategories(yearText.getText());
             caters.forEach(cat -> {
                         Element cats = doc.createElement("Categories");
                         rootElement.appendChild(cats);

@@ -277,7 +277,6 @@ public class DbInt {
         String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
         System.setProperty("derby.system.home",
                 Config.getDbLoc());
-        command.replaceAll("'", "/0027");
 
         try (Connection con = DriverManager.getConnection(url);
              Statement st = con.createStatement()

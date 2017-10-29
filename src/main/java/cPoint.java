@@ -25,7 +25,6 @@ class cPoint {
     private final Double LatM;
     private final Double LonM;
 
-
     public cPoint(Double Lat, Double Lon, String Address, String City, String State) {
         AddressM = Address;
         LonM = Lon;

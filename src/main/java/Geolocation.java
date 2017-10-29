@@ -44,7 +44,7 @@ class Geolocation {
      *
      * @param zipCode The Zipcode of the customer
      * @return The City and state of the customer
-     * @throws IOException
+     * @throws IOException If it fails to retrieve the city and state
      */
     public static String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");

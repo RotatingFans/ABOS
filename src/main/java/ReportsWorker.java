@@ -82,20 +82,20 @@ class ReportsWorker extends Task<Integer> {
     /**
      * Creates an instance of the worker
      *
-     * @param reportType
-     * @param selectedYear
-     * @param scoutName
-     * @param scoutStAddr
-     * @param addrFormat
-     * @param scoutRank
-     * @param scoutPhone
-     * @param logoLoc
-     * @param category
-     * @param customerName
-     * @param repTitle
-     * @param splitting
-     * @param includeHeader
-     * @param pdfLoc1
+     * @param reportType    the type of report
+     * @param selectedYear  the selected year
+     * @param scoutName     name of the scout to put in header
+     * @param scoutStAddr   address  of the scout to put in header
+     * @param addrFormat    formatted address
+     * @param scoutRank     rank  of the scout to put in header
+     * @param scoutPhone    phone #  of the scout to put in header
+     * @param logoLoc       Location on disk of the logo
+     * @param category      Category to generate report for
+     * @param customerName  Name of the customer
+     * @param repTitle      Title of the report
+     * @param splitting     Split the report in any way?
+     * @param includeHeader Include a header?
+     * @param pdfLoc1       Location to save the pdf
      */
     public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
@@ -131,9 +131,8 @@ class ReportsWorker extends Task<Integer> {
             Iterable<String> customers = year.getCustomerNames();
             // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder domBuilder = null;
+            DocumentBuilder domBuilder;
             domBuilder = domFactory.newDocumentBuilder();
-
 
 
             doc = domBuilder.newDocument();
@@ -387,8 +386,8 @@ class ReportsWorker extends Task<Integer> {
         } else {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder domBuilder = null;
-                domBuilder = domFactory.newDocumentBuilder();
+            DocumentBuilder domBuilder;
+            domBuilder = domFactory.newDocumentBuilder();
 
 
             doc = domBuilder.newDocument();

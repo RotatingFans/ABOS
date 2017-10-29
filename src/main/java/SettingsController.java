@@ -45,36 +45,59 @@ import java.util.Properties;
 /**
  * Created by patrick on 12/24/15.
  */
-public class SettingsController{
+@SuppressWarnings("WeakerAccess")
+
+public class SettingsController {
     //private final JPanel contentPanel = new JPanel();
     //private JTabbedPane north;
     //General
-    @FXML private TextField DbLoc;
-    @FXML private CheckBox CreateDb;
+    @FXML
+    private TextField DbLoc;
+    @FXML
+    private CheckBox CreateDb;
     //Add Customer
-    @FXML private CheckBox Delivered;
-    @FXML private CheckBox Paid;
-    @FXML private TextField Name;
-    @FXML private TextField Address;
-    @FXML private TextField ZipCode;
-    @FXML private TextField Town;
-    @FXML private TextField State;
-    @FXML private TextField Phone;
-    @FXML private TextField Email;
-    @FXML private TextField DonationsT;
+    @FXML
+    private CheckBox Delivered;
+    @FXML
+    private CheckBox Paid;
+    @FXML
+    private TextField Name;
+    @FXML
+    private TextField Address;
+    @FXML
+    private TextField ZipCode;
+    @FXML
+    private TextField Town;
+    @FXML
+    private TextField State;
+    @FXML
+    private TextField Phone;
+    @FXML
+    private TextField Email;
+    @FXML
+    private TextField DonationsT;
     //Report
-    @FXML private ComboBox<Object> cmbxReportType;
-    @FXML private TextField scoutName;
-    @FXML private TextField scoutStAddr;
-    @FXML private TextField scoutZip;
-    @FXML private TextField scoutTown;
-    @FXML private TextField scoutState;
-    @FXML private TextField scoutPhone;
-    @FXML private TextField scoutRank;
-    @FXML private TextField logoLoc;
-    @FXML private TextField pdfLoc;
+    @FXML
+    private ComboBox<Object> cmbxReportType;
+    @FXML
+    private TextField scoutName;
+    @FXML
+    private TextField scoutStAddr;
+    @FXML
+    private TextField scoutZip;
+    @FXML
+    private TextField scoutTown;
+    @FXML
+    private TextField scoutState;
+    @FXML
+    private TextField scoutPhone;
+    @FXML
+    private TextField scoutRank;
+    @FXML
+    private TextField logoLoc;
+    @FXML
+    private TextField pdfLoc;
     private Settings settings;
-
 
     public SettingsController() {
 
@@ -99,13 +122,15 @@ public class SettingsController{
         } else { *//* TODO: error handling *//* }
     }*/
 
-    @FXML public void promptDB(ActionEvent event) {
+    @FXML
+    public void promptDB(ActionEvent event) {
         //Creates a JFileChooser to select a directory to store the Databases
         DirectoryChooser chooser = new DirectoryChooser();
         DbLoc.setText(chooser.showDialog(settings).getAbsolutePath());
     }
 
-    @FXML public void createDbChecked(ActionEvent event){
+    @FXML
+    public void createDbChecked(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("WARNING!");
         alert.setHeaderText("SELECTING THIS WILL DELETE ALL DATA AT THE SPECIFIED LOCATION!");
@@ -118,10 +143,12 @@ public class SettingsController{
         }
 
     }
-    @FXML public void promptLogo(ActionEvent event){
+
+    @FXML
+    public void promptLogo(ActionEvent event) {
         //Creates a JFileChooser to select a directory to store the Databases
         FileChooser chooser = new FileChooser();
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.gif","*.png", "*.bmp");
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.gif", "*.png", "*.bmp");
         chooser.getExtensionFilters().add(filter);
 
         chooser.setSelectedExtensionFilter(filter);
@@ -133,7 +160,8 @@ public class SettingsController{
         }
     }
 
-    @FXML public void promptPDF(ActionEvent event){
+    @FXML
+    public void promptPDF(ActionEvent event) {
         //Creates a JFileChooser to select save location of XML file
         FileChooser chooser = new FileChooser();
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Portable Document files", "*.pdf", "*.PDF");
@@ -149,7 +177,8 @@ public class SettingsController{
         }
     }
 
-    @FXML public void submit(ActionEvent event) {
+    @FXML
+    public void submit(ActionEvent event) {
         saveData();
         // get a handle to the stage
 
@@ -158,7 +187,8 @@ public class SettingsController{
         stage.close();
     }
 
-    @FXML public void cancel(ActionEvent event) {
+    @FXML
+    public void cancel(ActionEvent event) {
         Stage stage = (Stage) pdfLoc.getScene().getWindow();
         // do what you have to do
         stage.close();
@@ -176,10 +206,7 @@ public class SettingsController{
         DbLoc.setText(Config.getDbLoc());
 
 
-
         CreateDb.setSelected(!Config.doesConfExist());
-
-
 
 
         Name.setText(Config.getProp("CustomerName"));
@@ -238,7 +265,7 @@ public class SettingsController{
             if (scoutZip.getCharacters().length() >= 4) {
                 String zip = scoutZip.getText() + keyEvent.getCharacter();
 
-                String cityAndState = "";
+                String cityAndState;
                 try {
                     cityAndState = Geolocation.getCityState(zip);
                     String[] StateTown = cityAndState.split("&");
@@ -413,8 +440,7 @@ public class SettingsController{
                 Document doc = dBuilder.parse(is);
 
                 doc.getDocumentElement().normalize();
-
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                LogToFile.log(null, Severity.FINEST, "Root element :" + doc.getDocumentElement().getNodeName());
 
                 NodeList nList = doc.getElementsByTagName("place");
 
@@ -449,8 +475,6 @@ public class SettingsController{
         //	return parseCoords(response.toString());
         return fullName;
     }
-
-
 
 
 }
