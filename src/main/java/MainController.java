@@ -59,7 +59,7 @@ public class MainController {
             if (isRightClick) {
                 //reset the flag
                 isRightClick = false;
-            } else {
+            } else if (newValue != null) {
                 Pane newPane = null;
                 FXMLLoader loader;
                 String tabTitle;
