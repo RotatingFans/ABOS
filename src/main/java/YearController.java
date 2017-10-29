@@ -21,15 +21,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //import javax.swing.*;
 @SuppressWarnings("WeakerAccess")
@@ -109,25 +108,10 @@ public class YearController {
 
     @FXML
     public void deleteYear(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("WARNING!");
-        alert.setHeaderText("You are about to delete an entire Year. This cannot be reversed");
-        alert.setContentText("Would you like to continue with the deletion?");
+        Year yearObj = new Year(year);
+        yearObj.deleteYear();
+        mainController.fillTreeView();
 
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            DbInt.deleteDb(year);
-            try (PreparedStatement prep = DbInt.getPrep("Set", "DELETE FROM YEARS WHERE YEARS=?")) {
-                prep.setString(1, year);
-                prep.execute();
-            } catch (SQLException Se) {
-                LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
-            }
-
-
-            mainController.fillTreeView();
-        }
     }
 
     @FXML

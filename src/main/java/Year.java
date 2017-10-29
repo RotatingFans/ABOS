@@ -17,14 +17,16 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by patrick on 7/27/16.
@@ -113,6 +115,44 @@ public class Year {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         return ret;
+    }
+
+    public void deleteYear() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("WARNING!");
+        alert.setHeaderText("You are about to delete an entire Year. This cannot be reversed");
+        alert.setContentText("Would you like to continue with the deletion?");
+
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            DbInt.deleteDb(year);
+            try (PreparedStatement prep = DbInt.getPrep("Set", "DELETE FROM YEARS WHERE YEARS=?")) {
+                prep.setString(1, year);
+                prep.execute();
+            } catch (SQLException Se) {
+                LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
+            }
+
+
+        }
+    }
+
+    public void updateTots(BigDecimal donations, Integer Lg, Integer LP, Integer Mulch, BigDecimal OT, Integer Customers, BigDecimal Commis, BigDecimal GTot) {
+        try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
+            totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+            totalInsertString.setInt(2, Lg);
+            totalInsertString.setInt(3, (LP));
+            totalInsertString.setInt(4, (Mulch));
+            totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+            totalInsertString.setInt(6, (Customers));
+            totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+            totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+            totalInsertString.execute();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
+        }
     }
 
     /**
@@ -240,7 +280,162 @@ public class Year {
         return exists;
     }
 
-    public class category {
+    /**
+     * Creates Database for the year specified.
+     */
+    public void CreateDb(ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
+        DbInt.deleteDb(year);
+        if (DbInt.createDb(year)) {
+            //Create Tables
+            //Create Customers Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Create Products Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Create Totals Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS DECIMAL(7,2),LG INTEGER,LP INTEGER,MULCH INTEGER,TOTAL DECIMAL(7,2),CUSTOMERS INTEGER,COMMISSIONS DECIMAL(7,2),GRANDTOTAL DECIMAL(7,2))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+
+/*            //Create Residence Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }*/
+
+            //Create Categories Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Insert products into Product table
+            //Insert products into Product table
+            String col = "";
+            for (int i = 0; i < products.size(); i++) {
+                Product.formattedProductProps curRow = products.get(i);
+                String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
+                col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
+                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
+                    prep.setString(1, curRow.getProductID());
+                    prep.setString(2, curRow.getProductName());
+                    prep.setString(3, curRow.getProductUnitPrice());
+                    prep.setString(4, curRow.getProductSize());
+                    prep.setString(5, cat);
+                    prep.execute();
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            }
+            //Add Categories
+            rowsCats.forEach(cat -> {
+                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+                    prep.setString(1, cat.catName);
+                    prep.setDate(2, Date.valueOf(cat.catDate));
+
+                    prep.execute();
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            });
+
+            //ORDers Table
+            try (PreparedStatement prep = DbInt.getPrep(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col))) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //Add default values to TOTALS
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(0,0,0,0,0,0,0,0)")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            //ADD to Year
+            addYear();
+        } else {
+            LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
+        }
+
+    }
+
+    public void updateDb(String year, ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
+        //Delete Year Customer table
+
+        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
+            addCol.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"Categories\"")) {
+            addCol.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        //Recreate Year Customer table
+
+        try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
+            addCol.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        //Add Categories
+        rowsCats.forEach(cat -> {
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+                prep.setString(1, cat.catName);
+                prep.setDate(2, Date.valueOf(cat.catDate));
+
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        });
+        //Insert products into Product table
+        String col = "";
+        for (int i = 0; i < products.size(); i++) {
+            Product.formattedProductProps curRow = products.get(i);
+            String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
+            col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
+                prep.setString(1, curRow.getProductID());
+                prep.setString(2, curRow.getProductName());
+                prep.setString(3, curRow.getProductUnitPrice());
+                prep.setString(4, curRow.getProductSize());
+                prep.setString(5, cat);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        }
+    }
+
+    public void addYear() {
+        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO YEARS(YEARS) VALUES(?)")) {
+            prep.setString(1, year);
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+    }
+
+    public static class category {
         public String catName;
         public String catDate;
 

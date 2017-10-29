@@ -38,10 +38,10 @@ import java.util.Optional;
 public class DbInt {
     public static Connection pCon = null;
 
-/*    *//**
-     * Gets Data with specifed command and DB
-     *
-     * @param Db      THe database to retireve data from
+/*    *//*
+      Gets Data with specifed command and DB
+
+      @param Db      THe database to retireve data from
      * @param command The command To execute
      * @return and ArrayList of the resulting Data
      * @deprecated true
@@ -107,9 +107,9 @@ public class DbInt {
     /**
      * Gets the specified Customer info
      *
-     * @param yearL The year to search
-     * @param name  The customer name
-     * @param info  The info to search for
+     * @param yearL      The year to search
+     * @param name       The customer name
+     * @param info       The info to search for
      * @param defaultVal The default value to return if there is no data
      * @return A string with the resulting data
      */
@@ -224,13 +224,13 @@ public class DbInt {
         return null;
     }
 
-    /**
-     * Gets # of collumns in a table
-     *
-     * @param Db    The DB the table is in
+/*    *//*
+      Gets # of collumns in a table
+
+      @param Db    The DB the table is in
      * @param Table the Table to get number of columns from
      * @return An integer with number of columns
-     */
+     *//*
     public static int getNoCol(String Db, String Table) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -270,12 +270,12 @@ public class DbInt {
         }
 
         return columnsNumber;
-    }
+    }*/
 
-/*    *//**
-     * Writes data to A DB
-     *
-     * @param Db      The DB to write to
+/*    *//*
+      Writes data to A DB
+
+      @param Db      The DB to write to
      * @param command THe command to execute
      * @deprecated true
      *//*
@@ -353,6 +353,21 @@ public class DbInt {
         return true;
     }
 
+    public static void createSetAndTables() {
+        DbInt.createDb("Set");
+
+        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), YEARS varchar(255))")) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+    }
+
     public static void deleteDb(String DB) {
 
 
@@ -365,6 +380,34 @@ public class DbInt {
         boolean isFileRenamed = oldName.renameTo(newName);
 
 
+    }
+
+    public static Iterable<String> getAllCustomers() {
+        Collection<String> ret = new ArrayList<>();
+        Iterable<String> years = getYears();
+        for (String year : years) {
+
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+                 ResultSet rs = prep.executeQuery()
+            ) {
+
+
+                while (rs.next()) {
+                    String name = rs.getString("NAME");
+                    if (!ret.contains(name)) {
+                        ret.add(name);
+                    }
+
+                }
+                ////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        }
+
+
+        return ret;
     }
 
     public static Iterable<String> getYears() {

@@ -40,11 +40,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.CancellationException;
 
 //import javax.swing.*;
@@ -135,7 +131,7 @@ public class ReportsController {
      * @return The info of the product specified
      */
 
-    private static Iterable<String> getYears() {
+    /*private static Iterable<String> getYears() {
         Collection<String> ret = new ArrayList<>();
         try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
              ResultSet rs = prep.executeQuery()) {
@@ -183,7 +179,7 @@ public class ReportsController {
 
         return ret;
     }
-
+*/
     private static String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");
         //The URL for the MapquestAPI
@@ -283,20 +279,8 @@ public class ReportsController {
                 cmbxCustomers.getSelectionModel().select("");
                 customersY.forEach(cmbxCustomers.getItems()::add);
                 cmbxCustomers.setDisable(false);
-                try (PreparedStatement prep = DbInt.getPrep(selected.toString(), "SELECT NAME FROM Categories")) {
-                    prep.execute();
-                    try (ResultSet rs = prep.executeQuery()) {
+                year.getCategories().forEach(category -> cmbxCategory.getItems().add(category.catName));
 
-                        while (rs.next()) {
-
-                            cmbxCategory.getItems().add(rs.getString(1));
-
-                        }
-                        ////DbInt.pCon.close();
-                    }
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
             }
         }
     }
@@ -501,7 +485,7 @@ public class ReportsController {
     }
 
     private void updateCombos() {
-        Iterable<String> years = getYears();
+        Iterable<String> years = DbInt.getYears();
 
         switch (cmbxReportType.getSelectionModel().getSelectedItem().toString()) {
 
@@ -536,7 +520,7 @@ public class ReportsController {
                 yearPane.setDisable(true);
                 customerPane.setDisable(false);
                 cmbxCustomers.getItems().removeAll();
-                Iterable<String> customers = getCustomers();
+                Iterable<String> customers = DbInt.getAllCustomers();
                 cmbxCustomers.getItems().add("");
                 cmbxCustomers.getSelectionModel().select("");
                 customers.forEach(cmbxCustomers.getItems()::add);

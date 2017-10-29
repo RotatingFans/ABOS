@@ -35,7 +35,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -150,23 +149,8 @@ public class MapController implements Initializable {
                                         Display name Phone  Order status
                                         Creates a button for each ordered year to view more information
                                         */
-            Collection<String> yearsD = new ArrayList<>();
-            try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
-                 ResultSet rs = prep.executeQuery()
-            ) {
-                while (rs.next()) {
-
-                    yearsD.add(rs.getString(1));
-
-                }
-
-                rs.close();
-                if (DbInt.pCon != null) {
-                    DbInt.pCon = null;
-                }
-            } catch (SQLException Se) {
-                LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
-            }
+            Iterable<String> yearsD;
+            yearsD = DbInt.getYears();
             List<String> Name = new ArrayList<>();
             List<String> Phone = new ArrayList<>();
 

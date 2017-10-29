@@ -21,19 +21,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //import javax.swing.*;
 //import javax.swing.table.DefaultTableModel;
@@ -163,59 +158,10 @@ public class CustomerController {
 
     @FXML
     private void deleteCustomer(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("WARNING!");
-        alert.setHeaderText("BY CONTINUING YOU ARE PERMANENTLY REMOVING A CUSTOMER! ALL DATA MUST BE REENTERED!");
-        alert.setContentText("Would you like to continue?");
+        customerDbInfo.deleteCustomer();
+        mainController.fillTreeView();
 
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            fillTable();
-            BigDecimal preEditOrderCost = BigDecimal.ZERO;
-            Order.orderArray order = new Order().createOrderArray(year, customerDbInfo.getName(), false);
-            for (Product.formattedProduct productOrder : order.orderData) {
-                preEditOrderCost = preEditOrderCost.add(productOrder.extendedCost);
-            }
-            Year yearInfo = new Year(year);
-            BigDecimal donations = yearInfo.getDonations().subtract(customerDbInfo.getDontation());
-            int Lg = yearInfo.getLG() - getNoLawnProductsOrdered();
-            int LP = yearInfo.getLP() - getNoLivePlantsOrdered();
-            int Mulch = yearInfo.getMulch() - getNoMulchOrdered();
-            BigDecimal OT = yearInfo.getOT().subtract(preEditOrderCost);
-            int Customers = (yearInfo.getNoCustomers() - 1);
-            BigDecimal GTot = yearInfo.getGTot().subtract(preEditOrderCost.add(customerDbInfo.getDontation()));
-            BigDecimal Commis = getCommission(GTot);
-            try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-                totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setInt(2, Lg);
-                totalInsertString.setInt(3, (LP));
-                totalInsertString.setInt(4, (Mulch));
-                totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setInt(6, (Customers));
-                totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.execute();
-
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
-            }
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM ORDERS WHERE NAME=?")) {
-
-                prep.setString(1, name);
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
-            }
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
-
-                prep.setString(1, name);
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
-            }
-            mainController.fillTreeView();
-        }
     }
 
     /**

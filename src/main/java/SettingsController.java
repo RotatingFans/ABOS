@@ -34,8 +34,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -342,18 +340,7 @@ public class SettingsController {
                 prop.store(output, null);
                 prop = new Properties();
 
-                DbInt.createDb("Set");
-
-                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
-                    prep.execute();
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
-                try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), YEARS varchar(255))")) {
-                    prep.execute();
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
+                DbInt.createSetAndTables();
 
 
             }

@@ -33,7 +33,6 @@ class AddCustomerWorker extends Task<Integer> {
     private final String Town;
     private final String State;
     private final String year;
-    private final Boolean edit;
     private final TableView<Product.formattedProductProps> ProductTable;
     private final String Name;
     private final String ZipCode;
@@ -57,12 +56,11 @@ class AddCustomerWorker extends Task<Integer> {
      * @param paid             Did they pay
      * @param delivered        Was it deleivered
      */
-    public AddCustomerWorker(String Address, String Town, String State, String year, Boolean edit, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
+    public AddCustomerWorker(String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
         this.Address = Address;
         this.Town = Town;
         this.State = State;
         this.year = year;
-        this.edit = edit;
         this.ProductTable = ProductTable;
         Name = name;
         ZipCode = zipCode;
@@ -303,7 +301,6 @@ class AddCustomerWorker extends Task<Integer> {
             }
 */
         }
-
 
 
         // Return the number of matches found

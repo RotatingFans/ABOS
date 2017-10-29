@@ -30,7 +30,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
@@ -381,7 +380,6 @@ public class AddCustomerController {
                 Town.getText(),
                 State.getText(),
                 year,
-                edit,
                 ProductTable,
                 Name.getText(),
                 ZipCode.getText(),
@@ -568,20 +566,7 @@ public class AddCustomerController {
         int Customers = (yearInfo.getNoCustomers() + newCustomer);
         BigDecimal GTot = yearInfo.getGTot().add(totalCostFinal.subtract(preEditOrderCost).add(donationChange));
         BigDecimal Commis = getCommission(GTot);
-        try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-            totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(2, Lg);
-            totalInsertString.setInt(3, (LP));
-            totalInsertString.setInt(4, (Mulch));
-            totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(6, (Customers));
-            totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.execute();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
-        }
+        yearInfo.updateTots(donations, Lg, LP, Mulch, OT, Customers, Commis, GTot);
     }
 
 

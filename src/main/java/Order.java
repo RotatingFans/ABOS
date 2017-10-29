@@ -164,12 +164,13 @@ public class Order {
         }
 
     }
+
     public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
         return createOrderArray(year, name, excludeZeroOrders, "*");
     }
 
     public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders, String Category) {
-
+        Customer customer = new Customer(name, year);
         List<Product> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
         try (PreparedStatement prep = DbInt.getPrep(year, Objects.equals(Category, "*") ? "SELECT * FROM PRODUCTS" : "SELECT * FROM PRODUCTS WHERE Category = ?")
@@ -196,7 +197,7 @@ public class Order {
 
         //Table rows array
         Product.formattedProduct[] allProducts = new Product.formattedProduct[ProductInfoArray.size()];
-        String OrderID = DbInt.getCustInf(year, name, "ORDERID");
+        String OrderID = customer.getOrderId();
         //Defines Arraylist of order quanitities
         int noProductsOrdered = 0;
         //Fills OrderQuantities Array
@@ -330,6 +331,7 @@ public class Order {
     interface getProgCallback {
         double doAction();
     }
+
     public static class orderArray {
         public final Product.formattedProduct[] orderData;
         public BigDecimal totalCost;

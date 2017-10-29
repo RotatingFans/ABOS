@@ -17,11 +17,15 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Created by patrick on 7/26/16.
@@ -162,10 +166,6 @@ public class Customer {
         this.lon = lon;
     }
 
-    public void setName(String name) {
-        this.nameEdited = name;
-    }
-
     public void setYear(String year) {
         this.year = year;
     }
@@ -263,6 +263,60 @@ public class Customer {
         }
     }
 
+    public void deleteCustomer() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("WARNING!");
+        alert.setHeaderText("BY CONTINUING YOU ARE PERMANENTLY REMOVING A CUSTOMER! ALL DATA MUST BE REENTERED!");
+        alert.setContentText("Would you like to continue?");
+
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            BigDecimal preEditOrderCost = BigDecimal.ZERO;
+            Order.orderArray order = new Order().createOrderArray(year, getName(), false);
+            for (Product.formattedProduct productOrder : order.orderData) {
+                preEditOrderCost = preEditOrderCost.add(productOrder.extendedCost);
+            }
+            Year yearInfo = new Year(year);
+            BigDecimal donations = yearInfo.getDonations().subtract(getDontation());
+            int Lg = yearInfo.getLG() - getNoLawnProductsOrdered();
+            int LP = yearInfo.getLP() - getNoLivePlantsOrdered();
+            int Mulch = yearInfo.getMulch() - getNoMulchOrdered();
+            BigDecimal OT = yearInfo.getOT().subtract(preEditOrderCost);
+            int Customers = (yearInfo.getNoCustomers() - 1);
+            BigDecimal GTot = yearInfo.getGTot().subtract(preEditOrderCost.add(getDontation()));
+            BigDecimal Commis = getCommission(GTot);
+            try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
+                totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(2, Lg);
+                totalInsertString.setInt(3, (LP));
+                totalInsertString.setInt(4, (Mulch));
+                totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(6, (Customers));
+                totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.execute();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
+            }
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM ORDERS WHERE NAME=?")) {
+
+                prep.setString(1, name);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
+            }
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
+
+                prep.setString(1, name);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
+            }
+        }
+    }
+
     public String[] getCustAddressFrmName() {
 
         String city = DbInt.getCustInf(year, name, "TOWN", town);
@@ -275,6 +329,68 @@ public class Customer {
         address[2] = zCode;
         address[3] = strtAddress;
         return address;
+    }
+
+    /**
+     * Loops through Table to get total amount of Bulk Mulch ordered.
+     *
+     * @return The amount of Bulk mulch ordered
+     */
+    public int getNoMulchOrdered() {
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        int quantMulchOrdered = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            if ((productOrder.productName.contains("Mulch")) && (productOrder.productName.contains("Bulk"))) {
+                quantMulchOrdered += productOrder.orderedQuantity;
+            }
+        }
+
+        return quantMulchOrdered;
+    }
+
+    private BigDecimal getCommission(BigDecimal totalCost) {
+        BigDecimal commision = BigDecimal.ZERO;
+        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.05"));
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.1"));
+        } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
+            commision = totalCost.multiply(new BigDecimal("0.15"));
+        }
+        return commision;
+    }
+
+    /**
+     * Loops through Table to get total amount of Lawn and Garden Products ordered.
+     *
+     * @return The amount of Lawn and Garden Products ordered
+     */
+    public int getNoLivePlantsOrdered() {
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        int livePlantsOrdered = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            if ((productOrder.productName.contains("-P")) && (productOrder.productName.contains("-FV"))) {
+                livePlantsOrdered += productOrder.orderedQuantity;
+            }
+        }
+
+        return livePlantsOrdered;
+    }
+
+    /**
+     * Loops through Table to get total amount of Lawn Products ordered.
+     *
+     * @return The amount of Live Plants ordered
+     */
+    public int getNoLawnProductsOrdered() {
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        int lawnProductsOrdered = 0;
+        for (Product.formattedProduct productOrder : order.orderData) {
+            if (productOrder.productName.contains("-L")) {
+                lawnProductsOrdered += productOrder.orderedQuantity;
+            }
+        }
+        return lawnProductsOrdered;
     }
 
     public Integer getId() {
@@ -325,6 +441,10 @@ public class Customer {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.nameEdited = name;
     }
 
     /**
