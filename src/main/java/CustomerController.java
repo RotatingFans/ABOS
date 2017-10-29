@@ -43,6 +43,7 @@ public class CustomerController {
     public static String year = "2017";
     //public String year;
     private String name;
+    private int cID;
     //TODO Add Active search with only results shown
 
     private Customer customerDbInfo;
@@ -61,6 +62,7 @@ public class CustomerController {
         name = cName;
         mainController = mainCont;
         customerDbInfo = new Customer(name, year);
+        cID = customerDbInfo.getId();
         fillTable();
 
         //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
@@ -91,7 +93,29 @@ public class CustomerController {
      * Initialize the contents of the frame.
      */
     private void initialize() {
+        customerDbInfo = new Customer(cID, year);
+        name = customerDbInfo.getName();
+        //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
 
+        List<infoValPair> customerInfoStrings = new ArrayList<>();
+        customerInfoStrings.add(new infoValPair("Name", name));
+        customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
+        customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
+        customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
+        customerInfoStrings.add(new infoValPair("Total Cost", totCost));
+
+        customerInfo.getChildren().remove(0, 8);
+        customerInfoStrings.forEach((pair) -> {
+            javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
+            javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
+            keyLabel.setId("CustomerDescription");
+            valLabel.setId("CustomerValue");
+            customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
+        });
+        fillTable();
 
     }
 

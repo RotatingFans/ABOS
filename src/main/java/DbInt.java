@@ -24,10 +24,12 @@ import javafx.scene.control.ButtonType;
 
 import java.io.File;
 import java.sql.*;
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -36,14 +38,14 @@ import java.util.*;
 public class DbInt {
     public static Connection pCon = null;
 
-    /**
+/*    *//**
      * Gets Data with specifed command and DB
      *
      * @param Db      THe database to retireve data from
      * @param command The command To execute
      * @return and ArrayList of the resulting Data
      * @deprecated true
-     */
+     *//*
     @Deprecated
     public static List<String> getData(String Db, String command) {
         try {
@@ -88,7 +90,7 @@ public class DbInt {
         }
 
         return res;
-    }
+    }*/
 
     /**
      * Gets the specified Customer info
@@ -99,7 +101,20 @@ public class DbInt {
      * @return A string with the resulting data
      */
     public static String getCustInf(String yearL, String name, String info) {
-        String ret = "";
+        return getCustInf(yearL, name, info, "");
+    }
+
+    /**
+     * Gets the specified Customer info
+     *
+     * @param yearL The year to search
+     * @param name  The customer name
+     * @param info  The info to search for
+     * @param defaultVal The default value to return if there is no data
+     * @return A string with the resulting data
+     */
+    public static String getCustInf(String yearL, String name, String info, String defaultVal) {
+        String ret = defaultVal;
 
         try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?")) {
 
@@ -257,13 +272,13 @@ public class DbInt {
         return columnsNumber;
     }
 
-    /**
+/*    *//**
      * Writes data to A DB
      *
      * @param Db      The DB to write to
      * @param command THe command to execute
      * @deprecated true
-     */
+     *//*
     @Deprecated
     public static void writeData(String Db, String command) {
         try {
@@ -303,7 +318,7 @@ public class DbInt {
         }
 
 
-    }
+    }*/
 
     /**
      * Creates a database with specified name

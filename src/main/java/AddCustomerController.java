@@ -144,7 +144,7 @@ public class AddCustomerController {
         mainCont = mainController;
         newCustomer = 1;
         parentTab = parent;
-
+        NameEditCustomer = "";
         year = aYear;
         yearInfo = new Year(year);
 
@@ -388,7 +388,7 @@ public class AddCustomerController {
                 Phone.getText(),
                 Email.getText(),
                 DonationsT.getText(),
-                NameEditCustomer,
+                Objects.equals(NameEditCustomer, "") ? Name.getText() : NameEditCustomer,
                 Paid.isSelected(),
                 Delivered.isSelected());
 

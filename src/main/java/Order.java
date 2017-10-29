@@ -17,6 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.collections.ObservableList;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +35,135 @@ public class Order {
     private BigDecimal totL = BigDecimal.ZERO;
     private int QuantL = 0;
 
+    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, String preEditName, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+        List<String> Ids = new ArrayList<>();
+        int numRows = orders.size();
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?")) {
+
+            prep.setString(1, preEditName);
+            try (ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    Ids.add(rs.getString(1));
+
+                }
+            }
+        }
+        int progressDivisor = (2 * numRows);
+        int progressIncrement = 50 / progressDivisor;
+        updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+        fail.doAction();
+
+        //Inserts into customer table for year
+        //Edit mode
+        if (Ids.size() > 0) {
+            updateMessage.doAction("Building Order Update");
+
+            StringBuilder UpdateOrderString = new StringBuilder("UPDATE ORDERS SET NAME=?");
+            //loops through table and adds product number to order string with "=?"
+            for (int i = 0; i < numRows; i++) {
+                UpdateOrderString.append(", \"");
+                UpdateOrderString.append(i);
+                UpdateOrderString.append("\"=?");
+                updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+            }
+            fail.doAction();
+
+            //Uses string to create PreparedStatement that is filled with quantities from table.
+            UpdateOrderString.append(" WHERE NAME = ?");
+            try (PreparedStatement updateOrders = DbInt.getPrep(year, UpdateOrderString.toString())) {
+                updateOrders.setString(1, name);
+                for (int i = 0; i < numRows; i++) {
+                    updateOrders.setString(i + 2, String.valueOf(orders.get(i).getOrderedQuantity()));
+                    updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+                }
+                fail.doAction();
+
+                updateOrders.setString(numRows + 2, preEditName);
+                updateMessage.doAction("Running Update");
+
+                updateOrders.execute();
+            }
+        } //Insert Mode
+        else {
+            updateMessage.doAction("Building Order");
+
+            StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
+
+            progressDivisor = 2 * numRows;
+            progressIncrement = 50 / progressDivisor;
+            //Loops through And adds product numbers to Order string
+            int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
+
+            for (int i = 0; i < numRows; i++) {
+                updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+                InsertOrderStringBuilder.insert(insertProductNumberHere, ",\"");
+                InsertOrderStringBuilder.insert(insertProductNumberHere + 2, i);
+                InsertOrderStringBuilder.insert(insertProductNumberHere + 2 + IntegerLength(i), '"');
+                insertProductNumberHere += 3 + IntegerLength(i);
+                InsertOrderStringBuilder.append(",?");
+            }
+            InsertOrderStringBuilder.insert(insertProductNumberHere, ") ");
+            InsertOrderStringBuilder.append(')');
+
+            fail.doAction();
+
+            //Creates prepared Statement and replaces ? with quantities and names
+            try (PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderStringBuilder.toString())) {
+                writeOrd.setString(1, name);
+                for (int i = 0; i < numRows; i++) {
+                    writeOrd.setString(i + 2, String.valueOf(orders.get(i).getOrderedQuantity()));
+
+                    updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+                }
+                fail.doAction();
+                updateMessage.doAction("Adding Order");
+
+                writeOrd.executeUpdate();
+            }
+        }
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?")) {
+
+            prep.setString(1, name);
+            try (ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    Ids.add(rs.getString(1));
+
+                }
+            }
+        }
+        return Ids.get(Ids.size() - 1);
+    }
+
+    private static int IntegerLength(int n) {
+        if (n < 100000) {
+            // 5 or less
+            if (n < 100) {
+                // 1 or 2
+                if (n < 10) { return 1; } else { return 2; }
+            } else {
+                // 3 or 4 or 5
+                if (n < 1000) { return 3; } else {
+                    // 4 or 5
+                    if (n < 10000) { return 4; } else { return 5; }
+                }
+            }
+        } else {
+            // 6 or more
+            if (n < 10000000) {
+                // 6 or 7
+                if (n < 1000000) { return 6; } else { return 7; }
+            } else {
+                // 8 to 10
+                if (n < 100000000) { return 8; } else {
+                    // 9 or 10
+                    if (n < 1000000000) { return 9; } else { return 10; }
+                }
+            }
+        }
+
+    }
     public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
         return createOrderArray(year, name, excludeZeroOrders, "*");
     }
@@ -173,6 +304,32 @@ public class Order {
         return new orderArray(orderedProducts, totL, QuantL);
     }
 
+    public orderArray createNewOrder(Product.formattedProductProps[] orderData) {
+        Product.formattedProduct[] orders = new Product.formattedProduct[orderData.length];
+        for (int i = 0; i < orderData.length; i++) {
+            orders[i] = new Product.formattedProduct(orderData[i].getProductID(), orderData[i].getProductName(), orderData[i].getProductSize(), orderData[i].getProductUnitPrice(), orderData[i].getProductCategory(), orderData[i].getOrderedQuantity(), new BigDecimal(orderData[i].getExtendedCost().toString()));
+            totL = totL.add(orders[i].extendedCost);
+            QuantL += orders[i].orderedQuantity;
+        }
+        return new orderArray(orders, totL, QuantL);
+
+    }
+
+    interface updateProgCallback {
+        void doAction(double progress, int max);
+    }
+
+    interface failCallback {
+        void doAction() throws InterruptedException;
+    }
+
+    interface updateMessageCallback {
+        void doAction(String message);
+    }
+
+    interface getProgCallback {
+        double doAction();
+    }
     public static class orderArray {
         public final Product.formattedProduct[] orderData;
         public BigDecimal totalCost;
