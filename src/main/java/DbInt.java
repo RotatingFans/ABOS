@@ -22,14 +22,10 @@
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-import java.io.File;
 import java.sql.*;
-import java.text.DateFormat;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
@@ -37,7 +33,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class DbInt {
     public static Connection pCon = null;
-
+    private static String prefix = "ABOS-Test-";
 /*    *//*
       Gets Data with specifed command and DB
 
@@ -146,8 +142,10 @@ public class DbInt {
      * @return the PreparedStatemtn that was created.
      */
     public static PreparedStatement getPrep(String Db, String Command) {
+        String username = "admin";
+        String ***REMOVED***;
         try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
@@ -156,13 +154,12 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=false", Config.getDbLoc(), prefix + Db);
+
         try {
 
 
-            pCon = DriverManager.getConnection(url);
+            pCon = DriverManager.getConnection(url, username, password);
             pCon.setAutoCommit(true);
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
@@ -179,7 +176,7 @@ public class DbInt {
                 LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
-                if (Objects.equals(ex.getSQLState(), "XJ004")) {
+                if (Objects.equals(ex.getSQLState(), "42000")) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("ERROR!");
                     alert.setHeaderText("The program cannot find the specified database");
@@ -326,13 +323,25 @@ public class DbInt {
      * @param DB The name of the DB to create
      */
     public static Boolean createDb(String DB) {
+/*
 
+ */
 
-        String url = String.format("jdbc:derby:%s/%s;create=true", Config.getDbLoc(), DB);//;create=true
+        String username = "admin";
+        String ***REMOVED***;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
 
-        try (Connection con = DriverManager.getConnection(url);
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
-
+            int Result = st.executeUpdate("CREATE DATABASE `" + prefix + DB + "`");
 
         } catch (SQLException ex) {
 
@@ -354,14 +363,48 @@ public class DbInt {
     }
 
     public static void createSetAndTables() {
-        DbInt.createDb("Set");
+        /*
+        CREATE
+    ALGORITHM = UNDEFINED
+    DEFINER = `root`@`172.17.0.1`
+    SQL SECURITY DEFINER
+VIEW `ABOSTest-Commons`.`userView` AS
+    SELECT
+        `ABOSTest-Commons`.`Users`.`idUsers` AS `idUsers`,
+        `ABOSTest-Commons`.`Users`.`userName` AS `userName`,
+        `ABOSTest-Commons`.`Users`.`Years` AS `Years`
+    FROM
+        `ABOSTest-Commons`.`Users`
+    WHERE
+        (`ABOSTest-Commons`.`Users`.`userName` = CURRENT_USER()) WITH CASCADED CHECK OPTION
+         */
 
-        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
+
+        DbInt.createDb("Commons");
+
+        try (PreparedStatement prep = DbInt.getPrep("Commons", "CREATE TABLE `Users` (\n" +
+                "  `idUsers` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                "  `userName` varchar(255) NOT NULL,\n" +
+                "  `Years` varchar(255) NOT NULL,\n" +
+                "  PRIMARY KEY (`idUsers`)\n" +
+                ")")) {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE YEARS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), YEARS varchar(255))")) {
+        try (PreparedStatement prep = DbInt.getPrep("Commons", "CREATE\n" +
+                "    ALGORITHM = UNDEFINED\n" +
+                "    DEFINER = `admin`@`localhost`\n" +
+                "    SQL SECURITY DEFINER\n" +
+                "VIEW `" + prefix + "Commons`.`userView` AS\n" +
+                "    SELECT\n" +
+                "        `" + prefix + "Commons`.`Users`.`idUsers` AS `idUsers`,\n" +
+                "        `" + prefix + "Commons`.`Users`.`userName` AS `userName`,\n" +
+                "        `" + prefix + "Commons`.`Users`.`Years` AS `Years`\n" +
+                "    FROM\n" +
+                "        `" + prefix + "Commons`.`Users`\n" +
+                "    WHERE\n" +
+                "        (`" + prefix + "Commons`.`Users`.`userName` = CURRENT_USER()) WITH CASCADED CHECK OPTION")) {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -371,13 +414,13 @@ public class DbInt {
     public static void deleteDb(String DB) {
 
 
-        String url = String.format("%s/%s", Config.getDbLoc(), DB);
+/*        String url = String.format("%s/%s", Config.getDbLoc(), DB);
         File oldName = new File(url);
         DateFormat df = new SimpleDateFormat("MMDDYYYY-HH:MM:SS");
         java.util.Date dateobj = new java.util.Date();
         //create destination File object
         File newName = new File(url + ".bak-" + df.format(dateobj));
-        boolean isFileRenamed = oldName.renameTo(newName);
+        boolean isFileRenamed = oldName.renameTo(newName);*/
 
 
     }
@@ -411,14 +454,16 @@ public class DbInt {
     }
 
     public static Iterable<String> getYears() {
+        String csvRet = "";
         Collection<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
+
+        try (PreparedStatement prep = DbInt.getPrep("Commons", "SELECT YEARS FROM userView");
              ResultSet rs = prep.executeQuery()) {
 
 
             while (rs.next()) {
 
-                ret.add(rs.getString("YEARS"));
+                csvRet = (rs.getString("YEARS"));
 
             }
             ////DbInt.pCon.close();
@@ -427,7 +472,12 @@ public class DbInt {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-
+        List<String> retL = new ArrayList<String>(Arrays.asList(csvRet.split("\\s*,\\s*")));
+        retL.forEach(year -> {
+            if (year != "") {
+                ret.add(year);
+            }
+        });
         return ret;
     }
 
