@@ -32,13 +32,15 @@ import java.util.List;
  * Created by patrick on 7/27/16.
  */
 public class Product {
+    public final int productKey;
     public final String productID;
     public final String productName;
     public final String productSize;
     public final String productUnitPrice;
     public final String productCategory;
 
-    public Product(String productID, String productName, String productSize, String productUnitPrice, String productCategory) {
+    public Product(int productKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory) {
+        this.productKey = productKey;
         this.productID = productID;
         this.productName = productName;
         this.productSize = productSize;
@@ -72,6 +74,8 @@ public class Product {
     }
 
     public static class formattedProduct {
+        public final int productKey;
+
         public final String productID;
         public final String productName;
         public final String productSize;
@@ -80,7 +84,8 @@ public class Product {
         public final int orderedQuantity;
         public final BigDecimal extendedCost;
 
-        public formattedProduct(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+        public formattedProduct(int productKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+            this.productKey = productKey;
             this.productID = productID;
             this.productName = productName;
             this.productSize = productSize;
@@ -92,17 +97,11 @@ public class Product {
     }
 
     public static class formattedProductProps {
-        public final SimpleStringProperty productID = new SimpleStringProperty();
-        public final SimpleStringProperty productName = new SimpleStringProperty();
-        public final SimpleStringProperty productSize = new SimpleStringProperty();
-        public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
-        public final SimpleStringProperty productCategory = new SimpleStringProperty();
-        public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
 
-        public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
-        public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
+        public final SimpleIntegerProperty productKey = new SimpleIntegerProperty();
 
-        public formattedProductProps(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+        public formattedProductProps(int ProductKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+            this.productKey.set(ProductKey);
             this.productID.set(productID);
             this.productName.set(productName);
             this.productSize.set(productSize);
@@ -113,6 +112,24 @@ public class Product {
             this.extendedCost.set(extendedCost);
         }
 
+        public final SimpleStringProperty productID = new SimpleStringProperty();
+
+        public final SimpleStringProperty productName = new SimpleStringProperty();
+        public final SimpleStringProperty productSize = new SimpleStringProperty();
+        public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
+        public final SimpleStringProperty productCategory = new SimpleStringProperty();
+        public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
+
+        public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
+        public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
+
+        public SimpleIntegerProperty productKeyProperty() {
+            return productKey;
+        }
+
+        public int getProductKey() {
+            return productKey.get();
+        }
         public String getProductID() {
             return productID.get();
         }

@@ -127,10 +127,11 @@ class AddCustomerWorker extends Task<Integer> {
         double lon = Double.valueOf(coords[0][1].toString());
         AddCustomerWorker.failIfInterrupted();
         updateProgress(0, 100);
-        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, NameEditCustomer, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
         Customer customer = new Customer(NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Boolean.toString(Paid), Boolean.toString(Delivered), Email,
-                Id, Name, new BigDecimal(DonationsT));
-        customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+                Name, new BigDecimal(DonationsT));
+        Integer custID = customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+
         updateProgress(100, 100);
 
 

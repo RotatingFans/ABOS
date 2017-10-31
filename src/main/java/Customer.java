@@ -58,7 +58,6 @@ public class Customer {
                     String paid,
                     String delivered,
                     String email,
-                    String orderId,
                     String nameEdited,
                     BigDecimal Donation) {
 
@@ -182,14 +181,14 @@ public class Customer {
         Donation = donation;
     }
 
-    public void updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
-        if (Objects.equals(DbInt.getCustInf(year, name, "NAME", ""), "")) {
+    public int updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+        if (Objects.equals(DbInt.getCustInf(year, name, "name", ""), "")) {
             //Insert Mode
             double progressIncrement = (100 - getProgress.doAction()) / 3;
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
             fail.doAction();
             updateMessage.doAction("Adding Customer");
-            try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+            try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO customerview (uName, Name, streetAddress, City, State, Zip, Lat, Lon, Phone, Email, Donation) VALUES (LEFT(USER(), (LOCATE('@', USER()) - 1)),?,?,?,?,?,?,?,?,?,?)")) {
                 writeCust.setString(1, this.nameEdited);
                 writeCust.setString(2, this.address);
                 writeCust.setString(3, this.town);
@@ -198,16 +197,16 @@ public class Customer {
                 writeCust.setDouble(6, lat);
                 writeCust.setDouble(7, lon);
                 writeCust.setString(8, this.phone);
-                writeCust.setString(9, this.orderId);
-                writeCust.setString(10, this.paid);
-                writeCust.setString(11, this.delivered);
-                writeCust.setString(12, this.email);
-                writeCust.setString(13, this.Donation.toPlainString());
+                //writeCust.setString(9, this.orderId);
+                //writeCust.setString(10, this.paid);
+                //writeCust.setString(11, this.delivered);
+                writeCust.setString(9, this.email);
+                writeCust.setString(10, this.Donation.toPlainString());
                 fail.doAction();
                 writeCust.execute();
             }
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
-            try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
+     /*       try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
                 prep1.setString(1, this.address);
                 prep1.setString(2, this.town);
                 prep1.setString(3, this.state);
@@ -217,7 +216,7 @@ public class Customer {
                 fail.doAction();
 
                 prep1.execute();
-            }
+            }*/
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
 
 
@@ -261,6 +260,19 @@ public class Customer {
             updateProg.doAction(20, 100);
 
         }
+        Integer cID = 0;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idcustomers FROM customerview WHERE Name=?")) {
+
+            prep.setString(1, nameEdited);
+            try (ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    cID = rs.getInt(1);
+
+                }
+            }
+        }
+        return cID;
     }
 
     public void deleteCustomer() {

@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.math.BigDecimal;
@@ -35,16 +36,22 @@ public class Order {
     private BigDecimal totL = BigDecimal.ZERO;
     private int QuantL = 0;
 
-    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, String preEditName, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
-        List<String> Ids = new ArrayList<>();
+    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+        List<Integer> Ids = new ArrayList<>();
         int numRows = orders.size();
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?")) {
+        ObservableList<Product.formattedProductProps> orderNoZero = FXCollections.observableArrayList();
+        orders.forEach(order -> {
+            if (order.getOrderedQuantity() > 0) {
+                orderNoZero.add(order);
+            }
+        });
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
 
-            prep.setString(1, preEditName);
+            prep.setInt(1, custID);
             try (ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
 
-                    Ids.add(rs.getString(1));
+                    Ids.add(rs.getInt(1));
 
                 }
             }
@@ -79,7 +86,7 @@ public class Order {
                 }
                 fail.doAction();
 
-                updateOrders.setString(numRows + 2, preEditName);
+                updateOrders.setInt(numRows + 2, custID);
                 updateMessage.doAction("Running Update");
 
                 updateOrders.execute();
@@ -88,12 +95,12 @@ public class Order {
         else {
             updateMessage.doAction("Building Order");
 
-            StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
+            StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(uName,custId) VALUES(?,?)");
 
             progressDivisor = 2 * numRows;
             progressIncrement = 50 / progressDivisor;
             //Loops through And adds product numbers to Order string
-            int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
+/*            int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
 
             for (int i = 0; i < numRows; i++) {
                 updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
@@ -104,36 +111,63 @@ public class Order {
                 InsertOrderStringBuilder.append(",?");
             }
             InsertOrderStringBuilder.insert(insertProductNumberHere, ") ");
-            InsertOrderStringBuilder.append(')');
+            InsertOrderStringBuilder.append(')');*/
 
             fail.doAction();
 
             //Creates prepared Statement and replaces ? with quantities and names
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, InsertOrderStringBuilder.toString())) {
-                writeOrd.setString(1, name);
-                for (int i = 0; i < numRows; i++) {
-                    writeOrd.setString(i + 2, String.valueOf(orders.get(i).getOrderedQuantity()));
+            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO ordersview(uName,custId) VALUES(?,?)")) {
+                writeOrd.setString(1, DbInt.getUserName(year));
+                writeOrd.setInt(2, custID);
 
-                    updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
-                }
                 fail.doAction();
                 updateMessage.doAction("Adding Order");
 
                 writeOrd.executeUpdate();
             }
-        }
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ORDERID FROM ORDERS WHERE NAME=?")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
 
-            prep.setString(1, name);
+                prep.setInt(1, custID);
+                try (ResultSet rs = prep.executeQuery()) {
+                    while (rs.next()) {
+
+                        Ids.add(rs.getInt(1));
+
+                    }
+                }
+            }
+            int OrderID = Ids.get(Ids.size() - 1);
+            String uName = DbInt.getUserName(year);
+
+
+            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)")) {
+                for (Product.formattedProductProps prod : orderNoZero) {
+
+                    writeOrd.setString(1, uName);
+                    writeOrd.setInt(2, custID);
+                    writeOrd.setInt(3, OrderID);
+                    writeOrd.setInt(4, prod.getProductKey());
+                    writeOrd.setInt(5, prod.getOrderedQuantity());
+
+                    fail.doAction();
+                    updateMessage.doAction("Adding Order");
+
+                    writeOrd.executeUpdate();
+                }
+            }
+        }
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
+
+            prep.setInt(1, custID);
             try (ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
 
-                    Ids.add(rs.getString(1));
+                    Ids.add(rs.getInt(1));
 
                 }
             }
         }
-        return Ids.get(Ids.size() - 1);
+        return Ids.get(Ids.size() - 1).toString();
     }
 
     private static int IntegerLength(int n) {
@@ -181,7 +215,7 @@ public class Order {
             ResultSet ProductInfoResultSet = prep.executeQuery();
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
-                ProductInfoArray.add(new Product(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category")));
+                ProductInfoArray.add(new Product(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category")));
                 DbInt.pCon.commit();
 
             }
@@ -225,7 +259,7 @@ public class Order {
 
             if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
                 BigDecimal unitCost = new BigDecimal(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
-                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
+                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productKey, ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
                 totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
                 QuantL += quant;
                 noProductsOrdered++;
@@ -249,7 +283,7 @@ public class Order {
              ResultSet ProductInfoResultSet = prep.executeQuery()) {
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
-                ProductInfoArray.add(new Product(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category")));
+                ProductInfoArray.add(new Product(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category")));
                 DbInt.pCon.commit();
 
             }
@@ -291,7 +325,7 @@ public class Order {
 
             if (quant > 0) {
                 BigDecimal unitCost = new BigDecimal(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
-                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
+                allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productKey, ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
                 totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
                 QuantL += quant;
                 noProductsOrdered++;
@@ -308,7 +342,7 @@ public class Order {
     public orderArray createNewOrder(Product.formattedProductProps[] orderData) {
         Product.formattedProduct[] orders = new Product.formattedProduct[orderData.length];
         for (int i = 0; i < orderData.length; i++) {
-            orders[i] = new Product.formattedProduct(orderData[i].getProductID(), orderData[i].getProductName(), orderData[i].getProductSize(), orderData[i].getProductUnitPrice(), orderData[i].getProductCategory(), orderData[i].getOrderedQuantity(), new BigDecimal(orderData[i].getExtendedCost().toString()));
+            orders[i] = new Product.formattedProduct(orderData[i].getProductKey(), orderData[i].getProductID(), orderData[i].getProductName(), orderData[i].getProductSize(), orderData[i].getProductUnitPrice(), orderData[i].getProductCategory(), orderData[i].getOrderedQuantity(), new BigDecimal(orderData[i].getExtendedCost().toString()));
             totL = totL.add(orders[i].extendedCost);
             QuantL += orders[i].orderedQuantity;
         }

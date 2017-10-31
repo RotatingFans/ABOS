@@ -235,23 +235,15 @@ public class Year {
         List<Product.formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS");
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM products");
              ResultSet ProductInfoResultSet = prep.executeQuery()) {
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
 
-                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
+                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getString("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
             }
-            DbInt.pCon.commit();
-            ////DbInt.pCon.close();
 
 
-            //Close prepared statement
-            ProductInfoResultSet.close();
-            if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
-                DbInt.pCon = null;
-            }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -261,7 +253,7 @@ public class Year {
 
     public boolean addressExists(String address, String zipCode) {
         Boolean exists = false;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE ADDRESS=? AND ZIPCODE=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE streetAddress=? AND Zip=?")) {
             prep.setString(1, address);
             prep.setString(2, zipCode);
             ResultSet rs = prep.executeQuery();
@@ -278,7 +270,7 @@ public class Year {
         }
         return exists;
     }
-
+//LEFT(USER(), (LOCATE('@', USER()) - 1))
     /**
      * Creates Database for the year specified.
      */
@@ -304,8 +296,8 @@ public class Year {
                     "  `uManage` varchar(255) NOT NULL,\n" +
                     "  `Admin` int(11) DEFAULT NULL,\n" +
                     "  `commonsID` int(11) NOT NULL,\n" +
-                    "  PRIMARY KEY (`idusers`)\n" +
-                    ")")) {
+                    "  PRIMARY KEY (`idusers`),\n" +
+                    "UNIQUE INDEX `userName_UNIQUE` (`userName` ASC))")) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -319,14 +311,18 @@ public class Year {
                     "  `City` varchar(255) NOT NULL,\n" +
                     "  `State` varchar(255) NOT NULL,\n" +
                     "  `Zip` varchar(5) NOT NULL,\n" +
+                    "  `Phone` varchar(255) NULL,\n" +
+                    "  `Email` varchar(255) NULL,\n" +
                     "  `Lat` double NOT NULL,\n" +
                     "  `Lon` double NOT NULL,\n" +
                     "  `Ordered` int(11) DEFAULT NULL,\n" +
                     "  `nH` int(11) DEFAULT NULL,\n" +
                     "  `nI` int(11) DEFAULT NULL,\n" +
                     "  `orderID` varchar(45) DEFAULT NULL,\n" +
-                    "  PRIMARY KEY (`idcustomers`)\n" +
-                    ")")) {
+                    "  `Donation` DECIMAL(9,2) NULL,\n" +
+                    "  PRIMARY KEY (`idcustomers`),\n" +
+                    "KEY `fk_customers_1_idx` (`uName`),\n" +
+                    "CONSTRAINT `fk_customers_1` FOREIGN KEY (`uName`) REFERENCES `users` (`userName`) ON DELETE CASCADE ON UPDATE CASCADE)")) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -352,8 +348,8 @@ public class Year {
                     "  `idOrders` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `uName` varchar(255) NOT NULL COMMENT '\t',\n" +
                     "  `custId` int(11) NOT NULL,\n" +
-                    "  `Cost` decimal(9,2) NOT NULL,\n" +
-                    "  `Quant` int(11) NOT NULL,\n" +
+                    "  `Cost` decimal(9,2) NOT NULL DEFAULT 0,\n" +
+                    "  `Quant` int(11) NOT NULL DEFAULT 0,\n" +
                     "  PRIMARY KEY (`idOrders`),\n" +
                     "  KEY `fk_Orders_1_idx` (`custId`),\n" +
                     "  CONSTRAINT `fk_Orders_1` FOREIGN KEY (`custId`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
@@ -398,7 +394,7 @@ public class Year {
             //Create Triggers
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_INSERT` AFTER INSERT ON `ordered_products` FOR EACH ROW\n" +
                     "BEGIN\n" +
-                    "UPDATE Orders \n" +
+                    "UPDATE orders \n" +
                     "SET \n" +
                     "    Cost = (SELECT \n" +
                     "            SUM(ExtendedCost)\n" +
@@ -408,7 +404,7 @@ public class Year {
                     "            idOrders = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
-                    "UPDATE Orders \n" +
+                    "UPDATE orders \n" +
                     "SET \n" +
                     "    Quant = (SELECT \n" +
                     "            SUM(Quantity)\n" +
@@ -438,7 +434,7 @@ public class Year {
             //Create Triggers
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_UPDATE` AFTER UPDATE ON `ordered_products` FOR EACH ROW\n" +
                     "BEGIN\n" +
-                    "UPDATE Orders \n" +
+                    "UPDATE orders \n" +
                     "SET \n" +
                     "    Cost = (SELECT \n" +
                     "            SUM(ExtendedCost)\n" +
@@ -448,7 +444,7 @@ public class Year {
                     "            idOrders = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
-                    "UPDATE Orders \n" +
+                    "UPDATE orders \n" +
                     "SET \n" +
                     "    Quant = (SELECT \n" +
                     "            SUM(Quantity)\n" +
@@ -482,25 +478,25 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`customerview` AS select `" + prefix + year + "`.`customers`.`idcustomers` AS `idcustomers`,`" + prefix + year + "`.`customers`.`Name` AS `Name`,`" + prefix + year + "`.`customers`.`streetAddress` AS `streetAddress`,`" + prefix + year + "`.`customers`.`City` AS `City`,`" + prefix + year + "`.`customers`.`State` AS `State`,`" + prefix + year + "`.`customers`.`Zip` AS `Zip`,`" + prefix + year + "`.`customers`.`Lat` AS `Lat`,`" + prefix + year + "`.`customers`.`Lon` AS `Lon`,`" + prefix + year + "`.`customers`.`Ordered` AS `Ordered`,`" + prefix + year + "`.`customers`.`nH` AS `nH`,`" + prefix + year + "`.`customers`.`nI` AS `nI`,`" + prefix + year + "`.`customers`.`orderID` AS `orderID` from `" + prefix + year + "`.`customers` where (`" + prefix + year + "`.`customers`.`uName` = current_user()) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`customerview` AS select `" + prefix + year + "`.`customers`.`idcustomers` AS `idcustomers`,`" + prefix + year + "`.`customers`.`uName` AS `uName`,`" + prefix + year + "`.`customers`.`Name` AS `Name`,`" + prefix + year + "`.`customers`.`streetAddress` AS `streetAddress`,`" + prefix + year + "`.`customers`.`City` AS `City`,`" + prefix + year + "`.`customers`.`State` AS `State`,`" + prefix + year + "`.`customers`.`Zip` AS `Zip`,`" + prefix + year + "`.`customers`.`Phone` AS `Phone`,`" + prefix + year + "`.`customers`.`Email` AS `Email`,`" + prefix + year + "`.`customers`.`Lat` AS `Lat`,`" + prefix + year + "`.`customers`.`Lon` AS `Lon`,`" + prefix + year + "`.`customers`.`Ordered` AS `Ordered`,`" + prefix + year + "`.`customers`.`nH` AS `nH`,`" + prefix + year + "`.`customers`.`nI` AS `nI`,`" + prefix + year + "`.`customers`.`orderID` AS `orderID`,`" + prefix + year + "`.`customers`.`Donation` AS `Donation` from `" + prefix + year + "`.`customers` where (`" + prefix + year + "`.`customers`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`orderedproductsview` AS select `" + prefix + year + "`.`ordered_products`.`idordered_products` AS `idordered_products`,`" + prefix + year + "`.`ordered_products`.`custID` AS `custID`,`" + prefix + year + "`.`ordered_products`.`orderID` AS `orderID`,`" + prefix + year + "`.`ordered_products`.`ProductId` AS `ProductId`,`" + prefix + year + "`.`ordered_products`.`Quantity` AS `Quantity`,`" + prefix + year + "`.`ordered_products`.`ExtendedCost` AS `ExtendedCost` from `" + prefix + year + "`.`ordered_products` where (`" + prefix + year + "`.`ordered_products`.`uName` = current_user()) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`orderedproductsview` AS select `" + prefix + year + "`.`ordered_products`.`idordered_products` AS `idordered_products`,`" + prefix + year + "`.`ordered_products`.`custID` AS `custID`,`" + prefix + year + "`.`ordered_products`.`uName` AS `uName`,`" + prefix + year + "`.`ordered_products`.`orderID` AS `orderID`,`" + prefix + year + "`.`ordered_products`.`ProductId` AS `ProductId`,`" + prefix + year + "`.`ordered_products`.`Quantity` AS `Quantity`,`" + prefix + year + "`.`ordered_products`.`ExtendedCost` AS `ExtendedCost` from `" + prefix + year + "`.`ordered_products` where (`" + prefix + year + "`.`ordered_products`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`ordersview` AS select `" + prefix + year + "`.`orders`.`idOrders` AS `idOrders`,`" + prefix + year + "`.`orders`.`custId` AS `custId`,`" + prefix + year + "`.`orders`.`Cost` AS `Cost`,`" + prefix + year + "`.`orders`.`Quant` AS `Quant` from `" + prefix + year + "`.`orders` where (`" + prefix + year + "`.`orders`.`uName` = current_user()) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`ordersview` AS select `" + prefix + year + "`.`orders`.`idOrders` AS `idOrders`,`" + prefix + year + "`.`orders`.`uName` AS `uName`,`" + prefix + year + "`.`orders`.`custId` AS `custId`,`" + prefix + year + "`.`orders`.`Cost` AS `Cost`,`" + prefix + year + "`.`orders`.`Quant` AS `Quant` from `" + prefix + year + "`.`orders` where (`" + prefix + year + "`.`orders`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = current_user()) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {

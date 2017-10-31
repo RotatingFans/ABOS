@@ -112,7 +112,7 @@ public class DbInt {
     public static String getCustInf(String yearL, String name, String info, String defaultVal) {
         String ret = defaultVal;
 
-        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM customerview WHERE NAME=?")) {
 
 
             prep.setString(1, name);
@@ -404,7 +404,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
                 "    FROM\n" +
                 "        `" + prefix + "Commons`.`Users`\n" +
                 "    WHERE\n" +
-                "        (`" + prefix + "Commons`.`Users`.`userName` = CURRENT_USER()) WITH CASCADED CHECK OPTION")) {
+                "        (`" + prefix + "Commons`.`Users`.`userName` = LEFT(USER(), (LOCATE('@', USER()) - 1))) WITH CASCADED CHECK OPTION")) {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -506,6 +506,30 @@ VIEW `ABOSTest-Commons`.`userView` AS
         formatter = new SimpleDateFormat("MM/dd/yyyy");
         output = formatter.format(ret);
         return output;
+    }
+
+    public static String getUserName(String year) {
+        String ret = "";
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'")) {
+
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getString("uName");
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
     }
 
 

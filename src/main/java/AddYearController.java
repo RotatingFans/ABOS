@@ -417,7 +417,7 @@ public class AddYearController {
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -620,7 +620,7 @@ public class AddYearController {
 
 
                     //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                    Product.formattedProductProps prodProps = new Product.formattedProductProps(eElement.getElementsByTagName(
+                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
@@ -761,7 +761,7 @@ public class AddYearController {
         int i = 0;
         for (Product.formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
