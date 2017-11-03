@@ -36,10 +36,10 @@ public class Product {
     public final String productID;
     public final String productName;
     public final String productSize;
-    public final String productUnitPrice;
+    public final BigDecimal productUnitPrice;
     public final String productCategory;
 
-    public Product(int productKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory) {
+    public Product(int productKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory) {
         this.productKey = productKey;
         this.productID = productID;
         this.productName = productName;
@@ -52,7 +52,7 @@ public class Product {
     public static List<String> GetProductInfo(String info, String PID, String year) {
         List<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM products WHERE idproducts=?")) {
 
 
             prep.setString(1, PID);
@@ -79,12 +79,12 @@ public class Product {
         public final String productID;
         public final String productName;
         public final String productSize;
-        public final String productUnitPrice;
+        public final BigDecimal productUnitPrice;
         public final String productCategory;
         public final int orderedQuantity;
         public final BigDecimal extendedCost;
 
-        public formattedProduct(int productKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+        public formattedProduct(int productKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
             this.productKey = productKey;
             this.productID = productID;
             this.productName = productName;
@@ -100,7 +100,19 @@ public class Product {
 
         public final SimpleIntegerProperty productKey = new SimpleIntegerProperty();
 
-        public formattedProductProps(int ProductKey, String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
+        public final SimpleObjectProperty<BigDecimal> productUnitPrice = new SimpleObjectProperty<>();
+
+        public final SimpleStringProperty productID = new SimpleStringProperty();
+
+        public final SimpleStringProperty productName = new SimpleStringProperty();
+        public final SimpleStringProperty productSize = new SimpleStringProperty();
+        public final SimpleObjectProperty<BigDecimal> extendedCost = new SimpleObjectProperty();
+        public final SimpleStringProperty productCategory = new SimpleStringProperty();
+        public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
+
+        public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
+
+        public formattedProductProps(int ProductKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
             this.productKey.set(ProductKey);
             this.productID.set(productID);
             this.productName.set(productName);
@@ -111,17 +123,6 @@ public class Product {
             this.orderedQuantityString.set(String.valueOf(orderedQuantity));
             this.extendedCost.set(extendedCost);
         }
-
-        public final SimpleStringProperty productID = new SimpleStringProperty();
-
-        public final SimpleStringProperty productName = new SimpleStringProperty();
-        public final SimpleStringProperty productSize = new SimpleStringProperty();
-        public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
-        public final SimpleStringProperty productCategory = new SimpleStringProperty();
-        public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
-
-        public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
-        public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
 
         public SimpleIntegerProperty productKeyProperty() {
             return productKey;
@@ -142,7 +143,7 @@ public class Product {
             return productSize.get();
         }
 
-        public String getProductUnitPrice() {
+        public BigDecimal getProductUnitPrice() {
             return productUnitPrice.get();
         }
 
@@ -156,7 +157,7 @@ public class Product {
 
         public String getOrderedQuantityString() {return orderedQuantityString.get();}
 
-        public Object getExtendedCost() {
+        public BigDecimal getExtendedCost() {
             return extendedCost.get();
         }
     }

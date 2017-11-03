@@ -18,14 +18,14 @@
  */
 
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by patrick on 7/27/16.
@@ -85,39 +85,63 @@ public class Year {
 
     private Object getTots(String info, int retType) {
         Object ret = "";
+        if (info == "Donations") {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Doantion FROM customerview");
+                 ResultSet rs = prep.executeQuery()
+            ) {
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM TOTALS");
-             ResultSet rs = prep.executeQuery()
-        ) {
-
-            //prep.setString(1, info);
+                //prep.setString(1, info);
 
 
-            while (rs.next()) {
-                switch (retType) {
-                    case retInteger:
-                        ret = rs.getInt(info);
-                        break;
-                    case retString:
-                        ret = rs.getString(info);
-                        break;
-                    case retBigDec:
-                        ret = rs.getBigDecimal(info);
-                        break;
+                while (rs.next()) {
+                    switch (retType) {
+                        case retBigDec:
+                            ret = rs.getBigDecimal("Donation");
+                            break;
+
+                    }
 
                 }
+                //////DbInt.pCon.close();
 
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-            //////DbInt.pCon.close();
+        } else {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ordersview");
+                 ResultSet rs = prep.executeQuery()
+            ) {
 
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                //prep.setString(1, info);
+
+
+                while (rs.next()) {
+                    switch (retType) {
+                        case retInteger:
+                            ret = rs.getInt(info);
+                            break;
+                        case retString:
+                            ret = rs.getString(info);
+                            break;
+                        case retBigDec:
+                            ret = rs.getBigDecimal(info);
+                            break;
+
+                    }
+
+                }
+                //////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
         }
+
         return ret;
     }
 
     public void deleteYear() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+/*        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("WARNING!");
         alert.setHeaderText("You are about to delete an entire Year. This cannot be reversed");
         alert.setContentText("Would you like to continue with the deletion?");
@@ -134,10 +158,10 @@ public class Year {
             }
 
 
-        }
+        }*/
     }
 
-    public void updateTots(BigDecimal donations, Integer Lg, Integer LP, Integer Mulch, BigDecimal OT, Integer Customers, BigDecimal Commis, BigDecimal GTot) {
+    /*public void updateTots(BigDecimal donations, Integer Lg, Integer LP, Integer Mulch, BigDecimal OT, Integer Customers, BigDecimal Commis, BigDecimal GTot) {
         try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
             totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
             totalInsertString.setInt(2, Lg);
@@ -152,51 +176,92 @@ public class Year {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
+    }*/
+
+
+
+    /**
+     * Gets the Total Lawn ANd Garden quantities Using getTots Function
+     *
+     * @return The total Lawn ANd Garden quantities amount
+     *//*
+    public int getLG() {
+        return (int) getTots("LG", retInteger);
     }
 
+    *//**
+     * Gets the Total Live Plants quantities Using getTots Function
+     *
+     * @return The total Live Plants quantities amount
+     *//*
+    public int getLP() {
+        return (int) getTots("LP", retInteger);
+    }
+
+    *//**
+     * Gets the Total Mulch quantities Using getTots Function
+     *
+     * @return The total Mulch quantities amount
+     *//*
+    public int getMulch() {
+        return (int) getTots("MULCH", retInteger);
+    }
+*/
+    /**
+     * Gets the order Total Using getTots Function
+     *
+     * @return The Order total amount
+     */
     /**
      * Gets the Total Donations Using getTots Function
      *
      * @return The total donation amount
      */
     public BigDecimal getDonations() {
-        return (BigDecimal) getTots("Donations", retBigDec);
+        BigDecimal ret = BigDecimal.ZERO;
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview");
+             ResultSet rs = prep.executeQuery()
+        ) {
+
+            //prep.setString(1, info);
+
+
+            while (rs.next()) {
+                ret = ret.add(rs.getBigDecimal("Donation"));
+
+
+            }
+            //////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
     }
 
-    /**
-     * Gets the Total Lawn ANd Garden quantities Using getTots Function
-     *
-     * @return The total Lawn ANd Garden quantities amount
-     */
-    public int getLG() {
-        return (int) getTots("LG", retInteger);
-    }
-
-    /**
-     * Gets the Total Live Plants quantities Using getTots Function
-     *
-     * @return The total Live Plants quantities amount
-     */
-    public int getLP() {
-        return (int) getTots("LP", retInteger);
-    }
-
-    /**
-     * Gets the Total Mulch quantities Using getTots Function
-     *
-     * @return The total Mulch quantities amount
-     */
-    public int getMulch() {
-        return (int) getTots("MULCH", retInteger);
-    }
-
-    /**
-     * Gets the order Total Using getTots Function
-     *
-     * @return The Order total amount
-     */
     public BigDecimal getOT() {
-        return (BigDecimal) getTots("TOTAL", retBigDec);
+        BigDecimal ret = BigDecimal.ZERO;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost FROM ordersview");
+             ResultSet rs = prep.executeQuery()
+        ) {
+
+            //prep.setString(1, info);
+
+
+            while (rs.next()) {
+
+                ret = ret.add(rs.getBigDecimal("Cost"));
+
+            }
+
+
+            //////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
     }
 
     /**
@@ -205,7 +270,27 @@ public class Year {
      * @return The total amount of Customers
      */
     public int getNoCustomers() {
-        return (int) getTots("CUSTOMERS", retInteger);
+        int ret = 0;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT COUNT(*) FROM customerview");
+             ResultSet rs = prep.executeQuery()
+        ) {
+
+            //prep.setString(1, info);
+
+
+            while (rs.next()) {
+
+                ret = rs.getInt("COUNT(*)");
+
+            }
+
+
+            //////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
     }
 
     /**
@@ -214,20 +299,49 @@ public class Year {
      * @return The total Commissions amount
      */
     public BigDecimal getCommis() {
-        return (BigDecimal) getTots("COMMISSIONS", retBigDec);
+        BigDecimal totalCost = getGTot();
+        BigDecimal commision = BigDecimal.ZERO;
+        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.05"));
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.1"));
+        } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
+            commision = totalCost.multiply(new BigDecimal("0.15"));
+        }
+        return commision;
     }
 
     /**
      * Gets the Grand Total Using getTots Function
-     *
+     *aeaeaeae
      * @return The Grand total amount
      */
     public BigDecimal getGTot() {
-        return (Objects.equals(getTots("GRANDTOTAL", retBigDec), "")) ? (BigDecimal.ZERO) : (BigDecimal) getTots("GRANDTOTAL", retBigDec);
+        return getDonations().add(getOT());
     }
 
     public int getQuant() {
-        return getLG() + getLP();
+        int ret = 0;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT SUM(Quant) FROM ordersview");
+             ResultSet rs = prep.executeQuery()
+        ) {
+
+            //prep.setString(1, info);
+
+
+            while (rs.next()) {
+
+                ret = rs.getInt("SUM(Quant)");
+
+            }
+
+
+            //////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
     }
 
     public Product.formattedProduct[] getAllProducts() {
@@ -240,7 +354,7 @@ public class Year {
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
 
-                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getString("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
+                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getBigDecimal("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
             }
 
 
@@ -524,7 +638,7 @@ public class Year {
                     String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
                     prep.setString(1, curRow.getProductID());
                     prep.setString(2, curRow.getProductName());
-                    prep.setString(3, curRow.getProductUnitPrice().replaceAll("\\$", ""));
+                    prep.setBigDecimal(3, curRow.getProductUnitPrice());
                     prep.setString(4, curRow.getProductSize());
                     prep.setString(5, cat);
                     prep.execute();
@@ -568,7 +682,7 @@ public class Year {
     public void updateDb(String year, ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
         //Delete Year Customer table
 
-        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
+        try (PreparedStatement addCol = DbInt.getPrep(year, "TRUNCATE TABLE products")) {
             addCol.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -582,19 +696,7 @@ public class Year {
         //Recreate Year Customer table
 
         //Create Products Table
-        try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `products` (\n" +
-                "  `idproducts` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                "  `ID` varchar(255) NOT NULL,\n" +
-                "  `Name` varchar(255) NOT NULL,\n" +
-                "  `UnitSize` varchar(255) NOT NULL,\n" +
-                "  `Cost` decimal(9,2) NOT NULL,\n" +
-                "  `Category` varchar(255) NOT NULL,\n" +
-                "  PRIMARY KEY (`idproducts`)\n" +
-                ")")) {
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+
 
      /*   try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
             prep.execute();
@@ -613,21 +715,19 @@ public class Year {
             }
         });*/
         //Insert products into Product table
-        String col = "";
-        for (int i = 0; i < products.size(); i++) {
-            Product.formattedProductProps curRow = products.get(i);
-            String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
-            col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)")) {
+            for (int i = 0; i < products.size(); i++) {
+                Product.formattedProductProps curRow = products.get(i);
+                String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
                 prep.setString(1, curRow.getProductID());
                 prep.setString(2, curRow.getProductName());
-                prep.setString(3, curRow.getProductUnitPrice());
+                prep.setBigDecimal(3, curRow.getProductUnitPrice());
                 prep.setString(4, curRow.getProductSize());
                 prep.setString(5, cat);
                 prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
     }
 

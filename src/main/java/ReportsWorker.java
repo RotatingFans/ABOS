@@ -305,7 +305,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -536,7 +536,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -650,7 +650,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -756,7 +756,7 @@ class ReportsWorker extends Task<Integer> {
                             //UnitCost
                             {
                                 Element UnitCost = doc.createElement("UnitCost");
-                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice));
+                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice.toPlainString()));
                                 Product.appendChild(UnitCost);
                             }
                             //Quantity

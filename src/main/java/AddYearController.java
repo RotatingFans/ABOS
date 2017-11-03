@@ -417,7 +417,7 @@ public class AddYearController {
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -624,7 +624,7 @@ public class AddYearController {
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
-                            eElement.getElementsByTagName("UnitCost").item(0).getTextContent(),
+                            new BigDecimal(eElement.getElementsByTagName("UnitCost").item(0).getTextContent()),
                             (eElement.getElementsByTagName("Category").item(0) != null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "",
                             0,
                             BigDecimal.ZERO
@@ -709,7 +709,7 @@ public class AddYearController {
 
                 // Unit COst elements
                 Element UnitCost = doc.createElement("UnitCost");
-                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice()));
+                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice().toPlainString()));
                 staff.appendChild(UnitCost);
 
                 // Size elements

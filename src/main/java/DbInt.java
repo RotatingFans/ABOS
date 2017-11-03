@@ -430,13 +430,13 @@ VIEW `ABOSTest-Commons`.`userView` AS
         Iterable<String> years = getYears();
         for (String year : years) {
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview");
                  ResultSet rs = prep.executeQuery()
             ) {
 
 
                 while (rs.next()) {
-                    String name = rs.getString("NAME");
+                    String name = rs.getString("Name");
                     if (!ret.contains(name)) {
                         ret.add(name);
                     }

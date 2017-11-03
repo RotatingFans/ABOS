@@ -67,8 +67,8 @@ public class CustomerController {
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
 
@@ -88,7 +88,11 @@ public class CustomerController {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        customerDbInfo = new Customer(cID, year);
+        try {
+            customerDbInfo = new Customer(cID, year);
+        } catch (Customer.CustomerNotFoundException e) {
+            LogToFile.log(e, Severity.WARNING, "Customer could not be found. Please try restarting the application.");
+        }
         name = customerDbInfo.getName();
         //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
 
@@ -97,12 +101,12 @@ public class CustomerController {
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
 
-        customerInfo.getChildren().remove(0, 8);
+        customerInfo.getChildren().remove(0, 6);
         customerInfoStrings.forEach((pair) -> {
             javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
             javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);

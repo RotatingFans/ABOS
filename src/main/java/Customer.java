@@ -33,6 +33,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Customer {
     private final String name;
+    private int ID;
     private String nameEdited = "";
     private String year = "";
     private String address = "";
@@ -85,9 +86,9 @@ public class Customer {
         this.nameEdited = name;
     }
 
-    public Customer(int ID, String year) {
+    public Customer(int ID, String year) throws CustomerNotFoundException {
         String ret = "";
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM CUSTOMERS WHERE ID=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE idcustomers=?")) {
 
 
             prep.setInt(1, ID);
@@ -95,7 +96,7 @@ public class Customer {
 
                 while (rs.next()) {
 
-                    ret = rs.getString("NAME");
+                    ret = rs.getString("Name");
 
                 }
             }
@@ -105,15 +106,19 @@ public class Customer {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-
-        this.name = ret;
-        this.year = year;
-        this.nameEdited = name;
+        if (ret != "") {
+            this.ID = ID;
+            this.name = ret;
+            this.year = year;
+            this.nameEdited = name;
+        } else {
+            throw new CustomerNotFoundException();
+        }
     }
 
     public Double getLat() {
         Double ret = lat;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lat FROM CUSTOMERS WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lat FROM customerview WHERE Name=?")) {
 
 
             prep.setString(1, name);
@@ -140,7 +145,7 @@ public class Customer {
 
     public Double getLon() {
         Double ret = lon;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lon FROM CUSTOMERS WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lon FROM customerview WHERE Name=?")) {
 
 
             prep.setString(1, name);
@@ -221,25 +226,11 @@ public class Customer {
 
 
         } else {
-            //edit mode
-            try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
-                updateCust.setString(1, this.address);
-                updateCust.setString(2, this.town);
-                updateCust.setString(3, this.state);
-                updateCust.setString(4, this.zipCode);
-                updateCust.setDouble(5, lat);
-                updateCust.setDouble(6, lon);
-                updateCust.setString(7, getAddr());
-                fail.doAction();
-
-                updateCust.execute();
-
-            }
             updateProg.doAction(10, 100);
 
             //Updates customer table in Year DB with new info.
-            try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
+            try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE customerview SET Name=?, streetAddress=?, City=?, State=?, Zip=?, Lat=?, Lon=?, Phone=?,Email=?, Donation=? WHERE Name = ?")) {
                 CustomerUpdate.setString(1, this.nameEdited);
                 CustomerUpdate.setString(2, this.address);
                 CustomerUpdate.setString(3, this.town);
@@ -248,11 +239,9 @@ public class Customer {
                 CustomerUpdate.setDouble(6, lat);
                 CustomerUpdate.setDouble(7, lon);
                 CustomerUpdate.setString(8, this.phone);
-                CustomerUpdate.setString(9, this.paid);
-                CustomerUpdate.setString(10, this.delivered);
-                CustomerUpdate.setString(11, this.email);
-                CustomerUpdate.setString(12, this.Donation.toPlainString());
-                CustomerUpdate.setString(13, name);
+                CustomerUpdate.setString(9, this.email);
+                CustomerUpdate.setString(10, this.Donation.toPlainString());
+                CustomerUpdate.setString(11, name);
                 fail.doAction();
 
                 CustomerUpdate.execute();
@@ -284,42 +273,8 @@ public class Customer {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
-            BigDecimal preEditOrderCost = BigDecimal.ZERO;
-            Order.orderArray order = new Order().createOrderArray(year, getName(), false);
-            for (Product.formattedProduct productOrder : order.orderData) {
-                preEditOrderCost = preEditOrderCost.add(productOrder.extendedCost);
-            }
-            Year yearInfo = new Year(year);
-            BigDecimal donations = yearInfo.getDonations().subtract(getDontation());
-            int Lg = yearInfo.getLG() - getNoLawnProductsOrdered();
-            int LP = yearInfo.getLP() - getNoLivePlantsOrdered();
-            int Mulch = yearInfo.getMulch() - getNoMulchOrdered();
-            BigDecimal OT = yearInfo.getOT().subtract(preEditOrderCost);
-            int Customers = (yearInfo.getNoCustomers() - 1);
-            BigDecimal GTot = yearInfo.getGTot().subtract(preEditOrderCost.add(getDontation()));
-            BigDecimal Commis = getCommission(GTot);
-            try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-                totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setInt(2, Lg);
-                totalInsertString.setInt(3, (LP));
-                totalInsertString.setInt(4, (Mulch));
-                totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setInt(6, (Customers));
-                totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-                totalInsertString.execute();
 
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
-            }
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM ORDERS WHERE NAME=?")) {
-
-                prep.setString(1, name);
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
-            }
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM customerview WHERE Name=?")) {
 
                 prep.setString(1, name);
                 prep.execute();
@@ -331,10 +286,10 @@ public class Customer {
 
     public String[] getCustAddressFrmName() {
 
-        String city = DbInt.getCustInf(year, name, "TOWN", town);
-        String State = DbInt.getCustInf(year, name, "STATE", state);
-        String zCode = DbInt.getCustInf(year, name, "ZIPCODE", zipCode);
-        String strtAddress = DbInt.getCustInf(year, name, "ADDRESS", address);
+        String city = DbInt.getCustInf(year, name, "City", town);
+        String State = DbInt.getCustInf(year, name, "State", state);
+        String zCode = DbInt.getCustInf(year, name, "Zip", zipCode);
+        String strtAddress = DbInt.getCustInf(year, name, "streetAddress", address);
         String[] address = new String[4];
         address[0] = city;
         address[1] = State;
@@ -407,7 +362,7 @@ public class Customer {
 
     public Integer getId() {
         Integer ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ID FROM CUSTOMERS WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idcustomers FROM customerview WHERE Name=?")) {
 
 
             prep.setString(1, name);
@@ -415,7 +370,7 @@ public class Customer {
 
                 while (rs.next()) {
 
-                    ret = rs.getInt("ID");
+                    ret = rs.getInt("idcustomers");
 
                 }
             }
@@ -428,11 +383,11 @@ public class Customer {
     }
 
     public String getAddr() {
-        return DbInt.getCustInf(year, name, "ADDRESS", address);
+        return DbInt.getCustInf(year, name, "streetAddress", address);
     }
 
     public String getTown() {
-        return DbInt.getCustInf(year, name, "TOWN", town);
+        return DbInt.getCustInf(year, name, "City", town);
     }
 
     public void setTown(String town) {
@@ -440,7 +395,7 @@ public class Customer {
     }
 
     public String getState() {
-        return DbInt.getCustInf(year, name, "STATE", state);
+        return DbInt.getCustInf(year, name, "State", state);
     }
 
     public void setState(String state) {
@@ -448,7 +403,7 @@ public class Customer {
     }
 
     public String getZip() {
-        return DbInt.getCustInf(year, name, "ZIPCODE", zipCode);
+        return DbInt.getCustInf(year, name, "Zip", zipCode);
     }
 
     public String getName() {
@@ -465,31 +420,34 @@ public class Customer {
      * @return The Phone number of the specified customer
      */
     public String getPhone() {
-        return DbInt.getCustInf(year, name, "PHONE", phone);
+        return DbInt.getCustInf(year, name, "Phone", phone);
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
-    /**
+/*
+    *//**
      * Returns if the customer has paid.
      *
      * @return The Payment status of the specified customer
-     */
+     *//*
     public String getPaid() {
-        return DbInt.getCustInf(year, name, "PAID", paid);
+        return Order.getOrder(year,name).getPaid();
     }
 
     public void setPaid(String paid) {
         this.paid = paid;
-    }
+    }*/
+/*
 
-    /**
+    */
+/**
      * Return Delivery status of the customer whose name has been specified.
      *
      * @return The Delivery status of the specified customer
-     */
+ *//*
+
     public String getDelivered() {
         return DbInt.getCustInf(year, name, "DELIVERED", delivered);
     }
@@ -497,6 +455,7 @@ public class Customer {
     public void setDelivered(String delivered) {
         this.delivered = delivered;
     }
+*/
 
     /**
      * Return Email Address of the customer whose name has been specified.
@@ -516,8 +475,27 @@ public class Customer {
      *
      * @return The Order ID of the specified customer
      */
-    public String getOrderId() {
-        return DbInt.getCustInf(year, name, "ORDERID", orderId);
+    public int getOrderId() {
+        int ret = 0;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT orderID FROM customerview WHERE Name=?")) {
+
+
+            prep.setString(1, name);
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getInt("orderID");
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        return ret;
     }
 
     public void setOrderId(String orderId) {
@@ -531,7 +509,7 @@ public class Customer {
      */
     public BigDecimal getDontation() {
         BigDecimal ret = Donation;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT DONATION FROM CUSTOMERS WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview WHERE Name=?")) {
 
 
             prep.setString(1, name);
@@ -539,7 +517,7 @@ public class Customer {
 
                 while (rs.next()) {
 
-                    ret = rs.getBigDecimal("DONATION");
+                    ret = rs.getBigDecimal("Donation");
 
                 }
             }
@@ -567,4 +545,6 @@ public class Customer {
     interface getProgCallback {
         double doAction();
     }
+
+    public class CustomerNotFoundException extends Exception {}
 }

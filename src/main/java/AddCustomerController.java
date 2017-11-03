@@ -119,8 +119,8 @@ public class AddCustomerController {
         State.setText(state);
         ZipCode.setText(zip);
         Phone.setText(customerInfo.getPhone());
-        Paid.setSelected(Boolean.getBoolean(customerInfo.getPaid()));
-        Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
+        // Paid.setSelected(Boolean.getBoolean(customerInfo.getPaid()));
+        //Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
         Email.setText(customerInfo.getEmail());
         Name.setText(customerName);
         DonationsT.setText(customerInfo.getDontation().toPlainString());
@@ -261,7 +261,7 @@ public class AddCustomerController {
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
             int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
+            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
             t.getRowValue().extendedCost.set(ItemTotalCost);
@@ -273,7 +273,7 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
             });
 
@@ -337,7 +337,7 @@ public class AddCustomerController {
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
             int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
+            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
             t.getRowValue().extendedCost.set(ItemTotalCost);
@@ -349,7 +349,7 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
             });
 
@@ -550,13 +550,13 @@ public class AddCustomerController {
 
     /**
      * Updates the totals tables
-     */
+     *//*
     private void updateTots() {
-        /*
+        *//*
           get current totals
           add to them
           update
-         */
+         *//*
         BigDecimal donationChange = new BigDecimal((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()).subtract(preEditDonations);
         BigDecimal donations = yearInfo.getDonations().add(donationChange);
         int Lg = yearInfo.getLG() + (getNoLawnProductsOrdered() - preEditLawnProductSales);
@@ -567,7 +567,7 @@ public class AddCustomerController {
         BigDecimal GTot = yearInfo.getGTot().add(totalCostFinal.subtract(preEditOrderCost).add(donationChange));
         BigDecimal Commis = getCommission(GTot);
         yearInfo.updateTots(donations, Lg, LP, Mulch, OT, Customers, Commis, GTot);
-    }
+    }*/
 
 
 }
