@@ -18,14 +18,18 @@
  */
 
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by patrick on 7/27/16.
@@ -66,13 +70,13 @@ public class Year {
     public Iterable<category> getCategories() {
         Collection<category> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories");
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM categories");
              ResultSet rs = prep.executeQuery()) {
 
 
             while (rs.next()) {
 
-                ret.add(new category(rs.getString("NAME"), rs.getString("DATE")));
+                ret.add(new category(rs.getString("catName"), rs.getString("catDate")));
                 ////DbInt.pCon.close();
             }
         } catch (SQLException e) {
@@ -141,7 +145,7 @@ public class Year {
     }
 
     public void deleteYear() {
-/*        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("WARNING!");
         alert.setHeaderText("You are about to delete an entire Year. This cannot be reversed");
         alert.setContentText("Would you like to continue with the deletion?");
@@ -150,15 +154,9 @@ public class Year {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             DbInt.deleteDb(year);
-            try (PreparedStatement prep = DbInt.getPrep("Set", "DELETE FROM YEARS WHERE YEARS=?")) {
-                prep.setString(1, year);
-                prep.execute();
-            } catch (SQLException Se) {
-                LogToFile.log(Se, Severity.SEVERE, CommonErrors.returnSqlMessage(Se));
-            }
 
 
-        }*/
+        }
     }
 
     /*public void updateTots(BigDecimal donations, Integer Lg, Integer LP, Integer Mulch, BigDecimal OT, Integer Customers, BigDecimal Commis, BigDecimal GTot) {
@@ -389,7 +387,6 @@ public class Year {
      * Creates Database for the year specified.
      */
     public void CreateDb(ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
-        DbInt.deleteDb(year);
         if (DbInt.createDb(year)) {
             //Create Tables
             //Create groups Table
@@ -441,6 +438,16 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
+            //Create Categories Table
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `categories` (\n" +
+                    "  `idcategories` INT NOT NULL AUTO_INCREMENT,\n" +
+                    "  `catName` VARCHAR(255) NOT NULL,\n" +
+                    "  `catDate` DATE NULL,\n" +
+                    "  PRIMARY KEY (`idcategories`));\n")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
             //Create Products Table
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `products` (\n" +
                     "  `idproducts` int(11) NOT NULL AUTO_INCREMENT,\n" +
@@ -464,6 +471,8 @@ public class Year {
                     "  `custId` int(11) NOT NULL,\n" +
                     "  `Cost` decimal(9,2) NOT NULL DEFAULT 0,\n" +
                     "  `Quant` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `paid` int(11) NULL DEFAULT 0,\n" +
+                    "  `delivered` int(11) NULL DEFAULT 0,\n" +
                     "  PRIMARY KEY (`idOrders`),\n" +
                     "  KEY `fk_Orders_1_idx` (`custId`),\n" +
                     "  CONSTRAINT `fk_Orders_1` FOREIGN KEY (`custId`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
@@ -604,7 +613,7 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`ordersview` AS select `" + prefix + year + "`.`orders`.`idOrders` AS `idOrders`,`" + prefix + year + "`.`orders`.`uName` AS `uName`,`" + prefix + year + "`.`orders`.`custId` AS `custId`,`" + prefix + year + "`.`orders`.`Cost` AS `Cost`,`" + prefix + year + "`.`orders`.`Quant` AS `Quant` from `" + prefix + year + "`.`orders` where (`" + prefix + year + "`.`orders`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`ordersview` AS select `" + prefix + year + "`.`orders`.`idOrders` AS `idOrders`,`" + prefix + year + "`.`orders`.`uName` AS `uName`,`" + prefix + year + "`.`orders`.`custId` AS `custId`,`" + prefix + year + "`.`orders`.`Cost` AS `Cost`,`" + prefix + year + "`.`orders`.`Quant` AS `Quant`,`" + prefix + year + "`.`orders`.`paid` AS `paid`,`" + prefix + year + "`.`orders`.`delivered` AS `delivered` from `" + prefix + year + "`.`orders` where (`" + prefix + year + "`.`orders`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {
@@ -647,9 +656,9 @@ public class Year {
                     LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
 
-           /* //Add Categories
+            //Add Categories
             rowsCats.forEach(cat -> {
-                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO categories(catName, catDate) VALUES (?,?)")) {
                     prep.setString(1, cat.catName);
                     prep.setDate(2, Date.valueOf(cat.catDate));
 
@@ -657,7 +666,7 @@ public class Year {
                 } catch (SQLException e) {
                     LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
-            });*/
+            });
 
           /*  //ORDers Table
             try (PreparedStatement prep = DbInt.getPrep(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col))) {
@@ -688,11 +697,11 @@ public class Year {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-/*        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"Categories\"")) {
+        try (PreparedStatement addCol = DbInt.getPrep(year, "TRUCNATE TABLE categories")) {
             addCol.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }*/
+        }
         //Recreate Year Customer table
 
         //Create Products Table
@@ -702,10 +711,11 @@ public class Year {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+        }*/
+        //Add Categories
         //Add Categories
         rowsCats.forEach(cat -> {
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO categories(catName, catDate) VALUES (?,?)")) {
                 prep.setString(1, cat.catName);
                 prep.setDate(2, Date.valueOf(cat.catDate));
 
@@ -713,7 +723,7 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-        });*/
+        });
         //Insert products into Product table
         try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)")) {
             for (int i = 0; i < products.size(); i++) {

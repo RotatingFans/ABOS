@@ -68,9 +68,10 @@ public class MapController implements Initializable {
 
 
         //initMap();
+        final double[] totCoords = {0, 0, 0};
         double totLat = 0;
-        double totLon = 0;
-        List<String> Addr = getAllCustomersInfo("ADDRESS");
+        final double[] totLon = {0};
+/*        List<String> Addr = getAllCustomersInfo("ADDRESS");
         List<String> Town = getAllCustomersInfo("TOWN");
         List<String> State = getAllCustomersInfo("STATE");
 
@@ -78,24 +79,41 @@ public class MapController implements Initializable {
         List<String> lonL = getAllCustomersInfo("Lon");
         List<String> Ord = getAllCustomersInfo("Ordered");
         List<String> NI = getAllCustomersInfo("NI");
-        List<String> NH = getAllCustomersInfo("NH");
+        List<String> NH = getAllCustomersInfo("NH");*/
         //cPoints = new Object[Addr.size()];
-        for (int i = 0; i < Addr.size(); i++) {
-            try {
-                double lat = Double.valueOf(latL.get(i));
-                double lon = Double.valueOf(lonL.get(i));
-                totLat += lat;
-                totLon += lon;
-                MarkerOptions opts = new MarkerOptions();
-                opts.title(Addr.get(i) + " " + Town.get(i) + ", " + State.get(i));
-                opts.position(new LatLong(lat, lon));
-                Marker m = new Marker(opts);
+        Iterable<String> years = DbInt.getYears();
+        List<Customer> customers = new ArrayList<Customer>();
+        years.forEach(year -> {
+            List<String> ret = new ArrayList<>();
 
-                // cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
-                //Determine color of dot
-                //Green = orderd
-                //Cyan = Not Interested
-                //Magenta = not home
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM customerview");
+                 ResultSet rs = prep.executeQuery()
+            ) {
+
+
+                while (rs.next()) {
+                    Customer cust;
+                    try {
+                        cust = new Customer(rs.getInt("idcustomers"), year);
+                        if (!customers.contains(cust)) {
+                            customers.add(cust);
+                            double lat = rs.getDouble("Lat");
+                            double lon = rs.getDouble("Lon");
+                            totCoords[0] += lat;
+                            totCoords[1] += lon;
+                            MarkerOptions opts = new MarkerOptions();
+                            String address = rs.getString("streetAddress");
+                            String cName = rs.getString("Name");
+
+                            opts.title(cName + " " + address + " " + rs.getString("City") + ", " + rs.getString("State"));
+                            opts.position(new LatLong(lat, lon));
+                            Marker m = new Marker(opts);
+
+                            // cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
+                            //Determine color of dot
+                            //Green = orderd
+                            //Cyan = Not Interested
+                            //Magenta = not home
             /*if (Ord.get(Ord.size() - 1).equals("True")) {
                 m.setBackColor(Color.GREEN);
             }
@@ -105,16 +123,24 @@ public class MapController implements Initializable {
             if (NH.get(NH.size() - 1).equals("True")) {
                 m.setBackColor(Color.MAGENTA);
             }*/
-                //String id = getCustInfo("Set", "CUSTOMERID", Addr.get(i)).get(0);
-                map.addMarker(m);
-                int finalI = i;
-                map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> markerClicked(Addr.get(finalI)));
-            } catch (Exception e) {
-                LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
-            }
+                            //String id = getCustInfo("Set", "CUSTOMERID", Addr.get(i)).get(0);
+                            map.addMarker(m);
+                            map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> markerClicked(cust));
+                            totCoords[2]++;
+                        }
 
-        }
-        map.setCenter(new LatLong(totLat / Addr.size(), totLon / Addr.size()));
+                    } catch (Exception e) {
+                        LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
+                    }
+                }
+                ////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        });
+
+        map.setCenter(new LatLong(totCoords[0] / totCoords[2], totCoords[1] / totCoords[2]));
 
 
     }
@@ -129,21 +155,16 @@ public class MapController implements Initializable {
 
     }
 
-    private void markerClicked(String address) {
+    private void markerClicked(Customer customer) {
 
         //System.out.println(mapMarker + " is clicked");
         //System.out.println(cP.getAddress());
         //String address = marker.getTitle();
 
-        custAddress.setText(address);
+        //custAddress.setText(address);
         //Customer cust = new Customer()
-        List<String> o = getCustInfo("Set", "ORDERED", address);
-        // m.Orders.setText(o.get(o.size() - 1).toString());
-        List<String> NI = getCustInfo("Set", "NI", address);
-        //m.Orders.setText(NI.get(NI.size() - 1).toString());
-        List<String> NH = getCustInfo("Set", "NH", address);
+
         custOrders.getChildren().removeAll();
-        if (o.get(o.size() - 1).equals("True")) {
             // m.OrderStat.setText("Has Ordered");
                                         /*Get info about customer that has clicked
                                         Display name Phone  Order status
@@ -151,17 +172,17 @@ public class MapController implements Initializable {
                                         */
             Iterable<String> yearsD;
             yearsD = DbInt.getYears();
-            List<String> Name = new ArrayList<>();
-            List<String> Phone = new ArrayList<>();
+        String Name;
+        final String[] Phone = new String[1];
+        final String[] Address = new String[1];
 
             yearsD.forEach(year -> {
+                Customer cust = new Customer(customer.getName(), year);
 
 
-                List<String> NameD = getCustInfo(year, "NAME", address);
-                if (!NameD.isEmpty()) {
-                    Name.add(NameD.get(NameD.size() - 1));
-                    List<String> PhoneD = getCustInfo(year, "PHONE", address);
-                    Phone.add(PhoneD.get(PhoneD.size() - 1));
+                String PhoneD = cust.getPhone();
+                Phone[0] = PhoneD;
+                Address[0] = cust.getAddr();
 /*                                                if (m.infoPanel.getComponentCount() > 8) {
                                                     m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
 
@@ -179,16 +200,17 @@ public class MapController implements Initializable {
                         }
                         CustomerController customerCont = loader.getController();
 
-                        customerCont.initCustomer(year, NameD.get(NameD.size() - 1), mainCont);
-                        tabTitle = ("Customer View - " + NameD.get(NameD.size() - 1) + " - " + year);
+                        customerCont.initCustomer(year, cust.getName(), mainCont);
+                        tabTitle = ("Customer View - " + cust.getName() + " - " + year);
                         mainCont.addTab(newPane, tabTitle);
                     });
                     custOrders.getChildren().add(b);
-                }
+
             });
-            custName.setText(Name.get(Name.size() - 1));
-            custPhone.setText(Phone.get(Phone.size() - 1));
-        }
+        custName.setText(customer.getName());
+        custPhone.setText(customer.getPhone());
+        custAddress.setText(customer.getAddr());
+
                    /* if (NI.get(NI.size() - 1).equals("True")) {
                         m.OrderStat.setText("Not interested");
                     }

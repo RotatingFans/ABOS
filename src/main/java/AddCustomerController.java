@@ -119,8 +119,8 @@ public class AddCustomerController {
         State.setText(state);
         ZipCode.setText(zip);
         Phone.setText(customerInfo.getPhone());
-        // Paid.setSelected(Boolean.getBoolean(customerInfo.getPaid()));
-        //Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
+        Paid.setSelected(customerInfo.getPaid());
+        Delivered.setSelected(customerInfo.getDelivered());
         Email.setText(customerInfo.getEmail());
         Name.setText(customerName);
         DonationsT.setText(customerInfo.getDontation().toPlainString());

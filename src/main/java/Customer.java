@@ -43,8 +43,8 @@ public class Customer {
     private Double lat;
     private Double lon;
     private String phone = "";
-    private String paid = "";
-    private String delivered = "";
+    private Boolean paid = false;
+    private Boolean delivered = false;
     private String email = "";
     private String orderId = "";
     private BigDecimal Donation = BigDecimal.ZERO;
@@ -56,8 +56,8 @@ public class Customer {
                     Double lat,
                     Double lon,
                     String phone,
-                    String paid,
-                    String delivered,
+                    Boolean paid,
+                    Boolean delivered,
                     String email,
                     String nameEdited,
                     BigDecimal Donation) {
@@ -114,6 +114,21 @@ public class Customer {
         } else {
             throw new CustomerNotFoundException();
         }
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Customer)) {
+            return false;
+        }
+        Customer other = (Customer) obj;
+        return this.address.equals(other.address);
+    }
+
+    public int hashCode() {
+        return address.hashCode();
     }
 
     public Double getLat() {
@@ -426,36 +441,35 @@ public class Customer {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-/*
-    *//**
+
+    /**
      * Returns if the customer has paid.
      *
      * @return The Payment status of the specified customer
-     *//*
-    public String getPaid() {
-        return Order.getOrder(year,name).getPaid();
+     */
+    public Boolean getPaid() {
+        return Order.getOrder(year, name).paid;
     }
 
-    public void setPaid(String paid) {
+    public void setPaid(Boolean paid) {
         this.paid = paid;
-    }*/
-/*
+    }
 
-    */
+
+
 /**
      * Return Delivery status of the customer whose name has been specified.
      *
      * @return The Delivery status of the specified customer
- *//*
+ */
 
-    public String getDelivered() {
-        return DbInt.getCustInf(year, name, "DELIVERED", delivered);
+public Boolean getDelivered() {
+    return Order.getOrder(year, name).delivered;
     }
 
-    public void setDelivered(String delivered) {
+    public void setDelivered(Boolean delivered) {
         this.delivered = delivered;
     }
-*/
 
     /**
      * Return Email Address of the customer whose name has been specified.

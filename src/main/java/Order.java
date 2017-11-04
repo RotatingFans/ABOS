@@ -36,7 +36,26 @@ public class Order {
     private BigDecimal totL = BigDecimal.ZERO;
     private int QuantL = 0;
 
-    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+    public static orderDetails getOrder(String year, String name) {
+        orderDetails order = null;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost, Quant, paid, delivered FROM ordersview WHERE custId=?")) {
+
+            //prep.setString(1, Integer.toString(i));
+            prep.setInt(1, new Customer(name, year).getId());
+
+
+            try (ResultSet rs = prep.executeQuery()) {
+                rs.next();
+                order = new orderDetails(rs.getBigDecimal("Cost"), rs.getInt("Quant"), rs.getInt("paid"), rs.getInt("delivered"));
+            }
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return order;
+    }
+
+    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, Boolean paid, boolean delivered, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
         List<Integer> Ids = new ArrayList<>();
         int numRows = orders.size();
         ObservableList<Product.formattedProductProps> orderNoZero = FXCollections.observableArrayList();
@@ -101,11 +120,22 @@ public class Order {
                     writeOrd.executeUpdate();
                 }
             }
+            try (PreparedStatement writeOrd = DbInt.getPrep(year, "UPDATE ordersview SET paid=?, delivered=? WHERE idOrders=?")) {
+
+                writeOrd.setInt(1, paid ? 1 : 0);
+                writeOrd.setInt(2, delivered ? 1 : 0);
+                writeOrd.setInt(3, OrderID);
+
+                fail.doAction();
+                updateMessage.doAction("Adding Order");
+
+                writeOrd.executeUpdate();
+
+            }
         } //Insert Mode
         else {
             updateMessage.doAction("Building Order");
 
-            StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(uName,custId) VALUES(?,?)");
 
             progressDivisor = 2 * numRows;
             progressIncrement = 50 / progressDivisor;
@@ -126,9 +156,11 @@ public class Order {
             fail.doAction();
 
             //Creates prepared Statement and replaces ? with quantities and names
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO ordersview(uName,custId) VALUES(?,?)")) {
+            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)")) {
                 writeOrd.setString(1, DbInt.getUserName(year));
                 writeOrd.setInt(2, custID);
+                writeOrd.setInt(3, paid ? 1 : 0);
+                writeOrd.setInt(4, delivered ? 1 : 0);
 
                 fail.doAction();
                 updateMessage.doAction("Adding Order");
@@ -138,6 +170,7 @@ public class Order {
             try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
 
                 prep.setInt(1, custID);
+
                 try (ResultSet rs = prep.executeQuery()) {
                     while (rs.next()) {
 
@@ -228,7 +261,7 @@ public class Order {
 
             int quant = 0;
         if (!Objects.equals(Category, "*")) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=10 GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
 
                 //prep.setString(1, Integer.toString(i));
                 prep.setString(1, Category);
@@ -236,14 +269,17 @@ public class Order {
                 prep.setInt(2, OrderID);
 
                 try (ResultSet rs = prep.executeQuery()) {
-                    quant = rs.getInt("SUM(Quantity)");
-                    if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
-                        BigDecimal unitCost = rs.getBigDecimal("Cost");
-                        allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
-                        totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
-                        QuantL += quant;
-                        noProductsOrdered++;
+                    while (rs.next()) {
 
+                        quant = rs.getInt("SUM(Quantity)");
+                        if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+                            BigDecimal unitCost = rs.getBigDecimal("Cost");
+                            allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
+                            totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                            QuantL += quant;
+                            noProductsOrdered++;
+
+                        }
                     }
                 }
 
@@ -384,6 +420,27 @@ public class Order {
             this.orderData = orderData;
             this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;
+        }
+    }
+
+    public static class orderDetails {
+        public final BigDecimal totalCost;
+        public final int totalQuantity;
+        public final boolean paid;
+        public final boolean delivered;
+
+        public orderDetails(BigDecimal totalCost, int totalQuantity, boolean paid, boolean delivered) {
+            this.totalCost = totalCost;
+            this.totalQuantity = totalQuantity;
+            this.paid = paid;
+            this.delivered = delivered;
+        }
+
+        public orderDetails(BigDecimal totalCost, int totalQuantity, int paid, int delivered) {
+            this.totalCost = totalCost;
+            this.totalQuantity = totalQuantity;
+            this.paid = paid == 1;
+            this.delivered = delivered == 1;
         }
     }
 }

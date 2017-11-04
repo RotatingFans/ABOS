@@ -102,6 +102,8 @@ public class Product {
 
         public final SimpleObjectProperty<BigDecimal> productUnitPrice = new SimpleObjectProperty<>();
 
+        public final SimpleStringProperty productUnitPriceString = new SimpleStringProperty();
+
         public final SimpleStringProperty productID = new SimpleStringProperty();
 
         public final SimpleStringProperty productName = new SimpleStringProperty();
@@ -118,6 +120,7 @@ public class Product {
             this.productName.set(productName);
             this.productSize.set(productSize);
             this.productUnitPrice.set(productUnitPrice);
+            this.productUnitPriceString.set(productUnitPrice.toPlainString());
             this.productCategory.set(productCategory);
             this.orderedQuantity.set(orderedQuantity);
             this.orderedQuantityString.set(String.valueOf(orderedQuantity));
@@ -154,6 +157,11 @@ public class Product {
         public int getOrderedQuantity() {
             return orderedQuantity.get();
         }
+
+        public String getProductUnitPriceString() {
+            return productUnitPriceString.get();
+        }
+
 
         public String getOrderedQuantityString() {return orderedQuantityString.get();}
 

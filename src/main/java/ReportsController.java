@@ -279,6 +279,11 @@ public class ReportsController {
                 cmbxCustomers.getSelectionModel().select("");
                 customersY.forEach(cmbxCustomers.getItems()::add);
                 cmbxCustomers.setDisable(false);
+            }
+        }
+        if (cmbxReportType.getSelectionModel().getSelectedIndex() != 3) {
+            if (selected != "") {
+                Year year = new Year(selected.toString());
                 year.getCategories().forEach(category -> cmbxCategory.getItems().add(category.catName));
 
             }
@@ -287,15 +292,7 @@ public class ReportsController {
 
     @FXML
     private void selectedCategoryChanged(ActionEvent actionEvent) {
-        if (cmbxCategory.getSelectionModel().getSelectedItem().equals("All")) {
-            includeHeader.setDisable(false);
-            //includeHeaderL.setVisible(true);
-
-        } else {
-            includeHeader.setDisable(true);
-            //includeHeaderL.setVisible(false);
-
-        }
+        includeHeader.setDisable(cmbxCategory.getSelectionModel().getSelectedItem().equals("All"));
     }
 
     @FXML
@@ -348,9 +345,14 @@ public class ReportsController {
     public void submit(ActionEvent actionEvent) {
         String addrFormat = scoutTown.getText() + ' ' + scoutState.getText() + ", " + scoutZip.getText();
         switch (cmbxReportType.getSelectionModel().getSelectedIndex()) {
-            case 1:
+            case 0:
                 repTitle = "Year of " + cmbxYears.getSelectionModel().getSelectedItem();
                 Splitting = "Year:";
+
+                break;
+            case 1:
+                repTitle = cmbxCustomers.getSelectionModel().getSelectedItem() + " " + cmbxYears.getSelectionModel().getSelectedItem();
+                Splitting = "";
 
                 break;
             case 2:
@@ -359,11 +361,6 @@ public class ReportsController {
 
                 break;
             case 3:
-                repTitle = cmbxCustomers.getSelectionModel().getSelectedItem() + " " + cmbxYears.getSelectionModel().getSelectedItem();
-                Splitting = "";
-
-                break;
-            case 4:
                 repTitle = "All orders of " + cmbxCustomers.getSelectionModel().getSelectedItem();
                 Splitting = "Year:";
 
@@ -493,10 +490,12 @@ public class ReportsController {
                 yearPane.setDisable(false);
                 customerPane.setDisable(true);
                 cmbxYears.getItems().clear();
-                years.forEach(cmbxYears.getItems()::add);
-                //cmbxYears.
+                //cmbxYears.getItems().add("");
 
-                cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
+                years.forEach(cmbxYears.getItems()::add);
+
+                //cmbxYears.
+                //cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
             case "Year Totals; Spilt by Customer":
                 yearPane.setDisable(false);
@@ -504,19 +503,19 @@ public class ReportsController {
                 cmbxYears.getItems().clear();
                 //cmbxYears.getItems().addAll(years);
                 years.forEach(cmbxYears.getItems()::add);
-                cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
+                // cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
             case "Customer Year Totals":
                 yearPane.setDisable(false);
                 customerPane.setDisable(false);
                 cmbxYears.getItems().removeAll();
                 years.forEach(cmbxYears.getItems()::add);
-                cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
+                //    cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 cmbxCustomers.setDisable(false);
 
 
                 break;
-            case "Customer All-time Totals":
+            case "Customer All-Time Totals":
                 yearPane.setDisable(true);
                 customerPane.setDisable(false);
                 cmbxCustomers.getItems().removeAll();
@@ -524,7 +523,7 @@ public class ReportsController {
                 cmbxCustomers.getItems().add("");
                 cmbxCustomers.getSelectionModel().select("");
                 customers.forEach(cmbxCustomers.getItems()::add);
-                cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
+                //      cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
         }
     }

@@ -348,15 +348,17 @@ public class AddYearController {
 
             result.ifPresent(category -> {
                 rowsCats.add(new Year.category(category.getKey(), category.getValue()));
-                refreshCmbx();
+                Platform.runLater(() -> refreshCmbx());
 
             });
 
 
         }
+
     }
 
-    private void catCmbxChanged(String newVal) {
+    private String catCmbxChanged(String newVal) {
+        final Year.category newCat = new Year.category("", "");
         if (Objects.equals(newVal, "Add Category")) {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Add new category");
@@ -403,15 +405,18 @@ public class AddYearController {
             });
 
             Optional<Pair<String, String>> result = dialog.showAndWait();
-
             result.ifPresent(category -> {
-                rowsCats.add(new Year.category(category.getKey(), category.getValue()));
-                refreshCmbx();
+                newCat.catName = category.getKey();
+                newCat.catDate = category.getValue();
+                rowsCats.add(newCat);
+                Platform.runLater(() -> refreshCmbx());
 
             });
 
 
         }
+
+        return newCat.catName;
     }
 
     @FXML
@@ -458,7 +463,7 @@ public class AddYearController {
         yearText.setText(Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
         categoriesTb.addAll("", "Add Category");
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
             javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
@@ -471,9 +476,10 @@ public class AddYearController {
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            t.getRowValue().productCategory.set(t.getNewValue());
-            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
-            catCmbxChanged(t.getNewValue());
+            String newVal = catCmbxChanged(t.getNewValue());
+
+            t.getRowValue().productCategory.set(newVal);
+            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
         });
         ProductTable.getColumns().add(categoryColumn);
         //{"Category", "productCategory"}
@@ -505,7 +511,7 @@ public class AddYearController {
 
         categoriesTb.add(browse);
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
             javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
@@ -518,9 +524,10 @@ public class AddYearController {
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            t.getRowValue().productCategory.set(t.getNewValue());
-            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
-            catCmbxChanged(t.getNewValue());
+            String newVal = catCmbxChanged(t.getNewValue());
+
+            t.getRowValue().productCategory.set(newVal);
+            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
 
         });
         ProductTable.getColumns().add(categoryColumn);

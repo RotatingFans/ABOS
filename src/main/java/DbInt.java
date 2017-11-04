@@ -413,14 +413,37 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
     public static void deleteDb(String DB) {
 
+        String username = "admin";
+        String ***REMOVED***;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
 
-/*        String url = String.format("%s/%s", Config.getDbLoc(), DB);
-        File oldName = new File(url);
-        DateFormat df = new SimpleDateFormat("MMDDYYYY-HH:MM:SS");
-        java.util.Date dateobj = new java.util.Date();
-        //create destination File object
-        File newName = new File(url + ".bak-" + df.format(dateobj));
-        boolean isFileRenamed = oldName.renameTo(newName);*/
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try (Connection con = DriverManager.getConnection(url, username, password);
+             Statement st = con.createStatement()) {
+            int Result = st.executeUpdate("DROP DATABASE `" + prefix + DB + "`");
+
+        } catch (SQLException ex) {
+
+
+            if (((ex.getErrorCode() == 50000)
+                    && ("XJ015".equals(ex.getSQLState())))) {
+
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
+
+            } else if (ex.getErrorCode() == 1007) {
+            } else {
+
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
+            }
+
+        }
 
 
     }
@@ -474,7 +497,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
         List<String> retL = new ArrayList<String>(Arrays.asList(csvRet.split("\\s*,\\s*")));
         retL.forEach(year -> {
-            if (year != "") {
+            if (!year.isEmpty()) {
                 ret.add(year);
             }
         });
@@ -483,7 +506,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
     public static String getCategoryDate(String catName, String year) {
         Date ret = null;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Date FROM Categories WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT CatDate FROM categories WHERE catName=?")) {
 
 
             prep.setString(1, catName);

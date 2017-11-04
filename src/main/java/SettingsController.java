@@ -334,9 +334,10 @@ public class SettingsController {
 
             //Add DB setting
             if (Config.doesConfExist() && !CreateDb.isSelected()) {
-                prop.setProperty("databaseLocation", DbLoc.getText());
+
+                prop.put("databaseLocation", DbLoc.getText());
             } else if (!Config.doesConfExist() || CreateDb.isSelected()) {
-                prop.setProperty("databaseLocation", DbLoc.getText());
+                prop.put("databaseLocation", DbLoc.getText());
                 prop.store(output, null);
                 prop = new Properties();
 
@@ -347,31 +348,31 @@ public class SettingsController {
 
             //AddCustomer
             {
-                prop.setProperty("CustomerName", Name.getText());
-                prop.setProperty("CustomerAddress", Address.getText());
-                prop.setProperty("CustomerZipCode", ZipCode.getText());
-                prop.setProperty("CustomerTown", Town.getText());
-                prop.setProperty("CustomerState", State.getText());
-                prop.setProperty("CustomerPhone", Phone.getText());
-                prop.setProperty("CustomerEmail", Email.getText());
-                prop.setProperty("CustomerPaid", Boolean.toString(Paid.isSelected()));
-                prop.setProperty("CustomerDelivered", Boolean.toString(Delivered.isSelected()));
-                prop.setProperty("CustomerDonation", DonationsT.getText());
+                prop.put("CustomerName", Name.getText());
+                prop.put("CustomerAddress", Address.getText());
+                prop.put("CustomerZipCode", ZipCode.getText());
+                prop.put("CustomerTown", Town.getText());
+                prop.put("CustomerState", State.getText());
+                prop.put("CustomerPhone", Phone.getText());
+                prop.put("CustomerEmail", Email.getText());
+                prop.put("CustomerPaid", Boolean.toString(Paid.isSelected()));
+                prop.put("CustomerDelivered", Boolean.toString(Delivered.isSelected()));
+                prop.put("CustomerDonation", DonationsT.getText());
             }
             //Maps
             //Reports
             {
-                prop.setProperty("ReportType", cmbxReportType.getSelectionModel().getSelectedIndex() >= 0 ? cmbxReportType.getSelectionModel().getSelectedItem().toString() : "");
-                prop.setProperty("ScoutName", scoutName.getText());
-                prop.setProperty("ScoutAddress", scoutStAddr.getText());
-                prop.setProperty("ScoutZip", scoutZip.getText());
-                prop.setProperty("ScoutTown", scoutTown.getText());
-                prop.setProperty("ScoutState", scoutState.getText());
-                prop.setProperty("ScoutPhone", scoutPhone.getText());
+                prop.put("ReportType", cmbxReportType.getSelectionModel().getSelectedIndex() >= 0 ? cmbxReportType.getSelectionModel().getSelectedItem().toString() : "");
+                prop.put("ScoutName", scoutName.getText());
+                prop.put("ScoutAddress", scoutStAddr.getText());
+                prop.put("ScoutZip", scoutZip.getText());
+                prop.put("ScoutTown", scoutTown.getText());
+                prop.put("ScoutState", scoutState.getText());
+                prop.put("ScoutPhone", scoutPhone.getText());
 
-                prop.setProperty("ScoutRank", scoutRank.getText());
-                prop.setProperty("logoLoc", logoLoc.getText());
-                prop.setProperty("pdfLoc", pdfLoc.getText());
+                prop.put("ScoutRank", scoutRank.getText());
+                prop.put("logoLoc", logoLoc.getText());
+                prop.put("pdfLoc", pdfLoc.getText());
 
             }
             prop.store(output, null);

@@ -617,6 +617,7 @@ class ReportsWorker extends Task<Integer> {
                                 }
                                 info.appendChild(title);
                             }
+
                         }
                         setProgress(5);
                         BigDecimal tCost = BigDecimal.ZERO;
@@ -693,7 +694,7 @@ class ReportsWorker extends Task<Integer> {
                 }
                 break;
 
-                case "Customer All-time Totals": {
+                case "Customer All-Time Totals": {
                     // Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
