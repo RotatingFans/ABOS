@@ -399,6 +399,11 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
+            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO groups(Name) Values('Ungrouped')")) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
             //Create Users Table
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `users` (\n" +
                     "  `idusers` int(11) NOT NULL AUTO_INCREMENT,\n" +
@@ -407,8 +412,10 @@ public class Year {
                     "  `uManage` varchar(255) NOT NULL,\n" +
                     "  `Admin` int(11) DEFAULT NULL,\n" +
                     "  `commonsID` int(11) NOT NULL,\n" +
+                    "  `groupId` int(11) NULL,\n" +
                     "  PRIMARY KEY (`idusers`),\n" +
-                    "UNIQUE INDEX `userName_UNIQUE` (`userName` ASC))")) {
+                    "UNIQUE INDEX `userName_UNIQUE` (`userName` ASC)," +
+                    "CONSTRAINT `fk_users_1` FOREIGN KEY (`groupId`) REFERENCES `groups` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE))")) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));

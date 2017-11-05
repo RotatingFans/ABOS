@@ -33,7 +33,7 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class DbInt {
     public static Connection pCon = null;
-    private static String prefix = "ABOS-Test-";
+    public static String prefix = "ABOS-Test-";
 /*    *//*
       Gets Data with specifed command and DB
 
@@ -142,7 +142,7 @@ public class DbInt {
      * @return the PreparedStatemtn that was created.
      */
     public static PreparedStatement getPrep(String Db, String Command) {
-        String username = "admin";
+        String username = "JimMag";
         String ***REMOVED***;
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -201,6 +201,71 @@ public class DbInt {
                 } else {
                     LogToFile.log(ex, Severity.WARNING, "");
                 }
+            }
+
+        } finally {
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+
+
+            } catch (SQLException ex) {
+                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates a Prepared statemtn from provided Parameters.
+     *
+     * @param Command The Base command for the statement
+     * @return the PreparedStatemtn that was created.
+     */
+    public static PreparedStatement getPrep(String Command) {
+        String username = "admin";
+        String ***REMOVED***;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try {
+
+
+            pCon = DriverManager.getConnection(url, username, password);
+            pCon.setAutoCommit(true);
+            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            //return rs;
+
+
+            return pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+        } catch (SQLException ex) {
+
+
+            if (((ex.getErrorCode() == 50000)
+                    && ("XJ015".equals(ex.getSQLState())))) {
+
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
+
+            } else {
+
+
+                LogToFile.log(ex, Severity.WARNING, "");
+
             }
 
         } finally {

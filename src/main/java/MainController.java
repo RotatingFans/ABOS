@@ -98,6 +98,9 @@ public class MainController {
                     case "Add Year":
                         new AddYear(getWindow());
                         break;
+                    case "Add User":
+                        new AddUser(getWindow());
+                        break;
                     case "Settings":
                         new Settings(tabPane2.getScene().getWindow());
                         break;
@@ -260,6 +263,12 @@ public class MainController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> new AddYear(getWindow()), null, null, null);
+                    // new AddYear(getWindow());
+                    break;
+                case "Add User":
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> new AddUser(getWindow()), null, null, null);
                     // new AddYear(getWindow());
                     break;
                 case "Settings":
@@ -532,6 +541,7 @@ public class MainController {
             root.getChildren().add(tIYear);
         }
         root.getChildren().add(new contextTreeItem("Add Year"));
+        root.getChildren().add(new contextTreeItem("Add User"));
 
         selectNav.setRoot(root);
 
