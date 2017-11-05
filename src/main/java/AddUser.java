@@ -47,6 +47,26 @@ public class AddUser extends Window {
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
         }
+    }
+
+    public AddUser(Window window, String userName) {
+        Stage stage = new Stage();
+        FXMLLoader loader;
+
+        Scene root;
+        try {
+            loader = new FXMLLoader(getClass().getResource("UI/AddUser.fxml"));
+            root = new Scene(loader.load());
+            AddUserController addUserController = loader.getController();
+            addUserController.initAddUser(userName, this);
+            stage.setScene(root);
+            stage.setTitle("Edit User - " + userName);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(window);
+            stage.showAndWait();
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+        }
 
     }
 }
