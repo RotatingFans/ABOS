@@ -626,7 +626,8 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
+                    "        `users`.`groupId` AS `groupId` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
 
                 prep.execute();
             } catch (SQLException e) {

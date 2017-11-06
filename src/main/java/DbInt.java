@@ -34,6 +34,15 @@ import java.util.*;
 public class DbInt {
     public static Connection pCon = null;
     public static String prefix = "ABOS-Test-";
+
+/*    private final static String username = "JimMag";
+    private final static String ***REMOVED***;*/
+
+    private final static String username = "admin";
+    private final static String ***REMOVED***;
+
+
+
 /*    *//*
       Gets Data with specifed command and DB
 
@@ -142,8 +151,7 @@ public class DbInt {
      * @return the PreparedStatemtn that was created.
      */
     public static PreparedStatement getPrep(String Db, String Command) {
-        String username = "JimMag";
-        String ***REMOVED***;
+
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -228,8 +236,6 @@ public class DbInt {
      * @return the PreparedStatemtn that was created.
      */
     public static PreparedStatement getPrep(String Command) {
-        String username = "admin";
-        String ***REMOVED***;
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -620,6 +626,9 @@ VIEW `ABOSTest-Commons`.`userView` AS
         return ret;
     }
 
+    public static User getUser(String year) {
+        return new User(year);
+    }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**

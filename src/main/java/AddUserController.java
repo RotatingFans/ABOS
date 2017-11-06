@@ -26,11 +26,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 //import javax.swing.*;
 //import javax.swing.border.EmptyBorder;
@@ -52,36 +50,14 @@ public class AddUserController {
     private Accordion yearsPanel;
     private boolean newUser = true;
     private Map<String, ArrayList<String>> checkedUsers = new HashMap();
+    private Map<String, ArrayList<String>> checkedFullName = new HashMap();
+
     private Map<String, Integer> groups = new HashMap<>();
 
     public AddUserController() {}
 
-    /**
-     * Create the dialog.
-     */
-
-    @FXML
-    private void submit(ActionEvent event) {
-        User.createUser(userNameField.getText(), passwordField.getText());
-        ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
-        checkedUsers.forEach((year, users) -> {
-            ArrayList<String> usersManage = new ArrayList<>();
-
-            users.forEach((user) -> {
-
-                if (!user.isEmpty()) {
-                    usersManage.add(user);
-
-                }
-            });
-
-            if (!usersManage.isEmpty()) {
-                User yearUser = new User(userNameField.getText(), fullNameField.getText(), usersManage, groups.getOrDefault(year, 0));
-                yearUser.addToYear(year);
-            }
-        });
-
-        close();
+    public static boolean stringContainsItemFromList(String inputStr, String[] items) {
+        return Arrays.stream(items).parallel().anyMatch(inputStr::contains);
     }
 
     @FXML
@@ -95,23 +71,78 @@ public class AddUserController {
         stage.close();
     }
 
+    /**
+     * Create the dialog.
+     */
+
+    @FXML
+    private void submit(ActionEvent event) {
+        Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+        boolean hasSpecialChar = p.matcher(userNameField.getText()).find();
+        if (hasSpecialChar) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("");
+            alert.setHeaderText("You have entered an invalid character in the username");
+            alert.setContentText("Only Alphanumeric characters are aloud.");
+            alert.show();
+        } else {
+            Set<String> years = new HashSet<>();
+            if (newUser) {
+                User.createUser(userNameField.getText(), passwordField.getText());
+            } else {
+                User.updateUser(userNameField.getText(), passwordField.getText());
+
+            }
+            ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
+            checkedUsers.forEach((year, users) -> {
+                ArrayList<String> usersManage = new ArrayList<>();
+
+                users.forEach((user) -> {
+                    if (Objects.equals(user, "user@self")) {
+                        user = userNameField.getText();
+                    }
+                    if (!user.isEmpty()) {
+                        usersManage.add(user);
+
+                    }
+                });
+
+                if (!usersManage.isEmpty()) {
+                    years.add(year);
+                    User yearUser = new User(userNameField.getText(), fullNameField.getText(), usersManage, years, groups.getOrDefault(year, 0));
+                    if (newUser) {
+                        yearUser.addToYear(year);
+                    } else {
+                        yearUser.updateYear(year);
+                    }
+                }
+            });
+
+
+            close();
+        }
+    }
+
     public void initAddUser(Window parWindow) {
         parentWindow = parWindow;
         DbInt.getYears().forEach(year -> {
             TitledPane yPane;
-            ComboBox<treeItemPair<String, Integer>> groupBox = new ComboBox<>();
-            TreeView<treeItemPair<String, String>> yearTView;
-            CheckBoxTreeItem<treeItemPair<String, String>> yearItem = new CheckBoxTreeItem<treeItemPair<String, String>>(new treeItemPair<>(year, ""));
+            yPane = new TitledPane();
 
+            ComboBox<TreeItemPair<String, Integer>> groupBox = new ComboBox<>();
+            TreeView<TreeItemPair<String, String>> yearTView;
+            CheckBoxTreeItem<TreeItemPair<String, String>> yearItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
+            CheckBoxTreeItem<TreeItemPair<String, String>> selfItem = createUserTreeItem(new TreeItemPair<>("Themselves", "user@self"), year, yPane);
+            yearItem.getChildren().add(selfItem);
             Group.getGroups(year).forEach(group -> {
-                CheckBoxTreeItem<treeItemPair<String, String>> groupItem = new CheckBoxTreeItem<treeItemPair<String, String>>(new treeItemPair<>(group.getName(), ""));
+                CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
                 group.getUsers().forEach(user -> {
-                    CheckBoxTreeItem<treeItemPair<String, String>> userItem = createUserTreeItem(new treeItemPair<>(user.getFullName(), user.getUserName()), year);
+                    CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user.getFullName(), user.getUserName()), year, yPane);
                     groupItem.getChildren().add(userItem);
                 });
                 yearItem.getChildren().add(groupItem);
                 try {
-                    groupBox.getItems().add(new treeItemPair<String, Integer>(group.getName(), group.getID()));
+                    groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
                 } catch (Group.GroupNotFoundException e) {}
             });
             yearTView = new TreeView(yearItem);
@@ -122,21 +153,11 @@ public class AddUserController {
                 groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
             });
             BorderPane contents = new BorderPane(new VBox(10, new Label("Users to manage"), yearTView), new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
-
-            yPane = new TitledPane(year, contents);
+            yPane.setText(year);
+            yPane.setContent(contents);
             yearsPanel.getPanes().add(yPane);
-
+            groupBox.getSelectionModel().selectFirst();
         });
-
-
-    }
-
-    /**
-     * Create the dialog.
-     */
-    public void initAddUser(String user, Window parWindow) {
-        newUser = false;
-        parentWindow = parWindow;
 
 
     }
@@ -145,9 +166,95 @@ public class AddUserController {
 
     }
 
-    private <T> CheckBoxTreeItem<treeItemPair<String, String>> createUserTreeItem(treeItemPair<String, String> value, String year) {
+    /**
+     * Create the dialog.
+     */
+    public void initAddUser(String userName, Window parWindow) {
+        ArrayList<User> users = new ArrayList<User>();
+        newUser = false;
+        parentWindow = parWindow;
+        userNameField.setText(userName);
+        userNameField.setEditable(false);
 
-        CheckBoxTreeItem<treeItemPair<String, String>> item = new CheckBoxTreeItem<treeItemPair<String, String>>(value);
+        DbInt.getYears().forEach(year -> {
+            TitledPane yPane;
+            yPane = new TitledPane();
+
+            ComboBox<TreeItemPair<String, Integer>> groupBox = new ComboBox<>();
+            TreeView<TreeItemPair<String, String>> yearTView;
+            CheckBoxTreeItem<TreeItemPair<String, String>> yearItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
+            User currentUser = new User(userName, year);
+            users.add(currentUser);
+
+            Group.getGroups(year).forEach(group -> {
+                CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
+                group.getUsers().forEach(user -> {
+                    CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user.getFullName(), user.getUserName()), year, yPane);
+                    if (currentUser.getuManage().contains(user.getUserName())) {
+                        userItem.setSelected(true);
+/*                        checkedUsers.computeIfPresent(year, (k, v) -> {
+                            v.add(user.getUserName());
+                            return v;
+                        });
+                        checkedUsers.computeIfAbsent(year, k -> {
+                            ArrayList<String> v = new ArrayList();
+                            v.add(user.getUserName());
+                            return v;
+                        });
+                        checkedFullName.compute(year, (k, v) -> {
+                            ArrayList<String> vArray = new ArrayList();
+                            vArray.addAll(v);
+                            vArray.add(user.getFullName());
+                            return vArray;
+                        });*/
+/*                        checkedFullName.computeIfAbsent(year, k -> {
+                            ArrayList<String> v = new ArrayList();
+                            v.add(user.getFullName());
+                            return v;
+                        });*/
+                    }
+                    groupItem.getChildren().add(userItem);
+                });
+                yearItem.getChildren().add(groupItem);
+                try {
+                    groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
+                    if (currentUser.getGroupId() == group.getID()) {
+                        groupBox.getSelectionModel().selectLast();
+                    }
+                } catch (Group.GroupNotFoundException e) {}
+            });
+            yearTView = new TreeView(yearItem);
+            yearItem.setExpanded(true);
+            yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
+            yearTView.refresh();
+            groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+
+                groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+            });
+            BorderPane contents = new BorderPane(new VBox(10, new Label("Users to manage"), yearTView), new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
+            yPane.setText(year);
+            yPane.setContent(contents);
+
+            yearsPanel.getPanes().add(yPane);
+            if (checkedUsers.getOrDefault(year, new ArrayList<>()).isEmpty()) {
+                yPane.setText(year + " - Disabled");
+
+            } else {
+                yPane.setText(year + " - " + arrayToCSV(checkedFullName.getOrDefault(year, new ArrayList<>())));
+
+            }
+            groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+
+        });
+        User latestUser = users.get(users.size() - 1);
+        fullNameField.setText(latestUser.getFullName());
+
+
+    }
+
+    private <T> CheckBoxTreeItem<TreeItemPair<String, String>> createUserTreeItem(TreeItemPair<String, String> value, String year, TitledPane titledPane) {
+
+        CheckBoxTreeItem<TreeItemPair<String, String>> item = new CheckBoxTreeItem<TreeItemPair<String, String>>(value);
         if (!value.getValue().isEmpty()) {
             item.selectedProperty().addListener((obs, wasChecked, isNowChecked) -> {
                 if (isNowChecked) {
@@ -160,29 +267,50 @@ public class AddUserController {
                         v.add(value.getValue());
                         return v;
                     });
+                    checkedFullName.computeIfPresent(year, (k, v) -> {
+                        v.add(value.getKey());
+                        return v;
+                    });
+                    checkedFullName.computeIfAbsent(year, k -> {
+                        ArrayList<String> v = new ArrayList();
+                        v.add(value.getKey());
+                        return v;
+                    });
 
                 } else {
                     checkedUsers.compute(year, (k, v) -> {
                         v.remove(value.getValue());
                         return v;
                     });
+                    checkedFullName.compute(year, (k, v) -> {
+                        v.remove(value.getKey());
+                        return v;
+                    });
                 }
+                if (checkedUsers.getOrDefault(year, new ArrayList<>()).isEmpty()) {
+                    titledPane.setText(year + " - Disabled");
+
+                } else {
+                    titledPane.setText(year + " - " + arrayToCSV(checkedFullName.getOrDefault(year, new ArrayList<>())));
+
+                }
+
             });
         }
 
         return item;
     }
 
-    private class treeItemPair<K, V> extends Pair<K, V> {
-
-        public treeItemPair(K key, V value) {
-            super(key, value);
-        }
-
-        @Override
-        public String toString() {
-            return this.getKey().toString();
-        }
+    private String arrayToCSV(Collection<String> array) {
+        final String[] ret = {""};
+        array.forEach(value -> {
+            if (!ret[0].isEmpty()) {
+                ret[0] = ret[0] + ", " + value;
+            } else {
+                ret[0] = value;
+            }
+        });
+        return ret[0];
     }
 
 }

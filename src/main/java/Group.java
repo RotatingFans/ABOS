@@ -26,9 +26,28 @@ import java.util.Objects;
 public class Group {
     private String name;
     private String year;
-
+    private int id;
     public Group(String name, String year) {
         this.name = name;
+        this.year = year;
+    }
+
+    public Group(int id, String year) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM groups WHERE ID=?")) {
+
+            prep.setString(1, name);
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    this.name = rs.getString("Name");
+                }
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        this.id = id;
         this.year = year;
     }
 
