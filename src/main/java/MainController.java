@@ -17,17 +17,28 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javafx.util.Pair;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
 
@@ -44,9 +55,84 @@ public class MainController {
     @FXML
     private TabPane tabPane2;
     private Boolean isAdmin = false;
+    public final EventType closeEvent = new EventType("Close");
+    @FXML
+    private Button UserAccountMenu;
+
+    @FXML
+    public void signOut(ActionEvent event) {
+        tabPane2.getScene().getWindow().fireEvent(new WindowEvent(tabPane2.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+
+        login(false);
+    }
+
+    private void login(Boolean failed) {
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Login");
+
+// Set the button types.
+        ButtonType login = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(login, ButtonType.CANCEL);
+        if (failed) {
+            dialog.setHeaderText("Invalid Username/Password");
+        }
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userNameTextField = new TextField();
+        userNameTextField.setPromptText("Username");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(userNameTextField, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node loginButton = dialog.getDialogPane().lookupButton(login);
+        loginButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> userNameTextField.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == login) {
+                return new Pair<String, String>(userNameTextField.getText(), passwordField.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(userPass -> {
+            if (!DbInt.verifyLogin(userPass)) {
+                login(true);
+            }
+
+
+        });
+    }
 
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize() {
+        login(false);
+        // DbInt.username = "tw";
+        ArrayList<String> years = DbInt.getYears();
+        User latestUser = new User(years.get(years.size() - 1));
+        UserAccountMenu.textProperty().setValue(latestUser.getFullName());
+        UserAccountMenu.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
+        UserAccountMenu.setContentDisplay(ContentDisplay.RIGHT);
         //loadTreeItems("initial 1", "initial 2", "initial 3");
         fillTreeView();
         selectNav.setShowRoot(false);
@@ -479,6 +565,8 @@ public class MainController {
         Stage stage = new Stage();
         stage.setTitle(tabTitle);
         stage.setScene(new Scene(fillPane));
+        stage.initOwner(getWindow());
+
         stage.show();
 
         return stage;
@@ -579,6 +667,7 @@ public class MainController {
 
     }
 
+
     interface contextActionCallback {
         void doAction();
     }
@@ -622,4 +711,6 @@ public class MainController {
             }
         }
     }
+
+
 }

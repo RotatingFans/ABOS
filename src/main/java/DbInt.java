@@ -21,6 +21,7 @@
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.util.Pair;
 
 import java.sql.*;
 import java.sql.Date;
@@ -38,8 +39,8 @@ public class DbInt {
 /*    private final static String username = "JimMag";
     private final static String ***REMOVED***;*/
 
-    private final static String username = "admin";
-    private final static String ***REMOVED***;
+    public static String username = "admin";
+    private static String ***REMOVED***;
 
 
 
@@ -547,9 +548,9 @@ VIEW `ABOSTest-Commons`.`userView` AS
         return ret;
     }
 
-    public static Iterable<String> getYears() {
+    public static ArrayList<String> getYears() {
         String csvRet = "";
-        Collection<String> ret = new ArrayList<>();
+        ArrayList<String> ret = new ArrayList<>();
 
         try (PreparedStatement prep = DbInt.getPrep("Commons", "SELECT YEARS FROM userView");
              ResultSet rs = prep.executeQuery()) {
@@ -605,7 +606,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
     public static String getUserName(String year) {
         String ret = "";
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'")) {
+        try (PreparedStatement prep = DbInt.getPrep("SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'")) {
 
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -628,6 +629,43 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
     public static User getUser(String year) {
         return new User(year);
+    }
+
+    public static Boolean verifyLogin(Pair<String, String> userPass) {
+        username = userPass.getKey();
+        password = userPass.getValue();
+        Boolean successful = false;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try {
+
+
+            pCon = DriverManager.getConnection(url, username, password);
+            if (pCon.isValid(2)) {
+                successful = true;
+            }
+
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            if (e.getSQLState() == "28000") {
+                successful = false;
+            } else {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+            }
+        }
+        return successful;
     }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
