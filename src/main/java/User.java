@@ -79,8 +79,12 @@ public class User {
     }
 
     public User(String userName, String year) {
+        this(userName, year, false);
+    }
+
+    public User(String userName, String year, Boolean admin) {
         this.userName = userName;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM users where userName=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM " + (admin ? "users" : "usersview") + " where userName=?")) {
             prep.setString(1, userName);
             try (ResultSet rs = prep.executeQuery()) {
                 if (rs.next()) {

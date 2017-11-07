@@ -183,7 +183,7 @@ public class AddUserController {
             ComboBox<TreeItemPair<String, Integer>> groupBox = new ComboBox<>();
             TreeView<TreeItemPair<String, String>> yearTView;
             CheckBoxTreeItem<TreeItemPair<String, String>> yearItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
-            User currentUser = new User(userName, year);
+            User currentUser = new User(userName, year, true);
             users.add(currentUser);
 
             Group.getGroups(year).forEach(group -> {

@@ -18,21 +18,15 @@
  */
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -57,14 +51,9 @@ public class MainController {
     private Boolean isAdmin = false;
     public final EventType closeEvent = new EventType("Close");
     @FXML
-    private Button UserAccountMenu;
-
+    private FlowPane namePane;
     @FXML
-    public void signOut(ActionEvent event) {
-        tabPane2.getScene().getWindow().fireEvent(new WindowEvent(tabPane2.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-
-        login(false);
-    }
+    private BorderPane sidePane;
 
     private void login(Boolean failed) {
         Dialog<Pair<String, String>> dialog = new Dialog<>();
@@ -125,16 +114,15 @@ public class MainController {
     }
 
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
-    public void initialize() {
+    public void initialize(Stage stage) {
         login(false);
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getYears();
         User latestUser = new User(years.get(years.size() - 1));
-        UserAccountMenu.textProperty().setValue(latestUser.getFullName());
-        UserAccountMenu.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
-        UserAccountMenu.setContentDisplay(ContentDisplay.RIGHT);
+        stage.setTitle("ABOS - " + latestUser.getFullName());
         //loadTreeItems("initial 1", "initial 2", "initial 3");
         fillTreeView();
+
         selectNav.setShowRoot(false);
         selectNav.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             if (event.isSecondaryButtonDown()) {
@@ -241,6 +229,7 @@ public class MainController {
             }
         });
         selectNav.setCellFactory(p -> new TreeCellImpl());
+
 
     }
 
