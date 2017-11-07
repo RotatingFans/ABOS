@@ -64,6 +64,8 @@
                     <buttons>
                         <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
                         <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
+                        <Button fx:id="deleteUserButton" disable="true" mnemonicParsing="false" onAction="#deleteUser"
+                                style="-fx-background-color: RED;" text="Delete" textFill="WHITE"/>
                     </buttons>
                 </ButtonBar>
             </bottom>

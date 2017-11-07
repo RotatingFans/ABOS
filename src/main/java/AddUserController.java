@@ -49,6 +49,8 @@ public class AddUserController {
     @FXML
     private Accordion yearsPanel;
     private boolean newUser = true;
+    @FXML
+    private Button deleteUserButton;
     private Map<String, ArrayList<String>> checkedUsers = new HashMap();
     private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
@@ -121,6 +123,20 @@ public class AddUserController {
 
             close();
         }
+    }
+
+    @FXML
+    private void deleteUser(ActionEvent event) {
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("");
+        alert.setHeaderText("You have entered an invalid character in the username");
+        alert.setContentText("Only Alphanumeric characters are aloud.");
+        alert.show();
+
+
+        close();
+
     }
 
     public void initAddUser(Window parWindow) {
