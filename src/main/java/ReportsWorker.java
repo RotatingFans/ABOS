@@ -68,7 +68,8 @@ class ReportsWorker extends Task<Integer> {
     private final String scoutPhone;
     private final String logoLoc;
     private final String category;
-    private final String customerName;
+    private final String user;
+    private final int customerName;
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
@@ -79,8 +80,7 @@ class ReportsWorker extends Task<Integer> {
 
     /**
      * Creates an instance of the worker
-     *
-     * @param reportType    the type of report
+     *  @param reportType    the type of report
      * @param selectedYear  the selected year
      * @param scoutName     name of the scout to put in header
      * @param scoutStAddr   address  of the scout to put in header
@@ -89,13 +89,14 @@ class ReportsWorker extends Task<Integer> {
      * @param scoutPhone    phone #  of the scout to put in header
      * @param logoLoc       Location on disk of the logo
      * @param category      Category to generate report for
+     * @param user
      * @param customerName  Name of the customer
      * @param repTitle      Title of the report
      * @param splitting     Split the report in any way?
      * @param includeHeader Include a header?
      * @param pdfLoc1       Location to save the pdf
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, int customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -106,6 +107,7 @@ class ReportsWorker extends Task<Integer> {
         this.scoutPhone = scoutPhone;
         this.logoLoc = logoLoc;
         this.category = category;
+        this.user = user;
         this.customerName = customerName;
         this.repTitle = repTitle;
         Splitting = splitting;
@@ -125,8 +127,14 @@ class ReportsWorker extends Task<Integer> {
     protected Integer call() throws Exception {
         updateMessage("Generating Report");
         if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
-            Year year = new Year(selectedYear);
-            Iterable<String> customers = year.getCustomerNames();
+            Year year = null;
+            if (user == null) {
+                year = new Year(selectedYear);
+            } else {
+                year = new Year(selectedYear, user);
+
+            }
+            Iterable<Customer> customers = year.getCustomers();
             // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder;
@@ -199,17 +207,17 @@ class ReportsWorker extends Task<Integer> {
             setProgress(10);
             int custProgressIncValue = 90 / ((customers instanceof Collection<?>) ? ((Collection<?>) customers).size() : 1);
 
-            customers.forEach(customer -> {
-                Customer cust = new Customer(customer, selectedYear);
-
+            customers.forEach(cust -> {
+                int custId = cust.getId();
+                String customer = cust.getName();
                 // Root element
                 Order.orderArray orderArray;
                 Order order = new Order();
                 if (Objects.equals(category, "All")) {
-                    orderArray = order.createOrderArray(selectedYear, customer, true);
+                    orderArray = order.createOrderArray(selectedYear, custId, true);
 
                 } else {
-                    orderArray = order.createOrderArray(selectedYear, customer, true, category);
+                    orderArray = order.createOrderArray(selectedYear, custId, true, category);
                 }
                 //Set Items
                 {
@@ -335,17 +343,23 @@ class ReportsWorker extends Task<Integer> {
 
 
                     }
+                    Year cYear = null;
+                    if (user == null) {
+                        cYear = new Year(selectedYear);
+                    } else {
+                        cYear = new Year(selectedYear, user);
+
+                    }
                     // OverallTotalCost elements
-                    Year curYear = new Year(selectedYear);
                     {
                         Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(curYear.getGTot().toPlainString()));
+                        TotalCost.appendChild(doc.createTextNode(cYear.getGTot().toPlainString()));
                         info.appendChild(TotalCost);
                     }
                     // OverallTotalQuantity elements
                     {
                         Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(curYear.getQuant())));
+                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
                         info.appendChild(TotalQuantity);
                     }
                     String donation = cust.getDontation().toPlainString();
@@ -469,7 +483,13 @@ class ReportsWorker extends Task<Integer> {
 
                 case "Year Totals": {
                     Order order = new Order();
-                    Order.orderArray orderArray = order.createOrderArray(selectedYear);
+                    Order.orderArray orderArray = null;
+                    if (user == null) {
+                        orderArray = order.createOrderArray(selectedYear);
+                    } else {
+                        orderArray = order.createOrderArray(selectedYear, user);
+
+                    }
                     //Products for year
                     {
                         //Product Elements

@@ -36,12 +36,12 @@ public class DbInt {
     public static Connection pCon = null;
     public static String prefix = "ABOS-Test-";
 
-/*    private final static String username = "JimMag";
-    private final static String ***REMOVED***;*/
-
-    public static String username = "admin";
+    private static String username = "JimMag";
     private static String ***REMOVED***;
 
+  /*  public static String username = "admin";
+    private static String ***REMOVED***;
+*/
 
 
 /*    *//*
@@ -102,30 +102,28 @@ public class DbInt {
      * Gets the specified Customer info
      *
      * @param yearL The year to search
-     * @param name  The customer name
      * @param info  The info to search for
      * @return A string with the resulting data
      */
-    public static String getCustInf(String yearL, String name, String info) {
-        return getCustInf(yearL, name, info, "");
+    public static String getCustInf(String yearL, int id, String info) {
+        return getCustInf(yearL, id, info, "");
     }
 
     /**
      * Gets the specified Customer info
      *
      * @param yearL      The year to search
-     * @param name       The customer name
      * @param info       The info to search for
      * @param defaultVal The default value to return if there is no data
      * @return A string with the resulting data
      */
-    public static String getCustInf(String yearL, String name, String info, String defaultVal) {
+    public static String getCustInf(String yearL, Integer ID, String info, String defaultVal) {
         String ret = defaultVal;
 
-        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM customerview WHERE NAME=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM customerview WHERE idCustomers=?")) {
 
 
-            prep.setString(1, name);
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -520,7 +518,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
     }
 
-    public static Iterable<String> getAllCustomers() {
+    public static Iterable<String> getAllCustomerNames() {
         Collection<String> ret = new ArrayList<>();
         Iterable<String> years = getYears();
         for (String year : years) {
@@ -541,6 +539,37 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        }
+
+
+        return ret;
+    }
+
+    public static Iterable<Customer> getAllCustomers() {
+        Collection<String> names = new ArrayList<>();
+        Collection<Customer> ret = new ArrayList<>();
+        Iterable<String> years = getYears();
+        for (String year : years) {
+
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name,idCustomers FROM customerview");
+                 ResultSet rs = prep.executeQuery()
+            ) {
+
+
+                while (rs.next()) {
+                    String name = rs.getString("Name");
+                    if (!names.contains(name)) {
+                        names.add(name);
+                        ret.add(new Customer(rs.getInt("idCustomers"), year));
+                    }
+
+                }
+                ////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            } catch (Customer.CustomerNotFoundException ignored) {
             }
         }
 

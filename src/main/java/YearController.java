@@ -29,6 +29,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 //import javax.swing.*;
 @SuppressWarnings("WeakerAccess")
@@ -42,6 +43,7 @@ public class YearController {
     private VBox yearInfo;
     private Boolean columnsFilled = false;
     private MainController mainController;
+    private String uName;
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
@@ -66,9 +68,17 @@ public class YearController {
      * Initialize the contents of the frame.
      */
     public void initYear(String Years, MainController mainCont) {
+        this.initYear(Years, "", mainCont);
+    }
+
+    /**
+     * Initialize the contents of the frame.
+     */
+    public void initYear(String Years, String userName, MainController mainCont) {
         year = Years;
         mainController = mainCont;
-        Year yearDbInfo = new Year(year);
+        uName = userName;
+        Year yearDbInfo = new Year(year, userName);
         yearInfo.getChildren().removeAll();
         //West
 
@@ -123,7 +133,14 @@ public class YearController {
      * Fills the Table of order amounts
      */
     private void fillTable() {
-        Order.orderArray order = new Order().createOrderArray(year);
+        Order.orderArray order = null;
+        if (Objects.equals(uName, "")) {
+            order = new Order().createOrderArray(year);
+
+        } else {
+            order = new Order().createOrderArray(year, uName);
+
+        }
         ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
 
         int i = 0;

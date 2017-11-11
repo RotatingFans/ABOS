@@ -36,12 +36,12 @@ public class Order {
     private BigDecimal totL = BigDecimal.ZERO;
     private int QuantL = 0;
 
-    public static orderDetails getOrder(String year, String name) {
+    public static orderDetails getOrder(String year, Integer id) {
         orderDetails order = null;
         try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost, Quant, paid, delivered FROM ordersview WHERE custId=?")) {
 
             //prep.setString(1, Integer.toString(i));
-            prep.setInt(1, new Customer(name, year).getId());
+            prep.setInt(1, id);
 
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -242,12 +242,17 @@ public class Order {
 
     }
 
-    public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders) {
-        return createOrderArray(year, name, excludeZeroOrders, "*");
+    public orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders) {
+        return createOrderArray(year, cID, excludeZeroOrders, "*");
     }
 
-    public orderArray createOrderArray(String year, String name, Boolean excludeZeroOrders, String Category) {
-        Customer customer = new Customer(name, year);
+    public orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders, String Category) {
+        Customer customer = null;
+        try {
+            customer = new Customer(cID, year);
+        } catch (Customer.CustomerNotFoundException e) {
+            LogToFile.log(e, Severity.WARNING, "Customer not found. Refresh and try again.");
+        }
 
 
         //Table rows array
@@ -327,47 +332,31 @@ public class Order {
 
     public orderArray createOrderArray(String year) {
 
-        List<Product> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
-        //Get a prepared statement to retrieve data
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM products");
-             ResultSet ProductInfoResultSet = prep.executeQuery()) {
-            //Run through Data set and add info to ProductInfoArray
-            while (ProductInfoResultSet.next()) {
-                ProductInfoArray.add(new Product(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getBigDecimal("Cost"), ProductInfoResultSet.getString("Category")));
-
-            }
-            //Close prepared statement
-            ProductInfoResultSet.close();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
 
         //Table rows array
-        Product.formattedProduct[] allProducts = new Product.formattedProduct[ProductInfoArray.size()];
+        ArrayList<Product.formattedProduct> allProducts = new ArrayList<Product.formattedProduct>();
         //Defines Arraylist of order quanitities
         int noProductsOrdered = 0;
         //Fills OrderQuantities Array
         //For Each product get quantity
 
         int quant = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT SUM(Quantity), ProductId FROM orderedproductsview GROUP BY ProductId")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
 
             //prep.setString(1, Integer.toString(i));
+
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
                     quant = rs.getInt("SUM(Quantity)");
                     if (quant > 0) {
-                        int productId = rs.getInt("ProductId");
-                        BigDecimal unitCost = ProductInfoArray.get(productId).productUnitPrice;
-                        allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(productId).productKey, ProductInfoArray.get(productId).productID, ProductInfoArray.get(productId).productName, ProductInfoArray.get(productId).productSize, ProductInfoArray.get(productId).productUnitPrice, ProductInfoArray.get(productId).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
+                        BigDecimal unitCost = rs.getBigDecimal("Cost");
+                        allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
                         totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
                         QuantL += quant;
                         noProductsOrdered++;
 
                     }
-                    //DbInt.pCon.close();
                 }
             }
 
@@ -380,7 +369,50 @@ public class Order {
         //Re create rows to remove blank rows
         Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
 
-        System.arraycopy(allProducts, 0, orderedProducts, 0, noProductsOrdered);
+        System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
+        return new orderArray(orderedProducts, totL, QuantL);
+    }
+
+    public orderArray createOrderArray(String year, String uName) {
+
+
+        //Table rows array
+        ArrayList<Product.formattedProduct> allProducts = new ArrayList<Product.formattedProduct>();
+        //Defines Arraylist of order quanitities
+        int noProductsOrdered = 0;
+        //Fills OrderQuantities Array
+        //For Each product get quantity
+
+        int quant = 0;
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE uName=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
+
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+                    quant = rs.getInt("SUM(Quantity)");
+                    if (quant > 0) {
+                        BigDecimal unitCost = rs.getBigDecimal("Cost");
+                        allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
+                        totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                        QuantL += quant;
+                        noProductsOrdered++;
+
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        //Fills row array for table with info
+
+
+        //Re create rows to remove blank rows
+        Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
+
+        System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
         return new orderArray(orderedProducts, totL, QuantL);
     }
 

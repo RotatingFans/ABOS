@@ -33,8 +33,9 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Customer {
     private final String name;
-    private int ID;
+    private int ID = -1;
     private String nameEdited = "";
+
     private String year = "";
     private String address = "";
     private String town = "";
@@ -133,10 +134,10 @@ public class Customer {
 
     public Double getLat() {
         Double ret = lat;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lat FROM customerview WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lat FROM customerview WHERE idCustomers=?")) {
 
 
-            prep.setString(1, name);
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -160,10 +161,10 @@ public class Customer {
 
     public Double getLon() {
         Double ret = lon;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lon FROM customerview WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lon FROM customerview WHERE idCustomers=?")) {
 
 
-            prep.setString(1, name);
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -202,7 +203,7 @@ public class Customer {
     }
 
     public int updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
-        if (Objects.equals(DbInt.getCustInf(year, name, "name", ""), "")) {
+        if (Objects.equals(DbInt.getCustInf(year, ID, "name", ""), "")) {
             //Insert Mode
             double progressIncrement = (100 - getProgress.doAction()) / 3;
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
@@ -245,7 +246,7 @@ public class Customer {
             updateProg.doAction(10, 100);
 
             //Updates customer table in Year DB with new info.
-            try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE customerview SET Name=?, streetAddress=?, City=?, State=?, Zip=?, Lat=?, Lon=?, Phone=?,Email=?, Donation=? WHERE Name = ?")) {
+            try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE customerview SET Name=?, streetAddress=?, City=?, State=?, Zip=?, Lat=?, Lon=?, Phone=?,Email=?, Donation=? WHERE idCustomers = ?")) {
                 CustomerUpdate.setString(1, this.nameEdited);
                 CustomerUpdate.setString(2, this.address);
                 CustomerUpdate.setString(3, this.town);
@@ -256,7 +257,7 @@ public class Customer {
                 CustomerUpdate.setString(8, this.phone);
                 CustomerUpdate.setString(9, this.email);
                 CustomerUpdate.setString(10, this.Donation.toPlainString());
-                CustomerUpdate.setString(11, name);
+                CustomerUpdate.setInt(11, ID);
                 fail.doAction();
 
                 CustomerUpdate.execute();
@@ -289,9 +290,9 @@ public class Customer {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM customerview WHERE Name=?")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM customerview WHERE idCustomers=?")) {
 
-                prep.setString(1, name);
+                prep.setInt(1, ID);
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
@@ -301,10 +302,10 @@ public class Customer {
 
     public String[] getCustAddressFrmName() {
 
-        String city = DbInt.getCustInf(year, name, "City", town);
-        String State = DbInt.getCustInf(year, name, "State", state);
-        String zCode = DbInt.getCustInf(year, name, "Zip", zipCode);
-        String strtAddress = DbInt.getCustInf(year, name, "streetAddress", address);
+        String city = DbInt.getCustInf(year, ID, "City", town);
+        String State = DbInt.getCustInf(year, ID, "State", state);
+        String zCode = DbInt.getCustInf(year, ID, "Zip", zipCode);
+        String strtAddress = DbInt.getCustInf(year, ID, "streetAddress", address);
         String[] address = new String[4];
         address[0] = city;
         address[1] = State;
@@ -319,7 +320,7 @@ public class Customer {
      * @return The amount of Bulk mulch ordered
      */
     public int getNoMulchOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        Order.orderArray order = new Order().createOrderArray(year, ID, true);
         int quantMulchOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("Mulch")) && (productOrder.productName.contains("Bulk"))) {
@@ -348,7 +349,7 @@ public class Customer {
      * @return The amount of Lawn and Garden Products ordered
      */
     public int getNoLivePlantsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        Order.orderArray order = new Order().createOrderArray(year, ID, true);
         int livePlantsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("-P")) && (productOrder.productName.contains("-FV"))) {
@@ -365,7 +366,7 @@ public class Customer {
      * @return The amount of Live Plants ordered
      */
     public int getNoLawnProductsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        Order.orderArray order = new Order().createOrderArray(year, ID, true);
         int lawnProductsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if (productOrder.productName.contains("-L")) {
@@ -394,15 +395,15 @@ public class Customer {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        return ret;
+        return ID == -1 ? ret : ID;
     }
 
     public String getAddr() {
-        return DbInt.getCustInf(year, name, "streetAddress", address);
+        return DbInt.getCustInf(year, ID, "streetAddress", address);
     }
 
     public String getTown() {
-        return DbInt.getCustInf(year, name, "City", town);
+        return DbInt.getCustInf(year, ID, "City", town);
     }
 
     public void setTown(String town) {
@@ -410,7 +411,7 @@ public class Customer {
     }
 
     public String getState() {
-        return DbInt.getCustInf(year, name, "State", state);
+        return DbInt.getCustInf(year, ID, "State", state);
     }
 
     public void setState(String state) {
@@ -418,7 +419,7 @@ public class Customer {
     }
 
     public String getZip() {
-        return DbInt.getCustInf(year, name, "Zip", zipCode);
+        return DbInt.getCustInf(year, ID, "Zip", zipCode);
     }
 
     public String getName() {
@@ -435,7 +436,7 @@ public class Customer {
      * @return The Phone number of the specified customer
      */
     public String getPhone() {
-        return DbInt.getCustInf(year, name, "Phone", phone);
+        return DbInt.getCustInf(year, ID, "Phone", phone);
     }
 
     public void setPhone(String phone) {
@@ -448,13 +449,16 @@ public class Customer {
      * @return The Payment status of the specified customer
      */
     public Boolean getPaid() {
-        return Order.getOrder(year, name).paid;
+        return Order.getOrder(year, ID).paid;
     }
 
     public void setPaid(Boolean paid) {
         this.paid = paid;
     }
 
+    public String getYear() {
+        return year;
+    }
 
 
 /**
@@ -464,7 +468,7 @@ public class Customer {
  */
 
 public Boolean getDelivered() {
-    return Order.getOrder(year, name).delivered;
+    return Order.getOrder(year, ID).delivered;
     }
 
     public void setDelivered(Boolean delivered) {
@@ -477,7 +481,7 @@ public Boolean getDelivered() {
      * @return The Email Address of the specified customer
      */
     public String getEmail() {
-        return DbInt.getCustInf(year, name, "Email", email);
+        return DbInt.getCustInf(year, ID, "Email", email);
     }
 
     public void setEmail(String email) {
@@ -491,10 +495,10 @@ public Boolean getDelivered() {
      */
     public int getOrderId() {
         int ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT orderID FROM customerview WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT orderID FROM customerview WHERE idCustomers=?")) {
 
 
-            prep.setString(1, name);
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -523,10 +527,10 @@ public Boolean getDelivered() {
      */
     public BigDecimal getDontation() {
         BigDecimal ret = Donation;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview WHERE Name=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview WHERE idCustomers=?")) {
 
 
-            prep.setString(1, name);
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {

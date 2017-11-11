@@ -26,10 +26,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by patrick on 7/27/16.
@@ -39,28 +36,123 @@ public class Year {
     private static final int retString = 2;
     private static final int retBigDec = 3;
     private final String year;
-    private String prefix = "ABOS-Test-";
-    public Year(String year) {
+    private final String uName;
 
+    private String prefix = "ABOS-Test-";
+
+    public Year(String year) {
+        this.uName = "";
+
+        this.year = year;
+    }
+
+    public Year(String year, String uName) {
+        this.uName = uName;
         this.year = year;
     }
 
     public Iterable<String> getCustomerNames() {
         Collection<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview");
-             ResultSet rs = prep.executeQuery()) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
+
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
 
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret.add(rs.getString("Name"));
+                    ret.add(rs.getString("Name"));
 
+                }
             }
             ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<String> getCustomerNames(String user) {
+        Collection<String> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
+
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(rs.getString("Name"));
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<Customer> getCustomers(String user) {
+        Collection<Customer> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idCustomers FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
+
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(new Customer(rs.getInt("idCustomers"), year));
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        } catch (Customer.CustomerNotFoundException ignored) {
+
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<Customer> getCustomers() {
+        Collection<Customer> ret = new ArrayList<>();
+
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
+
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(new Customer(rs.getInt("idCustomers"), year));
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        } catch (Customer.CustomerNotFoundException ignored) {
+
         }
 
 
@@ -90,21 +182,25 @@ public class Year {
     private Object getTots(String info, int retType) {
         Object ret = "";
         if (info == "Donations") {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Doantion FROM customerview");
-                 ResultSet rs = prep.executeQuery()
-            ) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Doantion FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-                //prep.setString(1, info);
+                prep.setString(1, uName);
+
+                try (ResultSet rs = prep.executeQuery()) {
 
 
-                while (rs.next()) {
-                    switch (retType) {
-                        case retBigDec:
-                            ret = rs.getBigDecimal("Donation");
-                            break;
+                    //prep.setString(1, info);
+
+
+                    while (rs.next()) {
+                        switch (retType) {
+                            case retBigDec:
+                                ret = rs.getBigDecimal("Donation");
+                                break;
+
+                        }
 
                     }
-
                 }
                 //////DbInt.pCon.close();
 
@@ -112,30 +208,32 @@ public class Year {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         } else {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ordersview");
-                 ResultSet rs = prep.executeQuery()
-            ) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-                //prep.setString(1, info);
+                prep.setString(1, uName);
+
+                try (ResultSet rs = prep.executeQuery()) {
+
+                    //prep.setString(1, info);
 
 
-                while (rs.next()) {
-                    switch (retType) {
-                        case retInteger:
-                            ret = rs.getInt(info);
-                            break;
-                        case retString:
-                            ret = rs.getString(info);
-                            break;
-                        case retBigDec:
-                            ret = rs.getBigDecimal(info);
-                            break;
+                    while (rs.next()) {
+                        switch (retType) {
+                            case retInteger:
+                                ret = rs.getInt(info);
+                                break;
+                            case retString:
+                                ret = rs.getString(info);
+                                break;
+                            case retBigDec:
+                                ret = rs.getBigDecimal(info);
+                                break;
+
+                        }
 
                     }
-
+                    //////DbInt.pCon.close();
                 }
-                //////DbInt.pCon.close();
-
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
@@ -175,7 +273,6 @@ public class Year {
             LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
         }
     }*/
-
 
 
     /**
@@ -218,17 +315,20 @@ public class Year {
     public BigDecimal getDonations() {
         BigDecimal ret = BigDecimal.ZERO;
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview");
-             ResultSet rs = prep.executeQuery()
-        ) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-            //prep.setString(1, info);
+            prep.setString(1, uName);
 
+            try (ResultSet rs = prep.executeQuery()) {
 
-            while (rs.next()) {
-                ret = ret.add(rs.getBigDecimal("Donation"));
+                //prep.setString(1, info);
 
 
+                while (rs.next()) {
+                    ret = ret.add(rs.getBigDecimal("Donation"));
+
+
+                }
             }
             //////DbInt.pCon.close();
 
@@ -240,19 +340,21 @@ public class Year {
 
     public BigDecimal getOT() {
         BigDecimal ret = BigDecimal.ZERO;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost FROM ordersview");
-             ResultSet rs = prep.executeQuery()
-        ) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-            //prep.setString(1, info);
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
 
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret = ret.add(rs.getBigDecimal("Cost"));
+                    ret = ret.add(rs.getBigDecimal("Cost"));
 
+                }
             }
-
 
             //////DbInt.pCon.close();
 
@@ -269,19 +371,21 @@ public class Year {
      */
     public int getNoCustomers() {
         int ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT COUNT(*) FROM customerview");
-             ResultSet rs = prep.executeQuery()
-        ) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT COUNT(*) FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-            //prep.setString(1, info);
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
 
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret = rs.getInt("COUNT(*)");
+                    ret = rs.getInt("COUNT(*)");
 
+                }
             }
-
 
             //////DbInt.pCon.close();
 
@@ -311,7 +415,8 @@ public class Year {
 
     /**
      * Gets the Grand Total Using getTots Function
-     *aeaeaeae
+     * aeaeaeae
+     *
      * @return The Grand total amount
      */
     public BigDecimal getGTot() {
@@ -320,19 +425,21 @@ public class Year {
 
     public int getQuant() {
         int ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT SUM(Quant) FROM ordersview");
-             ResultSet rs = prep.executeQuery()
-        ) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT SUM(Quant) FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
 
-            //prep.setString(1, info);
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
 
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                ret = rs.getInt("SUM(Quant)");
+                    ret = rs.getInt("SUM(Quant)");
 
+                }
             }
-
 
             //////DbInt.pCon.close();
 
@@ -365,9 +472,10 @@ public class Year {
 
     public boolean addressExists(String address, String zipCode) {
         Boolean exists = false;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE streetAddress=? AND Zip=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE streetAddress=? AND Zip=? AND uName=?")) {
             prep.setString(1, address);
             prep.setString(2, zipCode);
+            prep.setString(3, uName);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
@@ -383,6 +491,7 @@ public class Year {
         return exists;
     }
 //LEFT(USER(), (LOCATE('@', USER()) - 1))
+
     /**
      * Creates Database for the year specified.
      */
@@ -531,7 +640,7 @@ public class Year {
                     "        FROM\n" +
                     "            ordered_products\n" +
                     "        WHERE\n" +
-                    "            idOrders = NEW.orderID)\n" +
+                    "            orderID = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
                     "UPDATE orders \n" +
@@ -541,7 +650,7 @@ public class Year {
                     "        FROM\n" +
                     "            ordered_products\n" +
                     "        WHERE\n" +
-                    "            idOrders = NEW.orderID)\n" +
+                    "            orderID = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
                     "END")) {
@@ -571,7 +680,7 @@ public class Year {
                     "        FROM\n" +
                     "            ordered_products\n" +
                     "        WHERE\n" +
-                    "            idOrders = NEW.orderID)\n" +
+                    "            orderID = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
                     "UPDATE orders \n" +
@@ -581,7 +690,7 @@ public class Year {
                     "        FROM\n" +
                     "            ordered_products\n" +
                     "        WHERE\n" +
-                    "            idOrders = NEW.orderID)\n" +
+                    "            orderID = NEW.orderID)\n" +
                     "WHERE\n" +
                     "    idOrders = NEW.orderID;\n" +
                     "END")) {
@@ -608,19 +717,88 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`customerview` AS select `" + prefix + year + "`.`customers`.`idcustomers` AS `idcustomers`,`" + prefix + year + "`.`customers`.`uName` AS `uName`,`" + prefix + year + "`.`customers`.`Name` AS `Name`,`" + prefix + year + "`.`customers`.`streetAddress` AS `streetAddress`,`" + prefix + year + "`.`customers`.`City` AS `City`,`" + prefix + year + "`.`customers`.`State` AS `State`,`" + prefix + year + "`.`customers`.`Zip` AS `Zip`,`" + prefix + year + "`.`customers`.`Phone` AS `Phone`,`" + prefix + year + "`.`customers`.`Email` AS `Email`,`" + prefix + year + "`.`customers`.`Lat` AS `Lat`,`" + prefix + year + "`.`customers`.`Lon` AS `Lon`,`" + prefix + year + "`.`customers`.`Ordered` AS `Ordered`,`" + prefix + year + "`.`customers`.`nH` AS `nH`,`" + prefix + year + "`.`customers`.`nI` AS `nI`,`" + prefix + year + "`.`customers`.`orderID` AS `orderID`,`" + prefix + year + "`.`customers`.`Donation` AS `Donation` from `" + prefix + year + "`.`customers` where (`" + prefix + year + "`.`customers`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
+                    "    ALGORITHM = UNDEFINED \n" +
+                    "    DEFINER = `" + year + "`@`localhost` \n" +
+                    "    SQL SECURITY DEFINER\n" +
+                    "VIEW `customerview` AS\n" +
+                    "    SELECT \n" +
+                    "        `customers`.`idcustomers` AS `idcustomers`,\n" +
+                    "        `customers`.`uName` AS `uName`,\n" +
+                    "        `customers`.`Name` AS `Name`,\n" +
+                    "        `customers`.`streetAddress` AS `streetAddress`,\n" +
+                    "        `customers`.`City` AS `City`,\n" +
+                    "        `customers`.`State` AS `State`,\n" +
+                    "        `customers`.`Zip` AS `Zip`,\n" +
+                    "        `customers`.`Phone` AS `Phone`,\n" +
+                    "        `customers`.`Email` AS `Email`,\n" +
+                    "        `customers`.`Lat` AS `Lat`,\n" +
+                    "        `customers`.`Lon` AS `Lon`,\n" +
+                    "        `customers`.`Ordered` AS `Ordered`,\n" +
+                    "        `customers`.`nH` AS `nH`,\n" +
+                    "        `customers`.`nI` AS `nI`,\n" +
+                    "        `customers`.`orderID` AS `orderID`,\n" +
+                    "        `customers`.`Donation` AS `Donation`\n" +
+                    "    FROM\n" +
+                    "        `customers`\n" +
+                    "    WHERE\n" +
+                    "        FIND_IN_SET(`customers`.`uName`,\n" +
+                    "                (SELECT \n" +
+                    "                        `usersview`.`uManage`\n" +
+                    "                    FROM\n" +
+                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
 
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`orderedproductsview` AS select `" + prefix + year + "`.`ordered_products`.`idordered_products` AS `idordered_products`,`" + prefix + year + "`.`ordered_products`.`custID` AS `custID`,`" + prefix + year + "`.`ordered_products`.`uName` AS `uName`,`" + prefix + year + "`.`ordered_products`.`orderID` AS `orderID`,`" + prefix + year + "`.`ordered_products`.`ProductId` AS `ProductId`,`" + prefix + year + "`.`ordered_products`.`Quantity` AS `Quantity`,`" + prefix + year + "`.`ordered_products`.`ExtendedCost` AS `ExtendedCost` from `" + prefix + year + "`.`ordered_products` where (`" + prefix + year + "`.`ordered_products`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
+                    "    ALGORITHM = UNDEFINED \n" +
+                    "    DEFINER = `" + year + "`@`localhost` \n" +
+                    "    SQL SECURITY DEFINER\n" +
+                    "VIEW `orderedproductsview` AS\n" +
+                    "    SELECT \n" +
+                    "        `ordered_products`.`idordered_products` AS `idordered_products`,\n" +
+                    "        `ordered_products`.`custID` AS `custID`,\n" +
+                    "        `ordered_products`.`uName` AS `uName`,\n" +
+                    "        `ordered_products`.`orderID` AS `orderID`,\n" +
+                    "        `ordered_products`.`ProductId` AS `ProductId`,\n" +
+                    "        `ordered_products`.`Quantity` AS `Quantity`,\n" +
+                    "        `ordered_products`.`ExtendedCost` AS `ExtendedCost`\n" +
+                    "    FROM\n" +
+                    "        `ordered_products`\n" +
+                    "    WHERE\n" +
+                    "        FIND_IN_SET(`ordered_products`.`uName`,\n" +
+                    "                (SELECT \n" +
+                    "                        `usersview`.`uManage`\n" +
+                    "                    FROM\n" +
+                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
 
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`ordersview` AS select `" + prefix + year + "`.`orders`.`idOrders` AS `idOrders`,`" + prefix + year + "`.`orders`.`uName` AS `uName`,`" + prefix + year + "`.`orders`.`custId` AS `custId`,`" + prefix + year + "`.`orders`.`Cost` AS `Cost`,`" + prefix + year + "`.`orders`.`Quant` AS `Quant`,`" + prefix + year + "`.`orders`.`paid` AS `paid`,`" + prefix + year + "`.`orders`.`delivered` AS `delivered` from `" + prefix + year + "`.`orders` where (`" + prefix + year + "`.`orders`.`uName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
+                    "    ALGORITHM = UNDEFINED \n" +
+                    "    DEFINER = `" + year + "`@`localhost` \n" +
+                    "    SQL SECURITY DEFINER\n" +
+                    "VIEW `ordersview` AS\n" +
+                    "    SELECT \n" +
+                    "        `orders`.`idOrders` AS `idOrders`,\n" +
+                    "        `orders`.`uName` AS `uName`,\n" +
+                    "        `orders`.`custId` AS `custId`,\n" +
+                    "        `orders`.`Cost` AS `Cost`,\n" +
+                    "        `orders`.`Quant` AS `Quant`,\n" +
+                    "        `orders`.`paid` AS `paid`,\n" +
+                    "        `orders`.`delivered` AS `delivered`\n" +
+                    "    FROM\n" +
+                    "        `orders`\n" +
+                    "    WHERE\n" +
+                    "        FIND_IN_SET(`orders`.`uName`,\n" +
+                    "                (SELECT \n" +
+                    "                        `usersview`.`uManage`\n" +
+                    "                    FROM\n" +
+                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
 
                 prep.execute();
             } catch (SQLException e) {
@@ -660,9 +838,9 @@ public class Year {
                     prep.setString(5, cat);
                     prep.execute();
                 }
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
 
             //Add Categories
             rowsCats.forEach(cat -> {

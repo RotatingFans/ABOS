@@ -84,6 +84,39 @@ public class CustomerController {
 
     }
 
+    public void initCustomer(Customer customer, MainController mainCont) {
+        customerDbInfo = customer;
+
+        year = customer.getYear();
+        name = customer.getName();
+        mainController = mainCont;
+        cID = customerDbInfo.getId();
+        fillTable();
+
+        //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
+
+        List<infoValPair> customerInfoStrings = new ArrayList<>();
+        customerInfoStrings.add(new infoValPair("Name", name));
+        customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
+        customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
+        customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
+        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
+        customerInfoStrings.add(new infoValPair("Total Cost", totCost));
+
+
+        customerInfoStrings.forEach((pair) -> {
+            javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
+            javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
+            keyLabel.setId("CustomerDescription");
+            valLabel.setId("CustomerValue");
+            customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
+        });
+
+
+    }
+
     /**
      * Initialize the contents of the frame.
      */
@@ -120,7 +153,7 @@ public class CustomerController {
 
     @FXML
     public void editCustomer(ActionEvent event) {
-        mainController.openEditCustomer(year, customerDbInfo.getName());
+        mainController.openEditCustomer(customerDbInfo);
     }
 
     @FXML
@@ -129,7 +162,8 @@ public class CustomerController {
     }
 
     private void fillTable() {
-        Order.orderArray order = new Order().createOrderArray(year, name, true);
+        Order.orderArray order = null;
+        order = new Order().createOrderArray(year, cID, true);
         data = FXCollections.observableArrayList();
 
         int i = 0;

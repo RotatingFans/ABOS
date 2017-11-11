@@ -96,15 +96,14 @@ public class AddCustomerController {
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
-     * @param customerName the name of the customer being edited.
      */
-    public void initAddCust(String aYear, String customerName, MainController mainController, Tab parent) {
+    public void initAddCust(Customer customer, MainController mainController, Tab parent) {
 
         mainCont = mainController;
         parentTab = parent;
-        year = aYear;
+        year = customer.getYear();
         yearInfo = new Year(year);
-        customerInfo = new Customer(customerName, year);
+        customerInfo = customer;
         edit = true;
 
         //Set the address
@@ -122,13 +121,13 @@ public class AddCustomerController {
         Paid.setSelected(customerInfo.getPaid());
         Delivered.setSelected(customerInfo.getDelivered());
         Email.setText(customerInfo.getEmail());
-        Name.setText(customerName);
+        Name.setText(customerInfo.getName());
         DonationsT.setText(customerInfo.getDontation().toPlainString());
         preEditDonations = customerInfo.getDontation();
         //Fill the table with their previous order info on record.
         fillOrderedTable();
 
-        NameEditCustomer = customerName;
+        NameEditCustomer = customerInfo.getName();
         edit = true;
         //Add a Event to occur if a cell is changed in the table
 
@@ -309,7 +308,7 @@ public class AddCustomerController {
      * Fills product table with info with quantities set to Amount customer ordered.
      */
     private void fillOrderedTable() {
-        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
+        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getId(), false);
         data = FXCollections.observableArrayList();
 
         int i = 0;
