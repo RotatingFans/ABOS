@@ -18,7 +18,6 @@ This software has been developed as a side project of mine, starting back in 201
 
 License
 ------------
-*   Apache Derby Version 10.11  Apache Version 2
 *   iText Version 5.10  AGPL v3
 *   JTidy Version 938  Custom license
 *   Saxon Version 9   MPLv2
