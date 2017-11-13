@@ -207,10 +207,10 @@ public class Order {
         for (int i = 0; i < ProductInfoArray.size(); i++) {
 
             int quant = 0;
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE ORDERID=?")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ORDERS WHERE NAME=?")) {
 
                 //prep.setString(1, Integer.toString(i));
-                prep.setString(1, OrderID);
+                prep.setString(1, name);
                 try (ResultSet rs = prep.executeQuery()) {
 
                     while (rs.next()) {
