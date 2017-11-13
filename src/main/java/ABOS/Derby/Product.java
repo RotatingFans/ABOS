@@ -17,12 +17,13 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,15 +34,13 @@ import java.util.List;
  * Created by patrick on 7/27/16.
  */
 public class Product {
-    public final int productKey;
     public final String productID;
     public final String productName;
     public final String productSize;
-    public final BigDecimal productUnitPrice;
+    public final String productUnitPrice;
     public final String productCategory;
 
-    public Product(int productKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory) {
-        this.productKey = productKey;
+    public Product(String productID, String productName, String productSize, String productUnitPrice, String productCategory) {
         this.productID = productID;
         this.productName = productName;
         this.productSize = productSize;
@@ -53,8 +52,9 @@ public class Product {
     public static List<String> GetProductInfo(String info, String PID, String year) {
         List<String> ret = new ArrayList<>();
 
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM products WHERE idproducts=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM PRODUCTS WHERE PID=?")) {
+
+
             prep.setString(1, PID);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -65,7 +65,7 @@ public class Product {
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -74,18 +74,15 @@ public class Product {
     }
 
     public static class formattedProduct {
-        public final int productKey;
-
         public final String productID;
         public final String productName;
         public final String productSize;
-        public final BigDecimal productUnitPrice;
+        public final String productUnitPrice;
         public final String productCategory;
         public final int orderedQuantity;
         public final BigDecimal extendedCost;
 
-        public formattedProduct(int productKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
-            this.productKey = productKey;
+        public formattedProduct(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
             this.productID = productID;
             this.productName = productName;
             this.productSize = productSize;
@@ -97,43 +94,27 @@ public class Product {
     }
 
     public static class formattedProductProps {
-
-        public final SimpleIntegerProperty productKey = new SimpleIntegerProperty();
-
-        public final SimpleObjectProperty<BigDecimal> productUnitPrice = new SimpleObjectProperty<>();
-
-        public final SimpleStringProperty productUnitPriceString = new SimpleStringProperty();
-
         public final SimpleStringProperty productID = new SimpleStringProperty();
-
         public final SimpleStringProperty productName = new SimpleStringProperty();
         public final SimpleStringProperty productSize = new SimpleStringProperty();
-        public final SimpleObjectProperty<BigDecimal> extendedCost = new SimpleObjectProperty();
+        public final SimpleStringProperty productUnitPrice = new SimpleStringProperty();
         public final SimpleStringProperty productCategory = new SimpleStringProperty();
         public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
 
         public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
+        public final SimpleObjectProperty extendedCost = new SimpleObjectProperty();
 
-        public formattedProductProps(int ProductKey, String productID, String productName, String productSize, BigDecimal productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
-            this.productKey.set(ProductKey);
+        public formattedProductProps(String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost) {
             this.productID.set(productID);
             this.productName.set(productName);
             this.productSize.set(productSize);
             this.productUnitPrice.set(productUnitPrice);
-            this.productUnitPriceString.set(productUnitPrice.toPlainString());
             this.productCategory.set(productCategory);
             this.orderedQuantity.set(orderedQuantity);
             this.orderedQuantityString.set(String.valueOf(orderedQuantity));
             this.extendedCost.set(extendedCost);
         }
 
-        public SimpleIntegerProperty productKeyProperty() {
-            return productKey;
-        }
-
-        public int getProductKey() {
-            return productKey.get();
-        }
         public String getProductID() {
             return productID.get();
         }
@@ -146,7 +127,7 @@ public class Product {
             return productSize.get();
         }
 
-        public BigDecimal getProductUnitPrice() {
+        public String getProductUnitPrice() {
             return productUnitPrice.get();
         }
 
@@ -158,14 +139,9 @@ public class Product {
             return orderedQuantity.get();
         }
 
-        public String getProductUnitPriceString() {
-            return productUnitPriceString.get();
-        }
-
-
         public String getOrderedQuantityString() {return orderedQuantityString.get();}
 
-        public BigDecimal getExtendedCost() {
+        public Object getExtendedCost() {
             return extendedCost.get();
         }
     }

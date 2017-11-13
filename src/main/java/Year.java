@@ -20,12 +20,12 @@
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -54,8 +54,8 @@ public class Year {
     public Iterable<String> getCustomerNames() {
         Collection<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -67,7 +67,7 @@ public class Year {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -80,8 +80,8 @@ public class Year {
     public Iterable<String> getCustomerNames(String user) {
         Collection<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -93,7 +93,7 @@ public class Year {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -106,8 +106,8 @@ public class Year {
     public Iterable<Customer> getCustomers(String user) {
         Collection<Customer> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idCustomers FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -115,16 +115,14 @@ public class Year {
 
                 while (rs.next()) {
 
-                    ret.add(new Customer(rs.getInt("idCustomers"), year));
+                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year));
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        } catch (Customer.CustomerNotFoundException ignored) {
-
         }
 
 
@@ -134,8 +132,8 @@ public class Year {
     public Iterable<Customer> getCustomers() {
         Collection<Customer> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -147,7 +145,7 @@ public class Year {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -162,10 +160,9 @@ public class Year {
     public Iterable<category> getCategories() {
         Collection<category> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM categories");
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM categories", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = prep.executeQuery()) {
-
-
             while (rs.next()) {
 
                 ret.add(new category(rs.getString("catName"), rs.getString("catDate")));
@@ -182,8 +179,8 @@ public class Year {
     private Object getTots(String info, int retType) {
         Object ret = "";
         if (info == "Donations") {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Doantion FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT Doantion FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, uName);
 
                 try (ResultSet rs = prep.executeQuery()) {
@@ -202,14 +199,14 @@ public class Year {
 
                     }
                 }
-                //////DbInt.pCon.close();
+                //////DbInt.pCon.close()
 
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         } else {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, uName);
 
                 try (ResultSet rs = prep.executeQuery()) {
@@ -315,8 +312,8 @@ public class Year {
     public BigDecimal getDonations() {
         BigDecimal ret = BigDecimal.ZERO;
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Donation FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Donation FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -330,7 +327,7 @@ public class Year {
 
                 }
             }
-            //////DbInt.pCon.close();
+            //////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -340,8 +337,8 @@ public class Year {
 
     public BigDecimal getOT() {
         BigDecimal ret = BigDecimal.ZERO;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Cost FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -356,7 +353,7 @@ public class Year {
                 }
             }
 
-            //////DbInt.pCon.close();
+            //////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -371,8 +368,8 @@ public class Year {
      */
     public int getNoCustomers() {
         int ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT COUNT(*) FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT COUNT(*) FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -387,7 +384,7 @@ public class Year {
                 }
             }
 
-            //////DbInt.pCon.close();
+            //////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -425,8 +422,8 @@ public class Year {
 
     public int getQuant() {
         int ret = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT SUM(Quant) FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"))) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT SUM(Quant) FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -441,7 +438,7 @@ public class Year {
                 }
             }
 
-            //////DbInt.pCon.close();
+            //////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -454,15 +451,14 @@ public class Year {
         List<Product.formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
         //Get a prepared statement to retrieve data
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM products");
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
              ResultSet ProductInfoResultSet = prep.executeQuery()) {
             //Run through Data set and add info to ProductInfoArray
             while (ProductInfoResultSet.next()) {
 
                 ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getBigDecimal("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
             }
-
-
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -472,7 +468,8 @@ public class Year {
 
     public boolean addressExists(String address, String zipCode) {
         Boolean exists = false;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Name FROM customerview WHERE streetAddress=? AND Zip=? AND uName=?")) {
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE streetAddress=? AND Zip=? AND uName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, address);
             prep.setString(2, zipCode);
             prep.setString(3, uName);
@@ -483,7 +480,7 @@ public class Year {
                 exists = true;
 
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -497,83 +494,108 @@ public class Year {
      */
     public void CreateDb(ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
         if (DbInt.createDb(year)) {
+            char[] possibleCharacters = (new String("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")).toCharArray();
+            String randomStr = RandomStringUtils.random(15, 0, possibleCharacters.length - 1, false, false, possibleCharacters, new SecureRandom());
+            String createAndGrantCommand = "CREATE USER '" + year + "'@'localhost' IDENTIFIED BY '" + randomStr + "'";
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                prep.addBatch(createAndGrantCommand);
+                prep.executeBatch();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                prep.addBatch("GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, SHOW VIEW, TRIGGER ON `" + DbInt.prefix + year + "`.* TO '" + year + "'@'localhost'");
+                prep.executeBatch();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
             //Create Tables
             //Create groups Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `groups` (\n" +
-                    "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `Name` varchar(45) NOT NULL,\n" +
-                    "  PRIMARY KEY (`ID`)\n" +
-                    ")")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `groups` (\n" +
+                         "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `Name` varchar(45) NOT NULL,\n" +
+                         "  PRIMARY KEY (`ID`)\n" +
+                         ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO groups(Name) Values('Ungrouped')")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO groups(Name) Values('Ungrouped')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Users Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `users` (\n" +
-                    "  `idusers` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `userName` varchar(255) NOT NULL,\n" +
-                    "  `fullName` varchar(255) NOT NULL,\n" +
-                    "  `uManage` varchar(255) NOT NULL,\n" +
-                    "  `Admin` int(11) DEFAULT NULL,\n" +
-                    "  `commonsID` int(11) NOT NULL,\n" +
-                    "  `groupId` int(11) NULL,\n" +
-                    "  PRIMARY KEY (`idusers`),\n" +
-                    "UNIQUE INDEX `userName_UNIQUE` (`userName` ASC)," +
-                    "CONSTRAINT `fk_users_1` FOREIGN KEY (`groupId`) REFERENCES `groups` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE))")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `users` (\n" +
+                         "  `idusers` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `userName` varchar(255) NOT NULL,\n" +
+                         "  `fullName` varchar(255) NOT NULL,\n" +
+                         "  `uManage` varchar(255) NOT NULL,\n" +
+                         "  `Admin` int(11) DEFAULT NULL,\n" +
+                         "  `commonsID` int(11) NOT NULL,\n" +
+                         "  `groupId` int(11) NULL,\n" +
+                         "  PRIMARY KEY (`idusers`),\n" +
+                         "UNIQUE INDEX `userName_UNIQUE` (`userName` ASC)," +
+                         "CONSTRAINT `fk_users_1` FOREIGN KEY (`groupId`) REFERENCES `groups` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Customers Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `customers` (\n" +
-                    "  `idcustomers` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `uName` varchar(255) NOT NULL,\n" +
-                    "  `Name` varchar(255) NOT NULL,\n" +
-                    "  `streetAddress` varchar(255) NOT NULL,\n" +
-                    "  `City` varchar(255) NOT NULL,\n" +
-                    "  `State` varchar(255) NOT NULL,\n" +
-                    "  `Zip` varchar(5) NOT NULL,\n" +
-                    "  `Phone` varchar(255) NULL,\n" +
-                    "  `Email` varchar(255) NULL,\n" +
-                    "  `Lat` double NOT NULL,\n" +
-                    "  `Lon` double NOT NULL,\n" +
-                    "  `Ordered` int(11) DEFAULT NULL,\n" +
-                    "  `nH` int(11) DEFAULT NULL,\n" +
-                    "  `nI` int(11) DEFAULT NULL,\n" +
-                    "  `orderID` varchar(45) DEFAULT NULL,\n" +
-                    "  `Donation` DECIMAL(9,2) NULL,\n" +
-                    "  PRIMARY KEY (`idcustomers`),\n" +
-                    "KEY `fk_customers_1_idx` (`uName`),\n" +
-                    "CONSTRAINT `fk_customers_1` FOREIGN KEY (`uName`) REFERENCES `users` (`userName`) ON DELETE CASCADE ON UPDATE CASCADE)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `customers` (\n" +
+                         "  `idcustomers` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `uName` varchar(255) NOT NULL,\n" +
+                         "  `Name` varchar(255) NOT NULL,\n" +
+                         "  `streetAddress` varchar(255) NOT NULL,\n" +
+                         "  `City` varchar(255) NOT NULL,\n" +
+                         "  `State` varchar(255) NOT NULL,\n" +
+                         "  `Zip` varchar(5) NOT NULL,\n" +
+                         "  `Phone` varchar(255) NULL,\n" +
+                         "  `Email` varchar(255) NULL,\n" +
+                         "  `Lat` double NOT NULL,\n" +
+                         "  `Lon` double NOT NULL,\n" +
+                         "  `Ordered` int(11) DEFAULT NULL,\n" +
+                         "  `nH` int(11) DEFAULT NULL,\n" +
+                         "  `nI` int(11) DEFAULT NULL,\n" +
+                         "  `orderID` varchar(45) DEFAULT NULL,\n" +
+                         "  `Donation` DECIMAL(9,2) NULL,\n" +
+                         "  PRIMARY KEY (`idcustomers`),\n" +
+                         "KEY `fk_customers_1_idx` (`uName`),\n" +
+                         "CONSTRAINT `fk_customers_1` FOREIGN KEY (`uName`) REFERENCES `users` (`userName`) ON DELETE CASCADE ON UPDATE CASCADE)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Categories Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `categories` (\n" +
-                    "  `idcategories` INT NOT NULL AUTO_INCREMENT,\n" +
-                    "  `catName` VARCHAR(255) NOT NULL,\n" +
-                    "  `catDate` DATE NULL,\n" +
-                    "  PRIMARY KEY (`idcategories`));\n")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `categories` (\n" +
+                         "  `idcategories` INT NOT NULL AUTO_INCREMENT,\n" +
+                         "  `catName` VARCHAR(255) NOT NULL,\n" +
+                         "  `catDate` DATE NULL,\n" +
+                         "  PRIMARY KEY (`idcategories`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Products Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `products` (\n" +
-                    "  `idproducts` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `ID` varchar(255) NOT NULL,\n" +
-                    "  `Name` varchar(255) NOT NULL,\n" +
-                    "  `UnitSize` varchar(255) NOT NULL,\n" +
-                    "  `Cost` decimal(9,2) NOT NULL,\n" +
-                    "  `Category` varchar(255) NOT NULL,\n" +
-                    "  PRIMARY KEY (`idproducts`)\n" +
-                    ")")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `products` (\n" +
+                         "  `idproducts` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `ID` varchar(255) NOT NULL,\n" +
+                         "  `Name` varchar(255) NOT NULL,\n" +
+                         "  `UnitSize` varchar(255) NOT NULL,\n" +
+                         "  `Cost` decimal(9,2) NOT NULL,\n" +
+                         "  `Category` varchar(255) NOT NULL,\n" +
+                         "  PRIMARY KEY (`idproducts`)\n" +
+                         ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -581,232 +603,238 @@ public class Year {
 
 
             //Create orders Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `orders` (\n" +
-                    "  `idOrders` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `uName` varchar(255) NOT NULL COMMENT '\t',\n" +
-                    "  `custId` int(11) NOT NULL,\n" +
-                    "  `Cost` decimal(9,2) NOT NULL DEFAULT 0,\n" +
-                    "  `Quant` int(11) NOT NULL DEFAULT 0,\n" +
-                    "  `paid` int(11) NULL DEFAULT 0,\n" +
-                    "  `delivered` int(11) NULL DEFAULT 0,\n" +
-                    "  PRIMARY KEY (`idOrders`),\n" +
-                    "  KEY `fk_Orders_1_idx` (`custId`),\n" +
-                    "  CONSTRAINT `fk_Orders_1` FOREIGN KEY (`custId`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
-                    ")")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `orders` (\n" +
+                         "  `idOrders` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `uName` varchar(255) NOT NULL COMMENT '\t',\n" +
+                         "  `custId` int(11) NOT NULL,\n" +
+                         "  `Cost` decimal(9,2) NOT NULL DEFAULT 0,\n" +
+                         "  `Quant` int(11) NOT NULL DEFAULT 0,\n" +
+                         "  `paid` int(11) NULL DEFAULT 0,\n" +
+                         "  `delivered` int(11) NULL DEFAULT 0,\n" +
+                         "  PRIMARY KEY (`idOrders`),\n" +
+                         "  KEY `fk_Orders_1_idx` (`custId`),\n" +
+                         "  CONSTRAINT `fk_Orders_1` FOREIGN KEY (`custId`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
+                         ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create orderedProducts Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE `ordered_products` (\n" +
-                    "  `idordered_products` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `uName` varchar(255) NOT NULL,\n" +
-                    "  `custID` int(11) NOT NULL,\n" +
-                    "  `orderID` int(11) NOT NULL,\n" +
-                    "  `ProductId` int(11) NOT NULL,\n" +
-                    "  `Quantity` int(11) DEFAULT NULL,\n" +
-                    "  `ExtendedCost` decimal(9,2) DEFAULT NULL,\n" +
-                    "  PRIMARY KEY (`idordered_products`),\n" +
-                    "  KEY `fk_ordered_products_1_idx` (`custID`),\n" +
-                    "  KEY `fk_ordered_products_2_idx` (`orderID`),\n" +
-                    "  KEY `fk_ordered_products_3_idx` (`ProductId`),\n" +
-                    "  CONSTRAINT `fk_ordered_products_1` FOREIGN KEY (`custID`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
-                    "  CONSTRAINT `fk_ordered_products_2` FOREIGN KEY (`orderID`) REFERENCES `orders` (`idOrders`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
-                    "  CONSTRAINT `fk_ordered_products_3` FOREIGN KEY (`ProductId`) REFERENCES `products` (`idproducts`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
-                    ")")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `ordered_products` (\n" +
+                         "  `idordered_products` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                         "  `uName` varchar(255) NOT NULL,\n" +
+                         "  `custID` int(11) NOT NULL,\n" +
+                         "  `orderID` int(11) NOT NULL,\n" +
+                         "  `ProductId` int(11) NOT NULL,\n" +
+                         "  `Quantity` int(11) DEFAULT NULL,\n" +
+                         "  `ExtendedCost` decimal(9,2) DEFAULT NULL,\n" +
+                         "  PRIMARY KEY (`idordered_products`),\n" +
+                         "  KEY `fk_ordered_products_1_idx` (`custID`),\n" +
+                         "  KEY `fk_ordered_products_2_idx` (`orderID`),\n" +
+                         "  KEY `fk_ordered_products_3_idx` (`ProductId`),\n" +
+                         "  CONSTRAINT `fk_ordered_products_1` FOREIGN KEY (`custID`) REFERENCES `customers` (`idcustomers`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
+                         "  CONSTRAINT `fk_ordered_products_2` FOREIGN KEY (`orderID`) REFERENCES `orders` (`idOrders`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
+                         "  CONSTRAINT `fk_ordered_products_3` FOREIGN KEY (`ProductId`) REFERENCES `products` (`idproducts`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
+                         ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
 
             //Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_BEFORE_INSERT` BEFORE INSERT ON `ordered_products` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "SET NEW.ExtendedCost = (NEW.Quantity * (SELECT Cost FROM products WHERE idproducts = NEW.ProductId));\n" +
-                    "END")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_BEFORE_INSERT` BEFORE INSERT ON `ordered_products` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "SET NEW.ExtendedCost = (NEW.Quantity * (SELECT Cost FROM products WHERE idproducts = NEW.ProductId));\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
 
             //Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_INSERT` AFTER INSERT ON `ordered_products` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "UPDATE orders \n" +
-                    "SET \n" +
-                    "    Cost = (SELECT \n" +
-                    "            SUM(ExtendedCost)\n" +
-                    "        FROM\n" +
-                    "            ordered_products\n" +
-                    "        WHERE\n" +
-                    "            orderID = NEW.orderID)\n" +
-                    "WHERE\n" +
-                    "    idOrders = NEW.orderID;\n" +
-                    "UPDATE orders \n" +
-                    "SET \n" +
-                    "    Quant = (SELECT \n" +
-                    "            SUM(Quantity)\n" +
-                    "        FROM\n" +
-                    "            ordered_products\n" +
-                    "        WHERE\n" +
-                    "            orderID = NEW.orderID)\n" +
-                    "WHERE\n" +
-                    "    idOrders = NEW.orderID;\n" +
-                    "END")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_INSERT` AFTER INSERT ON `ordered_products` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "UPDATE orders \n" +
+                         "SET \n" +
+                         "    Cost = (SELECT \n" +
+                         "            SUM(ExtendedCost)\n" +
+                         "        FROM\n" +
+                         "            ordered_products\n" +
+                         "        WHERE\n" +
+                         "            orderID = NEW.orderID)\n" +
+                         "WHERE\n" +
+                         "    idOrders = NEW.orderID;\n" +
+                         "UPDATE orders \n" +
+                         "SET \n" +
+                         "    Quant = (SELECT \n" +
+                         "            SUM(Quantity)\n" +
+                         "        FROM\n" +
+                         "            ordered_products\n" +
+                         "        WHERE\n" +
+                         "            orderID = NEW.orderID)\n" +
+                         "WHERE\n" +
+                         "    idOrders = NEW.orderID;\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_BEFORE_UPDATE` BEFORE UPDATE ON `ordered_products` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "SET NEW.ExtendedCost = (NEW.Quantity * (SELECT Cost FROM products WHERE idproducts = NEW.ProductId));\n" +
-                    "\n" +
-                    "END")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_BEFORE_UPDATE` BEFORE UPDATE ON `ordered_products` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "SET NEW.ExtendedCost = (NEW.Quantity * (SELECT Cost FROM products WHERE idproducts = NEW.ProductId));\n" +
+                         "\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             //Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_UPDATE` AFTER UPDATE ON `ordered_products` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "UPDATE orders \n" +
-                    "SET \n" +
-                    "    Cost = (SELECT \n" +
-                    "            SUM(ExtendedCost)\n" +
-                    "        FROM\n" +
-                    "            ordered_products\n" +
-                    "        WHERE\n" +
-                    "            orderID = NEW.orderID)\n" +
-                    "WHERE\n" +
-                    "    idOrders = NEW.orderID;\n" +
-                    "UPDATE orders \n" +
-                    "SET \n" +
-                    "    Quant = (SELECT \n" +
-                    "            SUM(Quantity)\n" +
-                    "        FROM\n" +
-                    "            ordered_products\n" +
-                    "        WHERE\n" +
-                    "            orderID = NEW.orderID)\n" +
-                    "WHERE\n" +
-                    "    idOrders = NEW.orderID;\n" +
-                    "END")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_AFTER_UPDATE` AFTER UPDATE ON `ordered_products` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "UPDATE orders \n" +
+                         "SET \n" +
+                         "    Cost = (SELECT \n" +
+                         "            SUM(ExtendedCost)\n" +
+                         "        FROM\n" +
+                         "            ordered_products\n" +
+                         "        WHERE\n" +
+                         "            orderID = NEW.orderID)\n" +
+                         "WHERE\n" +
+                         "    idOrders = NEW.orderID;\n" +
+                         "UPDATE orders \n" +
+                         "SET \n" +
+                         "    Quant = (SELECT \n" +
+                         "            SUM(Quantity)\n" +
+                         "        FROM\n" +
+                         "            ordered_products\n" +
+                         "        WHERE\n" +
+                         "            orderID = NEW.orderID)\n" +
+                         "WHERE\n" +
+                         "    idOrders = NEW.orderID;\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            } //Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`orders_AFTER_INSERT` AFTER INSERT ON `orders` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "UPDATE customers SET orderID = NEW.idOrders, Ordered=1 WHERE idcustomers=NEW.custId;\n" +
-                    "END")) {
-
+            }
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`orders_AFTER_INSERT` AFTER INSERT ON `orders` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "UPDATE customers SET orderID = NEW.idOrders, Ordered=1 WHERE idcustomers=NEW.custId;\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }//Create Triggers
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`products_AFTER_UPDATE` AFTER UPDATE ON `products` FOR EACH ROW\n" +
-                    "BEGIN\n" +
-                    "UPDATE ordered_products SET extendedCost = (quantity * NEW.Cost) WHERE ProductId = NEW.idproducts;\n" +
-                    "END")) {
-
+            }
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`products_AFTER_UPDATE` AFTER UPDATE ON `products` FOR EACH ROW\n" +
+                         "BEGIN\n" +
+                         "UPDATE ordered_products SET extendedCost = (quantity * NEW.Cost) WHERE ProductId = NEW.idproducts;\n" +
+                         "END", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
-                    "    ALGORITHM = UNDEFINED \n" +
-                    "    DEFINER = `" + year + "`@`localhost` \n" +
-                    "    SQL SECURITY DEFINER\n" +
-                    "VIEW `customerview` AS\n" +
-                    "    SELECT \n" +
-                    "        `customers`.`idcustomers` AS `idcustomers`,\n" +
-                    "        `customers`.`uName` AS `uName`,\n" +
-                    "        `customers`.`Name` AS `Name`,\n" +
-                    "        `customers`.`streetAddress` AS `streetAddress`,\n" +
-                    "        `customers`.`City` AS `City`,\n" +
-                    "        `customers`.`State` AS `State`,\n" +
-                    "        `customers`.`Zip` AS `Zip`,\n" +
-                    "        `customers`.`Phone` AS `Phone`,\n" +
-                    "        `customers`.`Email` AS `Email`,\n" +
-                    "        `customers`.`Lat` AS `Lat`,\n" +
-                    "        `customers`.`Lon` AS `Lon`,\n" +
-                    "        `customers`.`Ordered` AS `Ordered`,\n" +
-                    "        `customers`.`nH` AS `nH`,\n" +
-                    "        `customers`.`nI` AS `nI`,\n" +
-                    "        `customers`.`orderID` AS `orderID`,\n" +
-                    "        `customers`.`Donation` AS `Donation`\n" +
-                    "    FROM\n" +
-                    "        `customers`\n" +
-                    "    WHERE\n" +
-                    "        FIND_IN_SET(`customers`.`uName`,\n" +
-                    "                (SELECT \n" +
-                    "                        `usersview`.`uManage`\n" +
-                    "                    FROM\n" +
-                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
-
+            }
+            //Create Views
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
+                         "        `users`.`groupId` AS `groupId` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
-                    "    ALGORITHM = UNDEFINED \n" +
-                    "    DEFINER = `" + year + "`@`localhost` \n" +
-                    "    SQL SECURITY DEFINER\n" +
-                    "VIEW `orderedproductsview` AS\n" +
-                    "    SELECT \n" +
-                    "        `ordered_products`.`idordered_products` AS `idordered_products`,\n" +
-                    "        `ordered_products`.`custID` AS `custID`,\n" +
-                    "        `ordered_products`.`uName` AS `uName`,\n" +
-                    "        `ordered_products`.`orderID` AS `orderID`,\n" +
-                    "        `ordered_products`.`ProductId` AS `ProductId`,\n" +
-                    "        `ordered_products`.`Quantity` AS `Quantity`,\n" +
-                    "        `ordered_products`.`ExtendedCost` AS `ExtendedCost`\n" +
-                    "    FROM\n" +
-                    "        `ordered_products`\n" +
-                    "    WHERE\n" +
-                    "        FIND_IN_SET(`ordered_products`.`uName`,\n" +
-                    "                (SELECT \n" +
-                    "                        `usersview`.`uManage`\n" +
-                    "                    FROM\n" +
-                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
+            }
 
+
+            //Create Views
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE \n" +
+                         "    ALGORITHM = UNDEFINED \n" +
+                         "    DEFINER = `" + year + "`@`localhost` \n" +
+                         "    SQL SECURITY DEFINER\n" +
+                         "VIEW `customerview` AS\n" +
+                         "    SELECT \n" +
+                         "        `customers`.`idcustomers` AS `idcustomers`,\n" +
+                         "        `customers`.`uName` AS `uName`,\n" +
+                         "        `customers`.`Name` AS `Name`,\n" +
+                         "        `customers`.`streetAddress` AS `streetAddress`,\n" +
+                         "        `customers`.`City` AS `City`,\n" +
+                         "        `customers`.`State` AS `State`,\n" +
+                         "        `customers`.`Zip` AS `Zip`,\n" +
+                         "        `customers`.`Phone` AS `Phone`,\n" +
+                         "        `customers`.`Email` AS `Email`,\n" +
+                         "        `customers`.`Lat` AS `Lat`,\n" +
+                         "        `customers`.`Lon` AS `Lon`,\n" +
+                         "        `customers`.`Ordered` AS `Ordered`,\n" +
+                         "        `customers`.`nH` AS `nH`,\n" +
+                         "        `customers`.`nI` AS `nI`,\n" +
+                         "        `customers`.`orderID` AS `orderID`,\n" +
+                         "        `customers`.`Donation` AS `Donation`\n" +
+                         "    FROM\n" +
+                         "        `customers`\n" +
+                         "    WHERE\n" +
+                         "        FIND_IN_SET(`customers`.`uName`,\n" +
+                         "                (SELECT \n" +
+                         "                        `usersview`.`uManage`\n" +
+                         "                    FROM\n" +
+                         "                        `usersview`)) WITH CASCADED CHECK OPTION", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE \n" +
-                    "    ALGORITHM = UNDEFINED \n" +
-                    "    DEFINER = `" + year + "`@`localhost` \n" +
-                    "    SQL SECURITY DEFINER\n" +
-                    "VIEW `ordersview` AS\n" +
-                    "    SELECT \n" +
-                    "        `orders`.`idOrders` AS `idOrders`,\n" +
-                    "        `orders`.`uName` AS `uName`,\n" +
-                    "        `orders`.`custId` AS `custId`,\n" +
-                    "        `orders`.`Cost` AS `Cost`,\n" +
-                    "        `orders`.`Quant` AS `Quant`,\n" +
-                    "        `orders`.`paid` AS `paid`,\n" +
-                    "        `orders`.`delivered` AS `delivered`\n" +
-                    "    FROM\n" +
-                    "        `orders`\n" +
-                    "    WHERE\n" +
-                    "        FIND_IN_SET(`orders`.`uName`,\n" +
-                    "                (SELECT \n" +
-                    "                        `usersview`.`uManage`\n" +
-                    "                    FROM\n" +
-                    "                        `usersview`)) WITH CASCADED CHECK OPTION")) {
-
+            }
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE \n" +
+                         "    ALGORITHM = UNDEFINED \n" +
+                         "    DEFINER = `" + year + "`@`localhost` \n" +
+                         "    SQL SECURITY DEFINER\n" +
+                         "VIEW `orderedproductsview` AS\n" +
+                         "    SELECT \n" +
+                         "        `ordered_products`.`idordered_products` AS `idordered_products`,\n" +
+                         "        `ordered_products`.`custID` AS `custID`,\n" +
+                         "        `ordered_products`.`uName` AS `uName`,\n" +
+                         "        `ordered_products`.`orderID` AS `orderID`,\n" +
+                         "        `ordered_products`.`ProductId` AS `ProductId`,\n" +
+                         "        `ordered_products`.`Quantity` AS `Quantity`,\n" +
+                         "        `ordered_products`.`ExtendedCost` AS `ExtendedCost`\n" +
+                         "    FROM\n" +
+                         "        `ordered_products`\n" +
+                         "    WHERE\n" +
+                         "        FIND_IN_SET(`ordered_products`.`uName`,\n" +
+                         "                (SELECT \n" +
+                         "                        `usersview`.`uManage`\n" +
+                         "                    FROM\n" +
+                         "                        `usersview`)) WITH CASCADED CHECK OPTION", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }//Create Views
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
-                    "        `users`.`groupId` AS `groupId` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n")) {
-
+            }
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE \n" +
+                         "    ALGORITHM = UNDEFINED \n" +
+                         "    DEFINER = `" + year + "`@`localhost` \n" +
+                         "    SQL SECURITY DEFINER\n" +
+                         "VIEW `ordersview` AS\n" +
+                         "    SELECT \n" +
+                         "        `orders`.`idOrders` AS `idOrders`,\n" +
+                         "        `orders`.`uName` AS `uName`,\n" +
+                         "        `orders`.`custId` AS `custId`,\n" +
+                         "        `orders`.`Cost` AS `Cost`,\n" +
+                         "        `orders`.`Quant` AS `Quant`,\n" +
+                         "        `orders`.`paid` AS `paid`,\n" +
+                         "        `orders`.`delivered` AS `delivered`\n" +
+                         "    FROM\n" +
+                         "        `orders`\n" +
+                         "    WHERE\n" +
+                         "        FIND_IN_SET(`orders`.`uName`,\n" +
+                         "                (SELECT \n" +
+                         "                        `usersview`.`uManage`\n" +
+                         "                    FROM\n" +
+                         "                        `usersview`)) WITH CASCADED CHECK OPTION", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -827,7 +855,8 @@ public class Year {
             //  String col = "";
 
             // col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 for (int i = 0; i < products.size(); i++) {
                     Product.formattedProductProps curRow = products.get(i);
                     String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
@@ -844,7 +873,8 @@ public class Year {
 
             //Add Categories
             rowsCats.forEach(cat -> {
-                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO categories(catName, catDate) VALUES (?,?)")) {
+                try (Connection con = DbInt.getConnection(year);
+                     PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                     prep.setString(1, cat.catName);
                     prep.setDate(2, Date.valueOf(cat.catDate));
 
@@ -869,7 +899,7 @@ public class Year {
             //ADD to Year
             addYear();
         } else {
-            LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
+            updateDb(year, products, rowsCats);
         }
 
     }
@@ -877,14 +907,20 @@ public class Year {
     public void updateDb(String year, ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
         //Delete Year Customer table
 
-        try (PreparedStatement addCol = DbInt.getPrep(year, "TRUNCATE TABLE products")) {
-            addCol.execute();
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement addCol = con.prepareStatement("DELETE FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            addCol.addBatch("DELETE FROM products");
+            addCol.addBatch("ALTER TABLE products AUTO_INCREMENT = 1");
+            addCol.executeBatch();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-        try (PreparedStatement addCol = DbInt.getPrep(year, "TRUCNATE TABLE categories")) {
-            addCol.execute();
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement addCol = con.prepareStatement("TRUCNATE TABLE categories", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            addCol.addBatch("DELETE FROM categories");
+            addCol.addBatch("ALTER TABLE categories AUTO_INCREMENT = 1");
+            addCol.executeBatch();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -901,7 +937,8 @@ public class Year {
         //Add Categories
         //Add Categories
         rowsCats.forEach(cat -> {
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO categories(catName, catDate) VALUES (?,?)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, cat.catName);
                 prep.setDate(2, Date.valueOf(cat.catDate));
 
@@ -911,7 +948,8 @@ public class Year {
             }
         });
         //Insert products into Product table
-        try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)")) {
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             for (int i = 0; i < products.size(); i++) {
                 Product.formattedProductProps curRow = products.get(i);
                 String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";

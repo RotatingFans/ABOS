@@ -21,6 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,8 +39,8 @@ public class Order {
 
     public static orderDetails getOrder(String year, Integer id) {
         orderDetails order = null;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Cost, Quant, paid, delivered FROM ordersview WHERE custId=?")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Cost, Quant, paid, delivered FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             //prep.setString(1, Integer.toString(i));
             prep.setInt(1, id);
 
@@ -48,7 +49,6 @@ public class Order {
                 rs.next();
                 order = new orderDetails(rs.getBigDecimal("Cost"), rs.getInt("Quant"), rs.getInt("paid"), rs.getInt("delivered"));
             }
-
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -59,13 +59,19 @@ public class Order {
         List<Integer> Ids = new ArrayList<>();
         int numRows = orders.size();
         ObservableList<Product.formattedProductProps> orderNoZero = FXCollections.observableArrayList();
-        orders.forEach(order -> {
-            if (order.getOrderedQuantity() > 0) {
-                orderNoZero.add(order);
-            }
-        });
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
+        try {
+            for (Product.formattedProductProps order : orders) {
 
+
+                if (order.getOrderedQuantity() > 0) {
+                    orderNoZero.add(order);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idOrders FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, custID);
             try (ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
@@ -85,8 +91,8 @@ public class Order {
         if (Ids.size() > 0) {
             updateMessage.doAction("Building Order Update");
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT idOrders FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setInt(1, custID);
                 try (ResultSet rs = prep.executeQuery()) {
                     while (rs.next()) {
@@ -99,13 +105,13 @@ public class Order {
             int OrderID = Ids.get(Ids.size() - 1);
             String uName = DbInt.getUserName(year);
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM orderedproductsview WHERE orderID=?")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("DELETE FROM orderedproductsview WHERE orderID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setInt(1, OrderID);
                 prep.execute();
-
             }
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement writeOrd = con.prepareStatement("INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 for (Product.formattedProductProps prod : orderNoZero) {
 
                     writeOrd.setString(1, uName);
@@ -120,8 +126,8 @@ public class Order {
                     writeOrd.executeUpdate();
                 }
             }
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, "UPDATE ordersview SET paid=?, delivered=? WHERE idOrders=?")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement writeOrd = con.prepareStatement("UPDATE ordersview SET paid=?, delivered=? WHERE idOrders=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 writeOrd.setInt(1, paid ? 1 : 0);
                 writeOrd.setInt(2, delivered ? 1 : 0);
                 writeOrd.setInt(3, OrderID);
@@ -130,7 +136,6 @@ public class Order {
                 updateMessage.doAction("Adding Order");
 
                 writeOrd.executeUpdate();
-
             }
         } //Insert Mode
         else {
@@ -156,7 +161,8 @@ public class Order {
             fail.doAction();
 
             //Creates prepared Statement and replaces ? with quantities and names
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement writeOrd = con.prepareStatement("INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 writeOrd.setString(1, DbInt.getUserName(year));
                 writeOrd.setInt(2, custID);
                 writeOrd.setInt(3, paid ? 1 : 0);
@@ -167,8 +173,8 @@ public class Order {
 
                 writeOrd.executeUpdate();
             }
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT idOrders FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setInt(1, custID);
 
                 try (ResultSet rs = prep.executeQuery()) {
@@ -183,7 +189,8 @@ public class Order {
             String uName = DbInt.getUserName(year);
 
 
-            try (PreparedStatement writeOrd = DbInt.getPrep(year, "INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement writeOrd = con.prepareStatement("INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 for (Product.formattedProductProps prod : orderNoZero) {
 
                     writeOrd.setString(1, uName);
@@ -199,8 +206,8 @@ public class Order {
                 }
             }
         }
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT idOrders FROM ordersview WHERE custId=?")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idOrders FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, custID);
             try (ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
@@ -266,8 +273,8 @@ public class Order {
 
             int quant = 0;
         if (!Objects.equals(Category, "*")) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 //prep.setString(1, Integer.toString(i));
                 prep.setString(1, Category);
 
@@ -287,13 +294,12 @@ public class Order {
                         }
                     }
                 }
-
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         } else {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 //prep.setString(1, Integer.toString(i));
                 prep.setInt(1, OrderID);
 
@@ -311,7 +317,6 @@ public class Order {
                         }
                     }
                 }
-
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
@@ -341,8 +346,8 @@ public class Order {
         //For Each product get quantity
 
         int quant = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             //prep.setString(1, Integer.toString(i));
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -359,7 +364,6 @@ public class Order {
                     }
                 }
             }
-
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
@@ -384,8 +388,8 @@ public class Order {
         //For Each product get quantity
 
         int quant = 0;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE uName=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE uName=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -402,7 +406,6 @@ public class Order {
                     }
                 }
             }
-
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }

@@ -4,7 +4,7 @@
  *       This file is part of ABOS.
  *
  *       ABOS is free software: you can redistribute it and/or modify
- *       it under the terms of the GNU Affero General Public License as updateMessageed by
+ *       it under the terms of the GNU Affero General Public License as published by
  *       the Free Software Foundation, either version 3 of the License, or
  *       (at your option) any later version.
  *
@@ -17,6 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.concurrent.Task;
 import javafx.scene.control.TableView;
 
@@ -28,7 +30,6 @@ import java.math.BigDecimal;
  * @author Patrick Magauran
  */
 class AddCustomerWorker extends Task<Integer> {
-    private final Integer ID;
 
     private final String Address;
     private final String Town;
@@ -48,7 +49,6 @@ class AddCustomerWorker extends Task<Integer> {
      * Creates an instance of the worker
      * old/new is relavant for editing. Db uses name to find customer
      *
-     * @param id
      * @param name             (old) name of the customer
      * @param zipCode          ZIpcode
      * @param phone            Phone #
@@ -58,8 +58,7 @@ class AddCustomerWorker extends Task<Integer> {
      * @param paid             Did they pay
      * @param delivered        Was it deleivered
      */
-    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
-        ID = id;
+    public AddCustomerWorker(String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
         this.Address = Address;
         this.Town = Town;
         this.State = State;
@@ -130,11 +129,10 @@ class AddCustomerWorker extends Task<Integer> {
         double lon = Double.valueOf(coords[0][1].toString());
         AddCustomerWorker.failIfInterrupted();
         updateProgress(0, 100);
-        Customer customer = new Customer(ID, NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Paid, Delivered, Email,
-                Name, new BigDecimal(DonationsT));
-        Integer custID = customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
-        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, Paid, Delivered, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
-
+        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, NameEditCustomer, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+        Customer customer = new Customer(NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Boolean.toString(Paid), Boolean.toString(Delivered), Email,
+                Id, Name, new BigDecimal(DonationsT));
+        customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
         updateProgress(100, 100);
 
 

@@ -22,7 +22,9 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -71,11 +73,12 @@ public class AddGroup {
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO groups(Name) VALUES(?)")) {
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO groups(Name) VALUES(?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
                 prep.setString(1, result.get());
 
                 prep.execute();
-
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
@@ -129,12 +132,12 @@ public class AddGroup {
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "UPDATE groups SET Name=? WHERE Name=?")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("UPDATE groups SET Name=? WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, result.get());
                 prep.setString(2, groupName);
 
                 prep.execute();
-
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }

@@ -17,16 +17,23 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -51,6 +58,8 @@ public class AddUserController {
     private boolean newUser = true;
     @FXML
     private Button deleteUserButton;
+    @FXML
+    private CheckBox adminCheckbox;
     private Map<String, ArrayList<String>> checkedUsers = new HashMap();
     private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
@@ -90,7 +99,7 @@ public class AddUserController {
         } else {
             Set<String> years = new HashSet<>();
             if (newUser) {
-                User.createUser(userNameField.getText(), passwordField.getText());
+                User.createUser(userNameField.getText(), passwordField.getText(), adminCheckbox.isSelected());
             } else {
                 User.updateUser(userNameField.getText(), passwordField.getText());
 
@@ -111,7 +120,7 @@ public class AddUserController {
 
                 if (!usersManage.isEmpty()) {
                     years.add(year);
-                    User yearUser = new User(userNameField.getText(), fullNameField.getText(), usersManage, years, groups.getOrDefault(year, 0));
+                    User yearUser = new User(userNameField.getText(), fullNameField.getText(), usersManage, years, adminCheckbox.isSelected(), groups.getOrDefault(year, 0));
                     if (newUser) {
                         yearUser.addToYear(year);
                     } else {
@@ -128,12 +137,100 @@ public class AddUserController {
     @FXML
     private void deleteUser(ActionEvent event) {
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("");
-        alert.setHeaderText("You have entered an invalid character in the username");
-        alert.setContentText("Only Alphanumeric characters are aloud.");
-        alert.show();
+        final String user = userNameField.getText();
+        if (user != DbInt.getUserName(DbInt.getYears().get(0))) {
 
+
+            Optional<Group> returnGroup = Optional.empty();
+            Dialog<String> dialog = new Dialog<>();
+            dialog.setTitle("DELETE USER?");
+            dialog.setHeaderText("This will delete ALL customers and data associated with this user.");
+// Set the button types.
+            ButtonType addGrp = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(addGrp, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            TextField verifyUNameTF = new TextField();
+
+            grid.add(new Label("Please re-type the username for verification:"), 0, 0);
+            grid.add(verifyUNameTF, 1, 0);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+            javafx.scene.Node deleteUserButton = dialog.getDialogPane().lookupButton(addGrp);
+            deleteUserButton.setDisable(true);
+            deleteUserButton.setStyle("fx-background-color: Red; fx-color: White");
+// Do some validation (using the Java 8 lambda syntax).
+            verifyUNameTF.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (Objects.equals(newValue, user)) {
+                    deleteUserButton.setDisable(false);
+                } else {
+                    deleteUserButton.setDisable(true);
+                }
+            });
+
+            dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+            Platform.runLater(() -> verifyUNameTF.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == addGrp) {
+                    return verifyUNameTF.getText();
+                }
+                return null;
+            });
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(res -> {
+                if (Objects.equals(res, user)) {
+
+                    DbInt.getYears().forEach(year -> {
+                        try (Connection con = DbInt.getConnection(year);
+                             PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                            prep.setString(1, user);
+                            prep.execute();
+                        } catch (SQLException e) {
+                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                        }
+                        try (Connection con = DbInt.getConnection(year);
+                             PreparedStatement prep = con.prepareStatement("UPDATE users SET uManage = REPLACE (uManage, ?, '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                            prep.setString(1, user);
+                            prep.execute();
+                        } catch (SQLException e) {
+                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                        }
+
+                    });
+                    try (Connection con = DbInt.getConnection("Commons");
+                         PreparedStatement prep = con.prepareStatement("DELETE FROM Users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                        prep.setString(1, user);
+                        prep.execute();
+                    } catch (SQLException e) {
+                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                    }
+                    try (Connection con = DbInt.getConnection();
+                         PreparedStatement prep = con.prepareStatement("DELETE USER IF EXISTS `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                        prep.setString(1, user);
+                        prep.execute();
+                    } catch (SQLException e) {
+                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                    }
+
+                }
+            });
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText("You cannot delete yourself.");
+            alert.showAndWait();
+        }
 
         close();
 
@@ -187,11 +284,13 @@ public class AddUserController {
      */
     public void initAddUser(String userName, Window parWindow) {
         ArrayList<User> users = new ArrayList<User>();
+        adminCheckbox.setDisable(true);
+
         newUser = false;
         parentWindow = parWindow;
         userNameField.setText(userName);
         userNameField.setEditable(false);
-
+        deleteUserButton.setDisable(false);
         DbInt.getYears().forEach(year -> {
             TitledPane yPane;
             yPane = new TitledPane();
@@ -236,8 +335,14 @@ public class AddUserController {
                     groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
                     if (currentUser.getGroupId() == group.getID()) {
                         groupBox.getSelectionModel().selectLast();
+                    } else if (currentUser.getGroupId() == 0) {
+                        groupBox.getSelectionModel().selectFirst();
+
                     }
-                } catch (Group.GroupNotFoundException e) {}
+
+                } catch (Group.GroupNotFoundException e) {
+                    e.printStackTrace();
+                }
             });
             yearTView = new TreeView(yearItem);
             yearItem.setExpanded(true);
@@ -264,7 +369,7 @@ public class AddUserController {
         });
         User latestUser = users.get(users.size() - 1);
         fullNameField.setText(latestUser.getFullName());
-
+        adminCheckbox.setSelected(latestUser.isAdmin());
 
     }
 

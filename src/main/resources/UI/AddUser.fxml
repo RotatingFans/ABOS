@@ -53,6 +53,11 @@
                                         <TextField fx:id="fullNameField" promptText="Full Name"/>
                                     </children>
                                 </VBox>
+                                <VBox layoutX="362.0" layoutY="10.0">
+                                    <children>
+                                        <CheckBox fx:id="adminCheckbox" mnemonicParsing="false" text="Admin"/>
+                                    </children>
+                                </VBox>
                             </children>
                         </HBox>
 
@@ -62,10 +67,10 @@
             <bottom>
                 <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                     <buttons>
-                        <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
-                        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
                         <Button fx:id="deleteUserButton" disable="true" mnemonicParsing="false" onAction="#deleteUser"
                                 style="-fx-background-color: RED;" text="Delete" textFill="WHITE"/>
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
+                        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
                     </buttons>
                 </ButtonBar>
             </bottom>

@@ -17,11 +17,12 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,9 +35,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Customer {
     private final String name;
-    private int ID = -1;
     private String nameEdited = "";
-
     private String year = "";
     private String address = "";
     private String town = "";
@@ -45,25 +44,26 @@ public class Customer {
     private Double lat;
     private Double lon;
     private String phone = "";
-    private Boolean paid = false;
-    private Boolean delivered = false;
+    private String paid = "";
+    private String delivered = "";
     private String email = "";
     private String orderId = "";
     private BigDecimal Donation = BigDecimal.ZERO;
 
-    public Customer(Integer ID, String name, String year, String address,
+    public Customer(String name, String year, String address,
                     String town,
                     String state,
                     String zipCode,
                     Double lat,
                     Double lon,
                     String phone,
-                    Boolean paid,
-                    Boolean delivered,
+                    String paid,
+                    String delivered,
                     String email,
+                    String orderId,
                     String nameEdited,
                     BigDecimal Donation) {
-        this.ID = ID;
+
         this.name = name;
         this.year = year;
         this.address = address;
@@ -88,84 +88,38 @@ public class Customer {
         this.nameEdited = name;
     }
 
-    public Customer(int ID, String year) throws CustomerNotFoundException {
+    public Customer(int ID, String year) {
         String ret = "";
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM CUSTOMERS WHERE ID=?")) {
+
+
             prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
 
-                    ret = rs.getString("Name");
+                    ret = rs.getString("NAME");
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-        if (ret != "") {
-            this.ID = ID;
-            this.name = ret;
-            this.year = year;
-            this.nameEdited = name;
-        } else {
-            throw new CustomerNotFoundException();
-        }
-    }
 
-    public Customer(int ID, String name, String year) {
-
-        this.ID = ID;
-        this.name = name;
+        this.name = ret;
         this.year = year;
         this.nameEdited = name;
-
-
-    }
-
-    public Customer() {
-        this.ID = -1;
-        this.name = "";
-        this.year = "";
-        this.address = "";
-        this.town = "";
-        this.state = "";
-        this.zipCode = "";
-        this.lat = 0.0;
-        this.lon = 0.0;
-        this.phone = "";
-        this.paid = false;
-        this.delivered = false;
-        this.email = "";
-        this.orderId = "";
-        this.Donation = BigDecimal.ZERO;
-        this.nameEdited = "";
-    }
-
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Customer)) {
-            return false;
-        }
-        Customer other = (Customer) obj;
-        return this.address.equals(other.address);
-    }
-
-    public int hashCode() {
-        return address.hashCode();
     }
 
     public Double getLat() {
         Double ret = lat;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Lat FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lat FROM CUSTOMERS WHERE NAME=?")) {
+
+
+            prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -174,7 +128,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -189,9 +143,10 @@ public class Customer {
 
     public Double getLon() {
         Double ret = lon;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Lon FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Lon FROM CUSTOMERS WHERE NAME=?")) {
+
+
+            prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -200,7 +155,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -229,15 +184,14 @@ public class Customer {
         Donation = donation;
     }
 
-    public int updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
-        if (Objects.equals(DbInt.getCustInf(year, ID, "name", ""), "")) {
+    public void updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+        if (Objects.equals(DbInt.getCustInf(year, name, "NAME", ""), "")) {
             //Insert Mode
             double progressIncrement = (100 - getProgress.doAction()) / 3;
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
             fail.doAction();
             updateMessage.doAction("Adding Customer");
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement writeCust = con.prepareStatement("INSERT INTO customerview (uName, Name, streetAddress, City, State, Zip, Lat, Lon, Phone, Email, Donation) VALUES (LEFT(USER(), (LOCATE('@', USER()) - 1)),?,?,?,?,?,?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                 writeCust.setString(1, this.nameEdited);
                 writeCust.setString(2, this.address);
                 writeCust.setString(3, this.town);
@@ -246,16 +200,16 @@ public class Customer {
                 writeCust.setDouble(6, lat);
                 writeCust.setDouble(7, lon);
                 writeCust.setString(8, this.phone);
-                //writeCust.setString(9, this.orderId);
-                //writeCust.setString(10, this.paid);
-                //writeCust.setString(11, this.delivered);
-                writeCust.setString(9, this.email);
-                writeCust.setString(10, this.Donation.toPlainString());
+                writeCust.setString(9, this.orderId);
+                writeCust.setString(10, this.paid);
+                writeCust.setString(11, this.delivered);
+                writeCust.setString(12, this.email);
+                writeCust.setString(13, this.Donation.toPlainString());
                 fail.doAction();
                 writeCust.execute();
             }
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
-     /*       try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
+            try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
                 prep1.setString(1, this.address);
                 prep1.setString(2, this.town);
                 prep1.setString(3, this.state);
@@ -265,17 +219,30 @@ public class Customer {
                 fail.doAction();
 
                 prep1.execute();
-            }*/
+            }
             updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
 
 
         } else {
+            //edit mode
+            try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
+                updateCust.setString(1, this.address);
+                updateCust.setString(2, this.town);
+                updateCust.setString(3, this.state);
+                updateCust.setString(4, this.zipCode);
+                updateCust.setDouble(5, lat);
+                updateCust.setDouble(6, lon);
+                updateCust.setString(7, getAddr());
+                fail.doAction();
+
+                updateCust.execute();
+
+            }
             updateProg.doAction(10, 100);
 
             //Updates customer table in Year DB with new info.
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement CustomerUpdate = con.prepareStatement("UPDATE customerview SET Name=?, streetAddress=?, City=?, State=?, Zip=?, Lat=?, Lon=?, Phone=?,Email=?, Donation=? WHERE idCustomers = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
                 CustomerUpdate.setString(1, this.nameEdited);
                 CustomerUpdate.setString(2, this.address);
                 CustomerUpdate.setString(3, this.town);
@@ -284,9 +251,11 @@ public class Customer {
                 CustomerUpdate.setDouble(6, lat);
                 CustomerUpdate.setDouble(7, lon);
                 CustomerUpdate.setString(8, this.phone);
-                CustomerUpdate.setString(9, this.email);
-                CustomerUpdate.setString(10, this.Donation.toPlainString());
-                CustomerUpdate.setInt(11, ID);
+                CustomerUpdate.setString(9, this.paid);
+                CustomerUpdate.setString(10, this.delivered);
+                CustomerUpdate.setString(11, this.email);
+                CustomerUpdate.setString(12, this.Donation.toPlainString());
+                CustomerUpdate.setString(13, name);
                 fail.doAction();
 
                 CustomerUpdate.execute();
@@ -294,19 +263,6 @@ public class Customer {
             updateProg.doAction(20, 100);
 
         }
-        Integer cID = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idcustomers FROM customerview WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, nameEdited);
-            try (ResultSet rs = prep.executeQuery()) {
-                while (rs.next()) {
-
-                    cID = rs.getInt(1);
-
-                }
-            }
-        }
-        return cID;
     }
 
     public void deleteCustomer() {
@@ -318,10 +274,44 @@ public class Customer {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
+            BigDecimal preEditOrderCost = BigDecimal.ZERO;
+            Order.orderArray order = new Order().createOrderArray(year, getName(), false);
+            for (Product.formattedProduct productOrder : order.orderData) {
+                preEditOrderCost = preEditOrderCost.add(productOrder.extendedCost);
+            }
+            Year yearInfo = new Year(year);
+            BigDecimal donations = yearInfo.getDonations().subtract(getDontation());
+            int Lg = yearInfo.getLG() - getNoLawnProductsOrdered();
+            int LP = yearInfo.getLP() - getNoLivePlantsOrdered();
+            int Mulch = yearInfo.getMulch() - getNoMulchOrdered();
+            BigDecimal OT = yearInfo.getOT().subtract(preEditOrderCost);
+            int Customers = (yearInfo.getNoCustomers() - 1);
+            BigDecimal GTot = yearInfo.getGTot().subtract(preEditOrderCost.add(getDontation()));
+            BigDecimal Commis = getCommission(GTot);
+            try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
+                totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(2, Lg);
+                totalInsertString.setInt(3, (LP));
+                totalInsertString.setInt(4, (Mulch));
+                totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setInt(6, (Customers));
+                totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
+                totalInsertString.execute();
 
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("DELETE FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                prep.setInt(1, ID);
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
+            }
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM ORDERS WHERE NAME=?")) {
+
+                prep.setString(1, name);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
+            }
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
+
+                prep.setString(1, name);
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
@@ -331,10 +321,10 @@ public class Customer {
 
     public String[] getCustAddressFrmName() {
 
-        String city = DbInt.getCustInf(year, ID, "City", town);
-        String State = DbInt.getCustInf(year, ID, "State", state);
-        String zCode = DbInt.getCustInf(year, ID, "Zip", zipCode);
-        String strtAddress = DbInt.getCustInf(year, ID, "streetAddress", address);
+        String city = DbInt.getCustInf(year, name, "TOWN", town);
+        String State = DbInt.getCustInf(year, name, "STATE", state);
+        String zCode = DbInt.getCustInf(year, name, "ZIPCODE", zipCode);
+        String strtAddress = DbInt.getCustInf(year, name, "ADDRESS", address);
         String[] address = new String[4];
         address[0] = city;
         address[1] = State;
@@ -349,7 +339,7 @@ public class Customer {
      * @return The amount of Bulk mulch ordered
      */
     public int getNoMulchOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
         int quantMulchOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("Mulch")) && (productOrder.productName.contains("Bulk"))) {
@@ -378,7 +368,7 @@ public class Customer {
      * @return The amount of Lawn and Garden Products ordered
      */
     public int getNoLivePlantsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
         int livePlantsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("-P")) && (productOrder.productName.contains("-FV"))) {
@@ -395,7 +385,7 @@ public class Customer {
      * @return The amount of Live Plants ordered
      */
     public int getNoLawnProductsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
         int lawnProductsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if (productOrder.productName.contains("-L")) {
@@ -407,31 +397,32 @@ public class Customer {
 
     public Integer getId() {
         Integer ret = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idcustomers FROM customerview WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT ID FROM CUSTOMERS WHERE NAME=?")) {
+
+
             prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
 
-                    ret = rs.getInt("idcustomers");
+                    ret = rs.getInt("ID");
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        return ID == -1 ? ret : ID;
+        return ret;
     }
 
     public String getAddr() {
-        return DbInt.getCustInf(year, ID, "streetAddress", address);
+        return DbInt.getCustInf(year, name, "ADDRESS", address);
     }
 
     public String getTown() {
-        return DbInt.getCustInf(year, ID, "City", town);
+        return DbInt.getCustInf(year, name, "TOWN", town);
     }
 
     public void setTown(String town) {
@@ -439,7 +430,7 @@ public class Customer {
     }
 
     public String getState() {
-        return DbInt.getCustInf(year, ID, "State", state);
+        return DbInt.getCustInf(year, name, "STATE", state);
     }
 
     public void setState(String state) {
@@ -447,7 +438,7 @@ public class Customer {
     }
 
     public String getZip() {
-        return DbInt.getCustInf(year, ID, "Zip", zipCode);
+        return DbInt.getCustInf(year, name, "ZIPCODE", zipCode);
     }
 
     public String getName() {
@@ -464,7 +455,7 @@ public class Customer {
      * @return The Phone number of the specified customer
      */
     public String getPhone() {
-        return DbInt.getCustInf(year, ID, "Phone", phone);
+        return DbInt.getCustInf(year, name, "PHONE", phone);
     }
 
     public void setPhone(String phone) {
@@ -476,30 +467,24 @@ public class Customer {
      *
      * @return The Payment status of the specified customer
      */
-    public Boolean getPaid() {
-        return Order.getOrder(year, ID).paid;
+    public String getPaid() {
+        return DbInt.getCustInf(year, name, "PAID", paid);
     }
 
-    public void setPaid(Boolean paid) {
+    public void setPaid(String paid) {
         this.paid = paid;
     }
 
-    public String getYear() {
-        return year;
-    }
-
-
-/**
+    /**
      * Return Delivery status of the customer whose name has been specified.
      *
      * @return The Delivery status of the specified customer
- */
-
-public Boolean getDelivered() {
-    return Order.getOrder(year, ID).delivered;
+     */
+    public String getDelivered() {
+        return DbInt.getCustInf(year, name, "DELIVERED", delivered);
     }
 
-    public void setDelivered(Boolean delivered) {
+    public void setDelivered(String delivered) {
         this.delivered = delivered;
     }
 
@@ -509,7 +494,7 @@ public Boolean getDelivered() {
      * @return The Email Address of the specified customer
      */
     public String getEmail() {
-        return DbInt.getCustInf(year, ID, "Email", email);
+        return DbInt.getCustInf(year, name, "Email", email);
     }
 
     public void setEmail(String email) {
@@ -521,26 +506,8 @@ public Boolean getDelivered() {
      *
      * @return The Order ID of the specified customer
      */
-    public int getOrderId() {
-        int ret = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT orderID FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
-            try (ResultSet rs = prep.executeQuery()) {
-
-                while (rs.next()) {
-
-                    ret = rs.getInt("orderID");
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        return ret;
+    public String getOrderId() {
+        return DbInt.getCustInf(year, name, "ORDERID", orderId);
     }
 
     public void setOrderId(String orderId) {
@@ -554,18 +521,19 @@ public Boolean getDelivered() {
      */
     public BigDecimal getDontation() {
         BigDecimal ret = Donation;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Donation FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT DONATION FROM CUSTOMERS WHERE NAME=?")) {
+
+
+            prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
 
-                    ret = rs.getBigDecimal("Donation");
+                    ret = rs.getBigDecimal("DONATION");
 
                 }
             }
-            ////DbInt.pCon.close()
+            ////DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -589,6 +557,4 @@ public Boolean getDelivered() {
     interface getProgCallback {
         double doAction();
     }
-
-    public class CustomerNotFoundException extends Exception {}
 }

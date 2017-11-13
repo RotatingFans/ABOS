@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,8 +34,8 @@ public class Group {
     }
 
     public Group(int id, String year) {
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM groups WHERE ID=?")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE ID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
@@ -53,10 +54,9 @@ public class Group {
 
     public static Iterable<Group> getGroups(String year) {
         ArrayList<Group> groups = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM groups");
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = prep.executeQuery()) {
-
-
             while (rs.next()) {
 
                 groups.add(new Group(rs.getString("Name"), year));
@@ -79,8 +79,8 @@ public class Group {
 
     public int getID() throws GroupNotFoundException {
         int gID = -1;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM groups WHERE Name=?")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, name);
             try (ResultSet rs = prep.executeQuery()) {
 
@@ -103,9 +103,8 @@ public class Group {
     public Iterable<User> getUsers() {
         ArrayList<User> groups = new ArrayList<>();
         if (Objects.equals(name, "Ungrouped")) {
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM users WHERE groupId IS NULL")) {
-
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId IS NULL", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 try (ResultSet rs = prep.executeQuery()) {
 
 
@@ -119,8 +118,8 @@ public class Group {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
         }
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM users WHERE groupId=?")) {
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, getID());
 
             try (ResultSet rs = prep.executeQuery()) {
