@@ -38,9 +38,10 @@ public class DbInt {
     public static Connection pCon = null;
     public static String prefix = "ABOS-Test-";
     private static ComboPooledDataSource cpds = new ComboPooledDataSource();
-
-    private static String username = "JimMag";
-    private static String ***REMOVED***;
+    private static String username;
+    private static String password;
+    //private static String username = "JimMag";
+    //private static String ***REMOVED***;
 
   /*  public static String username = "admin";
     private static String ***REMOVED***;
@@ -246,7 +247,7 @@ public class DbInt {
         pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
-
+        //cpds.deb
         cpds.setJdbcUrl(url);
         cpds.setUser(username);
         cpds.setPassword(password);

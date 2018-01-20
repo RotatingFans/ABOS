@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.mchange.v2.log.slf4j.Slf4jMLog;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -93,7 +94,7 @@ public class Main extends Application {
         // load the scene fxml UI.
         // grabs the UI scenegraph view from the loader.
         // grabs the UI controller for the view from the loader.
-
+        Slf4jMLog.config("");
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
         final Parent root = loader.load();
         final MainController controller = loader.getController();
