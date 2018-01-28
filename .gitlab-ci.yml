@@ -5,7 +5,7 @@ java:
     - call mvn clean compile package
   artifacts:
     paths:
-      - target/*.jar
+      - target/*-with-dependencies.jar
   tags:
     - windows
 java:
@@ -13,6 +13,6 @@ java:
     - eval mvn clean compile package
   artifacts:
     paths:
-      - target/*.jar
+      - target/*-with-dependencies.jar
   tags:
     - linux

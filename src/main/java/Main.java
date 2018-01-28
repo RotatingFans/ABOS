@@ -55,7 +55,7 @@ public class Main extends Application {
     public Boolean checkUpdates() {
 // Make a URL to the web page
         try {
-            URL url = new URL("https://roatingfans.gitlab.io/ABOS/version.html");
+            URL url = new URL("https://roatingfans.gitlab.io/ABOS/version-2.html");
 
             // Get the input stream through URL Connection
             URLConnection con = url.openConnection();
