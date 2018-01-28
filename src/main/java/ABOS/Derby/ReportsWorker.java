@@ -4,7 +4,7 @@
  *       This file is part of ABOS.
  *
  *       ABOS is free software: you can redistribute it and/or modify
- *       it under the terms of the GNU Affero General Public License as updateMessageed by
+ *       it under the terms of the GNU Affero General Public License as published by
  *       the Free Software Foundation, either version 3 of the License, or
  *       (at your option) any later version.
  *
@@ -16,6 +16,8 @@
  *       You should have received a copy of the GNU Affero General Public License
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package ABOS.Derby;
 
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorker;
@@ -68,8 +70,7 @@ class ReportsWorker extends Task<Integer> {
     private final String scoutPhone;
     private final String logoLoc;
     private final String category;
-    private final String user;
-    private final int customerName;
+    private final String customerName;
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
@@ -80,7 +81,8 @@ class ReportsWorker extends Task<Integer> {
 
     /**
      * Creates an instance of the worker
-     *  @param reportType    the type of report
+     *
+     * @param reportType    the type of report
      * @param selectedYear  the selected year
      * @param scoutName     name of the scout to put in header
      * @param scoutStAddr   address  of the scout to put in header
@@ -89,14 +91,13 @@ class ReportsWorker extends Task<Integer> {
      * @param scoutPhone    phone #  of the scout to put in header
      * @param logoLoc       Location on disk of the logo
      * @param category      Category to generate report for
-     * @param user
      * @param customerName  Name of the customer
      * @param repTitle      Title of the report
      * @param splitting     Split the report in any way?
      * @param includeHeader Include a header?
      * @param pdfLoc1       Location to save the pdf
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, int customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -107,7 +108,6 @@ class ReportsWorker extends Task<Integer> {
         this.scoutPhone = scoutPhone;
         this.logoLoc = logoLoc;
         this.category = category;
-        this.user = user;
         this.customerName = customerName;
         this.repTitle = repTitle;
         Splitting = splitting;
@@ -127,14 +127,8 @@ class ReportsWorker extends Task<Integer> {
     protected Integer call() throws Exception {
         updateMessage("Generating Report");
         if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
-            Year year = null;
-            if (user == null) {
-                year = new Year(selectedYear);
-            } else {
-                year = new Year(selectedYear, user);
-
-            }
-            Iterable<Customer> customers = year.getCustomers();
+            Year year = new Year(selectedYear);
+            Iterable<String> customers = year.getCustomerNames();
             // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder;
@@ -207,17 +201,17 @@ class ReportsWorker extends Task<Integer> {
             setProgress(10);
             int custProgressIncValue = 90 / ((customers instanceof Collection<?>) ? ((Collection<?>) customers).size() : 1);
 
-            customers.forEach(cust -> {
-                int custId = cust.getId();
-                String customer = cust.getName();
+            customers.forEach(customer -> {
+                Customer cust = new Customer(customer, selectedYear);
+
                 // Root element
                 Order.orderArray orderArray;
                 Order order = new Order();
                 if (Objects.equals(category, "All")) {
-                    orderArray = order.createOrderArray(selectedYear, custId, true);
+                    orderArray = order.createOrderArray(selectedYear, customer, true);
 
                 } else {
-                    orderArray = order.createOrderArray(selectedYear, custId, true, category);
+                    orderArray = order.createOrderArray(selectedYear, customer, true, category);
                 }
                 //Set Items
                 {
@@ -313,7 +307,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -343,23 +337,17 @@ class ReportsWorker extends Task<Integer> {
 
 
                     }
-                    Year cYear = null;
-                    if (user == null) {
-                        cYear = new Year(selectedYear);
-                    } else {
-                        cYear = new Year(selectedYear, user);
-
-                    }
                     // OverallTotalCost elements
+                    Year curYear = new Year(selectedYear);
                     {
                         Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(cYear.getGTot().toPlainString()));
+                        TotalCost.appendChild(doc.createTextNode(curYear.getGTot().toPlainString()));
                         info.appendChild(TotalCost);
                     }
                     // OverallTotalQuantity elements
                     {
                         Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
+                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(curYear.getQuant())));
                         info.appendChild(TotalQuantity);
                     }
                     String donation = cust.getDontation().toPlainString();
@@ -483,13 +471,7 @@ class ReportsWorker extends Task<Integer> {
 
                 case "Year Totals": {
                     Order order = new Order();
-                    Order.orderArray orderArray = null;
-                    if (user == null) {
-                        orderArray = order.createOrderArray(selectedYear);
-                    } else {
-                        orderArray = order.createOrderArray(selectedYear, user);
-
-                    }
+                    Order.orderArray orderArray = order.createOrderArray(selectedYear);
                     //Products for year
                     {
                         //Product Elements
@@ -556,7 +538,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -637,7 +619,6 @@ class ReportsWorker extends Task<Integer> {
                                 }
                                 info.appendChild(title);
                             }
-
                         }
                         setProgress(5);
                         BigDecimal tCost = BigDecimal.ZERO;
@@ -671,7 +652,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -714,7 +695,7 @@ class ReportsWorker extends Task<Integer> {
                 }
                 break;
 
-                case "Customer All-Time Totals": {
+                case "Customer All-time Totals": {
                     // Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
@@ -777,7 +758,7 @@ class ReportsWorker extends Task<Integer> {
                             //UnitCost
                             {
                                 Element UnitCost = doc.createElement("UnitCost");
-                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice.toPlainString()));
+                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice));
                                 Product.appendChild(UnitCost);
                             }
                             //Quantity

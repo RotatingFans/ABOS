@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) Patrick Magauran 2017.
+  ~   Licensed under the AGPLv3. All conditions of said license apply.
+  ~       This file is part of ABOS.
+  ~
+  ~       ABOS is free software: you can redistribute it and/or modify
+  ~       it under the terms of the GNU Affero General Public License as published by
+  ~       the Free Software Foundation, either version 3 of the License, or
+  ~       (at your option) any later version.
+  ~
+  ~       ABOS is distributed in the hope that it will be useful,
+  ~       but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~       GNU Affero General Public License for more details.
+  ~
+  ~       You should have received a copy of the GNU Affero General Public License
+  ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddUserController">
+    <children>
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+            <top>
+                <FlowPane BorderPane.alignment="CENTER">
+                    <children>
+                        <HBox alignment="CENTER" fillHeight="false">
+                            <children>
+                                <VBox>
+                                    <children>
+                                        <Label text="Username"/>
+                                        <TextField fx:id="userNameField" promptText="Username"/>
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="Password"/>
+                                        <PasswordField fx:id="passwordField" promptText="Password"/>
+                                    </children>
+                                    <HBox.margin>
+                                        <Insets left="10.0"/>
+                                    </HBox.margin>
+                                </VBox>
+                                <VBox layoutX="10.0" layoutY="10.0">
+                                    <children>
+                                        <Label text="Full Name"/>
+                                        <TextField fx:id="fullNameField" promptText="Full Name"/>
+                                    </children>
+                                </VBox>
+                                <VBox layoutX="362.0" layoutY="10.0">
+                                    <children>
+                                        <CheckBox fx:id="adminCheckbox" mnemonicParsing="false" text="Admin"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                    </children>
+                </FlowPane>
+            </top>
+            <bottom>
+                <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <buttons>
+                        <Button fx:id="deleteUserButton" disable="true" mnemonicParsing="false" onAction="#deleteUser"
+                                style="-fx-background-color: RED;" text="Delete" textFill="WHITE"/>
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
+                        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
+                    </buttons>
+                </ButtonBar>
+            </bottom>
+            <center>
+                <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <content>
+                        <Accordion fx:id="yearsPanel"/>
+                    </content>
+                </ScrollPane>
+            </center>
+        </BorderPane>
+
+    </children>
+</AnchorPane>

@@ -17,7 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+package ABOS.Derby;/*
   Created by patrick on 4/16/15.
  */
 
@@ -176,7 +176,7 @@ class Config {
             prop.load(input);
 
             // get the property value and print it out
-            loc = prop.getProperty(property, "");
+            loc = prop.getProperty(property);
 
         } catch (IOException ex) {
             LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");

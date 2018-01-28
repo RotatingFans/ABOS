@@ -17,6 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -67,41 +69,8 @@ public class CustomerController {
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
-        customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
-        customerInfoStrings.add(new infoValPair("Total Cost", totCost));
-
-
-        customerInfoStrings.forEach((pair) -> {
-            javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
-            javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
-            keyLabel.setId("CustomerDescription");
-            valLabel.setId("CustomerValue");
-            customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
-        });
-
-
-    }
-
-    public void initCustomer(Customer customer, MainController mainCont) {
-        customerDbInfo = customer;
-
-        year = customer.getYear();
-        name = customer.getName();
-        mainController = mainCont;
-        cID = customerDbInfo.getId();
-        fillTable();
-
-        //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
-
-        List<infoValPair> customerInfoStrings = new ArrayList<>();
-        customerInfoStrings.add(new infoValPair("Name", name));
-        customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
-        customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
-        customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
 
@@ -121,11 +90,7 @@ public class CustomerController {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        try {
-            customerDbInfo = new Customer(cID, year);
-        } catch (Customer.CustomerNotFoundException e) {
-            LogToFile.log(e, Severity.WARNING, "Customer could not be found. Please try restarting the application.");
-        }
+        customerDbInfo = new Customer(cID, year);
         name = customerDbInfo.getName();
         //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
 
@@ -134,12 +99,12 @@ public class CustomerController {
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
 
-        customerInfo.getChildren().remove(0, 6);
+        customerInfo.getChildren().remove(0, 8);
         customerInfoStrings.forEach((pair) -> {
             javafx.scene.control.Label keyLabel = new javafx.scene.control.Label(pair.info + ":");
             javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
@@ -153,7 +118,7 @@ public class CustomerController {
 
     @FXML
     public void editCustomer(ActionEvent event) {
-        mainController.openEditCustomer(customerDbInfo);
+        mainController.openEditCustomer(year, customerDbInfo.getName());
     }
 
     @FXML
@@ -162,14 +127,13 @@ public class CustomerController {
     }
 
     private void fillTable() {
-        Order.orderArray order = null;
-        order = new Order().createOrderArray(year, cID, true);
+        Order.orderArray order = new Order().createOrderArray(year, name, true);
         data = FXCollections.observableArrayList();
 
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }

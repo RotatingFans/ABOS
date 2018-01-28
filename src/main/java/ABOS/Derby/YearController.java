@@ -17,6 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,7 +31,6 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 //import javax.swing.*;
 @SuppressWarnings("WeakerAccess")
@@ -43,7 +44,6 @@ public class YearController {
     private VBox yearInfo;
     private Boolean columnsFilled = false;
     private MainController mainController;
-    private String uName;
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
@@ -68,24 +68,16 @@ public class YearController {
      * Initialize the contents of the frame.
      */
     public void initYear(String Years, MainController mainCont) {
-        this.initYear(Years, "", mainCont);
-    }
-
-    /**
-     * Initialize the contents of the frame.
-     */
-    public void initYear(String Years, String userName, MainController mainCont) {
         year = Years;
         mainController = mainCont;
-        uName = userName;
-        Year yearDbInfo = new Year(year, userName);
+        Year yearDbInfo = new Year(year);
         yearInfo.getChildren().removeAll();
         //West
 
         VBox East = new VBox();
         List<infoValPair> yearInfoStrings = new ArrayList<>();
         yearInfoStrings.add(new infoValPair("Customers", Integer.toString(yearDbInfo.getNoCustomers())));
-        //yearDbInfo.getCategories().forEach(category -> yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG()))));
+        yearDbInfo.getCategories().forEach(category -> yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG()))));
         /*yearInfoStrings.add(new infoValPair("Lawn and Garden Products", Integer.toString(yearDbInfo.getLG())));
         yearInfoStrings.add(new infoValPair("Live Plant Products", Integer.toString(yearDbInfo.getLP())));
         yearInfoStrings.add(new infoValPair("Mulch", Integer.toString(yearDbInfo.getMulch())));*/
@@ -133,20 +125,13 @@ public class YearController {
      * Fills the Table of order amounts
      */
     private void fillTable() {
-        Order.orderArray order = null;
-        if (Objects.equals(uName, "")) {
-            order = new Order().createOrderArray(year);
-
-        } else {
-            order = new Order().createOrderArray(year, uName);
-
-        }
+        Order.orderArray order = new Order().createOrderArray(year);
         ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
 
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }

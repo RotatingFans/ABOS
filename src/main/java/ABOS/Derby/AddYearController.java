@@ -17,6 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package ABOS.Derby;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -348,17 +350,15 @@ public class AddYearController {
 
             result.ifPresent(category -> {
                 rowsCats.add(new Year.category(category.getKey(), category.getValue()));
-                Platform.runLater(() -> refreshCmbx());
+                refreshCmbx();
 
             });
 
 
         }
-
     }
 
-    private String catCmbxChanged(String newVal) {
-        final Year.category newCat = new Year.category("", "");
+    private void catCmbxChanged(String newVal) {
         if (Objects.equals(newVal, "Add Category")) {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Add new category");
@@ -405,24 +405,21 @@ public class AddYearController {
             });
 
             Optional<Pair<String, String>> result = dialog.showAndWait();
+
             result.ifPresent(category -> {
-                newCat.catName = category.getKey();
-                newCat.catDate = category.getValue();
-                rowsCats.add(newCat);
-                Platform.runLater(() -> refreshCmbx());
+                rowsCats.add(new Year.category(category.getKey(), category.getValue()));
+                refreshCmbx();
 
             });
 
 
         }
-
-        return newCat.catName;
     }
 
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new Product.formattedProductProps(idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -463,23 +460,22 @@ public class AddYearController {
         yearText.setText(Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
         categoriesTb.addAll("", "Add Category");
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
         for (String[] column : columnNames) {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
+            TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
             tbCol.setCellFactory(TextFieldTableCell.forTableColumn());
             ProductTable.getColumns().add(tbCol);
         }
-        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        TableColumn<Product.formattedProductProps, String> categoryColumn = new TableColumn<>("Category");
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
 
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            String newVal = catCmbxChanged(t.getNewValue());
-
-            t.getRowValue().productCategory.set(newVal);
-            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
+            t.getRowValue().productCategory.set(t.getNewValue());
+            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
+            catCmbxChanged(t.getNewValue());
         });
         ProductTable.getColumns().add(categoryColumn);
         //{"Category", "productCategory"}
@@ -511,23 +507,22 @@ public class AddYearController {
 
         categoriesTb.add(browse);
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
         for (String[] column : columnNames) {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
+            TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
             tbCol.setCellFactory(TextFieldTableCell.forTableColumn());
             ProductTable.getColumns().add(tbCol);
         }
-        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        TableColumn<Product.formattedProductProps, String> categoryColumn = new TableColumn<>("Category");
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
 
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            String newVal = catCmbxChanged(t.getNewValue());
-
-            t.getRowValue().productCategory.set(newVal);
-            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
+            t.getRowValue().productCategory.set(t.getNewValue());
+            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
+            catCmbxChanged(t.getNewValue());
 
         });
         ProductTable.getColumns().add(categoryColumn);
@@ -627,11 +622,11 @@ public class AddYearController {
 
 
                     //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
+                    Product.formattedProductProps prodProps = new Product.formattedProductProps(eElement.getElementsByTagName(
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
-                            new BigDecimal(eElement.getElementsByTagName("UnitCost").item(0).getTextContent()),
+                            eElement.getElementsByTagName("UnitCost").item(0).getTextContent(),
                             (eElement.getElementsByTagName("Category").item(0) != null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "",
                             0,
                             BigDecimal.ZERO
@@ -681,12 +676,12 @@ public class AddYearController {
 
                         //CateName elements
                         Element ProductID = doc.createElement("CategoryName");
-                ProductID.appendChild(doc.createTextNode(cat.catName));
+                        ProductID.appendChild(doc.createTextNode(cat.catName));
                         cats.appendChild(ProductID);
 
                         //CatDate elements
                         Element ProductName = doc.createElement("CategoryDate");
-                ProductName.appendChild(doc.createTextNode(cat.catDate));
+                        ProductName.appendChild(doc.createTextNode(cat.catDate));
                         cats.appendChild(ProductName);
                         i[0]++;
                     }
@@ -716,7 +711,7 @@ public class AddYearController {
 
                 // Unit COst elements
                 Element UnitCost = doc.createElement("UnitCost");
-                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice().toPlainString()));
+                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice()));
                 staff.appendChild(UnitCost);
 
                 // Size elements
@@ -768,7 +763,7 @@ public class AddYearController {
         int i = 0;
         for (Product.formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
