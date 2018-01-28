@@ -19,13 +19,14 @@
 
 //import javax.swing.*;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.util.Pair;
 
-import java.io.File;
+import java.beans.PropertyVetoException;
 import java.sql.*;
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -35,15 +36,26 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class DbInt {
     public static Connection pCon = null;
+    public static String prefix = "ABOS-Test-";
+    private static ComboPooledDataSource cpds = new ComboPooledDataSource();
+    private static String username;
+    private static String password;
+    //private static String username = "JimMag";
+    //private static String ***REMOVED***;
 
-    /**
-     * Gets Data with specifed command and DB
-     *
-     * @param Db      THe database to retireve data from
+  /*  public static String username = "admin";
+    private static String ***REMOVED***;
+*/
+
+
+/*    *//*
+      Gets Data with specifed command and DB
+
+      @param Db      THe database to retireve data from
      * @param command The command To execute
      * @return and ArrayList of the resulting Data
      * @deprecated true
-     */
+     *//*
     @Deprecated
     public static List<String> getData(String Db, String command) {
         try {
@@ -88,23 +100,33 @@ public class DbInt {
         }
 
         return res;
-    }
+    }*/
 
     /**
      * Gets the specified Customer info
      *
      * @param yearL The year to search
-     * @param name  The customer name
      * @param info  The info to search for
      * @return A string with the resulting data
      */
-    public static String getCustInf(String yearL, String name, String info) {
-        String ret = "";
+    public static String getCustInf(String yearL, int id, String info) {
+        return getCustInf(yearL, id, info, "");
+    }
 
-        try (PreparedStatement prep = DbInt.getPrep(yearL, "SELECT * FROM CUSTOMERS WHERE NAME=?")) {
+    /**
+     * Gets the specified Customer info
+     *
+     * @param yearL      The year to search
+     * @param info       The info to search for
+     * @param defaultVal The default value to return if there is no data
+     * @return A string with the resulting data
+     */
+    public static String getCustInf(String yearL, Integer ID, String info, String defaultVal) {
+        String ret = defaultVal;
 
-
-            prep.setString(1, name);
+        try (Connection con = DbInt.getConnection(yearL);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
@@ -113,7 +135,7 @@ public class DbInt {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -123,16 +145,10 @@ public class DbInt {
         return ret;
     }
 
-    /**
-     * Creates a Prepared statemtn from provided Parameters.
-     *
-     * @param Db      The database to create the statement for
-     * @param Command The Base command for the statement
-     * @return the PreparedStatemtn that was created.
-     */
-    public static PreparedStatement getPrep(String Db, String Command) {
+    public static Connection getConnection(String Db) {
+
         try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
@@ -141,19 +157,24 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=false", Config.getDbLoc(), prefix + Db);
+        try {
+            cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
+        } catch (PropertyVetoException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        cpds.setJdbcUrl(url);
+        cpds.setUser(username);
+        cpds.setPassword(password);
         try {
 
 
-            pCon = DriverManager.getConnection(url);
-            pCon.setAutoCommit(true);
+
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
 
-            return pCon.prepareStatement(Command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            return cpds.getConnection();
 
         } catch (SQLException ex) {
 
@@ -164,7 +185,7 @@ public class DbInt {
                 LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
             } else {
-                if (Objects.equals(ex.getSQLState(), "XJ004")) {
+                if (Objects.equals(ex.getSQLState(), "42000")) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("ERROR!");
                     alert.setHeaderText("The program cannot find the specified database");
@@ -174,7 +195,7 @@ public class DbInt {
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK) {
                         new Settings(null);
-                        return getPrep(Db, Command);
+                        return getConnection(Db);
                     } else {
                         Alert closingWarning = new Alert(Alert.AlertType.WARNING);
                         closingWarning.setTitle("Warning!");
@@ -210,12 +231,76 @@ public class DbInt {
     }
 
     /**
-     * Gets # of collumns in a table
+     * Creates a Prepared statemtn from provided Parameters.
      *
-     * @param Db    The DB the table is in
+     * @return the PreparedStatemtn that was created.
+     */
+    public static Connection getConnection() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+        //cpds.deb
+        cpds.setJdbcUrl(url);
+        cpds.setUser(username);
+        cpds.setPassword(password);
+        try {
+
+
+
+            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            //return rs;
+
+
+            return cpds.getConnection();
+
+        } catch (SQLException ex) {
+
+
+            if (((ex.getErrorCode() == 50000)
+                    && ("XJ015".equals(ex.getSQLState())))) {
+
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
+
+            } else {
+
+
+                LogToFile.log(ex, Severity.WARNING, "");
+
+            }
+
+        } finally {
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+
+
+            } catch (SQLException ex) {
+                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
+            }
+        }
+        return null;
+    }
+
+/*    *//*
+      Gets # of collumns in a table
+
+      @param Db    The DB the table is in
      * @param Table the Table to get number of columns from
      * @return An integer with number of columns
-     */
+     *//*
     public static int getNoCol(String Db, String Table) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -255,15 +340,15 @@ public class DbInt {
         }
 
         return columnsNumber;
-    }
+    }*/
 
-    /**
-     * Writes data to A DB
-     *
-     * @param Db      The DB to write to
+/*    *//*
+      Writes data to A DB
+
+      @param Db      The DB to write to
      * @param command THe command to execute
      * @deprecated true
-     */
+     *//*
     @Deprecated
     public static void writeData(String Db, String command) {
         try {
@@ -303,7 +388,7 @@ public class DbInt {
         }
 
 
-    }
+    }*/
 
     /**
      * Creates a database with specified name
@@ -311,13 +396,24 @@ public class DbInt {
      * @param DB The name of the DB to create
      */
     public static Boolean createDb(String DB) {
+/*
+
+ */
 
 
-        String url = String.format("jdbc:derby:%s/%s;create=true", Config.getDbLoc(), DB);//;create=true
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
 
-        try (Connection con = DriverManager.getConnection(url);
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
-
+            int Result = st.executeUpdate("CREATE DATABASE `" + prefix + DB + "`");
 
         } catch (SQLException ex) {
 
@@ -338,46 +434,181 @@ public class DbInt {
         return true;
     }
 
+    public static void createSetAndTables() {
+        /*
+        CREATE
+    ALGORITHM = UNDEFINED
+    DEFINER = `root`@`172.17.0.1`
+    SQL SECURITY DEFINER
+VIEW `ABOSTest-Commons`.`userView` AS
+    SELECT
+        `ABOSTest-Commons`.`Users`.`idUsers` AS `idUsers`,
+        `ABOSTest-Commons`.`Users`.`userName` AS `userName`,
+        `ABOSTest-Commons`.`Users`.`Years` AS `Years`
+    FROM
+        `ABOSTest-Commons`.`Users`
+    WHERE
+        (`ABOSTest-Commons`.`Users`.`userName` = CURRENT_USER()) WITH CASCADED CHECK OPTION
+         */
+
+
+        DbInt.createDb("Commons");
+
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("CREATE TABLE `Users` (\n" +
+                     "  `idUsers` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                     "  `userName` varchar(255) NOT NULL,\n" +
+                     "  `Years` varchar(255) NOT NULL,\n" +
+                     "  PRIMARY KEY (`idUsers`)\n" +
+                     ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("CREATE\n" +
+                     "    ALGORITHM = UNDEFINED\n" +
+                     "    DEFINER = `admin`@`localhost`\n" +
+                     "    SQL SECURITY DEFINER\n" +
+                     "VIEW `" + prefix + "Commons`.`userView` AS\n" +
+                     "    SELECT\n" +
+                     "        `" + prefix + "Commons`.`Users`.`idUsers` AS `idUsers`,\n" +
+                     "        `" + prefix + "Commons`.`Users`.`userName` AS `userName`,\n" +
+                     "        `" + prefix + "Commons`.`Users`.`Years` AS `Years`\n" +
+                     "    FROM\n" +
+                     "        `" + prefix + "Commons`.`Users`\n" +
+                     "    WHERE\n" +
+                     "        (`" + prefix + "Commons`.`Users`.`userName` = LEFT(USER(), (LOCATE('@', USER()) - 1))) WITH CASCADED CHECK OPTION", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+    }
+
     public static void deleteDb(String DB) {
 
+        String username = "admin";
+        String ***REMOVED***;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
 
-        String url = String.format("%s/%s", Config.getDbLoc(), DB);
-        File oldName = new File(url);
-        DateFormat df = new SimpleDateFormat("MMDDYYYY-HH:MM:SS");
-        java.util.Date dateobj = new java.util.Date();
-        //create destination File object
-        File newName = new File(url + ".bak-" + df.format(dateobj));
-        boolean isFileRenamed = oldName.renameTo(newName);
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try (Connection con = DriverManager.getConnection(url, username, password);
+             Statement st = con.createStatement()) {
+            int Result = st.executeUpdate("DROP DATABASE `" + prefix + DB + "`");
+
+        } catch (SQLException ex) {
+
+
+            if (((ex.getErrorCode() == 50000)
+                    && ("XJ015".equals(ex.getSQLState())))) {
+
+                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
+
+            } else if (ex.getErrorCode() == 1007) {
+            } else {
+
+                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
+            }
+
+        }
 
 
     }
 
-    public static Iterable<String> getYears() {
+    public static Iterable<String> getAllCustomerNames() {
         Collection<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
-             ResultSet rs = prep.executeQuery()) {
+        Iterable<String> years = getYears();
+        for (String year : years) {
 
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = prep.executeQuery()
+            ) {
+                while (rs.next()) {
+                    String name = rs.getString("Name");
+                    if (!ret.contains(name)) {
+                        ret.add(name);
+                    }
 
-            while (rs.next()) {
+                }
+                ////DbInt.pCon.close()
 
-                ret.add(rs.getString("YEARS"));
-
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
 
         return ret;
     }
 
+    public static Iterable<Customer> getAllCustomers() {
+        Collection<String> names = new ArrayList<>();
+        Collection<Customer> ret = new ArrayList<>();
+        Iterable<String> years = getYears();
+        for (String year : years) {
+
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT Name,idCustomers FROM customerview", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString("Name");
+                    if (!names.contains(name)) {
+                        names.add(name);
+                        ret.add(new Customer(rs.getInt("idCustomers"), year));
+                    }
+
+                }
+                ////DbInt.pCon.close()
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            } catch (Customer.CustomerNotFoundException ignored) {
+            }
+        }
+
+
+        return ret;
+    }
+
+    public static ArrayList<String> getYears() {
+        String csvRet = "";
+        ArrayList<String> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT YEARS FROM userView", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            while (rs.next()) {
+
+                csvRet = (rs.getString("YEARS"));
+
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        List<String> retL = new ArrayList<String>(Arrays.asList(csvRet.split("\\s*,\\s*")));
+        retL.forEach(year -> {
+            if (!year.isEmpty()) {
+                ret.add(year);
+            }
+        });
+        return ret;
+    }
+
     public static String getCategoryDate(String catName, String year) {
         Date ret = null;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT Date FROM Categories WHERE Name=?")) {
-
-
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT CatDate FROM categories WHERE catName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, catName);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -388,7 +619,7 @@ public class DbInt {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////DbInt.pCon.close()
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -400,6 +631,72 @@ public class DbInt {
         return output;
     }
 
+    public static String getUserName(String year) {
+        String ret = "";
+
+        try (Connection con = DbInt.getConnection();
+             PreparedStatement prep = con.prepareStatement("SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getString("uName");
+
+                }
+            }
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+        }
+
+
+        return ret;
+    }
+
+    public static User getUser(String year) {
+        return new User(year);
+    }
+
+    public static Boolean verifyLogin(Pair<String, String> userPass) {
+        username = userPass.getKey();
+        password = userPass.getValue();
+        Boolean successful = false;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+
+        try {
+
+
+            pCon = DriverManager.getConnection(url, username, password);
+            if (pCon.isValid(2)) {
+                successful = true;
+            }
+
+            ////DbInt.pCon.close();
+
+        } catch (SQLException e) {
+            if (Objects.equals(e.getSQLState(), "28000")) {
+                successful = false;
+            } else {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+            }
+        }
+        return successful;
+    }
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**

@@ -42,8 +42,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -70,7 +68,8 @@ class ReportsWorker extends Task<Integer> {
     private final String scoutPhone;
     private final String logoLoc;
     private final String category;
-    private final String customerName;
+    private final String user;
+    private final int customerName;
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
@@ -81,8 +80,7 @@ class ReportsWorker extends Task<Integer> {
 
     /**
      * Creates an instance of the worker
-     *
-     * @param reportType    the type of report
+     *  @param reportType    the type of report
      * @param selectedYear  the selected year
      * @param scoutName     name of the scout to put in header
      * @param scoutStAddr   address  of the scout to put in header
@@ -91,13 +89,14 @@ class ReportsWorker extends Task<Integer> {
      * @param scoutPhone    phone #  of the scout to put in header
      * @param logoLoc       Location on disk of the logo
      * @param category      Category to generate report for
+     * @param user
      * @param customerName  Name of the customer
      * @param repTitle      Title of the report
      * @param splitting     Split the report in any way?
      * @param includeHeader Include a header?
      * @param pdfLoc1       Location to save the pdf
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, int customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -108,6 +107,7 @@ class ReportsWorker extends Task<Integer> {
         this.scoutPhone = scoutPhone;
         this.logoLoc = logoLoc;
         this.category = category;
+        this.user = user;
         this.customerName = customerName;
         this.repTitle = repTitle;
         Splitting = splitting;
@@ -127,8 +127,14 @@ class ReportsWorker extends Task<Integer> {
     protected Integer call() throws Exception {
         updateMessage("Generating Report");
         if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
-            Year year = new Year(selectedYear);
-            Iterable<String> customers = year.getCustomerNames();
+            Year year = null;
+            if (user == null) {
+                year = new Year(selectedYear);
+            } else {
+                year = new Year(selectedYear, user);
+
+            }
+            Iterable<Customer> customers = year.getCustomers();
             // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder domBuilder;
@@ -201,17 +207,17 @@ class ReportsWorker extends Task<Integer> {
             setProgress(10);
             int custProgressIncValue = 90 / ((customers instanceof Collection<?>) ? ((Collection<?>) customers).size() : 1);
 
-            customers.forEach(customer -> {
-
-
+            customers.forEach(cust -> {
+                int custId = cust.getId();
+                String customer = cust.getName();
                 // Root element
                 Order.orderArray orderArray;
                 Order order = new Order();
                 if (Objects.equals(category, "All")) {
-                    orderArray = order.createOrderArray(selectedYear, customer, true);
+                    orderArray = order.createOrderArray(selectedYear, custId, true);
 
                 } else {
-                    orderArray = order.createOrderArray(selectedYear, customer, true, category);
+                    orderArray = order.createOrderArray(selectedYear, custId, true, category);
                 }
                 //Set Items
                 {
@@ -232,13 +238,13 @@ class ReportsWorker extends Task<Integer> {
                     // StreetAddress elements
                     {
                         Element StreetAddress = doc.createElement("streetAddress");
-                        StreetAddress.appendChild(doc.createTextNode(DbInt.getCustInf(selectedYear, customer, "ADDRESS")));
+                        StreetAddress.appendChild(doc.createTextNode(cust.getAddr()));
                         products.appendChild(StreetAddress);
                     }
                     // City elements
                     {
                         Element city = doc.createElement("city");
-                        String addr = DbInt.getCustInf(selectedYear, customer, "TOWN") + ' ' + DbInt.getCustInf(selectedYear, customer, "STATE") + ", " + DbInt.getCustInf(selectedYear, customer, "ZIPCODE");
+                        String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip();
                         city.appendChild(doc.createTextNode(addr));
                         products.appendChild(city);
                     }
@@ -246,7 +252,7 @@ class ReportsWorker extends Task<Integer> {
                     // phone elements
                     {
                         Element phone = doc.createElement("PhoneNumber");
-                        phone.appendChild(doc.createTextNode(DbInt.getCustInf(selectedYear, customer, "PHONE")));
+                        phone.appendChild(doc.createTextNode(cust.getPhone()));
                         products.appendChild(phone);
                     }
                     {
@@ -307,7 +313,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -337,20 +343,26 @@ class ReportsWorker extends Task<Integer> {
 
 
                     }
+                    Year cYear = null;
+                    if (user == null) {
+                        cYear = new Year(selectedYear);
+                    } else {
+                        cYear = new Year(selectedYear, user);
+
+                    }
                     // OverallTotalCost elements
-                    Year curYear = new Year(selectedYear);
                     {
                         Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(curYear.getGTot().toPlainString()));
+                        TotalCost.appendChild(doc.createTextNode(cYear.getGTot().toPlainString()));
                         info.appendChild(TotalCost);
                     }
                     // OverallTotalQuantity elements
                     {
                         Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(curYear.getQuant())));
+                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
                         info.appendChild(TotalQuantity);
                     }
-                    String donation = DbInt.getCustInf(selectedYear, customer, "DONATION");
+                    String donation = cust.getDontation().toPlainString();
                     if (!Objects.equals(donation, "0.0") && !Objects.equals(donation, "0")) {
                         Element title = doc.createElement("DonationThanks");
                         {
@@ -471,7 +483,13 @@ class ReportsWorker extends Task<Integer> {
 
                 case "Year Totals": {
                     Order order = new Order();
-                    Order.orderArray orderArray = order.createOrderArray(selectedYear);
+                    Order.orderArray orderArray = null;
+                    if (user == null) {
+                        orderArray = order.createOrderArray(selectedYear);
+                    } else {
+                        orderArray = order.createOrderArray(selectedYear, user);
+
+                    }
                     //Products for year
                     {
                         //Product Elements
@@ -538,7 +556,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -619,6 +637,7 @@ class ReportsWorker extends Task<Integer> {
                                 }
                                 info.appendChild(title);
                             }
+
                         }
                         setProgress(5);
                         BigDecimal tCost = BigDecimal.ZERO;
@@ -652,7 +671,7 @@ class ReportsWorker extends Task<Integer> {
                                     //UnitCost
                                     {
                                         Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice));
+                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
                                         Product.appendChild(UnitCost);
                                     }
                                     //Quantity
@@ -695,7 +714,7 @@ class ReportsWorker extends Task<Integer> {
                 }
                 break;
 
-                case "Customer All-time Totals": {
+                case "Customer All-Time Totals": {
                     // Collection<String> customerYears = new ArrayList<>();
                     Iterable<String> years = DbInt.getYears();
                     String headerS = "true";
@@ -705,94 +724,87 @@ class ReportsWorker extends Task<Integer> {
                     //For Each Year
                     for (String year : years) {
                         //Get Customer with name ?
-                        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE NAME=?")) {
+                        Year yearObj = new Year(year);
 
-                            prep.setString(1, customerName);
-                            try (ResultSet rs = prep.executeQuery()) {
-
-                                //Loop through customers
-                                while (rs.next()) {
-                                    //    customerYears.add(year);
-                                    //Product Elements
-                                    Element products = doc.createElement("customerYear");
-                                    rootElement.appendChild(products);
-                                    {
-                                        Element header = doc.createElement("header");
-                                        header.appendChild(doc.createTextNode(headerS));
-                                        headerS = "false";
-                                        products.appendChild(header);
-                                    }
-                                    {
-                                        Element prodTable = doc.createElement("prodTable");
-                                        prodTable.appendChild(doc.createTextNode("true"));
-                                        products.appendChild(prodTable);
-                                    }
-                                    //YearTitle
-                                    {
-                                        Element title = doc.createElement("title");
-                                        title.appendChild(doc.createTextNode(year));
-                                        products.appendChild(title);
-                                    }
-                                    Order order = new Order();
-                                    Order.orderArray orderArray = order.createOrderArray(year, customerName, true);
-                                    BigDecimal tCost = BigDecimal.ZERO;
-                                    overallTotalCost = orderArray.totalCost;
-                                    overallTotalQuantity = orderArray.totalQuantity;
-                                    //For each product in the table set the data
-                                    for (Product.formattedProduct orderedProduct : orderArray.orderData) {
-                                        Element Product = doc.createElement("Product");
-                                        products.appendChild(Product);
-                                        //ID
-                                        {
-                                            Element ID = doc.createElement("ID");
-                                            ID.appendChild(doc.createTextNode(orderedProduct.productID));
-                                            Product.appendChild(ID);
-                                        }
-                                        //Name
-                                        {
-                                            Element Name = doc.createElement("Name");
-                                            Name.appendChild(doc.createTextNode(orderedProduct.productName));
-                                            Product.appendChild(Name);
-                                        }
-                                        //Size
-                                        {
-                                            Element Size = doc.createElement("Size");
-                                            Size.appendChild(doc.createTextNode(orderedProduct.productSize));
-                                            Product.appendChild(Size);
-                                        }
-                                        //UnitCost
-                                        {
-                                            Element UnitCost = doc.createElement("UnitCost");
-                                            UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice));
-                                            Product.appendChild(UnitCost);
-                                        }
-                                        //Quantity
-                                        {
-                                            Element Quantity = doc.createElement("Quantity");
-                                            Quantity.appendChild(doc.createTextNode(String.valueOf(orderedProduct.orderedQuantity)));
-                                            Product.appendChild(Quantity);
-                                        }
-                                        //TotalCost
-                                        {
-                                            Element TotalCost = doc.createElement("TotalCost");
-                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
-                                            tCost = tCost.add(orderedProduct.extendedCost);
-                                            Product.appendChild(TotalCost);
-                                        }
-                                    }
-                                    //Total for current customerName
-                                    {
-                                        Element tCostE = doc.createElement("totalCost");
-                                        tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
-                                        products.appendChild(tCostE);
-                                    }
-
-                                }
-
-                            }
-                            ////DbInt.pCon.close();
-
+                        //    customerYears.add(year);
+                        //Product Elements
+                        Element products = doc.createElement("customerYear");
+                        rootElement.appendChild(products);
+                        {
+                            Element header = doc.createElement("header");
+                            header.appendChild(doc.createTextNode(headerS));
+                            headerS = "false";
+                            products.appendChild(header);
                         }
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
+                        }
+                        //YearTitle
+                        {
+                            Element title = doc.createElement("title");
+                            title.appendChild(doc.createTextNode(year));
+                            products.appendChild(title);
+                        }
+                        Order order = new Order();
+                        Order.orderArray orderArray = order.createOrderArray(year, customerName, true);
+                        BigDecimal tCost = BigDecimal.ZERO;
+                        overallTotalCost = orderArray.totalCost;
+                        overallTotalQuantity = orderArray.totalQuantity;
+                        //For each product in the table set the data
+                        for (Product.formattedProduct orderedProduct : orderArray.orderData) {
+                            Element Product = doc.createElement("Product");
+                            products.appendChild(Product);
+                            //ID
+                            {
+                                Element ID = doc.createElement("ID");
+                                ID.appendChild(doc.createTextNode(orderedProduct.productID));
+                                Product.appendChild(ID);
+                            }
+                            //Name
+                            {
+                                Element Name = doc.createElement("Name");
+                                Name.appendChild(doc.createTextNode(orderedProduct.productName));
+                                Product.appendChild(Name);
+                            }
+                            //Size
+                            {
+                                Element Size = doc.createElement("Size");
+                                Size.appendChild(doc.createTextNode(orderedProduct.productSize));
+                                Product.appendChild(Size);
+                            }
+                            //UnitCost
+                            {
+                                Element UnitCost = doc.createElement("UnitCost");
+                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice.toPlainString()));
+                                Product.appendChild(UnitCost);
+                            }
+                            //Quantity
+                            {
+                                Element Quantity = doc.createElement("Quantity");
+                                Quantity.appendChild(doc.createTextNode(String.valueOf(orderedProduct.orderedQuantity)));
+                                Product.appendChild(Quantity);
+                            }
+                            //TotalCost
+                            {
+                                Element TotalCost = doc.createElement("TotalCost");
+                                TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
+                                tCost = tCost.add(orderedProduct.extendedCost);
+                                Product.appendChild(TotalCost);
+                            }
+                        }
+                        //Total for current customerName
+                        {
+                            Element tCostE = doc.createElement("totalCost");
+                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                            products.appendChild(tCostE);
+                        }
+
+
+                        ////DbInt.pCon.close();
+
+
                         setProgress(getProgress() + yearProgressInc);
                     }
                     // OverallTotalCost elements

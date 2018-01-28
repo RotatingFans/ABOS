@@ -20,10 +20,7 @@
 import javafx.concurrent.Task;
 import javafx.scene.control.TableView;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
 
 //import javax.swing.*;
 
@@ -31,12 +28,12 @@ import java.util.List;
  * @author Patrick Magauran
  */
 class AddCustomerWorker extends Task<Integer> {
+    private final Integer ID;
 
     private final String Address;
     private final String Town;
     private final String State;
     private final String year;
-    private final Boolean edit;
     private final TableView<Product.formattedProductProps> ProductTable;
     private final String Name;
     private final String ZipCode;
@@ -51,6 +48,7 @@ class AddCustomerWorker extends Task<Integer> {
      * Creates an instance of the worker
      * old/new is relavant for editing. Db uses name to find customer
      *
+     * @param id
      * @param name             (old) name of the customer
      * @param zipCode          ZIpcode
      * @param phone            Phone #
@@ -60,12 +58,12 @@ class AddCustomerWorker extends Task<Integer> {
      * @param paid             Did they pay
      * @param delivered        Was it deleivered
      */
-    public AddCustomerWorker(String Address, String Town, String State, String year, Boolean edit, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
+    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
+        ID = id;
         this.Address = Address;
         this.Town = Town;
         this.State = State;
         this.year = year;
-        this.edit = edit;
         this.ProductTable = ProductTable;
         Name = name;
         ZipCode = zipCode;
@@ -132,13 +130,21 @@ class AddCustomerWorker extends Task<Integer> {
         double lon = Double.valueOf(coords[0][1].toString());
         AddCustomerWorker.failIfInterrupted();
         updateProgress(0, 100);
+        Customer customer = new Customer(ID, NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Paid, Delivered, Email,
+                Name, new BigDecimal(DonationsT));
+        Integer custID = customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, Paid, Delivered, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
 
-        if (!edit) {
+        updateProgress(100, 100);
+
+
+        updateMessage("Done");
+        {
             // Inserts order data into order tables
-            {
-                updateMessage("Building Order");
 
-                StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
+            //updateMessage("Building Order");
+
+               /* StringBuilder InsertOrderStringBuilder = new StringBuilder("INSERT INTO ORDERS(NAME VALUES(?");
 
                 int progressDivisor = 2 * numRows;
                 int progressIncrement = 50 / progressDivisor;
@@ -163,6 +169,7 @@ class AddCustomerWorker extends Task<Integer> {
                     writeOrd.setString(1, Name);
                     for (int i = 0; i < numRows; i++) {
                         writeOrd.setString(i + 2, String.valueOf(ProductTable.getItems().get(i).getOrderedQuantity()));
+
                         updateProgress(getProgress() + progressIncrement, 100);
                     }
                     AddCustomerWorker.failIfInterrupted();
@@ -188,14 +195,12 @@ class AddCustomerWorker extends Task<Integer> {
 
                         }
                     }
-                }
-                updateProgress(getProgress() + progressIncrement, 100);
-                AddCustomerWorker.failIfInterrupted();
-                updateMessage("Adding Customer");
+                }*/
 
-                //Inserts into customer table for year
-                String Id = Ids.get(Ids.size() - 1);
-                try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+
+            //Inserts into customer table for year
+            // String Id = Ids.get(Ids.size() - 1);
+                /*try (PreparedStatement writeCust = DbInt.getPrep(year, "INSERT INTO CUSTOMERS(NAME,ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, PHONE, ORDERID , PAID,DELIVERED, EMAIL, DONATION) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     writeCust.setString(1, Name);
                     writeCust.setString(2, Address);
                     writeCust.setString(3, Town);
@@ -226,21 +231,11 @@ class AddCustomerWorker extends Task<Integer> {
 
                     prep1.execute();
                 }
-                updateProgress(getProgress() + progressIncrement, 100);
-                updateProgress(100, 100);
+                updateProgress(getProgress() + progressIncrement, 100);*/
 
-            }
-            //////DbInt.pCon.close();
 
-        }
-        if (edit) {
-            //Updates Customer table in set DB with new info
-            Customer customerInfo = new Customer(Name, year);
-            updateMessage("Updating Customer Data");
-            int progressDivisor = (2 * numRows);
-            int progressIncrement = 50 / progressDivisor;
 
-            try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
+            /*try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
                 updateCust.setString(1, Address);
                 updateCust.setString(2, Town);
@@ -274,7 +269,12 @@ class AddCustomerWorker extends Task<Integer> {
 
                 CustomerUpdate.execute();
             }
-            updateProgress(20, 100);
+            updateProgress(20, 100);*/
+
+
+
+/*
+            updateProgress(100, 100);
             //////DbInt.pCon.close();
             updateMessage("Building Order Update");
 
@@ -303,11 +303,8 @@ class AddCustomerWorker extends Task<Integer> {
 
                 updateOrders.execute();
             }
-            updateProgress(100, 100);
-
+*/
         }
-
-        updateMessage("Done");
 
 
         // Return the number of matches found

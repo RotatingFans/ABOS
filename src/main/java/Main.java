@@ -17,12 +17,16 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.mchange.v2.log.slf4j.Slf4jMLog;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.maven.model.Model;
@@ -44,7 +48,7 @@ import java.util.Optional;
 public class Main extends Application {
     @FXML
     private TreeView<String> selectNav;
-
+    private Stage masterStage;
     // main method is only for legacy support - java 8 won't call it for a javafx application.
     public static void main(String[] args) { launch(args); }
 
@@ -90,6 +94,7 @@ public class Main extends Application {
         // load the scene fxml UI.
         // grabs the UI scenegraph view from the loader.
         // grabs the UI controller for the view from the loader.
+        Slf4jMLog.config("");
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
         final Parent root = loader.load();
         final MainController controller = loader.getController();
@@ -142,16 +147,16 @@ public class Main extends Application {
         stage.setScene(new Scene(root));
         stage.getScene().getStylesheets().add("UI/Main.css");
         stage.initStyle(StageStyle.UNIFIED);
-//        stage.getIcons().add(new Image(getClass().getResourceAsStream("myIcon.png")));
-        TreeItem<String> rootItem = new TreeItem<String>("Inbox");
-        rootItem.setExpanded(true);
-        for (int i = 1; i < 6; i++) {
-            TreeItem<String> item = new TreeItem<String>("Message" + i);
-            rootItem.getChildren().add(item);
-        }
-
-
+        stage.setOnCloseRequest(windowEvent -> {
+            if (windowEvent.getSource() != stage.getOwner()) {
+                stage.close();
+            } else {
+                windowEvent.consume();
+            }
+        });
         stage.setMaximized(true);
+        masterStage = stage;
+        controller.initialize(stage);
 
         stage.show();
     }

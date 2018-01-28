@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-
 <!--
   ~ Copyright (c) Patrick Magauran 2017.
   ~   Licensed under the AGPLv3. All conditions of said license apply.
@@ -24,7 +19,14 @@
   ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="MainController">
     <center>
         <TabPane fx:id="tabPane2" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
             <tabs>
@@ -43,6 +45,14 @@
         </TabPane>
     </center>
     <left>
-        <TreeView fx:id="selectNav" BorderPane.alignment="CENTER" />
+        <BorderPane fx:id="sidePane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <center>
+                <ScrollPane fitToHeight="true" fitToWidth="true" BorderPane.alignment="CENTER">
+                    <content>
+                        <TreeView fx:id="selectNav"/>
+                    </content>
+                </ScrollPane>
+            </center>
+        </BorderPane>
     </left>
 </BorderPane>

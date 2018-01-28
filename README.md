@@ -14,11 +14,12 @@ The software boasts quite a few features:
 
 Development
 ----------
-This software has been developed as a side project of mine, starting back in 2013. The software is developed in Java using the IntelliJ IDE. The database is designed around Apache Derby. Reports are generated using Itext Version 5.10 with the XMLworker to use an XSL file, an XML file, Jtidy, and Saxon to generate a PDF.
+This software has been developed as a side project of mine, starting back in 2013. The software is developed in Java using the IntelliJ IDE. The database is designed around MySQL. Reports are generated using Itext Version 5.10 with the XMLworker to use an XSL file, an XML file, Jtidy, and Saxon to generate a PDF.
 
 License
 ------------
-*   Apache Derby Version 10.11  Apache Version 2
+*   c3p0 connectionPool Version 0.9.5.2 
+*   Apache Commons Version 3.7 Apache Version 2
 *   iText Version 5.10  AGPL v3
 *   JTidy Version 938  Custom license
 *   Saxon Version 9   MPLv2

@@ -30,7 +30,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,7 +87,7 @@ public class AddCustomerController {
     private int preEditLivePlantSales = 0;
     private BigDecimal preEditDonations = BigDecimal.ZERO;
     private BigDecimal preEditOrderCost = BigDecimal.ZERO;
-    private Customer customerInfo = null;
+    private Customer customerInfo = new Customer();
     private int newCustomer = 0;
     private Boolean columnsFilled = false;
     private ObservableList<Product.formattedProductProps> data;
@@ -97,15 +96,14 @@ public class AddCustomerController {
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
-     * @param customerName the name of the customer being edited.
      */
-    public void initAddCust(String aYear, String customerName, MainController mainController, Tab parent) {
+    public void initAddCust(Customer customer, MainController mainController, Tab parent) {
 
         mainCont = mainController;
         parentTab = parent;
-        year = aYear;
+        year = customer.getYear();
         yearInfo = new Year(year);
-        customerInfo = new Customer(customerName, year);
+        customerInfo = customer;
         edit = true;
 
         //Set the address
@@ -120,16 +118,16 @@ public class AddCustomerController {
         State.setText(state);
         ZipCode.setText(zip);
         Phone.setText(customerInfo.getPhone());
-        Paid.setSelected(Boolean.getBoolean(customerInfo.getPaid()));
-        Delivered.setSelected(Boolean.getBoolean(customerInfo.getDelivered()));
+        Paid.setSelected(customerInfo.getPaid());
+        Delivered.setSelected(customerInfo.getDelivered());
         Email.setText(customerInfo.getEmail());
-        Name.setText(customerName);
+        Name.setText(customerInfo.getName());
         DonationsT.setText(customerInfo.getDontation().toPlainString());
         preEditDonations = customerInfo.getDontation();
         //Fill the table with their previous order info on record.
         fillOrderedTable();
 
-        NameEditCustomer = customerName;
+        NameEditCustomer = customerInfo.getName();
         edit = true;
         //Add a Event to occur if a cell is changed in the table
 
@@ -144,7 +142,7 @@ public class AddCustomerController {
         mainCont = mainController;
         newCustomer = 1;
         parentTab = parent;
-
+        NameEditCustomer = "";
         year = aYear;
         yearInfo = new Year(year);
 
@@ -240,7 +238,7 @@ public class AddCustomerController {
         int i = 0;
         for (Product.formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
@@ -262,7 +260,7 @@ public class AddCustomerController {
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
             int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
+            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
             t.getRowValue().extendedCost.set(ItemTotalCost);
@@ -274,7 +272,7 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
             });
 
@@ -310,13 +308,13 @@ public class AddCustomerController {
      * Fills product table with info with quantities set to Amount customer ordered.
      */
     private void fillOrderedTable() {
-        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getName(), false);
+        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getId(), false);
         data = FXCollections.observableArrayList();
 
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
@@ -338,7 +336,7 @@ public class AddCustomerController {
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
             int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = new BigDecimal(t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get().replaceAll("\\$", ""));
+            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
             //Removes $ from cost and multiplies to get the total cost for that item
             BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
             t.getRowValue().extendedCost.set(ItemTotalCost);
@@ -350,7 +348,7 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
             });
 
@@ -377,18 +375,17 @@ public class AddCustomerController {
         //ProgressDialog progDial = new ProgressDialog();
         ProgressForm progDial = new ProgressForm();
 
-        AddCustomerWorker addCustWork = new AddCustomerWorker(Address.getText(),
+        AddCustomerWorker addCustWork = new AddCustomerWorker(customerInfo.getId(), Address.getText(),
                 Town.getText(),
                 State.getText(),
                 year,
-                edit,
                 ProductTable,
                 Name.getText(),
                 ZipCode.getText(),
                 Phone.getText(),
                 Email.getText(),
                 DonationsT.getText(),
-                NameEditCustomer,
+                Objects.equals(NameEditCustomer, "") ? Name.getText() : NameEditCustomer,
                 Paid.isSelected(),
                 Delivered.isSelected());
 
@@ -430,7 +427,7 @@ public class AddCustomerController {
             Pane newPane = null;
             FXMLLoader loader;
             progDial.getDialogStage().close();
-            updateTots();
+//            updateTots();
             loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
             try {
                 newPane = loader.load();
@@ -552,13 +549,13 @@ public class AddCustomerController {
 
     /**
      * Updates the totals tables
-     */
+     *//*
     private void updateTots() {
-        /*
+        *//*
           get current totals
           add to them
           update
-         */
+         *//*
         BigDecimal donationChange = new BigDecimal((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()).subtract(preEditDonations);
         BigDecimal donations = yearInfo.getDonations().add(donationChange);
         int Lg = yearInfo.getLG() + (getNoLawnProductsOrdered() - preEditLawnProductSales);
@@ -568,21 +565,8 @@ public class AddCustomerController {
         int Customers = (yearInfo.getNoCustomers() + newCustomer);
         BigDecimal GTot = yearInfo.getGTot().add(totalCostFinal.subtract(preEditOrderCost).add(donationChange));
         BigDecimal Commis = getCommission(GTot);
-        try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-            totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(2, Lg);
-            totalInsertString.setInt(3, (LP));
-            totalInsertString.setInt(4, (Mulch));
-            totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(6, (Customers));
-            totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.execute();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
-        }
-    }
+        yearInfo.updateTots(donations, Lg, LP, Mulch, OT, Customers, Commis, GTot);
+    }*/
 
 
 }

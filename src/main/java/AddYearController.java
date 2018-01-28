@@ -42,10 +42,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -71,7 +67,7 @@ public class AddYearController {
     @FXML
     private TextField idTb;
     //private final JDialog parent;
-    private Collection<String[]> rowsCats = new ArrayList<>();
+    private Collection<Year.category> rowsCats = new ArrayList<Year.category>();
     @FXML
     private CheckBox chkboxCreateDatabase;
     private ObservableList<String> categoriesTb = FXCollections.observableArrayList();
@@ -83,28 +79,6 @@ public class AddYearController {
     private Window parentWindow;
 
     public AddYearController() {}
-
-    private static Iterable<String[]> getCategories(String year) {
-        Collection<String[]> ret = new ArrayList<>();
-
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories");
-             ResultSet rs = prep.executeQuery()) {
-
-
-            while (rs.next()) {
-
-                ret.add(new String[]{rs.getString("NAME"), rs.getString("DATE")});
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
 
     /**
      * Create the dialog.
@@ -373,16 +347,18 @@ public class AddYearController {
             Optional<Pair<String, String>> result = dialog.showAndWait();
 
             result.ifPresent(category -> {
-                rowsCats.add(new String[]{category.getKey(), category.getValue()});
-                refreshCmbx();
+                rowsCats.add(new Year.category(category.getKey(), category.getValue()));
+                Platform.runLater(() -> refreshCmbx());
 
             });
 
 
         }
+
     }
 
-    private void catCmbxChanged(String newVal) {
+    private String catCmbxChanged(String newVal) {
+        final Year.category newCat = new Year.category("", "");
         if (Objects.equals(newVal, "Add Category")) {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Add new category");
@@ -429,21 +405,24 @@ public class AddYearController {
             });
 
             Optional<Pair<String, String>> result = dialog.showAndWait();
-
             result.ifPresent(category -> {
-                rowsCats.add(new String[]{category.getKey(), category.getValue()});
-                refreshCmbx();
+                newCat.catName = category.getKey();
+                newCat.catDate = category.getValue();
+                rowsCats.add(newCat);
+                Platform.runLater(() -> refreshCmbx());
 
             });
 
 
         }
+
+        return newCat.catName;
     }
 
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(idTb.getText(), itemTb.getText(), sizeTb.getText(), rateTb.getText(), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -484,7 +463,7 @@ public class AddYearController {
         yearText.setText(Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
         categoriesTb.addAll("", "Add Category");
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
             javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
@@ -497,9 +476,10 @@ public class AddYearController {
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            t.getRowValue().productCategory.set(t.getNewValue());
-            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
-            catCmbxChanged(t.getNewValue());
+            String newVal = catCmbxChanged(t.getNewValue());
+
+            t.getRowValue().productCategory.set(newVal);
+            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
         });
         ProductTable.getColumns().add(categoryColumn);
         //{"Category", "productCategory"}
@@ -516,7 +496,7 @@ public class AddYearController {
     public void initAddYear(String year, Window parWindow) {
         newYear = false;
         parentWindow = parWindow;
-
+        Year thisYear = new Year(year);
         yearText.setText(year);
         yearText.setEditable(false);
 
@@ -524,24 +504,14 @@ public class AddYearController {
         categoriesTb.clear();
         categoriesTb.add("");
         String browse = "Add Category";
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT * FROM Categories")) {
-            prep.execute();
-            try (ResultSet rs = prep.executeQuery()) {
+        thisYear.getCategories().forEach((category) -> {
+            categoriesTb.add(category.catName);
+            rowsCats.add(category);
+        });
 
-                while (rs.next()) {
-
-                    categoriesTb.add(rs.getString("NAME"));
-                    rowsCats.add(new String[]{rs.getString("NAME"), rs.getString("DATE")});
-
-                }
-                ////DbInt.pCon.close();
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
         categoriesTb.add(browse);
         categoriesCmbx.getItems().setAll(categoriesTb);
-        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
             javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
@@ -554,9 +524,10 @@ public class AddYearController {
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
 
         categoryColumn.setOnEditCommit(t -> {
-            t.getRowValue().productCategory.set(t.getNewValue());
-            data.get(t.getTablePosition().getRow()).productCategory.set(t.getNewValue());
-            catCmbxChanged(t.getNewValue());
+            String newVal = catCmbxChanged(t.getNewValue());
+
+            t.getRowValue().productCategory.set(newVal);
+            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
 
         });
         ProductTable.getColumns().add(categoryColumn);
@@ -581,7 +552,7 @@ public class AddYearController {
         categoriesTb.add("");
         String browse = "Add Category";
 
-        rowsCats.forEach(cat -> categoriesTb.add(cat[0]));
+        rowsCats.forEach(cat -> categoriesTb.add(cat.catName));
 
 
         categoriesTb.add(browse);
@@ -593,156 +564,18 @@ public class AddYearController {
      * Creates Database for the year specified.
      */
     private void CreateDb() {
-        String year = yearText.getText();
-        DbInt.deleteDb(year);
-        if (DbInt.createDb(year)) {
-            //Create Tables
-            //Create Customers Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-            //Create Products Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-            //Create Totals Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE TOTALS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),DONATIONS DECIMAL(7,2),LG INTEGER,LP INTEGER,MULCH INTEGER,TOTAL DECIMAL(7,2),CUSTOMERS INTEGER,COMMISSIONS DECIMAL(7,2),GRANDTOTAL DECIMAL(7,2))")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-
-/*            //Create Residence Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }*/
-
-            //Create Categories Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-            //Insert products into Product table
-            //Insert products into Product table
-            String col = "";
-            for (int i = 0; i < ProductTable.getItems().size(); i++) {
-                Product.formattedProductProps curRow = ProductTable.getItems().get(i);
-                String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
-                col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
-                    prep.setString(1, curRow.getProductID());
-                    prep.setString(2, curRow.getProductName());
-                    prep.setString(3, curRow.getProductUnitPrice());
-                    prep.setString(4, curRow.getProductSize());
-                    prep.setString(5, cat);
-                    prep.execute();
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
-            }
-            //Add Categories
-            rowsCats.forEach(cat -> {
-                try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
-                    prep.setString(1, cat[0]);
-                    prep.setDate(2, Date.valueOf(cat[1]));
-
-                    prep.execute();
-                } catch (SQLException e) {
-                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-                }
-            });
-
-            //ORDers Table
-            try (PreparedStatement prep = DbInt.getPrep(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col))) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-            //Add default values to TOTALS
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(0,0,0,0,0,0,0,0)")) {
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-            //ADD to Year
-            addYear();
-        } else {
-            LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
-        }
-
+        Year yearToCreate = new Year(yearText.getText());
+        yearToCreate.CreateDb(ProductTable.getItems(), rowsCats);
     }
 
     private void updateDb(String year) {
-        //Delete Year Customer table
-
-        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
-            addCol.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"Categories\"")) {
-            addCol.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        //Recreate Year Customer table
-
-        try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
-            addCol.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Categories(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Name varchar(255), Date DATE)")) {
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        //Add Categories
-        rowsCats.forEach(cat -> {
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO Categories(Name, Date) VALUES (?,?)")) {
-                prep.setString(1, cat[0]);
-                prep.setDate(2, Date.valueOf(cat[1]));
-
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        });
-        //Insert products into Product table
-        String col = "";
-        for (int i = 0; i < ProductTable.getItems().size(); i++) {
-            Product.formattedProductProps curRow = ProductTable.getItems().get(i);
-            String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
-            col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
-            try (PreparedStatement prep = DbInt.getPrep(year, "INSERT INTO PRODUCTS(ID, PName, Unit, Size, Category) VALUES (?,?,?,?,?)")) {
-                prep.setString(1, curRow.getProductID());
-                prep.setString(2, curRow.getProductName());
-                prep.setString(3, curRow.getProductUnitPrice());
-                prep.setString(4, curRow.getProductSize());
-                prep.setString(5, cat);
-                prep.execute();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        }
+        Year yearToUpdate = new Year(year);
+        yearToUpdate.updateDb(year, ProductTable.getItems(), rowsCats);
     }
 
     private void addYear() {
-        try (PreparedStatement prep = DbInt.getPrep("Set", "INSERT INTO YEARS(YEARS) VALUES(?)")) {
-            prep.setString(1, yearText.getText());
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+        Year yearToAdd = new Year(yearText.getText());
+        yearToAdd.addYear();
     }
 
     /**
@@ -775,7 +608,7 @@ public class AddYearController {
                 if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
-                    rowsCats.add(new String[]{eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()});
+                    rowsCats.add(new Year.category(eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()));
                 }
             }
             //rowsCats = rowsCatsL;
@@ -794,11 +627,11 @@ public class AddYearController {
 
 
                     //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                    Product.formattedProductProps prodProps = new Product.formattedProductProps(eElement.getElementsByTagName(
+                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
-                            eElement.getElementsByTagName("UnitCost").item(0).getTextContent(),
+                            new BigDecimal(eElement.getElementsByTagName("UnitCost").item(0).getTextContent()),
                             (eElement.getElementsByTagName("Category").item(0) != null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "",
                             0,
                             BigDecimal.ZERO
@@ -834,7 +667,7 @@ public class AddYearController {
 
             Element rootElement = doc.createElement("LawnGarden");
             doc.appendChild(rootElement);
-            Iterable<String[]> caters;
+            Iterable<Year.category> caters;
             caters = rowsCats;
             int[] i = {0};
             //caters = getCategories(yearText.getText());
@@ -848,12 +681,12 @@ public class AddYearController {
 
                         //CateName elements
                         Element ProductID = doc.createElement("CategoryName");
-                        ProductID.appendChild(doc.createTextNode(cat[0]));
+                ProductID.appendChild(doc.createTextNode(cat.catName));
                         cats.appendChild(ProductID);
 
                         //CatDate elements
                         Element ProductName = doc.createElement("CategoryDate");
-                        ProductName.appendChild(doc.createTextNode(cat[1]));
+                ProductName.appendChild(doc.createTextNode(cat.catDate));
                         cats.appendChild(ProductName);
                         i[0]++;
                     }
@@ -883,7 +716,7 @@ public class AddYearController {
 
                 // Unit COst elements
                 Element UnitCost = doc.createElement("UnitCost");
-                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice()));
+                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice().toPlainString()));
                 staff.appendChild(UnitCost);
 
                 // Size elements
@@ -935,7 +768,7 @@ public class AddYearController {
         int i = 0;
         for (Product.formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
