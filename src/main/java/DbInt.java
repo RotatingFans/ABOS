@@ -157,7 +157,7 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/%s?useSSL=false", Config.getDbLoc(), prefix + Db);
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=true", Config.getDbLoc(), prefix + Db);
         try {
             cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
         } catch (PropertyVetoException e) {
@@ -246,7 +246,7 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
         //cpds.deb
         cpds.setJdbcUrl(url);
         cpds.setUser(username);
@@ -409,7 +409,7 @@ public class DbInt {
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
 
         try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
@@ -497,7 +497,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
 
         try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
@@ -675,7 +675,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=false", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
 
         try {
 
