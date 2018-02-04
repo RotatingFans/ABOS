@@ -20,7 +20,9 @@
 //import javax.swing.*;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 
@@ -40,12 +42,7 @@ public class DbInt {
     private static ComboPooledDataSource cpds = new ComboPooledDataSource();
     private static String username;
     private static String password;
-    //private static String username = "JimMag";
-    //private static String ***REMOVED***;
 
-  /*  public static String username = "admin";
-    private static String ***REMOVED***;
-*/
 
 
 /*    *//*
@@ -169,15 +166,15 @@ public class DbInt {
         try {
 
 
-
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
 
             return cpds.getConnection();
 
+        } catch (CommunicationsException e) {
+            promptConfig();
         } catch (SQLException ex) {
-
 
             if (((ex.getErrorCode() == 50000)
                     && ("XJ015".equals(ex.getSQLState())))) {
@@ -254,13 +251,14 @@ public class DbInt {
         try {
 
 
-
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
 
             return cpds.getConnection();
 
+        } catch (CommunicationsException e) {
+            promptConfig();
         } catch (SQLException ex) {
 
 
@@ -415,6 +413,8 @@ public class DbInt {
              Statement st = con.createStatement()) {
             int Result = st.executeUpdate("CREATE DATABASE `" + prefix + DB + "`");
 
+        } catch (CommunicationsException e) {
+            promptConfig();
         } catch (SQLException ex) {
 
 
@@ -503,6 +503,8 @@ VIEW `ABOSTest-Commons`.`userView` AS
              Statement st = con.createStatement()) {
             int Result = st.executeUpdate("DROP DATABASE `" + prefix + DB + "`");
 
+        } catch (CommunicationsException e) {
+            promptConfig();
         } catch (SQLException ex) {
 
 
@@ -687,7 +689,10 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
             ////DbInt.pCon.close();
 
+        } catch (CommunicationsException e) {
+            promptConfig();
         } catch (SQLException e) {
+
             if (Objects.equals(e.getSQLState(), "28000")) {
                 successful = false;
             } else {
@@ -695,9 +700,27 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
             }
         }
+
         return successful;
     }
 
+    private static void promptConfig() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Verify Databse?");
+        alert.setHeaderText("Failed to connect to the databasse");
+        alert.setContentText("Would you like to open the settings window to verify the connection?");
+
+        ButtonType buttonTypeOne = new ButtonType("Open");
+        ButtonType buttonTypeTwo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne) {
+            new Settings();
+
+        }
+    }
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
 //     * Closes the database connection.

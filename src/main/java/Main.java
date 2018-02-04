@@ -29,18 +29,19 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Sample application to demonstrate programming an FXML interface.
@@ -73,15 +74,15 @@ public class Main extends Application {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             String line;
-            MavenXpp3Reader reader = new MavenXpp3Reader();
-            Model model = reader.read(new FileReader("pom.xml"));
+            final Properties properties = new Properties();
+            properties.load(this.getClass().getResourceAsStream("CompileProps.properties"));
             // read each line and write to System.out
             while ((line = br.readLine()) != null) {
-                if (!Objects.equals(model.getVersion(), line)) {
+                if (!Objects.equals(properties.getProperty("Version"), line)) {
                     return true;
                 }
             }
-        } catch (XmlPullParserException | IOException e) {
+        } catch (IOException e) {
             LogToFile.log(e, Severity.WARNING, "Error checking for updates. If error persists, reinstall and contact developer.");
         }
 
