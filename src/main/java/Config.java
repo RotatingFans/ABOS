@@ -21,7 +21,12 @@
   Created by patrick on 4/16/15.
  */
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+
 import java.io.*;
+import java.util.Optional;
 import java.util.Properties;
 
 class Config {
@@ -32,7 +37,7 @@ class Config {
         boolean loc = false;
         try {
 
-            input = new FileInputStream("./LGconfig.properties");
+            input = new FileInputStream("./ABOSConfig.properties");
 
             // load a properties file
             prop.load(input);
@@ -71,35 +76,57 @@ class Config {
     }
 
     public static String getDbLoc() {
-        Properties prop = new Properties();
-        InputStream input = null;
-        String loc = "";
-        try {
+        if (doesConfExist()) {
+            Properties prop = new Properties();
+            InputStream input = null;
+            String loc = "";
+            try {
 
-            input = new FileInputStream("./LGconfig.properties");
+                input = new FileInputStream("./ABOSConfig.properties");
 
-            // load a properties file
-            prop.load(input);
+                // load a properties file
+                prop.load(input);
 
-            // get the property value and print it out
-            loc = prop.getProperty("databaseLocation");
+                // get the property value and print it out
+                loc = prop.getProperty("databaseLocation");
 
 
-        } catch (IOException ex) {
-            LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
-            //System.out.print(ex.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    LogToFile.log(e, Severity.WARNING, "");
+            } catch (IOException ex) {
+                LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
+                //System.out.print(ex.getMessage());
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        LogToFile.log(e, Severity.WARNING, "");
+                    }
                 }
             }
+
+
+            return loc;
+        } else {
+            createConfigFile();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Set Configuration?");
+            alert.setHeaderText("Software needs to be configured.");
+            alert.setContentText("A configuration file has been created. Would you like to edit it?");
+
+            ButtonType buttonTypeOne = new ButtonType("Edit");
+            ButtonType buttonTypeTwo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeOne) {
+                new Settings();
+                return getDbLoc();
+
+            } else {
+                return null;
+            }
         }
-
-
-        return loc;
     }
 
 // --Commented out by Inspection START (2/1/16 5:28 PM):
@@ -165,36 +192,58 @@ class Config {
 // --Commented out by Inspection STOP (1/25/16 10:13 AM)
 
     public static String getProp(String property) {
-        Properties prop = new Properties();
-        InputStream input = null;
-        String loc = "";
-        try {
+        if (doesConfExist()) {
+            Properties prop = new Properties();
+            InputStream input = null;
+            String loc = "";
+            try {
 
-            input = new FileInputStream("./LGconfig.properties");
+                input = new FileInputStream("./ABOSConfig.properties");
 
-            // load a properties file
-            prop.load(input);
+                // load a properties file
+                prop.load(input);
 
-            // get the property value and print it out
-            loc = prop.getProperty(property, "");
+                // get the property value and print it out
+                loc = prop.getProperty(property, "");
 
-        } catch (IOException ex) {
-            LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
+            } catch (IOException ex) {
+                LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
 
-            //System.out.print(ex.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    LogToFile.log(e, Severity.WARNING, "");
+                //System.out.print(ex.getMessage());
+            } finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        LogToFile.log(e, Severity.WARNING, "");
 
+                    }
                 }
             }
+
+
+            return loc;
+        } else {
+            createConfigFile();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Set Configuration?");
+            alert.setHeaderText("Software needs to be configured.");
+            alert.setContentText("A configuration file has been created. Would you like to edit it?");
+
+            ButtonType buttonTypeOne = new ButtonType("Edit");
+            ButtonType buttonTypeTwo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeOne) {
+                new Settings();
+                return getProp(property);
+
+            } else {
+                return null;
+            }
         }
-
-
-        return loc;
     }
 
     public static void createConfigFile() {
@@ -202,7 +251,7 @@ class Config {
         OutputStream output = null;
 
         try {
-            output = new FileOutputStream("./LGconfig.properties");
+            output = new FileOutputStream("./ABOSConfig.properties");
 
             //Add DB setting
             prop.setProperty("databaseLocation", "");

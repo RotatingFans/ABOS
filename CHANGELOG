@@ -1,0 +1,32 @@
+V1.3.0
+    Switched all windows to JavaFX
+    Main windows now use a split pane with treenav
+    Switched to GMapsFx from JMapViewer
+    JOptionPanes switched over to new Dialog system
+    CSV2XML and Add Category switched over to Dialog System
+    Can Now check for updates
+    Checks for duplicate years and customers
+    Fix Issues:
+        #68
+        #67
+        #64
+        #61
+        #54, #70
+        #60
+        #71
+
+V1.0.0
+    Code has been checked ready for first release
+
+V0.9.9.8
+    Updated iText to version 5
+    Updated Derby to 10.13
+    Removed XHTMLRenderer Dependency
+
+V0.9.9
+    Built up a logging system
+    Created standard logging and warnings for errors common to many places.
+    Errors due to user error or software errors now tell user the problem rather than printStackTrace
+
+V0.8
+    First version uploaded to GitLab

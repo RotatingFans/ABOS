@@ -98,6 +98,7 @@ public class MainController {
             if (dialogButton == login) {
                 return new Pair<String, String>(userNameTextField.getText(), passwordField.getText());
             }
+            System.exit(0);
             return null;
         });
 
@@ -110,6 +111,7 @@ public class MainController {
 
 
         });
+
     }
 
     // the initialize method is automatically invoked by the FXMLLoader - it's magic

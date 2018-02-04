@@ -53,4 +53,24 @@ class Settings extends Window {
 
     }
 
+    public Settings() {
+        Stage stage = new Stage();
+        FXMLLoader loader;
+
+        Scene root;
+        try {
+            loader = new FXMLLoader(getClass().getResource("UI/Settings.fxml"));
+            root = new Scene(loader.load());
+            SettingsController settingsController = loader.getController();
+            settingsController.initUI(this);
+            stage.setScene(root);
+            stage.setTitle("Settings");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+        }
+
+    }
+
 }
