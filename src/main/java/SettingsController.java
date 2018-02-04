@@ -330,7 +330,7 @@ public class SettingsController {
         OutputStream output = null;
 
         try {
-            output = new FileOutputStream("./LGconfig.properties");
+            output = new FileOutputStream("./ABOSConfig.properties");
 
             //Add DB setting
             if (Config.doesConfExist() && !CreateDb.isSelected()) {
