@@ -55,7 +55,7 @@ public class User {
     }
 
     public User(String year) {
-        this(DbInt.getUserName(year), year);
+        this(DbInt.getUserName(), year);
 
     }
     public User(String userName, String fullName, String uManage, int groupId) {

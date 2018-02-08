@@ -566,6 +566,17 @@ public class AddYearController {
     private void CreateDb() {
         Year yearToCreate = new Year(yearText.getText());
         yearToCreate.CreateDb(ProductTable.getItems(), rowsCats);
+        ArrayList<String> years = DbInt.getUserYears();
+        ArrayList<String> usersManage = new ArrayList<>();
+        usersManage.add("");
+        years.add(yearText.getText());
+        Set<String> yearSet = new HashSet<>(years);
+
+        User latestUser = new User(DbInt.getUserName(), "", usersManage, yearSet, true, 1);
+        if (!DbInt.getUserYears().isEmpty()) {
+            latestUser = new User(years.get(years.size() - 1));
+        }
+        latestUser.addToYear(yearText.getText());
     }
 
     private void updateDb(String year) {

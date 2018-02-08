@@ -565,7 +565,7 @@ public class ReportsController {
             case "Customer All-Time Totals":
                 userPanel.setDisable(true);
 
-                cmbxUser.getItems().add(new TreeItemPair<String, String>("Yourself", DbInt.getUserName(DbInt.getUserYears().get(0))));
+                cmbxUser.getItems().add(new TreeItemPair<String, String>("Yourself", DbInt.getUserName()));
                 cmbxUser.getSelectionModel().selectFirst();
                 yearPane.setDisable(true);
                 customerPane.setDisable(false);

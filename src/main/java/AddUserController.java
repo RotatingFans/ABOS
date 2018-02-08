@@ -138,7 +138,7 @@ public class AddUserController {
     private void deleteUser(ActionEvent event) {
 
         final String user = userNameField.getText();
-        if (user != DbInt.getUserName(DbInt.getUserYears().get(0))) {
+        if (user != DbInt.getUserName()) {
 
 
             Optional<Group> returnGroup = Optional.empty();

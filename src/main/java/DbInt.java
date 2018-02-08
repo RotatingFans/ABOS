@@ -336,7 +336,18 @@ public class DbInt {
     }
 
     public static void deleteAllDB() {
-        getYears().forEach(year -> deleteDb(year));
+        getYears().forEach(year -> {
+            String createAndGrantCommand = "DROP USER IF EXISTS'" + year + "'@'localhost'";
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                prep.addBatch(createAndGrantCommand);
+                prep.executeBatch();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            deleteDb(year);
+        });
         DbInt.deleteDb("Commons");
 
     }
@@ -364,7 +375,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("CREATE TABLE `Years` (\n" +
                              "  `idYear` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                             "  `year` varchar(4) NOT NULL,\n" +
+                             "  `Year` varchar(4) NOT NULL,\n" +
                              "  PRIMARY KEY (`idYear`));",
                      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.execute();
@@ -567,7 +578,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return output;
     }
 
-    public static String getUserName(String year) {
+    public static String getUserName() {
         String ret = "";
 
         try (Connection con = DbInt.getConnection();

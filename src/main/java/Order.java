@@ -103,7 +103,7 @@ public class Order {
                 }
             }
             int OrderID = Ids.get(Ids.size() - 1);
-            String uName = DbInt.getUserName(year);
+            String uName = DbInt.getUserName();
 
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("DELETE FROM orderedproductsview WHERE orderID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -163,7 +163,7 @@ public class Order {
             //Creates prepared Statement and replaces ? with quantities and names
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeOrd = con.prepareStatement("INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                writeOrd.setString(1, DbInt.getUserName(year));
+                writeOrd.setString(1, DbInt.getUserName());
                 writeOrd.setInt(2, custID);
                 writeOrd.setInt(3, paid ? 1 : 0);
                 writeOrd.setInt(4, delivered ? 1 : 0);
@@ -186,7 +186,7 @@ public class Order {
                 }
             }
             int OrderID = Ids.get(Ids.size() - 1);
-            String uName = DbInt.getUserName(year);
+            String uName = DbInt.getUserName();
 
 
             try (Connection con = DbInt.getConnection(year);
