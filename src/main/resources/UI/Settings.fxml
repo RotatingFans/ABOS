@@ -25,7 +25,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 <?import java.lang.String?>
-<AnchorPane prefHeight="686.0" prefWidth="1314.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SettingsController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="686.0" prefWidth="1314.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="SettingsController">
    <children>
       <BorderPane prefHeight="686.0" prefWidth="1314.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -48,12 +49,10 @@
                                                  </HBox.margin>
                                              </Label>
                                              <TextField fx:id="DbLoc" promptText="Database Location" text=""/>
-                                             <Button mnemonicParsing="false" onAction="#promptDB" text="..." />
-                                          <CheckBox fx:id="CreateDb" mnemonicParsing="false" onAction="#createDbChecked" prefHeight="26.0" prefWidth="134.0" text="Create Database">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </CheckBox>
+                                             <Button mnemonicParsing="false" onAction="#verifyConnection"
+                                                     prefHeight="26.0" prefWidth="148.0" text="Verify Connection"/>
+                                             <Button mnemonicParsing="false" onAction="#verifyAdmin" prefHeight="26.0"
+                                                     prefWidth="148.0" text="Verify Database"/>
                                          </children>
                                          <FlowPane.margin>
                                              <Insets right="5.0" />

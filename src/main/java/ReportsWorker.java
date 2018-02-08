@@ -716,7 +716,7 @@ class ReportsWorker extends Task<Integer> {
 
                 case "Customer All-Time Totals": {
                     // Collection<String> customerYears = new ArrayList<>();
-                    Iterable<String> years = DbInt.getYears();
+                    Iterable<String> years = DbInt.getUserYears();
                     String headerS = "true";
                     BigDecimal overallTotalCost = BigDecimal.ZERO;
                     int overallTotalQuantity = 0;

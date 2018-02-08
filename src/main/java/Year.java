@@ -966,12 +966,12 @@ public class Year {
     }
 
     public void addYear() {
-        /*try (PreparedStatement prep = DbInt.getPrep("Commons", "INSERT INTO YEARS(YEARS) VALUES(?)")) {
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Years(Year) VALUES (?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, year);
-            prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }*/
+        }
     }
 
     public static class category {

@@ -428,7 +428,7 @@ public class AddYearController {
 
     @FXML
     private void submit(ActionEvent event) {
-        DbInt.getYears().forEach(year -> {
+        DbInt.getUserYears().forEach(year -> {
             if (Objects.equals(year, yearText.getText())) {
                 newYear = false;
             }

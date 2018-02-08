@@ -44,61 +44,6 @@ public class DbInt {
     private static String password;
 
 
-
-/*    *//*
-      Gets Data with specifed command and DB
-
-      @param Db      THe database to retireve data from
-     * @param command The command To execute
-     * @return and ArrayList of the resulting Data
-     * @deprecated true
-     *//*
-    @Deprecated
-    public static List<String> getData(String Db, String command) {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        } catch (ClassNotFoundException e) {
-
-            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
-        }
-
-        //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
-        List<String> res = new ArrayList<>();
-        command = command.replaceAll("''", "/0027");
-
-        try (Connection con = DriverManager.getConnection(url);
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(command)) {
-
-
-            while (rs.next()) {
-
-                res.add(rs.getString(1).replaceAll("/0027", "'"));
-
-            }
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-        } catch (SQLException ex) {
-
-
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
-
-                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
-
-            } else {
-
-                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
-            }
-
-        }
-
-        return res;
-    }*/
-
     /**
      * Gets the specified Customer info
      *
@@ -154,7 +99,7 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/%s?useSSL=true", Config.getDbLoc(), prefix + Db);
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
         try {
             cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
         } catch (PropertyVetoException e) {
@@ -227,6 +172,56 @@ public class DbInt {
         return null;
     }
 
+    public static boolean testConnection() {
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + "Commons", Config.getSSL());
+        try {
+            cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
+        } catch (PropertyVetoException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        cpds.setJdbcUrl(url);
+        cpds.setUser(username);
+        cpds.setPassword(password);
+        cpds.setAcquireRetryAttempts(2);
+        try {
+
+
+            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            //return rs;
+
+
+            return cpds.getConnection().isValid(15);
+
+        } catch (Exception e) {
+            return false;
+        } finally {
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+
+
+            } catch (SQLException ex) {
+                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
+            }
+        }
+    }
+
     /**
      * Creates a Prepared statemtn from provided Parameters.
      *
@@ -243,7 +238,7 @@ public class DbInt {
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
         //cpds.deb
         cpds.setJdbcUrl(url);
         cpds.setUser(username);
@@ -292,101 +287,7 @@ public class DbInt {
         return null;
     }
 
-/*    *//*
-      Gets # of collumns in a table
 
-      @param Db    The DB the table is in
-     * @param Table the Table to get number of columns from
-     * @return An integer with number of columns
-     *//*
-    public static int getNoCol(String Db, String Table) {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        } catch (ClassNotFoundException e) {
-
-            LogToFile.log(e, Severity.SEVERE, "Error loading database driver. Please try reinstalling the software or contacting support.");
-        }
-        int columnsNumber = 0;
-
-        //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
-        try (Connection con = DriverManager.getConnection(url);
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(String.format("SELECT * FROM %s", Table))) {
-
-
-            ResultSetMetaData rsmd = rs.getMetaData();
-
-            columnsNumber = rsmd.getColumnCount();
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-        } catch (SQLException ex) {
-
-
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
-
-                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
-
-            } else {
-
-                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
-            }
-
-        }
-
-        return columnsNumber;
-    }*/
-
-/*    *//*
-      Writes data to A DB
-
-      @param Db      The DB to write to
-     * @param command THe command to execute
-     * @deprecated true
-     *//*
-    @Deprecated
-    public static void writeData(String Db, String command) {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        } catch (ClassNotFoundException e) {
-
-            LogToFile.log(e, Severity.SEVERE, "Error loading database driver. Please try reinstalling the software or contacting support.");
-        }
-
-        //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:derby:%s/%s", Config.getDbLoc(), Db);
-        System.setProperty("derby.system.home",
-                Config.getDbLoc());
-
-        try (Connection con = DriverManager.getConnection(url);
-             Statement st = con.createStatement()
-        ) {
-
-            st.executeUpdate(command);
-
-
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-        } catch (SQLException ex) {
-
-
-            if (((ex.getErrorCode() == 50000)
-                    && ("XJ015".equals(ex.getSQLState())))) {
-
-                LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
-
-            } else {
-
-                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
-            }
-
-        }
-
-
-    }*/
 
     /**
      * Creates a database with specified name
@@ -407,7 +308,7 @@ public class DbInt {
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
         try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
@@ -434,24 +335,19 @@ public class DbInt {
         return true;
     }
 
+    public static void deleteAllDB() {
+        getYears().forEach(year -> deleteDb(year));
+        DbInt.deleteDb("Commons");
+
+    }
+
     public static void createSetAndTables() {
-        /*
-        CREATE
-    ALGORITHM = UNDEFINED
-    DEFINER = `root`@`172.17.0.1`
-    SQL SECURITY DEFINER
-VIEW `ABOSTest-Commons`.`userView` AS
-    SELECT
-        `ABOSTest-Commons`.`Users`.`idUsers` AS `idUsers`,
-        `ABOSTest-Commons`.`Users`.`userName` AS `userName`,
-        `ABOSTest-Commons`.`Users`.`Years` AS `Years`
-    FROM
-        `ABOSTest-Commons`.`Users`
-    WHERE
-        (`ABOSTest-Commons`.`Users`.`userName` = CURRENT_USER()) WITH CASCADED CHECK OPTION
-         */
 
-
+/*
+CREATE TABLE `ABOS-Test-Commons`.`Years` (
+  `year` INT NOT NULL,
+  PRIMARY KEY (`year`));
+ */
         DbInt.createDb("Commons");
 
         try (Connection con = DbInt.getConnection("Commons");
@@ -461,6 +357,16 @@ VIEW `ABOSTest-Commons`.`userView` AS
                      "  `Years` varchar(255) NOT NULL,\n" +
                      "  PRIMARY KEY (`idUsers`)\n" +
                      ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("CREATE TABLE `Years` (\n" +
+                             "  `idYear` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                             "  `year` varchar(4) NOT NULL,\n" +
+                             "  PRIMARY KEY (`idYear`));",
+                     ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -483,12 +389,17 @@ VIEW `ABOSTest-Commons`.`userView` AS
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, Years) Values (?, '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, username);
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
     }
 
     public static void deleteDb(String DB) {
 
-        String username = "admin";
-        String ***REMOVED***;
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -497,7 +408,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
         }
 
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
         try (Connection con = DriverManager.getConnection(url, username, password);
              Statement st = con.createStatement()) {
@@ -526,7 +437,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
 
     public static Iterable<String> getAllCustomerNames() {
         Collection<String> ret = new ArrayList<>();
-        Iterable<String> years = getYears();
+        Iterable<String> years = getUserYears();
         for (String year : years) {
 
             try (Connection con = DbInt.getConnection(year);
@@ -554,7 +465,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
     public static Iterable<Customer> getAllCustomers() {
         Collection<String> names = new ArrayList<>();
         Collection<Customer> ret = new ArrayList<>();
-        Iterable<String> years = getYears();
+        Iterable<String> years = getUserYears();
         for (String year : years) {
 
             try (Connection con = DbInt.getConnection(year);
@@ -580,7 +491,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
         return ret;
     }
 
-    public static ArrayList<String> getYears() {
+    public static ArrayList<String> getUserYears() {
         String csvRet = "";
         ArrayList<String> ret = new ArrayList<>();
 
@@ -606,6 +517,29 @@ VIEW `ABOSTest-Commons`.`userView` AS
         });
         return ret;
     }
+
+    public static ArrayList<String> getYears() {
+        String csvRet = "";
+        ArrayList<String> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT Year FROM Years", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            while (rs.next()) {
+
+                ret.add(rs.getString(1));
+
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
 
     public static String getCategoryDate(String catName, String year) {
         Date ret = null;
@@ -677,7 +611,7 @@ VIEW `ABOSTest-Commons`.`userView` AS
         ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
-        String url = String.format("jdbc:mysql://%s/?useSSL=true", Config.getDbLoc());
+        String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
         try {
 

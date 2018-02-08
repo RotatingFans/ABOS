@@ -524,7 +524,7 @@ public class ReportsController {
     }
 
     private void updateCombos() {
-        Iterable<String> years = DbInt.getYears();
+        Iterable<String> years = DbInt.getUserYears();
 
         switch (cmbxReportType.getSelectionModel().getSelectedItem().toString()) {
 
@@ -565,7 +565,7 @@ public class ReportsController {
             case "Customer All-Time Totals":
                 userPanel.setDisable(true);
 
-                cmbxUser.getItems().add(new TreeItemPair<String, String>("Yourself", DbInt.getUserName(DbInt.getYears().get(0))));
+                cmbxUser.getItems().add(new TreeItemPair<String, String>("Yourself", DbInt.getUserName(DbInt.getUserYears().get(0))));
                 cmbxUser.getSelectionModel().selectFirst();
                 yearPane.setDisable(true);
                 customerPane.setDisable(false);
