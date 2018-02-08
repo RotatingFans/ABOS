@@ -108,7 +108,23 @@ public class MainController {
             if (!DbInt.verifyLogin(userPass)) {
                 login(true);
             }
+            if (!DbInt.testConnection()) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Verify Databse?");
+                alert.setHeaderText("Failed to connect to the databasse");
+                alert.setContentText("Would you like to open the settings window to verify the connection?");
 
+                ButtonType buttonTypeOne = new ButtonType("Open");
+                ButtonType buttonTypeTwo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+                Optional<ButtonType> res = alert.showAndWait();
+                if (res.get() == buttonTypeOne) {
+                    new Settings();
+
+                }
+            }
 
         });
 
@@ -118,9 +134,11 @@ public class MainController {
     public void initialize(Stage stage) {
         login(false);
         // DbInt.username = "tw";
-        ArrayList<String> years = DbInt.getYears();
-        User latestUser = new User(years.get(years.size() - 1));
-        stage.setTitle("ABOS - " + latestUser.getFullName());
+        ArrayList<String> years = DbInt.getUserYears();
+        if (!years.isEmpty()) {
+            User latestUser = new User(years.get(years.size() - 1));
+            stage.setTitle("ABOS - " + latestUser.getFullName());
+        }
         //loadTreeItems("initial 1", "initial 2", "initial 3");
         fillTreeView();
 
@@ -665,7 +683,7 @@ public class MainController {
      */
     void fillTreeView() {
 
-        Iterable<String> ret = DbInt.getYears();
+        Iterable<String> ret = DbInt.getUserYears();
         TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
         contextTreeItem userRoot = new contextTreeItem("Groups/Users", new Pair<String, String>("RootNode", ""));
         root.getChildren().add(new contextTreeItem("Reports", "Window"));

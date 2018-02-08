@@ -82,7 +82,7 @@ public class MapController implements Initializable {
         List<String> NI = getAllCustomersInfo("NI");
         List<String> NH = getAllCustomersInfo("NH");*/
         //cPoints = new Object[Addr.size()];
-        Iterable<String> years = DbInt.getYears();
+        Iterable<String> years = DbInt.getUserYears();
         List<Customer> customers = new ArrayList<Customer>();
         years.forEach(year -> {
             List<String> ret = new ArrayList<>();
@@ -170,7 +170,7 @@ public class MapController implements Initializable {
                                         Creates a button for each ordered year to view more information
                                         */
             Iterable<String> yearsD;
-            yearsD = DbInt.getYears();
+        yearsD = DbInt.getUserYears();
         String Name;
         final String[] Phone = new String[1];
         final String[] Address = new String[1];

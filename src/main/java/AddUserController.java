@@ -138,7 +138,7 @@ public class AddUserController {
     private void deleteUser(ActionEvent event) {
 
         final String user = userNameField.getText();
-        if (user != DbInt.getUserName(DbInt.getYears().get(0))) {
+        if (user != DbInt.getUserName()) {
 
 
             Optional<Group> returnGroup = Optional.empty();
@@ -191,7 +191,7 @@ public class AddUserController {
             result.ifPresent(res -> {
                 if (Objects.equals(res, user)) {
 
-                    DbInt.getYears().forEach(year -> {
+                    DbInt.getUserYears().forEach(year -> {
                         try (Connection con = DbInt.getConnection(year);
                              PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                             prep.setString(1, user);
@@ -238,7 +238,7 @@ public class AddUserController {
 
     public void initAddUser(Window parWindow) {
         parentWindow = parWindow;
-        DbInt.getYears().forEach(year -> {
+        DbInt.getUserYears().forEach(year -> {
             TitledPane yPane;
             yPane = new TitledPane();
 
@@ -291,7 +291,7 @@ public class AddUserController {
         userNameField.setText(userName);
         userNameField.setEditable(false);
         deleteUserButton.setDisable(false);
-        DbInt.getYears().forEach(year -> {
+        DbInt.getUserYears().forEach(year -> {
             TitledPane yPane;
             yPane = new TitledPane();
 

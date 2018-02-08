@@ -129,6 +129,10 @@ class Config {
         }
     }
 
+    public static String getSSL() {
+        return getProp("SSL");
+    }
+
 // --Commented out by Inspection START (2/1/16 5:28 PM):
 //    public static void setDbLoc(String Loc) {
 //        Properties prop = new Properties();

@@ -17,12 +17,15 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.stage.DirectoryChooser;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,8 +54,7 @@ public class SettingsController {
     //General
     @FXML
     private TextField DbLoc;
-    @FXML
-    private CheckBox CreateDb;
+
     //Add Customer
     @FXML
     private CheckBox Delivered;
@@ -121,28 +123,6 @@ public class SettingsController {
     }*/
 
     @FXML
-    public void promptDB(ActionEvent event) {
-        //Creates a JFileChooser to select a directory to store the Databases
-        DirectoryChooser chooser = new DirectoryChooser();
-        DbLoc.setText(chooser.showDialog(settings).getAbsolutePath());
-    }
-
-    @FXML
-    public void createDbChecked(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("WARNING!");
-        alert.setHeaderText("SELECTING THIS WILL DELETE ALL DATA AT THE SPECIFIED LOCATION!");
-        alert.setContentText("Would you like to continue?");
-
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.CANCEL) {
-            CreateDb.setSelected(false);
-        }
-
-    }
-
-    @FXML
     public void promptLogo(ActionEvent event) {
         //Creates a JFileChooser to select a directory to store the Databases
         FileChooser chooser = new FileChooser();
@@ -156,6 +136,182 @@ public class SettingsController {
             String path = image.getAbsolutePath();
             logoLoc.setText(path);
         }
+    }
+
+    @FXML
+    public void verifyConnection(ActionEvent event) {
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Login");
+
+// Set the button types.
+        ButtonType login = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(login, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userNameTextField = new TextField();
+        userNameTextField.setPromptText("Username");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(userNameTextField, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node loginButton = dialog.getDialogPane().lookupButton(login);
+        loginButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> userNameTextField.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == login) {
+                return new Pair<String, String>(userNameTextField.getText(), passwordField.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(userPass -> {
+            saveData();
+            if (DbInt.verifyLogin(userPass)) {
+                if (DbInt.testConnection()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText("Connection Successful");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("Connection unsuccessful");
+                    alert.setContentText("Check address, username/password");
+                    alert.showAndWait();
+
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Connection unsuccessful");
+                alert.setContentText("Check address, username/password");
+                alert.showAndWait();
+            }
+
+
+        });
+    }
+
+    @FXML
+    private void verifyAdmin(ActionEvent event) {
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Verify DB");
+        dialog.setHeaderText("Please enter DB admin credentials to verify Database existance.");
+// Set the button types.
+        ButtonType login = new ButtonType("Verify", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(login, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userNameTextField = new TextField();
+        userNameTextField.setPromptText("Username");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(userNameTextField, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node loginButton = dialog.getDialogPane().lookupButton(login);
+        loginButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> userNameTextField.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == login) {
+                return new Pair<String, String>(userNameTextField.getText(), passwordField.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(userPass -> {
+            saveData();
+            if (DbInt.verifyLogin(userPass)) {
+                if (DbInt.testConnection()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "DB OKAY", ButtonType.YES);
+                    alert.setHeaderText("Databse is OK.");
+                    alert.setContentText("Would you like to recreate the Database anyway?");
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType == ButtonType.YES) {
+                            promptCreateDb(true);
+                        }
+                    });
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "DB NOT OKAY", ButtonType.YES);
+                    alert.setHeaderText("Databse is NOT OK.");
+                    alert.setContentText("Would you like to create the Database?");
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType == ButtonType.YES) {
+                            promptCreateDb(false);
+                        }
+                    });
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Connection unsuccessful");
+                alert.setContentText("Check address, username/password");
+                alert.showAndWait();
+            }
+
+
+        });
+    }
+
+    private void promptCreateDb(boolean dbValid) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Create DB?", ButtonType.YES);
+        alert.setTitle("Create DB");
+        alert.setHeaderText("Please enter DB admin credentials to verify Database existance.");
+        alert.setContentText("If you click create, the software will delete recreate the central database. \r\n THIS WILL DELETE ALL DATA!!!!");
+// Set the button types.
+
+
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == ButtonType.YES) {
+                if (dbValid) {
+                    DbInt.deleteAllDB();
+
+                }
+
+                DbInt.createSetAndTables();
+            }
+        });
+
+
     }
 
     @FXML
@@ -204,7 +360,6 @@ public class SettingsController {
         DbLoc.setText(Config.getDbLoc());
 
 
-        CreateDb.setSelected(!Config.doesConfExist());
 
 
         Name.setText(Config.getProp("CustomerName"));
@@ -333,15 +488,15 @@ public class SettingsController {
             output = new FileOutputStream("./ABOSConfig.properties");
 
             //Add DB setting
-            if (Config.doesConfExist() && !CreateDb.isSelected()) {
+            if (Config.doesConfExist()) {
 
                 prop.put("databaseLocation", DbLoc.getText());
-            } else if (!Config.doesConfExist() || CreateDb.isSelected()) {
+            } else if (!Config.doesConfExist()) {
                 prop.put("databaseLocation", DbLoc.getText());
                 prop.store(output, null);
                 prop = new Properties();
 
-                DbInt.createSetAndTables();
+                //DbInt.createSetAndTables();
 
 
             }
