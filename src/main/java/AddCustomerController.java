@@ -31,6 +31,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParsePosition;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,7 +47,7 @@ import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
 public class AddCustomerController {
-    private static boolean edit = false; //States whether this is an edit or creation of a customer.
+    private boolean edit = false; //States whether this is an edit or creation of a customer.
     private Year yearInfo;
     //private final JPanel contentPanel = new JPanel();
     //Editable Field for user to input customer info.
@@ -122,6 +124,23 @@ public class AddCustomerController {
         Delivered.setSelected(customerInfo.getDelivered());
         Email.setText(customerInfo.getEmail());
         Name.setText(customerInfo.getName());
+        DecimalFormat format = new DecimalFormat("#.0");
+
+        DonationsT.setTextFormatter(new TextFormatter<>(c ->
+        {
+            if (c.getControlNewText().isEmpty()) {
+                return c;
+            }
+
+            ParsePosition parsePosition = new ParsePosition(0);
+            Object object = format.parse(c.getControlNewText(), parsePosition);
+
+            if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+                return null;
+            } else {
+                return c;
+            }
+        }));
         DonationsT.setText(customerInfo.getDontation().toPlainString());
         preEditDonations = customerInfo.getDontation();
         //Fill the table with their previous order info on record.
@@ -175,7 +194,24 @@ public class AddCustomerController {
         Paid.setSelected(Boolean.valueOf(Config.getProp("CustomerPaid")));
         Delivered.setSelected(Boolean.valueOf(Config.getProp("CustomerDelivered")));
 
-        DonationsT.setText((Config.getProp("CustomerDonation") != null) ? Config.getProp("CustomerDonation") : "0.0");
+        DonationsT.setText((Config.getProp("CustomerDonation") != null || Config.getProp("CustomerDonation").isEmpty()) ? Config.getProp("CustomerDonation") : "0.0");
+        DecimalFormat format = new DecimalFormat("#.0");
+
+        DonationsT.setTextFormatter(new TextFormatter<>(c ->
+        {
+            if (c.getControlNewText().isEmpty()) {
+                return c;
+            }
+
+            ParsePosition parsePosition = new ParsePosition(0);
+            Object object = format.parse(c.getControlNewText(), parsePosition);
+
+            if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+                return null;
+            } else {
+                return c;
+            }
+        }));
         fillTable();
 
     }
@@ -374,8 +410,9 @@ public class AddCustomerController {
 
         //ProgressDialog progDial = new ProgressDialog();
         ProgressForm progDial = new ProgressForm();
+//Do check if new or not, send -1 as ID
 
-        AddCustomerWorker addCustWork = new AddCustomerWorker(customerInfo.getId(), Address.getText(),
+        AddCustomerWorker addCustWork = new AddCustomerWorker(edit ? customerInfo.getId() : -1, Address.getText(),
                 Town.getText(),
                 State.getText(),
                 year,
@@ -384,7 +421,7 @@ public class AddCustomerController {
                 ZipCode.getText(),
                 Phone.getText(),
                 Email.getText(),
-                DonationsT.getText(),
+                DonationsT.getText().isEmpty() ? "0.0" : DonationsT.getText(),
                 Objects.equals(NameEditCustomer, "") ? Name.getText() : NameEditCustomer,
                 Paid.isSelected(),
                 Delivered.isSelected());
