@@ -149,7 +149,9 @@ public class MainController {
 
             }
         });
+
         selectNav.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
             if (isRightClick) {
                 //reset the flag
                 isRightClick = false;
