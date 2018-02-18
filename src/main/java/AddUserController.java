@@ -99,7 +99,7 @@ public class AddUserController {
         } else {
             Set<String> years = new HashSet<>();
             if (newUser) {
-                User.createUser(userNameField.getText(), passwordField.getText(), adminCheckbox.isSelected());
+                User.createUser(userNameField.getText(), passwordField.getText(), fullNameField.getText(), adminCheckbox.isSelected());
             } else {
                 User.updateUser(userNameField.getText(), passwordField.getText());
 

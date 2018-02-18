@@ -17,14 +17,15 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBoxTreeItem;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.stage.Window;
+
+import java.util.ArrayList;
 
 public class UsersGroupsAndYearsController {
     @FXML
@@ -50,6 +51,7 @@ public class UsersGroupsAndYearsController {
     public void initUsersGroupsAndYears(Window parWindow) throws Exception {
         yearsList.getItems().addAll(DbInt.getYears());
         allUsersList.getItems().addAll(DbInt.getUsers());
+        yearUserList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         yearsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Year year = new Year(newValue);
             yearUserList.getItems().clear();
@@ -77,14 +79,37 @@ public class UsersGroupsAndYearsController {
                 }
 
                 CheckBoxTreeItem<Object> groupItem = new CheckBoxTreeItem<>(group.getName());
+                final int[] numSelected = {0};
                 group.getUsers().forEach(user -> {
+
                     CheckBoxTreeItem<Object> userItem = new CheckBoxTreeItem<>(user);
                     if (currentUser.getuManage().contains(user.getUserName())) {
-                        userItem.setSelected(true);
+                        //userItem.setSelected(true);
+                        numSelected[0]++;
                     }
+                    userItem.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+                        User user2 = yearUserList.getSelectionModel().getSelectedItem();
+                        if (t1) {
+
+                            ArrayList<String> uManage = user2.getuManage();
+                            if (!uManage.contains(((User) userItem.getValue()).getUserName())) {
+                                uManage.add(((User) userItem.getValue()).getUserName());
+                                user2.setuManage(uManage);
+                            }
+                        } else {
+                            ArrayList<String> uManage = user2.getuManage();
+                            while (uManage.contains(((User) userItem.getValue()).getUserName())) {
+
+                                uManage.remove(((User) userItem.getValue()).getUserName());
+                            }
+                            user2.setuManage(uManage);
+                        }
+                    });
                     groupItem.getChildren().add(userItem);
 
                 });
+
+                groupItem.setExpanded(true);
                 yearItem.getChildren().add(groupItem);
 
             });
@@ -92,7 +117,33 @@ public class UsersGroupsAndYearsController {
             managedUserList.setShowRoot(false);
             yearItem.setExpanded(true);
             managedUserList.setCellFactory(CheckBoxTreeCell.forTreeView());
+            Platform.runLater(() -> {
+                for (TreeItem<Object> group : yearItem.getChildren()) {
+                    for (TreeItem<Object> UserItem : group.getChildren()) {
+                        User user = (User) UserItem.getValue();
+                        if (yearUserList.getSelectionModel().getSelectedItem().getuManage().contains(user.getUserName())) {
+                            ((CheckBoxTreeItem<Object>) UserItem).setSelected(true);
+                        }
+                    }
+                }
+            });
+
+
             managedUserList.refresh();
+
+        });
+        yearUserList.getSelectionModel().getSelectedItems().addListener((ListChangeListener<? super User>) change -> {
+
+            managedUserList.setDisable(yearUserList.getSelectionModel().getSelectedIndices().size() > 1);
+        });
+        userGroup.getSelectionModel().selectedItemProperty().addListener((observableValue, group, t1) -> {
+            yearUserList.getSelectionModel().getSelectedItems().forEach(user -> {
+                try {
+                    user.setGroupId(t1.getID());
+                } catch (Group.GroupNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
         });
 
     }
@@ -104,7 +155,32 @@ public class UsersGroupsAndYearsController {
 
     @FXML
     private void saveUser(ActionEvent event) {
+        //add users to year
+        // update uManage
+        //update group
+        Year year = new Year(yearsList.getSelectionModel().getSelectedItem());
+        ArrayList<User> usersInYear = new ArrayList<User>();
+        try {
+            usersInYear = year.getUsers();
+        } catch (Exception ignored) {
+        }
+        ArrayList<User> finalUsersInYear = usersInYear;
+        yearUserList.getItems().forEach(user -> {
+            if (!finalUsersInYear.contains(user)) {
+                user.updateYear(yearsList.getSelectionModel().getSelectedItem());
 
+            } else {
+                // user.removeFromYear(yearsList.getSelectionModel().getSelectedItem());
+                user.updateYear(yearsList.getSelectionModel().getSelectedItem());
+
+            }
+        });
+        if (!managedUserList.isDisabled()) {
+            yearUserList.getSelectionModel().getSelectedItems().forEach(user -> {
+            });
+        }
+        //saved
+        //Close OR put up dialog
     }
 
     @FXML
