@@ -70,6 +70,19 @@ public class User {
         this.groupId = groupId;
     }
 
+    public User(String userName, String fullName, String years, boolean admin) {
+        this.userName = userName;
+        this.fullName = fullName;
+
+        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
+        yearsL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                this.years.add(uName);
+            }
+        });
+        this.Admin = admin;
+    }
+
     public User(String userName, String fullName, String uManage, String years, int groupId) {
         this.userName = userName;
         this.fullName = fullName;
@@ -86,6 +99,25 @@ public class User {
             }
         });
         this.groupId = groupId;
+    }
+
+    public User(String userName, String fullName, String uManage, String years, boolean admin, int groupId) {
+        this.userName = userName;
+        this.fullName = fullName;
+        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
+        retL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                this.uManage.add(uName);
+            }
+        });
+        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
+        yearsL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                this.years.add(uName);
+            }
+        });
+        this.groupId = groupId;
+        this.Admin = admin;
     }
 
     public User(String userName, String year) {
@@ -352,5 +384,9 @@ public class User {
             }
         });
         return ret[0];
+    }
+
+    public String toString() {
+        return fullName + " (" + userName + ")";
     }
 }

@@ -976,6 +976,27 @@ public class Year {
         }
     }
 
+    public ArrayList<User> getUsers() throws Exception {
+        if (DbInt.isAdmin()) {
+            ArrayList<User> ret = new ArrayList<>();
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT userName, fullName, Admin, groupId, uManage FROM users", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), "", rs.getInt("Admin") == 1, rs.getInt("groupId")));
+
+                }
+                ////DbInt.pCon.close()
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            return ret;
+        } else {
+            throw new Exception("Access Error");
+        }
+    }
     public static class category {
         public String catName;
         public String catDate;

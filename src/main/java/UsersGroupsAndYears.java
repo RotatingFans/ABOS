@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -17,36 +17,35 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
-public class UsersGroupsAndYears {
+import java.io.IOException;
 
-    // --Commented out by Inspection START (1/2/2016 12:01 PM):
-//    /**
-//     * Launch the application.
-//     */
-//    public static void main(String Years, String[] args) {
-//        EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                try {
-//                    year = Years;
-//                    Year window = new Year(Years);
-//                    window.frame.setVisible(true);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
-// --Commented out by Inspection STOP (1/2/2016 12:01 PM)
-    public UsersGroupsAndYears() {}
+public class UsersGroupsAndYears extends Window {
+    public UsersGroupsAndYears(Window owner) {
+        Stage stage = new Stage();
+        FXMLLoader loader;
 
-    /**
-     * Initialize the contents of the frame.
-     */
-    public void initUsersGroupsAndYears(Window parWindow) {
+        Scene root;
+        try {
+            loader = new FXMLLoader(getClass().getResource("UI/UsersGroupsAndYears.fxml"));
+            root = new Scene(loader.load());
+            UsersGroupsAndYearsController usersGroupsAndYearsController = loader.getController();
+            usersGroupsAndYearsController.initUsersGroupsAndYears(this);
+            stage.setScene(root);
+            stage.setTitle("Add User");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(owner);
+            stage.showAndWait();
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-
 }
-

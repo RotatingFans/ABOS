@@ -136,7 +136,7 @@ public class MainController {
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getUserYears();
         if (!years.isEmpty()) {
-            User latestUser = new User(years.get(years.size() - 1));
+            User latestUser = DbInt.getCurrentUser();
             stage.setTitle("ABOS - " + latestUser.getFullName());
         }
         //loadTreeItems("initial 1", "initial 2", "initial 3");
@@ -175,6 +175,11 @@ public class MainController {
                                 Tab tab = addTab(newPane, "Add Customer - " + newValue.getValue().getValue().getValue());
 
                                 addCustCont.initAddCust(newValue.getValue().getValue().getValue().toString(), this, tab);
+
+                                break;
+                            }
+                            case "Users Groups & Years": {
+                                new UsersGroupsAndYears(getWindow());
 
                                 break;
                             }
@@ -691,6 +696,7 @@ public class MainController {
         root.getChildren().add(new contextTreeItem("Reports", "Window"));
         root.getChildren().add(new contextTreeItem("View Map", "Window"));
         root.getChildren().add(new contextTreeItem("Settings", "Window"));
+        root.getChildren().add(new contextTreeItem("Users Groups & Years", "Window"));
 
 
         ///Select all years

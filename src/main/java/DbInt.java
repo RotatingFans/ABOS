@@ -42,7 +42,7 @@ public class DbInt {
     private static ComboPooledDataSource cpds = new ComboPooledDataSource();
     private static String username;
     private static String password;
-
+    private static boolean isAdmin;
 
     /**
      * Gets the specified Customer info
@@ -365,6 +365,8 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
              PreparedStatement prep = con.prepareStatement("CREATE TABLE `Users` (\n" +
                      "  `idUsers` int(11) NOT NULL AUTO_INCREMENT,\n" +
                      "  `userName` varchar(255) NOT NULL,\n" +
+                     "  `fullName` varchar(255) NOT NULL,\n" +
+                     "  `Admin` int(11) NOT NULL,\n" +
                      "  `Years` varchar(255) NOT NULL,\n" +
                      "  PRIMARY KEY (`idUsers`)\n" +
                      ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -391,6 +393,9 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
                      "    SELECT\n" +
                      "        `" + prefix + "Commons`.`Users`.`idUsers` AS `idUsers`,\n" +
                      "        `" + prefix + "Commons`.`Users`.`userName` AS `userName`,\n" +
+                     "        `" + prefix + "Commons`.`Users`.`fullName` AS `fullName`,\n" +
+                     "        `" + prefix + "Commons`.`Users`.`Admin` AS `Admin`,\n" +
+
                      "        `" + prefix + "Commons`.`Users`.`Years` AS `Years`\n" +
                      "    FROM\n" +
                      "        `" + prefix + "Commons`.`Users`\n" +
@@ -401,11 +406,35 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, Years) Values (?, '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin, Years) Values (?, ?, 1, '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, username);
+            prep.setString(2, username);
+
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+    }
+
+    public static ArrayList<User> getUsers() throws Exception {
+        if (isAdmin) {
+            ArrayList<User> ret = new ArrayList<>();
+            try (Connection con = DbInt.getConnection("Commons");
+                 PreparedStatement prep = con.prepareStatement("SELECT userName, Years, fullName, Admin FROM Users", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("Years"), rs.getInt("Admin") == 1));
+
+                }
+                ////DbInt.pCon.close()
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            return ret;
+        } else {
+            throw new Exception("Access Error");
         }
     }
 
@@ -608,6 +637,24 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return new User(year);
     }
 
+    public static User getCurrentUser() {
+        User curUser = null;
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT Years, fullName, Admin FROM userView", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            while (rs.next()) {
+
+                curUser = new User(getUserName(), rs.getString("fullName"), rs.getString("Years"), rs.getInt("Admin") == 1);
+
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return curUser;
+    }
+
     public static Boolean verifyLogin(Pair<String, String> userPass) {
         username = userPass.getKey();
         password = userPass.getValue();
@@ -630,6 +677,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             pCon = DriverManager.getConnection(url, username, password);
             if (pCon.isValid(2)) {
                 successful = true;
+                isAdmin = getCurrentUser().isAdmin();
             }
 
             ////DbInt.pCon.close();
@@ -665,6 +713,10 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             new Settings();
 
         }
+    }
+
+    public static boolean isAdmin() {
+        return isAdmin;
     }
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
