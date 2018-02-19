@@ -984,7 +984,7 @@ public class Year {
                  ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
 
-                    ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), "", rs.getInt("Admin") == 1, rs.getInt("groupId")));
+                    ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), DbInt.getYearsForUser(rs.getString("userName")), rs.getInt("Admin") == 1, rs.getInt("groupId")));
 
                 }
                 ////DbInt.pCon.close()

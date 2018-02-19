@@ -531,6 +531,27 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return ret;
     }
 
+    public static String getYearsForUser(String uName) {
+        String csvRet = "";
+
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT Years FROM Users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+            try (ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+
+                    csvRet = (rs.getString("Years"));
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return csvRet;
+    }
+
     public static ArrayList<String> getUserYears() {
         String csvRet = "";
         ArrayList<String> ret = new ArrayList<>();

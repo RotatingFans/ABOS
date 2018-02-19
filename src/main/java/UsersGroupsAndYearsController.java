@@ -26,6 +26,7 @@ import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.stage.Window;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UsersGroupsAndYearsController {
     @FXML
@@ -164,23 +165,35 @@ public class UsersGroupsAndYearsController {
             usersInYear = year.getUsers();
         } catch (Exception ignored) {
         }
-        ArrayList<User> finalUsersInYear = usersInYear;
-        yearUserList.getItems().forEach(user -> {
-            if (!finalUsersInYear.contains(user)) {
-                user.updateYear(yearsList.getSelectionModel().getSelectedItem());
-
-            } else {
-                // user.removeFromYear(yearsList.getSelectionModel().getSelectedItem());
-                user.updateYear(yearsList.getSelectionModel().getSelectedItem());
-
-            }
-        });
-        if (!managedUserList.isDisabled()) {
-            yearUserList.getSelectionModel().getSelectedItems().forEach(user -> {
+        usersInYear.removeIf(user -> {
+            final boolean[] ret = {false};
+            String uName = user.getUserName();
+            yearUserList.getItems().forEach(user1 -> {
+                if (Objects.equals(uName, user1.getUserName())) {
+                    ret[0] = true;
+                }
             });
-        }
+            return ret[0];
+        });
+        yearUserList.getItems().forEach(user -> {
+
+            user.updateYear(yearsList.getSelectionModel().getSelectedItem());
+
+
+            // user.removeFromYear(yearsList.getSelectionModel().getSelectedItem());
+
+
+        });
+        usersInYear.forEach(user -> {
+            user.removeFromYear(yearsList.getSelectionModel().getSelectedItem());
+        });
+
+
         //saved
         //Close OR put up dialog
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Saved");
+        alert.setHeaderText("Changes Saved.");
+        alert.show();
     }
 
     @FXML
