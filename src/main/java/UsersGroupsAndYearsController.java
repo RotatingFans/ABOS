@@ -214,6 +214,9 @@ public class UsersGroupsAndYearsController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Saved");
         alert.setHeaderText("Changes Saved.");
         alert.show();
+        yearUserList.getSelectionModel().clearSelection();
+        managedUserList.setRoot(new TreeItem());
+        userGroup.getItems().clear();
     }
 
     @FXML
