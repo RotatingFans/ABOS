@@ -539,6 +539,7 @@ public class Year {
                          "  `fullName` varchar(255) NOT NULL,\n" +
                          "  `uManage` varchar(255) NOT NULL,\n" +
                          "  `Admin` int(11) DEFAULT NULL,\n" +
+                         "  `ACL` int(11) NOT NULL DEFAULT 1,\n" +
                          "  `commonsID` int(11) NOT NULL,\n" +
                          "  `groupId` int(11) NULL,\n" +
                          "  PRIMARY KEY (`idusers`),\n" +
@@ -743,7 +744,7 @@ public class Year {
             }
             //Create Views
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
+                 PreparedStatement prep = con.prepareStatement("CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`ACL` AS `ACL`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
                          "        `users`.`groupId` AS `groupId` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
@@ -980,11 +981,12 @@ public class Year {
         if (DbInt.isAdmin()) {
             ArrayList<User> ret = new ArrayList<>();
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT userName, fullName, Admin, groupId, uManage FROM users", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 PreparedStatement prep = con.prepareStatement("SELECT userName, fullName, Admin, groupId, uManage, ACL FROM users", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                  ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
-
-                    ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), DbInt.getYearsForUser(rs.getString("userName")), rs.getInt("Admin") == 1, rs.getInt("groupId")));
+                    if (rs.getInt("ACL") > 0) {
+                        ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), DbInt.getYearsForUser(rs.getString("userName")), rs.getInt("Admin") == 1, rs.getInt("groupId")));
+                    }
 
                 }
                 ////DbInt.pCon.close()

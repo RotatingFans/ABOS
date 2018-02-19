@@ -25,6 +25,12 @@ import java.util.*;
 
 public class User {
     private String fullName;
+    private ArrayList<String> uManage = new ArrayList<>();
+    private int groupId = 1;
+    private String userName;
+    private Boolean Admin = false;
+    private Set<String> years = new HashSet<>();
+    private int ACL = 1;
 
     public static void createUser(String uName, String password, String fullName, Boolean admin) {
         String createAndGrantCommand = "CREATE USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
@@ -74,11 +80,7 @@ public class User {
         Admin = admin;
     }
 
-    private ArrayList<String> uManage = new ArrayList<>();
-    private int groupId;
-    private String userName;
-    private Boolean Admin = false;
-    private Set<String> years = new HashSet<>();
+
 
     public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, int groupId) {
         this.userName = userName;
@@ -130,6 +132,7 @@ public class User {
             }
         });
         this.Admin = admin;
+        uManage.add(userName);
     }
 
     public User(String userName, String fullName, String uManage, String years, int groupId) {
@@ -376,8 +379,8 @@ public class User {
         }
 
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("INSERT INTO users(userName, fullName, uManage, Admin, commonsID, groupId) VALUES(?,?,?,?,?,?) " +
-                     "ON DUPLICATE KEY UPDATE userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO users(userName, fullName, uManage, Admin, commonsID, groupId, ACL) VALUES(?,?,?,?,?,?, 1) " +
+                     "ON DUPLICATE KEY UPDATE userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?, ACL=1", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, userName);
             prep.setString(2, fullName);
             prep.setString(3, arrayToCSV(uManage));
@@ -422,13 +425,13 @@ public class User {
 
     public void removeFromYear(String year) {
         years.remove(year);
-        String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview TO '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview TO '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview TO '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview TO '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products TO '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups TO '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories TO '" + userName + "'@'%'"};
+        String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
+                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview FROM '" + userName + "'@'%'",
+                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview FROM '" + userName + "'@'%'",
+                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview FROM '" + userName + "'@'%'",
+                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products FROM '" + userName + "'@'%'",
+                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups FROM '" + userName + "'@'%'",
+                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories FROM '" + userName + "'@'%'"};
         try (Connection con = DbInt.getConnection();
              PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -476,9 +479,8 @@ public class User {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-        /*try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("DELETE FROM users(userName, fullName, uManage, Admin, commonsID, groupId) VALUES(?,?,?,?,?,?) " +
-                     "ON DUPLICATE KEY UPDATE userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("UPDATE Users set userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?, ACL=0", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, userName);
             prep.setString(2, fullName);
             prep.setString(3, arrayToCSV(uManage));
@@ -502,6 +504,6 @@ public class User {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }*/
+        }
     }
 }
