@@ -73,7 +73,7 @@ public class AddGroup {
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
-            try (Connection con = DbInt.getConnection();
+            try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("INSERT INTO groups(Name) VALUES(?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
                 prep.setString(1, result.get());

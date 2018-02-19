@@ -356,7 +356,6 @@ public class UsersGroupsAndYearsController {
             if (dialogButton == login) {
                 return yearNameField.getText();
             }
-            System.exit(0);
             return null;
         });
 
@@ -464,10 +463,10 @@ public class UsersGroupsAndYearsController {
                         } catch (SQLException e) {
                             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
-                        try (Connection con = DbInt.getConnection();
-                             PreparedStatement prep = con.prepareStatement("DELETE USER IF EXISTS `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                        try (Connection con = DbInt.getConnection("Commons");
+                             //PreparedStatement prep = con.prepareStatement("DROP USER IF EXISTS `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                             PreparedStatement prep = con.prepareStatement("DROP USER `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-                            prep.setString(1, user);
                             prep.execute();
                         } catch (SQLException e) {
                             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -520,12 +519,7 @@ public class UsersGroupsAndYearsController {
             grid.add(passwordField, 1, 2);
             grid.add(adminCheckBox, 1, 3);
 
-// Enable/Disable login button depending on whether a username was entered.
-            javafx.scene.Node loginButton = dialog.getDialogPane().lookupButton(login);
-            loginButton.setDisable(true);
 
-// Do some validation (using the Java 8 lambda syntax).
-            userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
 
             dialog.getDialogPane().setContent(grid);
 
@@ -537,7 +531,6 @@ public class UsersGroupsAndYearsController {
                 if (dialogButton == login) {
                     return new Pair<Pair<String, Boolean>, Pair<String, String>>(new Pair<>(fullNameField.getText(), adminCheckBox.isSelected()), new Pair<>(userNameTextField.getText(), passwordField.getText()));
                 }
-                System.exit(0);
                 return null;
             });
 
@@ -625,7 +618,6 @@ public class UsersGroupsAndYearsController {
             if (dialogButton == login) {
                 return new Pair<Pair<String, Boolean>, Pair<String, String>>(new Pair<>(fullNameField.getText(), adminCheckBox.isSelected()), new Pair<>(userNameTextField.getText(), passwordField.getText()));
             }
-            System.exit(0);
             return null;
         });
 

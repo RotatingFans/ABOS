@@ -48,10 +48,11 @@ public class User {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin,  Years) Values (?,?,? '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin,  Years) Values (?,?,?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
             prep.setString(2, fullName);
             prep.setInt(3, admin ? 1 : 0);
+            prep.setString(4, "");
 
             prep.execute();
         } catch (SQLException e) {
@@ -228,7 +229,9 @@ public class User {
     }
 
     public static void updateUser(String uName, String password) {
-        String createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
+        // String createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
+        String createAndGrantCommand = "SET PASSWORD FOR '" + uName + "'@'%' = PASSWORD('" + password + "')";
+
         try (Connection con = DbInt.getConnection();
              PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.addBatch(createAndGrantCommand);
@@ -429,28 +432,29 @@ public class User {
     }
 
     public void removeFromYear(String year) {
-        years.remove(year);
-        String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview FROM '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview FROM '" + userName + "'@'%'",
-                "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview FROM '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products FROM '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups FROM '" + userName + "'@'%'",
-                "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories FROM '" + userName + "'@'%'"};
-        try (Connection con = DbInt.getConnection();
-             PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+        if (years.remove(year) && !isAdmin()) {
+            String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories FROM '" + userName + "'@'%'"};
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-            prep.addBatch(createAndGrantCommand[0]);
-            prep.addBatch(createAndGrantCommand[1]);
-            prep.addBatch(createAndGrantCommand[2]);
-            prep.addBatch(createAndGrantCommand[3]);
-            prep.addBatch(createAndGrantCommand[4]);
-            prep.addBatch(createAndGrantCommand[5]);
-            prep.addBatch(createAndGrantCommand[6]);
+                prep.addBatch(createAndGrantCommand[0]);
+                prep.addBatch(createAndGrantCommand[1]);
+                prep.addBatch(createAndGrantCommand[2]);
+                prep.addBatch(createAndGrantCommand[3]);
+                prep.addBatch(createAndGrantCommand[4]);
+                prep.addBatch(createAndGrantCommand[5]);
+                prep.addBatch(createAndGrantCommand[6]);
 
-            prep.executeBatch();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                prep.executeBatch();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
         }
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("UPDATE Users SET Years=? WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -485,19 +489,16 @@ public class User {
         }
 
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("UPDATE Users set userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?, ACL=0", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("UPDATE users set userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?, ACL=0 WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, userName);
             prep.setString(2, fullName);
             prep.setString(3, arrayToCSV(uManage));
             prep.setInt(4, Admin ? 1 : 0);
             prep.setInt(5, CommonsID);
             prep.setInt(6, groupId);
-            prep.setString(7, userName);
-            prep.setString(8, fullName);
-            prep.setString(9, arrayToCSV(uManage));
-            prep.setInt(10, Admin ? 1 : 0);
-            prep.setInt(11, CommonsID);
-            prep.setInt(12, groupId);
+            prep.setString(7, oldUName);
+
+
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
