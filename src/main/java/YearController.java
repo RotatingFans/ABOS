@@ -116,7 +116,7 @@ public class YearController {
         initialize();
     }
 
-    @FXML
+/*    @FXML
     public void deleteYear(ActionEvent event) {
         Year yearObj = new Year(year);
         yearObj.deleteYear();
@@ -127,7 +127,7 @@ public class YearController {
     @FXML
     public void editYear(ActionEvent event) {
         new AddYear(year, mainController.getWindow());
-    }
+    }*/
 
     /**
      * Fills the Table of order amounts

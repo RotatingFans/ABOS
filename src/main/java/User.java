@@ -32,7 +32,7 @@ public class User {
     private Set<String> years = new HashSet<>();
     private int ACL = 1;
 
-    public static void createUser(String uName, String password, String fullName, Boolean admin) {
+    public static User createUser(String uName, String password, String fullName, Boolean admin) {
         String createAndGrantCommand = "CREATE USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
         try (Connection con = DbInt.getConnection();
              PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -57,6 +57,7 @@ public class User {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
+        return new User(uName, fullName, "", admin);
 
     }
 
@@ -258,6 +259,10 @@ public class User {
 
     public ArrayList<String> getuManage() {
         return uManage;
+    }
+
+    public Set<String> getYears() {
+        return years;
     }
 
     public int getGroupId() {

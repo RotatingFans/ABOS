@@ -249,7 +249,21 @@ public class Year {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             DbInt.deleteDb(year);
-
+            //DROP USER [ IF EXISTS ] user_name
+            try (Connection con = DbInt.getConnection("Commons");
+                 PreparedStatement prep = con.prepareStatement("DROP USER [ IF EXISTS ] ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, year);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            try (Connection con = DbInt.getConnection("Commons");
+                 PreparedStatement prep = con.prepareStatement("DELETE FROM Years WHERE Year=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, year);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
 
         }
     }
