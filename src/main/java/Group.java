@@ -69,6 +69,23 @@ public class Group {
 
     }
 
+    public static ArrayList<Group> getGroupCollection(String year) {
+        ArrayList<Group> groups = new ArrayList<>();
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            while (rs.next()) {
+
+                groups.add(new Group(rs.getString("Name"), year));
+                ////DbInt.pCon.close();
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return groups;
+
+    }
+
     public String getName() {
         return name;
     }
@@ -137,6 +154,10 @@ public class Group {
             LogToFile.log(e, Severity.WARNING, "Group not found. Please retry the action.");
         }
         return groups;
+    }
+
+    public String toString() {
+        return name;
     }
 
     public class GroupNotFoundException extends Exception {}

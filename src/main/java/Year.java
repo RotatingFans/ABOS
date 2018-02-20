@@ -248,7 +248,28 @@ public class Year {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
+            //DROP USER [ IF EXISTS ] user_name
+            try {
+                DbInt.getUsers().forEach(user -> {
+                    user.removeFromYear(year);
+                });
+            } catch (Exception ignored) {
+            }
             DbInt.deleteDb(year);
+
+            try (Connection con = DbInt.getConnection("Commons");
+                 PreparedStatement prep = con.prepareStatement("DROP USER '" + year + "'@'localhost'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            try (Connection con = DbInt.getConnection("Commons");
+                 PreparedStatement prep = con.prepareStatement("DELETE FROM Years WHERE Year=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, year);
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
 
 
         }
@@ -539,6 +560,7 @@ public class Year {
                          "  `fullName` varchar(255) NOT NULL,\n" +
                          "  `uManage` varchar(255) NOT NULL,\n" +
                          "  `Admin` int(11) DEFAULT NULL,\n" +
+                         "  `ACL` int(11) NOT NULL DEFAULT 1,\n" +
                          "  `commonsID` int(11) NOT NULL,\n" +
                          "  `groupId` int(11) NULL,\n" +
                          "  PRIMARY KEY (`idusers`),\n" +
@@ -743,7 +765,7 @@ public class Year {
             }
             //Create Views
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
+                 PreparedStatement prep = con.prepareStatement("CREATE ALGORITHM=UNDEFINED DEFINER=`" + year + "`@`localhost` SQL SECURITY DEFINER VIEW `" + prefix + year + "`.`usersview` AS select `" + prefix + year + "`.`users`.`idusers` AS `idusers`,`" + prefix + year + "`.`users`.`userName` AS `userName`,`" + prefix + year + "`.`users`.`fullName` AS `fullName`,`" + prefix + year + "`.`users`.`uManage` AS `uManage`,`" + prefix + year + "`.`users`.`Admin` AS `Admin`,`" + prefix + year + "`.`users`.`ACL` AS `ACL`,`" + prefix + year + "`.`users`.`commonsID` AS `commonsID`,\n" +
                          "        `users`.`groupId` AS `groupId` from `" + prefix + year + "`.`users` where (`" + prefix + year + "`.`users`.`userName` = LEFT(USER(),LOCATE('@',USER()) - 1)) WITH CASCADED CHECK OPTION;\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
@@ -976,6 +998,28 @@ public class Year {
         }
     }
 
+    public ArrayList<User> getUsers() throws Exception {
+        if (DbInt.isAdmin()) {
+            ArrayList<User> ret = new ArrayList<>();
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT userName, fullName, Admin, groupId, uManage, ACL FROM users", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = prep.executeQuery()) {
+                while (rs.next()) {
+                    if (rs.getInt("ACL") > 0) {
+                        ret.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), DbInt.getYearsForUser(rs.getString("userName")), rs.getInt("Admin") == 1, rs.getInt("groupId")));
+                    }
+
+                }
+                ////DbInt.pCon.close()
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            return ret;
+        } else {
+            throw new Exception("Access Error");
+        }
+    }
     public static class category {
         public String catName;
         public String catDate;

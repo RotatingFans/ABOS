@@ -84,7 +84,7 @@ public class ConvertDerbyToSQL extends Application {
 
             }
             if (newUser) {
-                User.createUser(userName, password, true);
+                User.createUser(userName, password, "", true);
             } else {
                 User.updateUser(userName, password);
 
