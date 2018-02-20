@@ -697,8 +697,11 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
             pCon = DriverManager.getConnection(url, username, password);
             if (pCon.isValid(2)) {
-                successful = true;
-                isAdmin = getCurrentUser().isAdmin();
+                User curUser = getCurrentUser();
+                if (curUser != null) {
+                    successful = true;
+                    isAdmin = curUser.isAdmin();
+                }
             }
 
             ////DbInt.pCon.close();
