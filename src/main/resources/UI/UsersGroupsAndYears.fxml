@@ -19,9 +19,11 @@
   ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import java.lang.String?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="736.0" prefWidth="1407.0"
             xmlns="http://javafx.com/javafx/8.0.121" fx:controller="UsersGroupsAndYearsController">
     <children>
@@ -105,8 +107,7 @@
                                                                                               prefWidth="200.0"
                                                                                               BorderPane.alignment="CENTER">
                                                                                             <children>
-                                                                                                <Button fx:id="deleteYearBtn"
-                                                                                                        mnemonicParsing="false"
+                                                                                                <Button mnemonicParsing="false"
                                                                                                         onAction="#deleteUser"
                                                                                                         text="Delete"
                                                                                                         HBox.hgrow="ALWAYS">
@@ -114,8 +115,7 @@
                                                                                                         <Insets/>
                                                                                                     </HBox.margin>
                                                                                                 </Button>
-                                                                                                <Button fx:id="editYearBtn"
-                                                                                                        mnemonicParsing="false"
+                                                                                                <Button mnemonicParsing="false"
                                                                                                         onAction="#editUser"
                                                                                                         text="Edit"
                                                                                                         HBox.hgrow="ALWAYS">
@@ -123,8 +123,7 @@
                                                                                                         <Insets left="10.0"/>
                                                                                                     </HBox.margin>
                                                                                                 </Button>
-                                                                                                <Button fx:id="addYearBtn"
-                                                                                                        mnemonicParsing="false"
+                                                                                                <Button mnemonicParsing="false"
                                                                                                         onAction="#addUser"
                                                                                                         text="Add"
                                                                                                         HBox.hgrow="ALWAYS">
@@ -321,9 +320,103 @@
                                 </AnchorPane>
                             </content>
                         </Tab>
-                        <Tab text="Products">
+                        <Tab fx:id="productsTab" disable="true" text="Products">
                             <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
+                                <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                            BorderPane.alignment="CENTER">
+                                    <center>
+                                        <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0"
+                                                    prefWidth="200.0">
+                                            <content>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="322.0"
+                                                            prefWidth="590.0" AnchorPane.bottomAnchor="0.0"
+                                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                            AnchorPane.topAnchor="0.0">
+                                                    <children>
+                                                        <TableView fx:id="ProductTable" editable="true"
+                                                                   prefHeight="322.0" prefWidth="590.0"
+                                                                   AnchorPane.bottomAnchor="0.0"
+                                                                   AnchorPane.leftAnchor="0.0"
+                                                                   AnchorPane.rightAnchor="0.0"
+                                                                   AnchorPane.topAnchor="0.0"/>
+                                                    </children>
+                                                </AnchorPane>
+                                            </content>
+                                        </ScrollPane>
+                                    </center>
+                                    <top>
+                                        <FlowPane prefHeight="44.0" prefWidth="1207.0" BorderPane.alignment="CENTER">
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#tablefromDb"
+                                                        text="Fill Table from pre-existing database"/>
+                                                <Button mnemonicParsing="false" onAction="#xmlFromTable"
+                                                        text="Generate XML from Table Below"/>
+                                                <Button mnemonicParsing="false" onAction="#csvToXml"
+                                                        text="Generate XML and fill table from CSV"/>
+                                                <Button mnemonicParsing="false" onAction="#tableFrmXML"
+                                                        text="Generate Table from XML"/>
+                                                <HBox>
+                                                    <children>
+                                                        <VBox>
+                                                            <children>
+                                                                <Label text="Product ID"/>
+                                                                <TextField fx:id="idTb" promptText="ID"/>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox>
+                                                            <children>
+                                                                <Label text="Product Name"/>
+                                                                <TextField fx:id="itemTb" promptText="Name"/>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox>
+                                                            <children>
+                                                                <Label text="Product Size"/>
+                                                                <TextField fx:id="sizeTb" promptText="Size"/>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox>
+                                                            <children>
+                                                                <Label text="Unit Cost"/>
+                                                                <TextField fx:id="rateTb" promptText="Unit Cost"/>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox>
+                                                            <children>
+                                                                <Label text="Category"/>
+                                                                <ComboBox fx:id="categoriesCmbx"
+                                                                          onAction="#catCmbxChanged" prefWidth="150.0"
+                                                                          promptText="Select A Category">
+                                                                    <items>
+                                                                        <FXCollections fx:factory="observableArrayList">
+                                                                            <String fx:value=""/>
+                                                                            <String fx:value="Add Category"/>
+                                                                        </FXCollections>
+                                                                    </items>
+                                                                </ComboBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <Button mnemonicParsing="false" onAction="#addBtnPressed"
+                                                                prefHeight="42.0" prefWidth="62.0" text="Add"/>
+                                                    </children>
+                                                    <FlowPane.margin>
+                                                        <Insets right="5.0"/>
+                                                    </FlowPane.margin>
+                                                </HBox>
+
+                                            </children>
+                                        </FlowPane>
+                                    </top>
+                                    <bottom>
+                                        <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                            <buttons>
+                                                <Button defaultButton="true" mnemonicParsing="false" onAction="#submit"
+                                                        text="OK"/>
+                                            </buttons>
+                                        </ButtonBar>
+                                    </bottom>
+                                </BorderPane>
                             </content>
                         </Tab>
                     </tabs>

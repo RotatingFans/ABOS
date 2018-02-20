@@ -26,14 +26,28 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Pair;
+import org.w3c.dom.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -50,7 +64,27 @@ public class UsersGroupsAndYearsController {
     TreeView managedUserList;
     @FXML
     ComboBox<Group> userGroup;
-
+    @FXML
+    Tab productsTab;
+    Window parentWindow;
+    @FXML
+    private TableView<Product.formattedProductProps> ProductTable;
+    @FXML
+    private TextField itemTb;
+    @FXML
+    private TextField sizeTb;
+    @FXML
+    private TextField rateTb;
+    @FXML
+    private TextField idTb;
+    //private final JDialog parent;
+    private Collection<Year.category> rowsCats = new ArrayList<Year.category>();
+    private ObservableList<String> categoriesTb = FXCollections.observableArrayList();
+    @FXML
+    private ComboBox<String> categoriesCmbx;
+    //private DefaultTableModel tableModel;
+    private boolean newYear = false;
+    private ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
     public UsersGroupsAndYearsController() {
 
     }
@@ -59,6 +93,8 @@ public class UsersGroupsAndYearsController {
      * Initialize the contents of the frame.
      */
     public void initUsersGroupsAndYears(Window parWindow) throws Exception {
+        parentWindow = parWindow;
+
         yearsList.getItems().addAll(DbInt.getYears());
         allUsersList.getItems().addAll(DbInt.getUsers());
         allUsersList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -84,6 +120,7 @@ public class UsersGroupsAndYearsController {
             }
             groupList.getItems().clear();
             groupList.getItems().addAll(Group.getGroupCollection(newValue));
+            initProductsTab();
 
         });
         yearUserList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -679,6 +716,719 @@ public class UsersGroupsAndYearsController {
         groupList.getItems().add(newGroup);
         userGroup.getItems().add(newGroup);
 
+    }
+
+    private void initProductsTab() {
+        newYear = false;
+        Year thisYear = new Year(yearsList.getSelectionModel().getSelectedItem());
+        //ProductTable = new TableView<>();
+
+        categoriesCmbx.getItems().clear();
+        categoriesTb.clear();
+        categoriesTb.add("");
+        String browse = "Add Category";
+        rowsCats.clear();
+        thisYear.getCategories().forEach((category) -> {
+            categoriesTb.add(category.catName);
+            rowsCats.add(category);
+        });
+
+        categoriesTb.add(browse);
+        categoriesCmbx.getItems().setAll(categoriesTb);
+        ProductTable.getColumns().clear();
+        ProductTable.getItems().clear();
+        String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
+        //for (String[] column : columnNames) {
+        {
+            javafx.scene.control.TableColumn<Product.formattedProductProps, String> idCol = new javafx.scene.control.TableColumn<>("ID");
+            idCol.setCellValueFactory(new PropertyValueFactory<>("productID"));
+            idCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            idCol.setOnEditCommit(t -> {
+                t.getRowValue().productID.set(t.getNewValue());
+                data.get(t.getTablePosition().getRow()).productID.set(t.getNewValue());
+                t.getTableView().refresh();
+            });
+            ProductTable.getColumns().add(idCol);
+            //}
+        }
+        {
+            javafx.scene.control.TableColumn<Product.formattedProductProps, String> nameCol = new javafx.scene.control.TableColumn<>("Item");
+            nameCol.setCellValueFactory(new PropertyValueFactory<>("productName"));
+            nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            nameCol.setOnEditCommit(t -> {
+                t.getRowValue().productName.set(t.getNewValue());
+                data.get(t.getTablePosition().getRow()).productName.set(t.getNewValue());
+                t.getTableView().refresh();
+            });
+            ProductTable.getColumns().add(nameCol);
+            //}
+        }
+        {
+            javafx.scene.control.TableColumn<Product.formattedProductProps, String> sizeCol = new javafx.scene.control.TableColumn<>("Size");
+            sizeCol.setCellValueFactory(new PropertyValueFactory<>("productSize"));
+            sizeCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            sizeCol.setOnEditCommit(t -> {
+                t.getRowValue().productSize.set(t.getNewValue());
+                data.get(t.getTablePosition().getRow()).productSize.set(t.getNewValue());
+                t.getTableView().refresh();
+            });
+            ProductTable.getColumns().add(sizeCol);
+            //}
+        }
+        {
+            javafx.scene.control.TableColumn<Product.formattedProductProps, String> unitCostCol = new javafx.scene.control.TableColumn<>("Price/Item");
+            unitCostCol.setCellValueFactory(new PropertyValueFactory<>("productUnitPriceString"));
+            unitCostCol.setCellFactory(TextFieldTableCell.forTableColumn());
+            unitCostCol.setOnEditCommit(t -> {
+                try {
+                    BigDecimal unitPrice = new BigDecimal(t.getNewValue());
+                    t.getRowValue().productUnitPriceString.set(t.getNewValue());
+                    t.getRowValue().productUnitPrice.set(new BigDecimal(t.getNewValue()));
+                    data.get(t.getTablePosition().getRow()).productUnitPriceString.set(t.getNewValue());
+                    data.get(t.getTablePosition().getRow()).productUnitPrice.set(new BigDecimal(t.getNewValue()));
+                    t.getTableView().refresh();
+                } catch (NumberFormatException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid number");
+                    alert.setHeaderText("You have entered an invalid number.");
+                    alert.show();
+                    t.getRowValue().productUnitPriceString.set(t.getOldValue());
+                }
+
+
+            });
+            ProductTable.getColumns().add(unitCostCol);
+            //}
+        }
+
+
+        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
+
+        categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
+
+        categoryColumn.setOnEditCommit(t -> {
+            String newVal = catCmbxChanged(t.getNewValue());
+
+            t.getRowValue().productCategory.set(newVal);
+            data.get(t.getTablePosition().getRow()).productCategory.set(newVal);
+
+        });
+        ProductTable.getColumns().add(categoryColumn);
+        // boolean updateDb = true;
+        fillTable();
+        productsTab.setDisable(false);
+    }
+
+    @FXML
+    private void submit(ActionEvent event) {
+
+
+        updateDb(yearsList.getSelectionModel().getSelectedItem());
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Saved");
+        alert.setHeaderText("Changes Saved.");
+        alert.show();
+
+    }
+
+    @FXML
+    private void tableFrmXML(ActionEvent event) {
+        FileChooser chooser = new FileChooser();
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("XML files", "*.xml", "*.XML");
+        chooser.getExtensionFilters().add(filter);
+
+        chooser.setSelectedExtensionFilter(filter);
+//        logoLoc.setText(chooser.showOpenDialog(settings).getAbsolutePath());
+        File xmlFile = chooser.showOpenDialog(parentWindow);
+        if (xmlFile != null) {
+            String path = xmlFile.getAbsolutePath();
+            createTable(path);
+        }
+    }
+
+    private void convert(String csvLoc, String xmlLoc) {
+        List<String> headers = new ArrayList<>(5);
+
+
+        File file = new File(csvLoc);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+
+            Document newDoc = domBuilder.newDocument();
+            // Root element
+            Element rootElement = newDoc.createElement("LawnGarden");
+            newDoc.appendChild(rootElement);
+
+            int line = 0;
+
+            String text;
+            while ((text = reader.readLine()) != null) {
+
+                StringTokenizer st = new StringTokenizer(text, ";", false);
+                String[] rowValues = new String[st.countTokens()];
+                int index = 0;
+                while (st.hasMoreTokens()) {
+
+                    String next = st.nextToken();
+                    rowValues[index] = next;
+                    index++;
+
+                }
+
+                //String[] rowValues = text.split(",");
+
+                if (line == 0) { // Header row
+                    Collections.addAll(headers, rowValues);
+                } else { // Data row
+                    Element rowElement = newDoc.createElement("Products");
+                    rootElement.appendChild(rowElement);
+                    Attr attr = newDoc.createAttribute("id");
+                    attr.setValue(Integer.toString(line - 1));
+                    rowElement.setAttributeNode(attr);
+                    for (int col = 0; col < headers.size(); col++) {
+                        String header = headers.get(col);
+                        String value;
+
+                        if (col < rowValues.length) {
+                            value = rowValues[col].trim();
+                        } else {
+                            // ?? Default value
+                            value = "";
+                        }
+
+                        Element curElement = newDoc.createElement(header);
+                        curElement.appendChild(newDoc.createTextNode(value));
+                        rowElement.appendChild(curElement);
+                    }
+                }
+                line++;
+            }
+
+            OutputStreamWriter osw = null;
+
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                osw = new OutputStreamWriter(baos);
+
+                TransformerFactory tranFactory = TransformerFactory.newInstance();
+                Transformer aTransformer = tranFactory.newTransformer();
+                aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                //aTransformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+                aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                Source src = new DOMSource(newDoc);
+                Result result = new StreamResult(osw);
+                aTransformer.transform(src, result);
+
+                osw.flush();
+                //System.out.println(new String(baos.toByteArray()));
+
+                try (OutputStream outStream = new FileOutputStream(xmlLoc)) {// writing bytes in to byte output stream
+
+                    baos.writeTo(outStream);
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error writing XML file. Please try again.");
+                }
+
+
+            } catch (Exception exp) {
+                LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
+            } finally {
+                try {
+                    osw.close();
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
+                }
+
+            }
+        } catch (Exception e) {
+            LogToFile.log(e, Severity.SEVERE, "Error reading CSV file. Ensure the path exists, and the software has permission to read it.");
+        }
+    }
+
+    @FXML
+    private void csvToXml(ActionEvent event) {
+        // Create the custom dialog.
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("CSV to XML conversion");
+
+// Set the button types.
+        ButtonType convertButtonType = new ButtonType("Convert", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(convertButtonType, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField csvLoc = new TextField();
+        csvLoc.setPromptText("CSV file Location");
+        TextField xmlLoc = new TextField();
+        xmlLoc.setPromptText("XML Location");
+        Button getCsvLoc = new Button("...");
+        getCsvLoc.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("CSV files", "*.csv", "*.CSV");
+            chooser.getExtensionFilters().add(filter);
+            chooser.setSelectedExtensionFilter(filter);
+            File csv = chooser.showOpenDialog(grid.getScene().getWindow());
+            if (csv != null) {
+                String path = csv.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".csv")) {
+                    path += ".csv";
+                }
+                csvLoc.setText(path);
+            }
+        });
+        Button getXmlLoc = new Button("...");
+        getXmlLoc.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("XML files", "*.xml", "*.XML");
+            chooser.getExtensionFilters().add(filter);
+            chooser.setSelectedExtensionFilter(filter);
+            File XML = chooser.showSaveDialog(grid.getScene().getWindow());
+            if (XML != null) {
+                String path = XML.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".xml")) {
+                    path += ".xml";
+                }
+                xmlLoc.setText(path);
+            }
+        });
+        grid.add(new Label("CSV file Location:"), 0, 0);
+        grid.add(csvLoc, 1, 0);
+        grid.add(getCsvLoc, 2, 0);
+        grid.add(new Label("XML Location:"), 0, 1);
+        grid.add(xmlLoc, 1, 1);
+        grid.add(getXmlLoc, 2, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node convertButton = dialog.getDialogPane().lookupButton(convertButtonType);
+        convertButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        csvLoc.textProperty().addListener((observable, oldValue, newValue) -> convertButton.setDisable(newValue.trim().isEmpty()));
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> csvLoc.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == convertButtonType) {
+                return new Pair<>(csvLoc.getText(), xmlLoc.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(fileLocations -> {
+            convert(fileLocations.getKey(), fileLocations.getValue());
+            createTable(fileLocations.getValue());
+        });
+
+
+
+
+/*        CSV2XML csv = new CSV2XML(parent);
+        String xmlFile = csv.getXML();
+        if (!xmlFile.isEmpty()) {
+            createTable(xmlFile);
+        }*/
+    }
+
+    @FXML
+    private void catCmbxChanged(ActionEvent event) {
+        if (Objects.equals(categoriesCmbx.getSelectionModel().getSelectedItem(), "Add Category")) {
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Add new category");
+
+// Set the button types.
+            ButtonType addCat = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(addCat, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            TextField catName = new TextField();
+            catName.setPromptText("Category Name");
+            DatePicker catDate = new DatePicker(LocalDate.now());
+            catDate.setPromptText("Category Due Date");
+
+            grid.add(new Label("Category Name:"), 0, 0);
+            grid.add(catName, 1, 0);
+            grid.add(new Label("Category Due Date:"), 0, 1);
+            grid.add(catDate, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+            javafx.scene.Node addCatButton = dialog.getDialogPane().lookupButton(addCat);
+            addCatButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+            catName.textProperty().addListener((observable, oldValue, newValue) -> addCatButton.setDisable(newValue.trim().isEmpty()));
+
+            dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+            Platform.runLater(() -> catName.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == addCat) {
+                    return new Pair<String, String>(catName.getText(), catDate.getValue().toString());
+                }
+                return null;
+            });
+
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+
+            result.ifPresent(category -> {
+                rowsCats.add(new Year.category(category.getKey(), category.getValue()));
+                Platform.runLater(() -> refreshCmbx());
+
+            });
+
+
+        }
+
+    }
+
+    private String catCmbxChanged(String newVal) {
+        final Year.category newCat = new Year.category("", "");
+        if (Objects.equals(newVal, "Add Category")) {
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Add new category");
+
+// Set the button types.
+            ButtonType addCat = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(addCat, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            TextField catName = new TextField();
+            catName.setPromptText("Category Name");
+            DatePicker catDate = new DatePicker(LocalDate.now());
+            catDate.setPromptText("Category Due Date");
+
+            grid.add(new Label("Category Name:"), 0, 0);
+            grid.add(catName, 1, 0);
+            grid.add(new Label("Category Due Date:"), 0, 1);
+            grid.add(catDate, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+            javafx.scene.Node addCatButton = dialog.getDialogPane().lookupButton(addCat);
+            addCatButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+            catName.textProperty().addListener((observable, oldValue, newValue) -> addCatButton.setDisable(newValue.trim().isEmpty()));
+
+            dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+            Platform.runLater(() -> catName.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == addCat) {
+                    return new Pair<String, String>(catName.getText(), catDate.getValue().toString());
+                }
+                return null;
+            });
+
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+            result.ifPresent(category -> {
+                newCat.catName = category.getKey();
+                newCat.catDate = category.getValue();
+                rowsCats.add(newCat);
+                Platform.runLater(() -> refreshCmbx());
+
+            });
+
+
+        }
+
+        return newCat.catName;
+    }
+
+    @FXML
+    private void addBtnPressed(ActionEvent event) {
+        int count = ProductTable.getItems().size() + 1;
+        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        ProductTable.setItems(data);
+    }
+
+   /* @FXML
+    private void submit(ActionEvent event) {
+        DbInt.getUserYears().forEach(year -> {
+            if (Objects.equals(year, yearText.getText())) {
+                newYear = false;
+            }
+        });
+        if (chkboxCreateDatabase.isSelected() && newYear) {
+            CreateDb();
+        } else if (newYear) {
+            addYear();
+            updateDb(yearText.getText());
+        } else {
+            updateDb(yearText.getText());
+        }
+
+        close();
+    }*/
+
+    private void refreshCmbx() {
+        categoriesCmbx.getItems().clear();
+        categoriesTb.clear();
+        categoriesTb.add("");
+        String browse = "Add Category";
+
+        rowsCats.forEach(cat -> categoriesTb.add(cat.catName));
+
+
+        categoriesTb.add(browse);
+        categoriesCmbx.getItems().setAll(categoriesTb);
+
+    }
+
+    private void updateDb(String year) {
+        Year yearToUpdate = new Year(year);
+        yearToUpdate.updateDb(year, ProductTable.getItems(), rowsCats);
+    }
+
+    /**
+     * Parses XML file to insert into products table on screen
+     *
+     * @param FLoc the location of the XML file
+     */
+    private void createTable(String FLoc) {
+        try {
+
+            File fXmlFile = new File(FLoc);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(fXmlFile);
+
+            //optional, but recommended
+            //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+            doc.getDocumentElement().normalize();
+
+            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            NodeList nListCats = doc.getElementsByTagName("Categories");
+
+            // Collection<String[]> rowsCatsL = new ArrayList<>();
+
+            for (int temp = 0; temp < nListCats.getLength(); temp++) {
+
+                Node nNode = nListCats.item(temp);
+
+
+                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+                    rowsCats.add(new Year.category(eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()));
+                }
+            }
+            //rowsCats = rowsCatsL;
+            NodeList nList = doc.getElementsByTagName("Products");
+
+            Object[][] rows = new Object[nList.getLength()][5];
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                Node nNode = nList.item(temp);
+
+
+                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+
+                    Element eElement = (Element) nNode;
+
+
+                    //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
+                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
+                            "ProductID").item(0).getTextContent(),
+                            eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
+                            eElement.getElementsByTagName("Size").item(0).getTextContent(),
+                            new BigDecimal(eElement.getElementsByTagName("UnitCost").item(0).getTextContent()),
+                            (eElement.getElementsByTagName("Category").item(0) != null) ? eElement.getElementsByTagName("Category").item(0).getTextContent() : "",
+                            0,
+                            BigDecimal.ZERO
+                    );
+                    data.add(prodProps);
+                    ProductTable.setItems(data);
+
+                }
+
+
+            }
+        } catch (Exception e) {
+            LogToFile.log(e, Severity.SEVERE, "Error Converting XML file to table. Please try again or contact support.");
+        }
+        refreshCmbx();
+    }
+
+    /**
+     * Creates an XML file from the table
+     *
+     * @param SavePath Path to save the created XML file
+     */
+    private void createXML(String SavePath) {
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder;
+
+            docBuilder = docFactory.newDocumentBuilder();
+
+
+            // root elements
+            Document doc = docBuilder.newDocument();
+
+            Element rootElement = doc.createElement("LawnGarden");
+            doc.appendChild(rootElement);
+            Iterable<Year.category> caters;
+            caters = rowsCats;
+            int[] i = {0};
+            //caters = getCategories(yearText.getText());
+            caters.forEach(cat -> {
+                        Element cats = doc.createElement("Categories");
+                        rootElement.appendChild(cats);
+                        Attr attr = doc.createAttribute("id");
+                        attr.setValue(Integer.toString(i[0]));
+                        cats.setAttributeNode(attr);
+
+
+                        //CateName elements
+                        Element ProductID = doc.createElement("CategoryName");
+                        ProductID.appendChild(doc.createTextNode(cat.catName));
+                        cats.appendChild(ProductID);
+
+                        //CatDate elements
+                        Element ProductName = doc.createElement("CategoryDate");
+                        ProductName.appendChild(doc.createTextNode(cat.catDate));
+                        cats.appendChild(ProductName);
+                        i[0]++;
+                    }
+            );
+
+            // staff elements
+
+
+            // set attribute to staff element
+            for (int i2 = 0; i2 < ProductTable.getItems().size(); i2++) {
+
+                Element staff = doc.createElement("Products");
+                rootElement.appendChild(staff);
+                Attr attr = doc.createAttribute("id");
+                attr.setValue(Integer.toString(i2));
+                staff.setAttributeNode(attr);
+
+                //ProductID elements
+                Element ProductID = doc.createElement("ProductID");
+                ProductID.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductID()));
+                staff.appendChild(ProductID);
+
+                // Prodcut Name elements
+                Element ProductName = doc.createElement("ProductName");
+                ProductName.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductName()));
+                staff.appendChild(ProductName);
+
+                // Unit COst elements
+                Element UnitCost = doc.createElement("UnitCost");
+                UnitCost.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductUnitPrice().toPlainString()));
+                staff.appendChild(UnitCost);
+
+                // Size elements
+                Element Size = doc.createElement("Size");
+                Size.appendChild(doc.createTextNode(ProductTable.getItems().get(i2).getProductSize()));
+                staff.appendChild(Size);
+
+                // Category elements
+
+                String cat = (ProductTable.getItems().get(i2).getProductCategory() != null) ? ProductTable.getItems().get(i2).getProductCategory() : "";
+                Element category = doc.createElement("Category");
+                category.appendChild(doc.createTextNode(cat));
+                staff.appendChild(category);
+            }
+
+
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            Source source = new DOMSource(doc);
+            Result result = new StreamResult(new FileOutputStream(SavePath));
+
+            // Output to console for testing
+            // StreamResult result = new StreamResult(System.out);
+
+            transformer.transform(source, result);
+
+            //System.out.println("File saved!");
+        } catch (ParserConfigurationException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser error. Contact support.");
+        } catch (TransformerException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Parser Error. Contact support.");
+        } catch (FileNotFoundException e) {
+            LogToFile.log(e, Severity.SEVERE, "Error creating XML file: Error writing to file. Make sure the directory is readable by the software.");
+        }
+    }
+
+    /**
+     * Fills the table from a DB table
+     */
+    private void fillTable() {
+        String year = yearsList.getSelectionModel().getSelectedItem();
+        Year yearInfo = new Year(year);
+
+        Product.formattedProduct[] productArray = yearInfo.getAllProducts();
+        Object[][] rows = new Object[productArray.length][6];
+        // data = FXCollections.observableArrayList();
+
+        int i = 0;
+        for (Product.formattedProduct productOrder : productArray) {
+            //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
+            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            data.add(prodProps);
+            i++;
+        }
+
+        ProductTable.setItems(data);
+
+    }
+
+    @FXML
+    private void tablefromDb(ActionEvent event) {
+
+        fillTable();
+    }
+
+    @FXML
+    private void xmlFromTable(ActionEvent event) {
+        FileChooser chooser = new FileChooser();
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("XML files", "*.xml", "*.XML");
+        chooser.getExtensionFilters().add(filter);
+        chooser.setSelectedExtensionFilter(filter);
+        File XML = chooser.showSaveDialog(parentWindow);
+        if (XML != null) {
+            String path = XML.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".xml")) {
+                path += ".xml";
+            }
+            createXML(path);
+        }
     }
 }
 

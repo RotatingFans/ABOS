@@ -110,6 +110,47 @@ public class Product {
         public final SimpleStringProperty productSize = new SimpleStringProperty();
         public final SimpleObjectProperty<BigDecimal> extendedCost = new SimpleObjectProperty();
         public final SimpleStringProperty productCategory = new SimpleStringProperty();
+
+        public void setProductKey(int productKey) {
+            this.productKey.set(productKey);
+        }
+
+        public void setProductUnitPrice(BigDecimal productUnitPrice) {
+            this.productUnitPrice.set(productUnitPrice);
+        }
+
+        public void setProductUnitPriceString(String productUnitPriceString) {
+            this.productUnitPriceString.set(productUnitPriceString);
+        }
+
+        public void setProductID(String productID) {
+            this.productID.set(productID);
+        }
+
+        public void setProductName(String productName) {
+            this.productName.set(productName);
+        }
+
+        public void setProductSize(String productSize) {
+            this.productSize.set(productSize);
+        }
+
+        public void setExtendedCost(BigDecimal extendedCost) {
+            this.extendedCost.set(extendedCost);
+        }
+
+        public void setProductCategory(String productCategory) {
+            this.productCategory.set(productCategory);
+        }
+
+        public void setOrderedQuantityString(String orderedQuantityString) {
+            this.orderedQuantityString.set(orderedQuantityString);
+        }
+
+        public void setOrderedQuantity(int orderedQuantity) {
+            this.orderedQuantity.set(orderedQuantity);
+        }
+
         public final SimpleStringProperty orderedQuantityString = new SimpleStringProperty();
 
         public final SimpleIntegerProperty orderedQuantity = new SimpleIntegerProperty();
