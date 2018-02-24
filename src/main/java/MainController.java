@@ -30,6 +30,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
@@ -170,9 +171,10 @@ public class MainController {
                                         LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                     }
                                     AddCustomerController addCustCont = loader.getController();
-                                    Tab tab = addTab(newPane, "Add Customer - " + newValue.getValue().getValue());
+                                    Pair<String, String> data = (Pair<String, String>) newValue.getValue().getValue();
+                                    Tab tab = addTab(newPane, "Add Customer - " + data.getKey());
 
-                                    addCustCont.initAddCust(newValue.getValue().getValue().toString(), this, tab);
+                                    addCustCont.initAddCust(data.getKey(), this, tab, data.getValue());
 
                                     break;
                                 }
@@ -234,7 +236,7 @@ public class MainController {
                             }
                             CustomerController customerCont = loader.getController();
                             customerCont.initCustomer((Customer) newValue.getValue().getValue(), this);
-                            tabTitle = ("Customer View - " + newValue.getKey() + " - " + newValue.getValue().getValue());
+                            tabTitle = ("Customer View - " + newValue.getKey() + " - " + ((Customer) newValue.getValue().getValue()).getYear());
                             addTab(newPane, tabTitle);
                             break;
                         }
@@ -301,8 +303,10 @@ public class MainController {
                                             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                         }
                                         AddCustomerController addCustCont = loader2.getController();
-                                        String tabTitle = ("Add Customer - " + cell.getValue().getValue().getValue().toString());
-                                        addCustCont.initAddCust(cell.getValue().getValue().getValue().toString(), this, openTabInCurrentWindow(NewPane2, tabTitle));
+                                        Pair<String, String> data = (Pair<String, String>) cell.getValue().getValue().getValue();
+
+                                        String tabTitle = ("Add Customer - " + data.getKey());
+                                        addCustCont.initAddCust(data.getKey(), this, openTabInCurrentWindow(NewPane2, tabTitle), data.getValue());
 
                                     }, () -> { //Open In New Tab
                                         FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
@@ -313,9 +317,11 @@ public class MainController {
                                         } catch (IOException e) {
                                             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                         }
+                                        Pair<String, String> data = (Pair<String, String>) cell.getValue().getValue().getValue();
+
                                         AddCustomerController addCustCont = loader2.getController();
-                                        String tabTitle = ("Add Customer - " + cell.getValue().getValue().getValue().toString());
-                                        addCustCont.initAddCust(cell.getValue().getValue().getValue().toString(), this, addTab(NewPane2, tabTitle));
+                                        String tabTitle = ("Add Customer - " + data.getKey());
+                                        addCustCont.initAddCust(data.getKey(), this, addTab(NewPane2, tabTitle), data.getValue());
                                     }, () -> { //Open In New Window
                                         FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
 
@@ -325,9 +331,11 @@ public class MainController {
                                         } catch (IOException e) {
                                             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                         }
+                                        Pair<String, String> data = (Pair<String, String>) cell.getValue().getValue().getValue();
+
                                         AddCustomerController addCustCont = loader2.getController();
-                                        String tabTitle = ("Add Customer - " + cell.getValue().getValue().getValue().toString());
-                                        addCustCont.initAddCust(cell.getValue().getValue().getValue().toString(), this, openInNewWindow(NewPane2, tabTitle));
+                                        String tabTitle = ("Add Customer - " + data.getKey());
+                                        addCustCont.initAddCust(data.getKey(), this, openInNewWindow(NewPane2, tabTitle), data.getValue());
                                     }, null);
                             break;
                         }
@@ -475,7 +483,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 openTabInCurrentWindow(NewPane2, tabTitle);
                             }, () -> { //Open In New Tab
                                 FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
@@ -488,7 +496,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 addTab(NewPane2, tabTitle);
                             }, () -> { //Open In New Window
                                 FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
@@ -501,7 +509,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 openInNewWindow(NewPane2, tabTitle);
                             }, () -> { //Edit
                                 openEditCustomer((Customer) cell.getValue().getValue().getValue());
@@ -700,53 +708,42 @@ public class MainController {
      * Adds the year buttons to the main panel.
      */
     void fillTreeView() {
+        //ProgressDialog progDial = new ProgressDialog();
+        ProgressForm progDial = new ProgressForm();
+//Do check if new or not, send -1 as ID
 
-        Iterable<String> ret = DbInt.getUserYears();
-        TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
-        contextTreeItem userRoot = new contextTreeItem("Groups/Users", new Pair<String, String>("RootNode", ""));
-        root.getChildren().add(new contextTreeItem("Reports", "Window"));
-        root.getChildren().add(new contextTreeItem("View Map", "Window"));
-        root.getChildren().add(new contextTreeItem("Settings", "Window"));
-        root.getChildren().add(new contextTreeItem("Users Groups & Years", "Window"));
+        LoadMainWorker loadWorker = new LoadMainWorker(this);
 
+        progDial.activateProgressBar(loadWorker);
+        loadWorker.setOnSucceeded(event -> {
+            selectNav.setRoot(loadWorker.getValue());
+            progDial.getDialogStage().close();
 
-        ///Select all years
-        //Create a button for each year
-/*        for (String aRet : ret) {
-            JButton b = new JButton(aRet);
-            b.addActionListener(e -> {
-                //On button click open Year window
-                new YearWindow(((AbstractButton) e.getSource()).getText());
+        });
+        loadWorker.setOnFailed(event -> {
+            progDial.getDialogStage().close();
 
-            });
-            panel_1.add(b);
-        }*/
-        for (String curYear : ret) {
-            contextTreeItem tIYear = new contextTreeItem(curYear, "Year");
-            Year year = new Year(curYear);
-            User curUser = DbInt.getUser(curYear);
-            Iterable<String> uManage = curUser.getuManage();
-            for (String uMan : uManage) {
-                contextTreeItem uManTi = new contextTreeItem(uMan, new Pair<>("UserCustomerView", curYear));
+            Throwable e = loadWorker.getException();
 
-                Iterable<Customer> customers = year.getCustomers(uMan);
-                for (Customer customer : customers) {
-                    uManTi.getChildren().add(new contextTreeItem(customer.getName(), new Pair<String, Customer>("Customer", customer)));
-                }
-                uManTi.getChildren().add(new contextTreeItem("Add Customer", new Pair<String, String>("Window", curYear)));
-                if (Objects.equals(uMan, curUser.getUserName())) {
-                    tIYear.getChildren().addAll(uManTi.getChildren());
-                } else {
-                    tIYear.getChildren().add(uManTi);
+            if (e instanceof SQLException) {
+                LogToFile.log((SQLException) e, Severity.SEVERE, CommonErrors.returnSqlMessage(((SQLException) loadWorker.getException())));
+
+            }
+            if (e instanceof InterruptedException) {
+                if (loadWorker.isCancelled()) {
+                    LogToFile.log((InterruptedException) e, Severity.FINE, "Load process canceled.");
+
                 }
             }
-            root.getChildren().add(tIYear);
 
 
+        });
 
-        }
 
-        selectNav.setRoot(root);
+        progDial.getDialogStage().show();
+        new Thread(loadWorker).start();
+
+
 
     }
 

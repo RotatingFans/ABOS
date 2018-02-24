@@ -491,8 +491,11 @@ public class SettingsController {
             if (Config.doesConfExist()) {
 
                 prop.put("databaseLocation", DbLoc.getText());
+                prop.put("SSL", "TRUE");
             } else if (!Config.doesConfExist()) {
                 prop.put("databaseLocation", DbLoc.getText());
+                prop.put("SSL", "TRUE");
+
                 prop.store(output, null);
                 prop = new Properties();
 

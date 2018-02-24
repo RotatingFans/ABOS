@@ -41,6 +41,7 @@ class AddCustomerWorker extends Task<Integer> {
     private final String Email;
     private final String DonationsT;
     private final String NameEditCustomer;
+    private final String uName;
     private final Boolean Paid;
     private final Boolean Delivered;
 
@@ -58,7 +59,7 @@ class AddCustomerWorker extends Task<Integer> {
      * @param paid             Did they pay
      * @param delivered        Was it deleivered
      */
-    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered) {
+    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered, String uName) {
         ID = id;
         this.Address = Address;
         this.Town = Town;
@@ -73,6 +74,7 @@ class AddCustomerWorker extends Task<Integer> {
         NameEditCustomer = nameEditCustomer;
         Paid = paid;
         Delivered = delivered;
+        this.uName = uName;
     }
 
     private static void failIfInterrupted() throws InterruptedException {
@@ -131,9 +133,11 @@ class AddCustomerWorker extends Task<Integer> {
         AddCustomerWorker.failIfInterrupted();
         updateProgress(0, 100);
         Customer customer = new Customer(ID, NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Paid, Delivered, Email,
-                Name, new BigDecimal(DonationsT));
+                Name, new BigDecimal(DonationsT), uName);
         Integer custID = customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
-        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, Paid, Delivered, (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
+        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, Paid, Delivered,
+                (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress(),
+                uName);
 
         updateProgress(100, 100);
 

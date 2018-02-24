@@ -22,7 +22,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -44,14 +44,15 @@ public class ProgressForm {
 
         // PROGRESS BAR
         label.setText("alerto");
+
         pb.setProgress(-1F);
 
-        final HBox hb = new HBox();
-        hb.setSpacing(5);
-        hb.setAlignment(Pos.CENTER);
-        hb.getChildren().addAll(label, pb);
+        final VBox vb = new VBox();
+        vb.setSpacing(5);
+        vb.setAlignment(Pos.CENTER);
+        vb.getChildren().addAll(label, pb);
 
-        Scene scene = new Scene(hb);
+        Scene scene = new Scene(vb);
         dialogStage.setScene(scene);
     }
 

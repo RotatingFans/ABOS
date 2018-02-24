@@ -92,7 +92,7 @@ public class UsersGroupsAndYearsController {
     /**
      * Initialize the contents of the frame.
      */
-    public void initUsersGroupsAndYears(Window parWindow) throws Exception {
+    public void initUsersGroupsAndYears(Window parWindow) throws AccessException {
         parentWindow = parWindow;
 
         yearsList.getItems().addAll(DbInt.getYears());

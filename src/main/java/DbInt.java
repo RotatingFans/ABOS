@@ -416,7 +416,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         }
     }
 
-    public static ArrayList<User> getUsers() throws Exception {
+    public static ArrayList<User> getUsers() throws AccessException {
         if (isAdmin) {
             ArrayList<User> ret = new ArrayList<>();
             try (Connection con = DbInt.getConnection("Commons");
@@ -434,7 +434,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             }
             return ret;
         } else {
-            throw new Exception("Access Error");
+            throw new AccessException("You are not an Admin");
         }
     }
 

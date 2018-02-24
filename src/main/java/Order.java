@@ -56,6 +56,10 @@ public class Order {
     }
 
     public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, Boolean paid, boolean delivered, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+        return updateOrder(orders, name, year, custID, paid, delivered, updateProg, fail, updateMessage, getProgress, DbInt.getUserName());
+    }
+
+    public static String updateOrder(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, Boolean paid, boolean delivered, updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress, String uName) throws Exception {
         List<Integer> Ids = new ArrayList<>();
         int numRows = orders.size();
         ObservableList<Product.formattedProductProps> orderNoZero = FXCollections.observableArrayList();
@@ -103,7 +107,6 @@ public class Order {
                 }
             }
             int OrderID = Ids.get(Ids.size() - 1);
-            String uName = DbInt.getUserName();
 
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("DELETE FROM orderedproductsview WHERE orderID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -163,7 +166,7 @@ public class Order {
             //Creates prepared Statement and replaces ? with quantities and names
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeOrd = con.prepareStatement("INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                writeOrd.setString(1, DbInt.getUserName());
+                writeOrd.setString(1, uName);
                 writeOrd.setInt(2, custID);
                 writeOrd.setInt(3, paid ? 1 : 0);
                 writeOrd.setInt(4, delivered ? 1 : 0);
@@ -186,7 +189,6 @@ public class Order {
                 }
             }
             int OrderID = Ids.get(Ids.size() - 1);
-            String uName = DbInt.getUserName();
 
 
             try (Connection con = DbInt.getConnection(year);

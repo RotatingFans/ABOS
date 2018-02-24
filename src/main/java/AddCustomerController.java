@@ -74,6 +74,8 @@ public class AddCustomerController {
     @FXML
     private TextField DonationsT;
     @FXML
+    private ComboBox<String> userCmbx;
+    @FXML
     private Button okButton;
     private Tab parentTab = null;
     private Stage parentStage = null;
@@ -100,6 +102,10 @@ public class AddCustomerController {
      *
      */
     public void initAddCust(Customer customer, MainController mainController, Tab parent) {
+        initAddCust(customer, mainController, parent, customer.getUser());
+    }
+
+    public void initAddCust(Customer customer, MainController mainController, Tab parent, String user) {
 
         mainCont = mainController;
         parentTab = parent;
@@ -107,7 +113,11 @@ public class AddCustomerController {
         yearInfo = new Year(year);
         customerInfo = customer;
         edit = true;
-
+        User curUser = new User(year);
+        curUser.getuManage().forEach(uMan -> {
+            userCmbx.getItems().add(uMan);
+        });
+        userCmbx.getSelectionModel().select(user);
         //Set the address
         String[] addr = customerInfo.getCustAddressFrmName();
         String city = addr[0];
@@ -157,14 +167,28 @@ public class AddCustomerController {
         initAddCust(aYear, mainController, (Tab) null);
     }
 
+    public void initAddCust(String aYear, MainController mainController, Stage parent, String User) {
+        parentStage = parent;
+        initAddCust(aYear, mainController, (Tab) null, User);
+    }
+
     public void initAddCust(String aYear, MainController mainController, Tab parent) {
+        initAddCust(aYear, mainController, parent, DbInt.getUserName());
+
+    }
+
+    public void initAddCust(String aYear, MainController mainController, Tab parent, String user) {
         mainCont = mainController;
         newCustomer = 1;
         parentTab = parent;
         NameEditCustomer = "";
         year = aYear;
         yearInfo = new Year(year);
-
+        User curUser = new User(year);
+        curUser.getuManage().forEach(uMan -> {
+            userCmbx.getItems().add(uMan);
+        });
+        userCmbx.getSelectionModel().select(user);
         Name.setText(Config.getProp("CustomerName"));
 
         Address.setText(Config.getProp("CustomerAddress"));
@@ -253,13 +277,27 @@ public class AddCustomerController {
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.CANCEL) {
-                Stage stage = (Stage) okButton.getScene().getWindow();
-
-                stage.close();
+                if (parentTab != null) {
+                    mainCont.closeTab(parentTab);
+                } else {
+                    parentStage.close();
+                }
                 //close
                 // ... user chose OK
             }
         }
+    }
+
+    @FXML
+    public void cancel(ActionEvent event) {
+        if (parentTab != null) {
+            mainCont.closeTab(parentTab);
+        } else {
+            parentStage.close();
+        }
+        //close
+        // ... user chose OK
+
     }
 
     /**
@@ -424,7 +462,8 @@ public class AddCustomerController {
                 DonationsT.getText().isEmpty() ? "0.0" : DonationsT.getText(),
                 Objects.equals(NameEditCustomer, "") ? Name.getText() : NameEditCustomer,
                 Paid.isSelected(),
-                Delivered.isSelected());
+                Delivered.isSelected(),
+                userCmbx.getSelectionModel().getSelectedItem());
 
         /*addCustWork.addPropertyChangeListener(event -> {
             switch (event.getPropertyName()) {
@@ -480,7 +519,6 @@ public class AddCustomerController {
 
             }
             mainCont.addTab(newPane, "Year View - " + year);
-
         });
         addCustWork.setOnFailed(event -> {
             progDial.getDialogStage().close();
@@ -508,8 +546,7 @@ public class AddCustomerController {
 
 
         progDial.getDialogStage().show();
-        addCustWork.run();
-
+        new Thread(addCustWork).start();
     }
 
     /**

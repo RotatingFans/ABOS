@@ -362,8 +362,10 @@ class ReportsWorker extends Task<Integer> {
                         TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
                         info.appendChild(TotalQuantity);
                     }
-                    String donation = cust.getDontation().toPlainString();
-                    if (!Objects.equals(donation, "0.0") && !Objects.equals(donation, "0")) {
+                    BigDecimal donationBD = cust.getDontation();
+
+                    String donation = donationBD.toPlainString();
+                    if (!(donationBD.compareTo(BigDecimal.ZERO) <= 0)) {
                         Element title = doc.createElement("DonationThanks");
                         {
                             Element text = doc.createElement("text");
