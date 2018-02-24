@@ -235,7 +235,7 @@ public class MainController {
                             }
                             CustomerController customerCont = loader.getController();
                             customerCont.initCustomer((Customer) newValue.getValue().getValue(), this);
-                            tabTitle = ("Customer View - " + newValue.getKey() + " - " + newValue.getValue().getValue());
+                            tabTitle = ("Customer View - " + newValue.getKey() + " - " + ((Customer) newValue.getValue().getValue()).getYear());
                             addTab(newPane, tabTitle);
                             break;
                         }
@@ -482,7 +482,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 openTabInCurrentWindow(NewPane2, tabTitle);
                             }, () -> { //Open In New Tab
                                 FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
@@ -495,7 +495,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 addTab(NewPane2, tabTitle);
                             }, () -> { //Open In New Window
                                 FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
@@ -508,7 +508,7 @@ public class MainController {
                                 }
                                 CustomerController customerCont = loader2.getController();
                                 customerCont.initCustomer((Customer) cell.getValue().getValue().getValue(), this);
-                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + cell.getValue().getValue().getValue().toString());
+                                String tabTitle = ("Customer View - " + cell.getValue().getKey() + " - " + ((Customer) cell.getValue().getValue().getValue()).getYear());
                                 openInNewWindow(NewPane2, tabTitle);
                             }, () -> { //Edit
                                 openEditCustomer((Customer) cell.getValue().getValue().getValue());
