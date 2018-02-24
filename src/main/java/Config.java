@@ -259,6 +259,7 @@ class Config {
 
             //Add DB setting
             prop.setProperty("databaseLocation", "");
+            prop.setProperty("SSL", "TRUE");
 
 
             //AddCustomer
