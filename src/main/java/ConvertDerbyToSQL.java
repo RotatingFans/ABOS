@@ -210,7 +210,8 @@ public class ConvertDerbyToSQL extends Application {
                                     customerDbInfo.getDontation().toPlainString(),
                                     customerDbInfo.getName(),
                                     Boolean.valueOf(customerDbInfo.getPaid()),
-                                    Boolean.valueOf(customerDbInfo.getDelivered()));
+                                    Boolean.valueOf(customerDbInfo.getDelivered()),
+                                    userName);
 
         /*addCustWork.addPropertyChangeListener(event -> {
             switch (event.getPropertyName()) {

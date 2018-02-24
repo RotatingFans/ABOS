@@ -49,6 +49,7 @@ public class Customer {
     private Boolean delivered = false;
     private String email = "";
     private String orderId = "";
+    private String user = "";
     private BigDecimal Donation = BigDecimal.ZERO;
 
     public Customer(Integer ID, String name, String year, String address,
@@ -63,6 +64,21 @@ public class Customer {
                     String email,
                     String nameEdited,
                     BigDecimal Donation) {
+        this(ID, name, year, address, town, state, zipCode, lat, lon, phone, paid, delivered, email, nameEdited, Donation, DbInt.getUserName());
+    }
+    public Customer(Integer ID, String name, String year, String address,
+                    String town,
+                    String state,
+                    String zipCode,
+                    Double lat,
+                    Double lon,
+                    String phone,
+                    Boolean paid,
+                    Boolean delivered,
+                    String email,
+                    String nameEdited,
+                    BigDecimal Donation,
+                    String user) {
         this.ID = ID;
         this.name = name;
         this.year = year;
@@ -79,9 +95,11 @@ public class Customer {
         this.orderId = orderId;
         this.Donation = Donation;
         this.nameEdited = nameEdited;
+        this.user = user;
     }
 
     public Customer(String name, String year) {
+        this.user = DbInt.getUserName();
 
         this.name = name;
         this.year = year;
@@ -91,14 +109,14 @@ public class Customer {
     public Customer(int ID, String year) throws CustomerNotFoundException {
         String ret = "";
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT Name, uName FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
                 while (rs.next()) {
 
                     ret = rs.getString("Name");
-
+                    this.user = rs.getString("uName");
                 }
             }
             ////DbInt.pCon.close()
@@ -123,7 +141,21 @@ public class Customer {
         this.name = name;
         this.year = year;
         this.nameEdited = name;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT uName FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setInt(1, ID);
+            try (ResultSet rs = prep.executeQuery()) {
 
+                while (rs.next()) {
+
+                    this.user = rs.getString("uName");
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
 
     }
 
@@ -144,6 +176,7 @@ public class Customer {
         this.orderId = "";
         this.Donation = BigDecimal.ZERO;
         this.nameEdited = "";
+        this.user = DbInt.getUserName();
     }
 
     public boolean equals(Object obj) {
@@ -237,20 +270,21 @@ public class Customer {
             fail.doAction();
             updateMessage.doAction("Adding Customer");
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement writeCust = con.prepareStatement("INSERT INTO customerview (uName, Name, streetAddress, City, State, Zip, Lat, Lon, Phone, Email, Donation) VALUES (LEFT(USER(), (LOCATE('@', USER()) - 1)),?,?,?,?,?,?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                writeCust.setString(1, this.nameEdited);
-                writeCust.setString(2, this.address);
-                writeCust.setString(3, this.town);
-                writeCust.setString(4, this.state);
-                writeCust.setString(5, this.zipCode);
-                writeCust.setDouble(6, lat);
-                writeCust.setDouble(7, lon);
-                writeCust.setString(8, this.phone);
+                 PreparedStatement writeCust = con.prepareStatement("INSERT INTO customerview (uName, Name, streetAddress, City, State, Zip, Lat, Lon, Phone, Email, Donation) VALUES (?,?,?,?,?,?,?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                writeCust.setString(1, this.user);
+                writeCust.setString(2, this.nameEdited);
+                writeCust.setString(3, this.address);
+                writeCust.setString(4, this.town);
+                writeCust.setString(5, this.state);
+                writeCust.setString(6, this.zipCode);
+                writeCust.setDouble(7, lat);
+                writeCust.setDouble(8, lon);
+                writeCust.setString(9, this.phone);
                 //writeCust.setString(9, this.orderId);
                 //writeCust.setString(10, this.paid);
                 //writeCust.setString(11, this.delivered);
-                writeCust.setString(9, this.email);
-                writeCust.setString(10, this.Donation.toPlainString());
+                writeCust.setString(10, this.email);
+                writeCust.setString(11, this.Donation.toPlainString());
                 fail.doAction();
                 writeCust.execute();
             }
@@ -452,6 +486,10 @@ public class Customer {
 
     public String getName() {
         return name;
+    }
+
+    public String getUser() {
+        return user;
     }
 
     public void setName(String name) {

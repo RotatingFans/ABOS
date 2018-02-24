@@ -22,10 +22,10 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0"
-            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-            AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="AddCustomerController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddCustomerController">
     <children>
         <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -155,11 +155,18 @@
                                 <CheckBox fx:id="Paid" mnemonicParsing="false" text="Paid"/>
                             </children>
                         </HBox>
+                        <HBox layoutX="1138.0" layoutY="36.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="24.0" prefWidth="110.0" text="User to add as:"
+                                       textAlignment="CENTER"/>
+                                <ComboBox fx:id="userCmbx" prefWidth="150.0"/>
+                            </children>
+                        </HBox>
                     </children>
                 </FlowPane>
             </top>
             <center>
-                <ScrollPane prefHeight="200.0" prefWidth="200.0" fitToHeight="true" fitToWidth="true"
+                <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0"
                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                             AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
                     <content>
@@ -167,9 +174,9 @@
                                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
-                                <TableView fx:id="ProductTable" prefHeight="322.0" prefWidth="590.0"
+                                <TableView fx:id="ProductTable" editable="true" prefHeight="322.0" prefWidth="590.0"
                                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" editable="true"/>
+                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                             </children>
                         </AnchorPane>
                     </content>
