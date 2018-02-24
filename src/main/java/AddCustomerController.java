@@ -519,7 +519,6 @@ public class AddCustomerController {
 
             }
             mainCont.addTab(newPane, "Year View - " + year);
-
         });
         addCustWork.setOnFailed(event -> {
             progDial.getDialogStage().close();
@@ -547,8 +546,7 @@ public class AddCustomerController {
 
 
         progDial.getDialogStage().show();
-        addCustWork.run();
-
+        new Thread(addCustWork).start();
     }
 
     /**

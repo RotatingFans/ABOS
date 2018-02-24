@@ -473,7 +473,7 @@ public class ReportsController {
             }
         });
         progDial.getDialogStage().show();
-        reportsWorker.run();
+        new Thread(reportsWorker).start();
 
 
     }
