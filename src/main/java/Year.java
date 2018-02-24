@@ -998,7 +998,7 @@ public class Year {
         }
     }
 
-    public ArrayList<User> getUsers() throws Exception {
+    public ArrayList<User> getUsers() throws AccessException {
         if (DbInt.isAdmin()) {
             ArrayList<User> ret = new ArrayList<>();
             try (Connection con = DbInt.getConnection(year);
@@ -1017,7 +1017,7 @@ public class Year {
             }
             return ret;
         } else {
-            throw new Exception("Access Error");
+            throw new AccessException("You are not Admin.");
         }
     }
     public static class category {

@@ -714,7 +714,9 @@ public class MainController {
         root.getChildren().add(new contextTreeItem("Reports", "Window"));
         root.getChildren().add(new contextTreeItem("View Map", "Window"));
         root.getChildren().add(new contextTreeItem("Settings", "Window"));
-        root.getChildren().add(new contextTreeItem("Users Groups & Years", "Window"));
+        if (DbInt.isAdmin()) {
+            root.getChildren().add(new contextTreeItem("Users Groups & Years", "Window"));
+        }
 
 
         ///Select all years
