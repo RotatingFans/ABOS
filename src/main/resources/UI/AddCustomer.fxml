@@ -188,7 +188,8 @@
                     <buttons>
                         <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#submit"
                                 text="OK"/>
-                        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" text="Cancel"/>
+                        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#cancel"
+                                text="Cancel"/>
                     </buttons>
                 </ButtonBar>
             </bottom>

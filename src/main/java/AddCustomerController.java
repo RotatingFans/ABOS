@@ -277,13 +277,27 @@ public class AddCustomerController {
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.CANCEL) {
-                Stage stage = (Stage) okButton.getScene().getWindow();
-
-                stage.close();
+                if (parentTab != null) {
+                    mainCont.closeTab(parentTab);
+                } else {
+                    parentStage.close();
+                }
                 //close
                 // ... user chose OK
             }
         }
+    }
+
+    @FXML
+    public void cancel(ActionEvent event) {
+        if (parentTab != null) {
+            mainCont.closeTab(parentTab);
+        } else {
+            parentStage.close();
+        }
+        //close
+        // ... user chose OK
+
     }
 
     /**
