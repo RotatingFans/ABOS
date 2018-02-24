@@ -708,6 +708,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
         } catch (CommunicationsException e) {
             promptConfig();
+            LogToFile.log(e, Severity.FINEST, "Error contacting Database");
         } catch (SQLException e) {
 
             if (Objects.equals(e.getSQLState(), "28000")) {
