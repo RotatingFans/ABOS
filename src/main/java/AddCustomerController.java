@@ -17,16 +17,21 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -98,6 +103,10 @@ public class AddCustomerController {
     private ObservableList<Product.formattedProductProps> data;
     private MainController mainCont;
     private TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent;
+
+    private String lastKey = null;
+
+
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
@@ -319,6 +328,55 @@ public class AddCustomerController {
             data.add(prodProps);
             i++;
         }
+
+        // ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //ProductTable.getSelectionModel().setCellSelectionEnabled(true);
+        // ProductTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        ProductTable.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent t) -> {
+            if (ProductTable.getEditingCell() == null && t.getCode() == KeyCode.ENTER) {
+                if (t.isShiftDown()) {
+                    ProductTable.getSelectionModel().selectAboveCell();
+                } else {
+                    ProductTable.getSelectionModel().selectBelowCell();
+                }
+                t.consume();
+            } else {
+                TablePosition tp;
+                if (!t.isControlDown() &&
+                        (t.getCode().isDigitKey())) {
+                    lastKey = t.getText();
+                    tp = ProductTable.getFocusModel().getFocusedCell();
+                    ProductTable.edit(tp.getRow(), tp.getTableColumn());
+                    lastKey = null;
+                }
+            }
+
+            /*//I decided not to override the default tab behavior
+            //using ctrl tab for cell traversal, but arrow keys are better
+            if (t.isControlDown() && t.getCode() == KeyCode.TAB) {
+                if (t.isShiftDown()) {
+                    tv.getSelectionModel().selectLeftCell();
+                } else {
+                    tv.getSelectionModel().selectRightCell();
+                }
+                t.consume();
+            }*/
+        });
+
+        /*ProductTable.setOnKeyPressed((KeyEvent t) -> {
+            TablePosition tp;
+            if (!t.isControlDown() &&
+                    (t.getCode().isLetterKey() || t.getCode().isDigitKey())) {
+                lastKey = t.getText();
+                tp = ProductTable.getFocusModel().getFocusedCell();
+                ProductTable.edit(tp.getRow(),tp.getTableColumn());
+                lastKey = null;
+            }
+        });*/
+        Callback<TableColumn<Product.formattedProductProps, String>, TableCell<Product.formattedProductProps, String>> txtCellFactory =
+                (TableColumn<Product.formattedProductProps, String> p) -> {return new EditingCell();};
+
         if (!columnsFilled) {
             String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
             for (String[] column : columnNames) {
@@ -327,31 +385,44 @@ public class AddCustomerController {
                 ProductTable.getColumns().add(tbCol);
             }
         }
+
+
         //{"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}
         TableColumn<Product.formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
         TableColumn<Product.formattedProductProps, String> priceCol = new TableColumn<>("Price");
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("orderedQuantityString"));
 
-        quantityCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        quantityCol.setCellFactory(txtCellFactory);
 
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
-            int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
-            //Removes $ from cost and multiplies to get the total cost for that item
-            BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
-            t.getRowValue().extendedCost.set(ItemTotalCost);
-            t.getRowValue().orderedQuantity.set(quantity);
-            t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
+            try {
+                int quantity = Integer.valueOf(t.getNewValue());
 
-            data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
-            data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
-            t.getTableView().refresh();
-            totalCostFinal = BigDecimal.ZERO;
-            t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
+                BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
+                //Removes $ from cost and multiplies to get the total cost for that item
+                BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
+                t.getRowValue().extendedCost.set(ItemTotalCost);
+                t.getRowValue().orderedQuantity.set(quantity);
+                t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
 
-            });
+                data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
+                data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
+                t.getTableView().refresh();
+                totalCostFinal = BigDecimal.ZERO;
+                t.getTableView().getItems().forEach(item -> {
+                    totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
+
+                });
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid number");
+                alert.setHeaderText("You have entered an invalid number.");
+                alert.show();
+                t.getRowValue().productUnitPriceString.set(t.getOldValue());
+                t.getTableView().getSelectionModel().selectAboveCell();
+
+                t.getTableView().refresh();
+            }
 
         });
         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
@@ -374,6 +445,7 @@ public class AddCustomerController {
 
         ProductTable.getColumns().addAll(quantityCol, priceCol);
 
+
         columnsFilled = true;
 
         ProductTable.setItems(data);
@@ -387,6 +459,39 @@ public class AddCustomerController {
     private void fillOrderedTable() {
         Order.orderArray order = Order.createOrderArray(year, customerInfo.getId(), false);
         data = FXCollections.observableArrayList();
+        Callback<TableColumn<Product.formattedProductProps, String>, TableCell<Product.formattedProductProps, String>> txtCellFactory =
+                (TableColumn<Product.formattedProductProps, String> p) -> {return new EditingCell();};
+        ProductTable.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent t) -> {
+            if (ProductTable.getEditingCell() == null && t.getCode() == KeyCode.ENTER) {
+                if (t.isShiftDown()) {
+                    ProductTable.getSelectionModel().selectAboveCell();
+                } else {
+                    ProductTable.getSelectionModel().selectBelowCell();
+                }
+                t.consume();
+            } else {
+                TablePosition tp;
+                if (!t.isControlDown() &&
+                        (t.getCode().isDigitKey())) {
+                    lastKey = t.getText();
+                    tp = ProductTable.getFocusModel().getFocusedCell();
+                    ProductTable.edit(tp.getRow(), tp.getTableColumn());
+                    lastKey = null;
+                }
+            }
+
+            /*//I decided not to override the default tab behavior
+            //using ctrl tab for cell traversal, but arrow keys are better
+            if (t.isControlDown() && t.getCode() == KeyCode.TAB) {
+                if (t.isShiftDown()) {
+                    tv.getSelectionModel().selectLeftCell();
+                } else {
+                    tv.getSelectionModel().selectRightCell();
+                }
+                t.consume();
+            }*/
+        });
+
 
         int i = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
@@ -408,26 +513,37 @@ public class AddCustomerController {
         TableColumn<Product.formattedProductProps, String> priceCol = new TableColumn<>("Price");
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("orderedQuantityString"));
 
-        quantityCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        quantityCol.setCellFactory(txtCellFactory);
 
         quantityCol.setOnEditCommit(t -> {
             //t.getTableView().getItems().get(t.getTablePosition().getRow()).orderedQuantity.set(Integer.valueOf(t.getNewValue()));
-            int quantity = Integer.valueOf(t.getNewValue());
-            BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
-            //Removes $ from cost and multiplies to get the total cost for that item
-            BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
-            t.getRowValue().extendedCost.set(ItemTotalCost);
-            t.getRowValue().orderedQuantity.set(quantity);
-            t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
+            try {
+                int quantity = Integer.valueOf(t.getNewValue());
 
-            data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
-            data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
-            t.getTableView().refresh();
-            totalCostFinal = BigDecimal.ZERO;
-            t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
+                BigDecimal unitCost = t.getTableView().getItems().get(t.getTablePosition().getRow()).productUnitPrice.get();
+                //Removes $ from cost and multiplies to get the total cost for that item
+                BigDecimal ItemTotalCost = unitCost.multiply(new BigDecimal(quantity));
+                t.getRowValue().extendedCost.set(ItemTotalCost);
+                t.getRowValue().orderedQuantity.set(quantity);
+                t.getRowValue().orderedQuantityString.set(String.valueOf(quantity));
 
-            });
+                data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
+                data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
+                t.getTableView().refresh();
+                totalCostFinal = BigDecimal.ZERO;
+                t.getTableView().getItems().forEach(item -> {
+                    totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
+
+                });
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid number");
+                alert.setHeaderText("You have entered an invalid number.");
+                alert.show();
+                t.getRowValue().productUnitPriceString.set(t.getOldValue());
+                t.getTableView().getSelectionModel().selectAboveCell();
+
+                t.getTableView().refresh();
+            }
 
         });
         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
@@ -648,5 +764,105 @@ public class AddCustomerController {
         yearInfo.updateTots(donations, Lg, LP, Mulch, OT, Customers, Commis, GTot);
     }*/
 
+    private class EditingCell extends TableCell {
+
+        private TextField textField;
+
+        @Override
+        public void startEdit() {
+            if (!isEmpty()) {
+                super.startEdit();
+                createTextField();
+                setText(null);
+                setGraphic(textField);
+                //setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                Platform.runLater(() -> {//without this space erases text, f2 doesn't
+                    textField.requestFocus();//also selects
+                });
+                if (lastKey != null) {
+                    textField.setText(lastKey);
+                    Platform.runLater(() -> {
+                        textField.deselect();
+                        textField.end();
+                    });
+                }
+            }
+        }
+
+        public void commit() {
+            commitEdit(textField.getText());
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            try {
+                setText(getItem().toString());
+            } catch (Exception e) {}
+            setGraphic(null);
+        }
+
+        @Override
+        public void updateItem(Object item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+            } else if (isEditing()) {
+                if (textField != null) {
+                    textField.setText(getString());
+                }
+                setText(null);
+                setGraphic(textField);
+            } else {
+                setText(getString());
+                setGraphic(null);
+                if (getTableColumn().getText().equals("amount")) { setAlignment(Pos.CENTER_RIGHT); }
+            }
+        }
+
+        private void createTextField() {
+            textField = new TextField(getString());
+
+            //doesn't work if clicking a different cell, only focusing out of table
+            textField.focusedProperty().addListener(
+                    (ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
+                        if (!arg2) commitEdit(textField.getText());
+                    });
+
+            textField.setOnKeyReleased((KeyEvent t) -> {
+                if (t.getCode() == KeyCode.ENTER) {
+                    commitEdit(textField.getText());
+                    EditingCell.this.getTableView().getSelectionModel().selectBelowCell();
+                    EditingCell.this.getTableView().requestFocus();
+                } else if (t.getCode() == KeyCode.RIGHT) {
+                    getTableView().getSelectionModel().selectRightCell();
+                    t.consume();
+                } else if (t.getCode() == KeyCode.LEFT) {
+                    getTableView().getSelectionModel().selectLeftCell();
+                    t.consume();
+                } else if (t.getCode() == KeyCode.UP) {
+                    getTableView().getSelectionModel().selectAboveCell();
+                    t.consume();
+                } else if (t.getCode() == KeyCode.DOWN) {
+                    getTableView().getSelectionModel().selectBelowCell();
+                    t.consume();
+                } else if (t.getCode() == KeyCode.ESCAPE) {
+                    cancelEdit();
+                }
+            });
+
+            textField.addEventFilter(KeyEvent.KEY_RELEASED, (KeyEvent t) -> {
+                if (t.getCode() == KeyCode.DELETE) {
+                    t.consume();//stop from deleting line in table keyevent
+                }
+            });
+        }
+
+        private String getString() {
+            return getItem() == null ? "" : getItem().toString();
+        }
+    }
 
 }
