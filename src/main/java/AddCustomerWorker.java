@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 /**
  * @author Patrick Magauran
  */
-class AddCustomerWorker extends Task<Integer> {
+class AddCustomerWorker extends Task<Customer> {
     private final Integer ID;
 
     private final String Address;
@@ -119,7 +119,7 @@ class AddCustomerWorker extends Task<Integer> {
     }*/
 
     @Override
-    protected Integer call() throws Exception {
+    protected Customer call() throws Exception {
         String address = String.format("%s %s, %s", Address, Town, State);//Formats address
         updateMessage("Analyzing Address");
         Object[][] coords;
@@ -323,6 +323,6 @@ class AddCustomerWorker extends Task<Integer> {
 
 
         // Return the number of matches found
-        return 1;
+        return customer;
     }
 }

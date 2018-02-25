@@ -27,6 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -96,17 +97,17 @@ public class AddCustomerController {
     private Boolean columnsFilled = false;
     private ObservableList<Product.formattedProductProps> data;
     private MainController mainCont;
-
+    private TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent;
     /**
      * Used to open dialog with already existing customer information from year as specified in Customer Report.
      *
      */
-    public void initAddCust(Customer customer, MainController mainController, Tab parent) {
-        initAddCust(customer, mainController, parent, customer.getUser());
+    public void initAddCust(Customer customer, MainController mainController, Tab parent, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
+        initAddCust(customer, mainController, parent, customer.getUser(), treeParent);
     }
 
-    public void initAddCust(Customer customer, MainController mainController, Tab parent, String user) {
-
+    public void initAddCust(Customer customer, MainController mainController, Tab parent, String user, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
+        this.treeParent = treeParent;
         mainCont = mainController;
         parentTab = parent;
         year = customer.getYear();
@@ -162,22 +163,24 @@ public class AddCustomerController {
 
     }
 
-    public void initAddCust(String aYear, MainController mainController, Stage parent) {
+    public void initAddCust(String aYear, MainController mainController, Stage parent, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
         parentStage = parent;
-        initAddCust(aYear, mainController, (Tab) null);
+        initAddCust(aYear, mainController, (Tab) null, treeParent);
     }
 
-    public void initAddCust(String aYear, MainController mainController, Stage parent, String User) {
+    public void initAddCust(String aYear, MainController mainController, Stage parent, String User, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
         parentStage = parent;
-        initAddCust(aYear, mainController, (Tab) null, User);
+        initAddCust(aYear, mainController, (Tab) null, User, treeParent);
     }
 
-    public void initAddCust(String aYear, MainController mainController, Tab parent) {
-        initAddCust(aYear, mainController, parent, DbInt.getUserName());
+    public void initAddCust(String aYear, MainController mainController, Tab parent, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
+        initAddCust(aYear, mainController, parent, DbInt.getUserName(), treeParent);
 
     }
 
-    public void initAddCust(String aYear, MainController mainController, Tab parent, String user) {
+    public void initAddCust(String aYear, MainController mainController, Tab parent, String user, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
+        this.treeParent = treeParent;
+
         mainCont = mainController;
         newCustomer = 1;
         parentTab = parent;
@@ -509,6 +512,9 @@ public class AddCustomerController {
                 newPane = loader.load();
             } catch (IOException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+            }
+            if (treeParent != null) {
+                mainCont.addCustomerToTreeView(addCustWork.getValue(), treeParent);
             }
             YearController yearCont = loader.getController();
             yearCont.initYear(year, mainCont);
