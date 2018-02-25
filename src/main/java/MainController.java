@@ -149,125 +149,127 @@ public class MainController {
                 isRightClick = true;
 
             }
-            Platform.runLater(() -> {
-                TreeItemPair<String, Pair<String, Object>> newValue = selectNav.getSelectionModel().getSelectedItem().getValue();
-                if (isRightClick) {
-                    //reset the flag
-                    isRightClick = false;
-                } else if (newValue != null && !Objects.equals(newValue.getValue().getValue(), "RootNode")) {
-                    Pane newPane = null;
-                    FXMLLoader loader;
-                    String tabTitle;
+            if (event.getClickCount() == 2) {
 
-                    // load new pane
-                    switch (newValue.getValue().getKey()) {
-                        case "Window": {
-                            switch (newValue.getKey()) {
-                                case "Add Customer": {
-                                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
-                                    try {
-                                        newPane = loader.load();
-                                    } catch (IOException e) {
-                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                Platform.runLater(() -> {
+                    TreeItemPair<String, Pair<String, Object>> newValue = selectNav.getSelectionModel().getSelectedItem().getValue();
+                    if (isRightClick) {
+                        //reset the flag
+                        isRightClick = false;
+                    } else if (newValue != null && !Objects.equals(newValue.getValue().getValue(), "RootNode")) {
+                        Pane newPane = null;
+                        FXMLLoader loader;
+                        String tabTitle;
+
+                        // load new pane
+                        switch (newValue.getValue().getKey()) {
+                            case "Window": {
+                                switch (newValue.getKey()) {
+                                    case "Add Customer": {
+                                        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                                        try {
+                                            newPane = loader.load();
+                                        } catch (IOException e) {
+                                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                        }
+                                        AddCustomerController addCustCont = loader.getController();
+                                        Pair<String, String> data = (Pair<String, String>) newValue.getValue().getValue();
+                                        Tab tab = addTab(newPane, "Add Customer - " + data.getKey());
+
+                                        addCustCont.initAddCust(data.getKey(), this, tab, data.getValue(), selectNav.getSelectionModel().getSelectedItem().getParent());
+
+                                        break;
                                     }
-                                    AddCustomerController addCustCont = loader.getController();
-                                    Pair<String, String> data = (Pair<String, String>) newValue.getValue().getValue();
-                                    Tab tab = addTab(newPane, "Add Customer - " + data.getKey());
+                                    case "Users Groups & Years": {
+                                        new UsersGroupsAndYears(getWindow());
 
-                                    addCustCont.initAddCust(data.getKey(), this, tab, data.getValue());
-
-                                    break;
-                                }
-                                case "Users Groups & Years": {
-                                    new UsersGroupsAndYears(getWindow());
-
-                                    break;
-                                }
-                                case "Reports":
-                                    new Reports(tabPane2.getScene().getWindow());
-                                    break;
-                                case "View Map":
-                                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
-                                    try {
-                                        newPane = loader.load();
-                                    } catch (IOException e) {
-                                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                        break;
                                     }
-                                    MapController mapCont = loader.getController();
-                                    mapCont.initMap(this);
-                                    addTab(newPane, "Map");
+                                    case "Reports":
+                                        new Reports(tabPane2.getScene().getWindow());
+                                        break;
+                                    case "View Map":
+                                        loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                                        try {
+                                            newPane = loader.load();
+                                        } catch (IOException e) {
+                                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                        }
+                                        MapController mapCont = loader.getController();
+                                        mapCont.initMap(this);
+                                        addTab(newPane, "Map");
 
-                                    break;
-                                case "Add Year":
-                                    new AddYear(getWindow());
-                                    break;
-                                case "Add User":
-                                    new AddUser(getWindow());
-                                    break;
-                                case "Add Group":
-                                    AddGroup.addGroup(newValue.getValue().getValue().toString());
-                                    break;
-                                case "Settings":
-                                    new Settings(tabPane2.getScene().getWindow());
-                                    break;
+                                        break;
+                                    case "Add Year":
+                                        new AddYear(getWindow());
+                                        break;
+                                    case "Add User":
+                                        new AddUser(getWindow());
+                                        break;
+                                    case "Add Group":
+                                        AddGroup.addGroup(newValue.getValue().getValue().toString());
+                                        break;
+                                    case "Settings":
+                                        new Settings(tabPane2.getScene().getWindow());
+                                        break;
+                                }
+                                break;
                             }
-                            break;
-                        }
 
-                        case "Year": {
-                            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
-                            try {
-                                newPane = loader.load();
-                            } catch (IOException e) {
-                                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                            case "Year": {
+                                loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                                try {
+                                    newPane = loader.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                YearController yearCont = loader.getController();
+                                yearCont.initYear(newValue.getKey(), this);
+                                tabTitle = ("Year View - " + newValue.getKey());
+                                addTab(newPane, tabTitle);
+                                break;
                             }
-                            YearController yearCont = loader.getController();
-                            yearCont.initYear(newValue.getKey(), this);
-                            tabTitle = ("Year View - " + newValue.getKey());
-                            addTab(newPane, tabTitle);
-                            break;
-                        }
-                        case "Customer": {
-                            loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
-                            try {
-                                newPane = loader.load();
-                            } catch (IOException e) {
-                                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                            case "Customer": {
+                                loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                                try {
+                                    newPane = loader.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                CustomerController customerCont = loader.getController();
+                                customerCont.initCustomer((Customer) newValue.getValue().getValue(), this);
+                                tabTitle = ("Customer View - " + newValue.getKey() + " - " + ((Customer) newValue.getValue().getValue()).getYear());
+                                addTab(newPane, tabTitle);
+                                break;
                             }
-                            CustomerController customerCont = loader.getController();
-                            customerCont.initCustomer((Customer) newValue.getValue().getValue(), this);
-                            tabTitle = ("Customer View - " + newValue.getKey() + " - " + ((Customer) newValue.getValue().getValue()).getYear());
-                            addTab(newPane, tabTitle);
-                            break;
-                        }
-                        case "Group": {
-                            AddGroup.addGroup(newValue.getValue().getValue().toString(), newValue.getKey());
+                            case "Group": {
+                                AddGroup.addGroup(newValue.getValue().getValue().toString(), newValue.getKey());
 
-                            break;
-                        }
-                        case "UserCustomerView": {
-                            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
-                            try {
-                                newPane = loader.load();
-                            } catch (IOException e) {
-                                LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                break;
                             }
-                            YearController yearCont = loader.getController();
-                            yearCont.initYear(newValue.getValue().getValue().toString(), newValue.getKey(), this);
-                            tabTitle = ("Year View - " + newValue.getValue().getValue() + " - " + newValue.getKey());
-                            addTab(newPane, tabTitle);
-                            break;
-                        }
-                        case "User": {
-                            new AddUser(getWindow(), newValue.getValue().getValue().toString());
-                            break;
-                        }
+                            case "UserCustomerView": {
+                                loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                                try {
+                                    newPane = loader.load();
+                                } catch (IOException e) {
+                                    LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                                }
+                                YearController yearCont = loader.getController();
+                                yearCont.initYear(newValue.getValue().getValue().toString(), newValue.getKey(), this);
+                                tabTitle = ("Year View - " + newValue.getValue().getValue() + " - " + newValue.getKey());
+                                addTab(newPane, tabTitle);
+                                break;
+                            }
+                            case "User": {
+                                new AddUser(getWindow(), newValue.getValue().getValue().toString());
+                                break;
+                            }
 
 
+                        }
                     }
-                }
-            });
-
+                });
+            }
         });
 
         selectNav.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -306,7 +308,7 @@ public class MainController {
                                         Pair<String, String> data = (Pair<String, String>) cell.getValue().getValue().getValue();
 
                                         String tabTitle = ("Add Customer - " + data.getKey());
-                                        addCustCont.initAddCust(data.getKey(), this, openTabInCurrentWindow(NewPane2, tabTitle), data.getValue());
+                                        addCustCont.initAddCust(data.getKey(), this, openTabInCurrentWindow(NewPane2, tabTitle), data.getValue(), cell.getParent());
 
                                     }, () -> { //Open In New Tab
                                         FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
@@ -321,7 +323,7 @@ public class MainController {
 
                                         AddCustomerController addCustCont = loader2.getController();
                                         String tabTitle = ("Add Customer - " + data.getKey());
-                                        addCustCont.initAddCust(data.getKey(), this, addTab(NewPane2, tabTitle), data.getValue());
+                                        addCustCont.initAddCust(data.getKey(), this, addTab(NewPane2, tabTitle), data.getValue(), cell.getParent());
                                     }, () -> { //Open In New Window
                                         FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
 
@@ -335,7 +337,7 @@ public class MainController {
 
                                         AddCustomerController addCustCont = loader2.getController();
                                         String tabTitle = ("Add Customer - " + data.getKey());
-                                        addCustCont.initAddCust(data.getKey(), this, openInNewWindow(NewPane2, tabTitle), data.getValue());
+                                        addCustCont.initAddCust(data.getKey(), this, openInNewWindow(NewPane2, tabTitle), data.getValue(), cell.getParent());
                                     }, null);
                             break;
                         }
@@ -701,9 +703,13 @@ public class MainController {
         Tab tab = addTab(newPane, "Edit Customer - " + customer.getName() + " - " + customer.getYear());
         // get children of parent of secPane (the VBox)
 
-        addCustCont.initAddCust(customer, this, tab);
+        addCustCont.initAddCust(customer, this, tab, null);
     }
 
+    public void addCustomerToTreeView(Customer customer, TreeItem<TreeItemPair<String, Pair<String, Object>>> parent) {
+        parent.getChildren().add(parent.getChildren().size() - 1, new contextTreeItem(customer.getName(), new Pair<String, Customer>("Customer", customer)));
+
+    }
     /**
      * Adds the year buttons to the main panel.
      */
