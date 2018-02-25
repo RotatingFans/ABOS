@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -68,7 +68,7 @@ public class UsersGroupsAndYearsController {
     Tab productsTab;
     Window parentWindow;
     @FXML
-    private TableView<Product.formattedProductProps> ProductTable;
+    private TableView<formattedProductProps> ProductTable;
     @FXML
     private TextField itemTb;
     @FXML
@@ -82,9 +82,7 @@ public class UsersGroupsAndYearsController {
     private ObservableList<String> categoriesTb = FXCollections.observableArrayList();
     @FXML
     private ComboBox<String> categoriesCmbx;
-    //private DefaultTableModel tableModel;
-    private boolean newYear = false;
-    private ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
+    private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
     public UsersGroupsAndYearsController() {
 
     }
@@ -201,8 +199,8 @@ public class UsersGroupsAndYearsController {
             yearUserList.getSelectionModel().getSelectedItems().forEach(user -> {
                 try {
                     user.setGroupId(t1.getID());
-                } catch (Group.GroupNotFoundException e) {
-                    e.printStackTrace();
+                } catch (Group.GroupNotFoundException ignored) {
+
                 }
             });
         });
@@ -288,7 +286,7 @@ public class UsersGroupsAndYearsController {
         });
     }
 
-    {
+
     /*@FXML
     private void editYear(ActionEvent event) {
         if (yearsList.getSelectionModel().getSelectedItem() != null) {
@@ -343,7 +341,7 @@ public class UsersGroupsAndYearsController {
             });
         }
     }*/
-    }
+
 
     @FXML
     private void deleteYear(ActionEvent event) {
@@ -402,14 +400,13 @@ public class UsersGroupsAndYearsController {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(yearName -> {
-            ObservableList<Product.formattedProductProps> prodItems = FXCollections.emptyObservableList();
+            ObservableList<formattedProductProps> prodItems = FXCollections.emptyObservableList();
             Collection<Year.category> rowCats = new ArrayList<>();
             Year yearToCreate = new Year(yearName);
 
             yearToCreate.CreateDb(prodItems, rowCats);
             ArrayList<String> years = DbInt.getUserYears();
-            ArrayList<String> usersManage = new ArrayList<>();
-            usersManage.add("");
+
             years.add(yearName);
             Set<String> yearSet = new HashSet<>(years);
 
@@ -426,7 +423,7 @@ public class UsersGroupsAndYearsController {
         if (allUsersList.getSelectionModel().getSelectedItem() != null) {
             User oldUser = allUsersList.getSelectionModel().getSelectedItem();
             String user = oldUser.getUserName();
-            if (user != DbInt.getUserName()) {
+            if (!Objects.equals(user, DbInt.getUserName())) {
 
 
                 Optional<Group> returnGroup = Optional.empty();
@@ -719,7 +716,7 @@ public class UsersGroupsAndYearsController {
     }
 
     private void initProductsTab() {
-        newYear = false;
+        boolean newYear = false;
         Year thisYear = new Year(yearsList.getSelectionModel().getSelectedItem());
         //ProductTable = new TableView<>();
 
@@ -740,7 +737,7 @@ public class UsersGroupsAndYearsController {
         String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         //for (String[] column : columnNames) {
         {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> idCol = new javafx.scene.control.TableColumn<>("ID");
+            javafx.scene.control.TableColumn<formattedProductProps, String> idCol = new javafx.scene.control.TableColumn<>("ID");
             idCol.setCellValueFactory(new PropertyValueFactory<>("productID"));
             idCol.setCellFactory(TextFieldTableCell.forTableColumn());
             idCol.setOnEditCommit(t -> {
@@ -752,7 +749,7 @@ public class UsersGroupsAndYearsController {
             //}
         }
         {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> nameCol = new javafx.scene.control.TableColumn<>("Item");
+            javafx.scene.control.TableColumn<formattedProductProps, String> nameCol = new javafx.scene.control.TableColumn<>("Item");
             nameCol.setCellValueFactory(new PropertyValueFactory<>("productName"));
             nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
             nameCol.setOnEditCommit(t -> {
@@ -764,7 +761,7 @@ public class UsersGroupsAndYearsController {
             //}
         }
         {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> sizeCol = new javafx.scene.control.TableColumn<>("Size");
+            javafx.scene.control.TableColumn<formattedProductProps, String> sizeCol = new javafx.scene.control.TableColumn<>("Size");
             sizeCol.setCellValueFactory(new PropertyValueFactory<>("productSize"));
             sizeCol.setCellFactory(TextFieldTableCell.forTableColumn());
             sizeCol.setOnEditCommit(t -> {
@@ -776,7 +773,7 @@ public class UsersGroupsAndYearsController {
             //}
         }
         {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> unitCostCol = new javafx.scene.control.TableColumn<>("Price/Item");
+            javafx.scene.control.TableColumn<formattedProductProps, String> unitCostCol = new javafx.scene.control.TableColumn<>("Price/Item");
             unitCostCol.setCellValueFactory(new PropertyValueFactory<>("productUnitPriceString"));
             unitCostCol.setCellFactory(TextFieldTableCell.forTableColumn());
             unitCostCol.setOnEditCommit(t -> {
@@ -801,7 +798,7 @@ public class UsersGroupsAndYearsController {
         }
 
 
-        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        javafx.scene.control.TableColumn<formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
 
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
@@ -937,7 +934,9 @@ public class UsersGroupsAndYearsController {
                 LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
             } finally {
                 try {
-                    osw.close();
+                    if (osw != null) {
+                        osw.close();
+                    }
                 } catch (IOException e) {
                     LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
                 }
@@ -1168,7 +1167,7 @@ public class UsersGroupsAndYearsController {
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -1259,7 +1258,7 @@ public class UsersGroupsAndYearsController {
 
 
                     //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
+                    formattedProductProps prodProps = new formattedProductProps(0, eElement.getElementsByTagName(
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
@@ -1393,14 +1392,14 @@ public class UsersGroupsAndYearsController {
         String year = yearsList.getSelectionModel().getSelectedItem();
         Year yearInfo = new Year(year);
 
-        Product.formattedProduct[] productArray = yearInfo.getAllProducts();
+        formattedProduct[] productArray = yearInfo.getAllProducts();
         Object[][] rows = new Object[productArray.length][6];
         // data = FXCollections.observableArrayList();
 
         int i = 0;
-        for (Product.formattedProduct productOrder : productArray) {
+        for (formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }

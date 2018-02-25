@@ -17,15 +17,8 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ABOS.Derby;
-
-import java.awt.*;
-
-/**
- * Created by patrick on 7/27/16.
- */
-class Fonts {
-    public static final Font plainFont = new Font("Tahoma", Font.PLAIN, 14);
-    public static final Font LargeFont = new Font("Tahoma", Font.PLAIN, 16);
-
+public class CustomerNotFoundException extends Exception {
+    public CustomerNotFoundException() {
+        super();
+    }
 }

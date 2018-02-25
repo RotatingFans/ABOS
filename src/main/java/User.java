@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -32,146 +32,9 @@ public class User {
     private Set<String> years = new HashSet<>();
     private int ACL = 1;
 
-    public static User createUser(String uName, String password, String fullName, Boolean admin) {
-        String createAndGrantCommand = "CREATE USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
-        try (Connection con = DbInt.getConnection();
-             PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-
-            prep.addBatch(createAndGrantCommand);
-            prep.addBatch("GRANT SELECT ON `" + DbInt.prefix + "Commons`.* TO '" + uName + "'@'%'");
-            if (admin) {
-                prep.addBatch("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, RELOAD, INDEX, ALTER, SHOW DATABASES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, TRIGGER, SUPER ON *.* TO '" + uName + "'@'%' WITH GRANT OPTION");
-            }
-            prep.executeBatch();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin,  Years) Values (?,?,?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-            prep.setString(2, fullName);
-            prep.setInt(3, admin ? 1 : 0);
-            prep.setString(4, "");
-
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return new User(uName, fullName, "", admin);
-
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public void setuManage(ArrayList<String> uManage) {
-        this.uManage = uManage;
-    }
-
-    public void setGroupId(int groupId) {
-        this.groupId = groupId;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setAdmin(Boolean admin) {
-        Admin = admin;
-    }
-
-
-
-    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        this.uManage = uManage;
-        this.groupId = groupId;
-        this.years = years;
-    }
-
-    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, Boolean admin, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        this.uManage = uManage;
-        this.groupId = groupId;
-        this.years = years;
-        this.Admin = admin;
-    }
-    public User(String userName, String fullName, ArrayList<String> uManage, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        this.uManage = uManage;
-        this.groupId = groupId;
-    }
-
     public User(String year) {
         this(DbInt.getUserName(), year);
 
-    }
-    public User(String userName, String fullName, String uManage, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
-        retL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.uManage.add(uName);
-            }
-        });
-        this.groupId = groupId;
-    }
-
-    public User(String userName, String fullName, String years, boolean admin) {
-        this.userName = userName;
-        this.fullName = fullName;
-
-        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
-        yearsL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.years.add(uName);
-            }
-        });
-        this.Admin = admin;
-        uManage.add(userName);
-    }
-
-    public User(String userName, String fullName, String uManage, String years, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
-        retL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.uManage.add(uName);
-            }
-        });
-        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
-        yearsL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.years.add(uName);
-            }
-        });
-        this.groupId = groupId;
-    }
-
-    public User(String userName, String fullName, String uManage, String years, boolean admin, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
-        retL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.uManage.add(uName);
-            }
-        });
-        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
-        yearsL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.years.add(uName);
-            }
-        });
-        this.groupId = groupId;
-        this.Admin = admin;
     }
 
     public User(String userName, String year) {
@@ -228,6 +91,86 @@ public class User {
 
     }
 
+    public User(String userName, String fullName, ArrayList<String> uManage, int groupId) {
+        this(userName, fullName, uManage, null, groupId);
+    }
+
+    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, int groupId) {
+        this(userName, fullName, uManage, null, false, groupId);
+    }
+
+    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, Boolean admin, int groupId) {
+        this.userName = userName;
+        this.fullName = fullName;
+        this.uManage = uManage;
+        this.groupId = groupId;
+        this.years = years;
+        this.Admin = admin;
+    }
+
+    public User(String userName, String fullName, String uManage, int groupId) {
+        this(userName, fullName, uManage, "", groupId);
+
+    }
+
+    public User(String userName, String fullName, String years, boolean admin) {
+        this(userName, fullName, "", years, admin, 0);
+
+    }
+
+    public User(String userName, String fullName, String uManage, String years, int groupId) {
+        this(userName, fullName, uManage, years, false, groupId);
+    }
+
+    public User(String userName, String fullName, String uManage, String years, boolean admin, int groupId) {
+        this.userName = userName;
+        this.fullName = fullName;
+        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
+        retL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                this.uManage.add(uName);
+            }
+        });
+        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
+        yearsL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                this.years.add(uName);
+            }
+        });
+        this.groupId = groupId;
+        this.Admin = admin;
+    }
+
+    public static User createUser(String uName, String password, String fullName, Boolean admin) {
+        String createAndGrantCommand = "CREATE USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
+        try (Connection con = DbInt.getConnection();
+             PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+            prep.addBatch(createAndGrantCommand);
+            prep.addBatch("GRANT SELECT ON `" + DbInt.prefix + "Commons`.* TO '" + uName + "'@'%'");
+            if (admin) {
+                prep.addBatch("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, RELOAD, INDEX, ALTER, SHOW DATABASES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, TRIGGER, SUPER ON *.* TO '" + uName + "'@'%' WITH GRANT OPTION");
+            }
+            prep.executeBatch();
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin,  Years) Values (?,?,?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+            prep.setString(2, fullName);
+            prep.setInt(3, admin ? 1 : 0);
+            prep.setString(4, "");
+
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return new User(uName, fullName, "", admin);
+
+    }
+
     public static void updateUser(String uName, String password) {
         // String createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
         String createAndGrantCommand = "SET PASSWORD FOR '" + uName + "'@'%' = PASSWORD('" + password + "')";
@@ -242,34 +185,6 @@ public class User {
         }
 
 
-    }
-
-    public void setYears(Set<String> years) {
-        this.years = years;
-    }
-
-    public boolean isAdmin() {
-        return Admin;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public ArrayList<String> getuManage() {
-        return uManage;
-    }
-
-    public Set<String> getYears() {
-        return years;
-    }
-
-    public int getGroupId() {
-        return groupId;
     }
 
     public void addToYear(String year) {
@@ -415,22 +330,6 @@ public class User {
         }
     }
 
-    private String arrayToCSV(Collection<String> array) {
-        final String[] ret = {""};
-        array.forEach(value -> {
-            if (!ret[0].isEmpty()) {
-                ret[0] = ret[0] + "," + value;
-            } else {
-                ret[0] = value;
-            }
-        });
-        return ret[0];
-    }
-
-    public String toString() {
-        return fullName + " (" + userName + ")";
-    }
-
     public void removeFromYear(String year) {
         if (years.remove(year) && !isAdmin()) {
             String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
@@ -512,4 +411,70 @@ public class User {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
     }
+
+    public String toString() {
+        return fullName + " (" + userName + ")";
+    }
+
+    public boolean isAdmin() {
+        return Admin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        Admin = admin;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public ArrayList<String> getuManage() {
+        return uManage;
+    }
+
+    public void setuManage(ArrayList<String> uManage) {
+        this.uManage = uManage;
+    }
+
+    public Set<String> getYears() {
+        return years;
+    }
+
+    public void setYears(Set<String> years) {
+        this.years = years;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+    }
+
+    private String arrayToCSV(Collection<String> array) {
+        final String[] ret = {""};
+        array.forEach(value -> {
+            if (!ret[0].isEmpty()) {
+                ret[0] = ret[0] + "," + value;
+            } else {
+                ret[0] = value;
+            }
+        });
+        return ret[0];
+    }
+
+
 }

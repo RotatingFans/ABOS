@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -49,9 +49,8 @@ public class ConvertDerbyToSQL extends Application {
     private static String fullName;
     private static String adminUser;
     private static String adminPass;
-    private ObservableList<Product.formattedProductProps> data;
+    private ObservableList<formattedProductProps> data;
     private Boolean columnsFilled = false;
-    private TableView ProductTable;
 
     public static void main(String[] args) {
         derbyLocation = args[0];
@@ -112,13 +111,13 @@ public class ConvertDerbyToSQL extends Application {
                 ABOS.Derby.Year yearObj = new ABOS.Derby.Year(year);
                 Year yearNew = new Year(year);
                 Collection<Year.category> rowCats = new ArrayList<>();
-                ObservableList<Product.formattedProductProps> productList = FXCollections.observableArrayList();
+                ObservableList<formattedProductProps> productList = FXCollections.observableArrayList();
                 yearObj.getCategories().forEach(category -> {
                     rowCats.add(new Year.category(category.catName, category.catDate));
                 });
                 int productKey = 1;
                 for (ABOS.Derby.Product.formattedProduct product : yearObj.getAllProducts()) {
-                    productList.add(new Product.formattedProductProps(productKey++, product.productID, product.productName, product.productSize, new BigDecimal(product.productUnitPrice.replace("$", "")), product.productCategory, product.orderedQuantity, product.extendedCost));
+                    productList.add(new formattedProductProps(productKey++, product.productID, product.productName, product.productSize, new BigDecimal(product.productUnitPrice.replace("$", "")), product.productCategory, product.orderedQuantity, product.extendedCost));
                 }
 
                 yearNew.CreateDb(productList, rowCats);
@@ -141,7 +140,7 @@ public class ConvertDerbyToSQL extends Application {
 
                     Iterable<String> customers = yearObj.getCustomerNames();
                     for (String customer : customers) {
-                        ProductTable = new TableView();
+                        TableView productTable = new TableView();
                         ABOS.Derby.Customer customerDbInfo = new ABOS.Derby.Customer(customer, year);
                         Integer cID = customerDbInfo.getId();
                         ABOS.Derby.Order.orderArray order = new ABOS.Derby.Order().createOrderArray(year, customerDbInfo.getName(), false);
@@ -150,7 +149,7 @@ public class ConvertDerbyToSQL extends Application {
                         int i = 1;
                         for (ABOS.Derby.Product.formattedProduct productOrder : order.orderData) {
                             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                            Product.formattedProductProps prodProps = new Product.formattedProductProps(i, productOrder.productID, productOrder.productName, productOrder.productSize, new BigDecimal(productOrder.productUnitPrice.replace("$", "")), productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+                            formattedProductProps prodProps = new formattedProductProps(i, productOrder.productID, productOrder.productName, productOrder.productSize, new BigDecimal(productOrder.productUnitPrice.replace("$", "")), productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
                             data.add(prodProps);
                             i++;
                         }
@@ -159,7 +158,7 @@ public class ConvertDerbyToSQL extends Application {
                             for (String[] column : columnNames) {
                                 TableColumn<ABOS.Derby.Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
                                 tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
-                                ProductTable.getColumns().add(tbCol);
+                                productTable.getColumns().add(tbCol);
                             }
                         }
                         //{"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}
@@ -186,11 +185,11 @@ public class ConvertDerbyToSQL extends Application {
 
                         });
                         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
-                        ProductTable.getColumns().addAll(quantityCol, priceCol);
+                        productTable.getColumns().addAll(quantityCol, priceCol);
 
                         columnsFilled = true;
 
-                        ProductTable.setItems(data);
+                        productTable.setItems(data);
 
                         //Fills original totals to calculate new values to insert in TOTALS table
 
@@ -202,7 +201,7 @@ public class ConvertDerbyToSQL extends Application {
                                     customerDbInfo.getTown(),
                                     customerDbInfo.getState(),
                                     year,
-                                    ProductTable,
+                                    productTable,
                                     customerDbInfo.getName(),
                                     customerDbInfo.getZip(),
                                     customerDbInfo.getPhone(),
@@ -283,7 +282,7 @@ public class ConvertDerbyToSQL extends Application {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogToFile.log(e, Severity.SEVERE, "Something went wrong converting Database. See log for details.");
 
         }
     }

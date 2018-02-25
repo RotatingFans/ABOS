@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
  *       ABOS is free software: you can redistribute it and/or modify
- *       it under the terms of the GNU Affero General Public License as updateMessageed by
+ *       it under the terms of the GNU Affero General Public License as published by
  *       the Free Software Foundation, either version 3 of the License, or
  *       (at your option) any later version.
  *

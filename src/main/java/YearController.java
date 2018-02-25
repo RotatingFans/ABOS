@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -133,7 +133,7 @@ public class YearController {
      * Fills the Table of order amounts
      */
     private void fillTable() {
-        Order.orderArray order = null;
+        Order.orderArray order;
         if (Objects.equals(uName, "")) {
             order = Order.createOrderArray(year);
 
@@ -141,19 +141,19 @@ public class YearController {
             order = Order.createOrderArray(year, uName);
 
         }
-        ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
+        ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
 
         int i = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
         if (!columnsFilled) {
             String[][] columnNames = {{"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}, {"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}};
             for (String[] column : columnNames) {
-                TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
+                TableColumn<formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
                 tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
                 yearOrders.getColumns().add(tbCol);
             }

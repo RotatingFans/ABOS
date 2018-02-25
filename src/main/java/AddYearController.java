@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -57,7 +57,7 @@ public class AddYearController {
     @FXML
     private TextField yearText;
     @FXML
-    private TableView<Product.formattedProductProps> ProductTable;
+    private TableView<formattedProductProps> ProductTable;
     @FXML
     private TextField itemTb;
     @FXML
@@ -75,7 +75,7 @@ public class AddYearController {
     private ComboBox<String> categoriesCmbx;
     //private DefaultTableModel tableModel;
     private boolean newYear = false;
-    private ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
+    private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
     private Window parentWindow;
 
     public AddYearController() {}
@@ -191,7 +191,9 @@ public class AddYearController {
                 LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
             } finally {
                 try {
-                    osw.close();
+                    if (osw != null) {
+                        osw.close();
+                    }
                 } catch (IOException e) {
                     LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
                 }
@@ -422,7 +424,7 @@ public class AddYearController {
     @FXML
     private void addBtnPressed(ActionEvent event) {
         int count = ProductTable.getItems().size() + 1;
-        data.add(new Product.formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
+        data.add(new formattedProductProps(0, idTb.getText(), itemTb.getText(), sizeTb.getText(), new BigDecimal(rateTb.getText()), categoriesCmbx.getSelectionModel().getSelectedItem(), 0, BigDecimal.ZERO));
         ProductTable.setItems(data);
     }
 
@@ -465,12 +467,12 @@ public class AddYearController {
         categoriesCmbx.getItems().setAll(categoriesTb);
         String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
+            javafx.scene.control.TableColumn<formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
             tbCol.setCellFactory(TextFieldTableCell.forTableColumn());
             ProductTable.getColumns().add(tbCol);
         }
-        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        javafx.scene.control.TableColumn<formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
 
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
@@ -513,12 +515,12 @@ public class AddYearController {
         categoriesCmbx.getItems().setAll(categoriesTb);
         String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPriceString"}};
         for (String[] column : columnNames) {
-            javafx.scene.control.TableColumn<Product.formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
+            javafx.scene.control.TableColumn<formattedProductProps, String> tbCol = new javafx.scene.control.TableColumn<>(column[0]);
             tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
             tbCol.setCellFactory(TextFieldTableCell.forTableColumn());
             ProductTable.getColumns().add(tbCol);
         }
-        javafx.scene.control.TableColumn<Product.formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
+        javafx.scene.control.TableColumn<formattedProductProps, String> categoryColumn = new javafx.scene.control.TableColumn<>("Category");
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("productCategory"));
 
         categoryColumn.setCellFactory(ComboBoxTableCell.forTableColumn(categoriesTb));
@@ -638,7 +640,7 @@ public class AddYearController {
 
 
                     //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-                    Product.formattedProductProps prodProps = new Product.formattedProductProps(0, eElement.getElementsByTagName(
+                    formattedProductProps prodProps = new formattedProductProps(0, eElement.getElementsByTagName(
                             "ProductID").item(0).getTextContent(),
                             eElement.getElementsByTagName("ProductName").item(0).getTextContent(),
                             eElement.getElementsByTagName("Size").item(0).getTextContent(),
@@ -772,14 +774,14 @@ public class AddYearController {
         String year = yearText.getText();
         Year yearInfo = new Year(year);
 
-        Product.formattedProduct[] productArray = yearInfo.getAllProducts();
+        formattedProduct[] productArray = yearInfo.getAllProducts();
         Object[][] rows = new Object[productArray.length][6];
         // data = FXCollections.observableArrayList();
 
         int i = 0;
-        for (Product.formattedProduct productOrder : productArray) {
+        for (formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }

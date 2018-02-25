@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
  *       ABOS is free software: you can redistribute it and/or modify
- *       it under the terms of the GNU Affero General Public License as updateMessageed by
+ *       it under the terms of the GNU Affero General Public License as published by
  *       the Free Software Foundation, either version 3 of the License, or
  *       (at your option) any later version.
  *
@@ -43,6 +43,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Objects;
@@ -90,7 +91,7 @@ class ReportsWorker extends Task<Integer> {
      * @param scoutPhone    phone #  of the scout to put in header
      * @param logoLoc       Location on disk of the logo
      * @param category      Category to generate report for
-     * @param user
+     * @param user          User to create Report as
      * @param customerName  Name of the customer
      * @param repTitle      Title of the report
      * @param splitting     Split the report in any way?
@@ -128,7 +129,7 @@ class ReportsWorker extends Task<Integer> {
     protected Integer call() throws Exception {
         updateMessage("Generating Report");
         if (Objects.equals(reportType, "Year Totals; Spilt by Customer")) {
-            Year year = null;
+            Year year;
             if (user == null) {
                 year = new Year(selectedYear);
             } else {
@@ -286,7 +287,7 @@ class ReportsWorker extends Task<Integer> {
                         products.appendChild(prodTable);
                         int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length;
                         //For each product ordered, enter info
-                        for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                        for (formattedProduct aRowDataF : orderArray.orderData) {
                             if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                                 {
@@ -343,7 +344,7 @@ class ReportsWorker extends Task<Integer> {
 
 
                     }
-                    Year cYear = null;
+                    Year cYear;
                     if (user == null) {
                         cYear = new Year(selectedYear);
                     } else {
@@ -484,7 +485,7 @@ class ReportsWorker extends Task<Integer> {
             switch (reportType) {
 
                 case "Year Totals": {
-                    Order.orderArray orderArray = null;
+                    Order.orderArray orderArray;
                     if (user == null) {
                         orderArray = Order.createOrderArray(selectedYear);
                     } else {
@@ -530,7 +531,7 @@ class ReportsWorker extends Task<Integer> {
                         orderArray.totalCost = BigDecimal.ZERO;
                         orderArray.totalQuantity = 0;
                         int productIncValue = 90 / orderArray.orderData.length;
-                        for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                        for (formattedProduct aRowDataF : orderArray.orderData) {
                             if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                                 {
@@ -644,7 +645,7 @@ class ReportsWorker extends Task<Integer> {
                         int productIncValue = 90 / orderArray.orderData.length;
 
                         //For each product ordered, enter info
-                        for (Product.formattedProduct aRowDataF : orderArray.orderData) {
+                        for (formattedProduct aRowDataF : orderArray.orderData) {
                             if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
 
                                 {
@@ -716,109 +717,112 @@ class ReportsWorker extends Task<Integer> {
 
                 case "Customer All-Time Totals": {
                     // Collection<String> customerYears = new ArrayList<>();
-                    Iterable<String> years = DbInt.getUserYears();
-                    String headerS = "true";
-                    BigDecimal overallTotalCost = BigDecimal.ZERO;
-                    int overallTotalQuantity = 0;
-                    int yearProgressInc = 95 / ((years instanceof Collection<?>) ? ((Collection<?>) years).size() : 1);
-                    //For Each Year
-                    for (String year : years) {
-                        //Get Customer with name ?
-                        Year yearObj = new Year(year);
+                    ArrayList<String> years = DbInt.getUserYears();
+                    if (years != null && !years.isEmpty()) {
+                        String headerS = "true";
+                        BigDecimal overallTotalCost = BigDecimal.ZERO;
+                        int overallTotalQuantity = 0;
+                        int yearProgressInc = 95 / (years.size());
+                        //For Each Year
+                        for (String year : years) {
+                            //Get Customer with name ?
+                            Year yearObj = new Year(year);
 
-                        //    customerYears.add(year);
-                        //Product Elements
-                        Element products = doc.createElement("customerYear");
-                        rootElement.appendChild(products);
+                            //    customerYears.add(year);
+                            //Product Elements
+                            Element products = doc.createElement("customerYear");
+                            rootElement.appendChild(products);
+                            {
+                                Element header = doc.createElement("header");
+                                header.appendChild(doc.createTextNode(headerS));
+                                headerS = "false";
+                                products.appendChild(header);
+                            }
+                            {
+                                Element prodTable = doc.createElement("prodTable");
+                                prodTable.appendChild(doc.createTextNode("true"));
+                                products.appendChild(prodTable);
+                            }
+                            //YearTitle
+                            {
+                                Element title = doc.createElement("title");
+                                title.appendChild(doc.createTextNode(year));
+                                products.appendChild(title);
+                            }
+                            Order.orderArray orderArray = Order.createOrderArray(year, customerName, true);
+                            BigDecimal tCost = BigDecimal.ZERO;
+                            overallTotalCost = orderArray.totalCost;
+                            overallTotalQuantity = orderArray.totalQuantity;
+                            //For each product in the table set the data
+                            for (formattedProduct orderedProduct : orderArray.orderData) {
+                                Element Product = doc.createElement("Product");
+                                products.appendChild(Product);
+                                //ID
+                                {
+                                    Element ID = doc.createElement("ID");
+                                    ID.appendChild(doc.createTextNode(orderedProduct.productID));
+                                    Product.appendChild(ID);
+                                }
+                                //Name
+                                {
+                                    Element Name = doc.createElement("Name");
+                                    Name.appendChild(doc.createTextNode(orderedProduct.productName));
+                                    Product.appendChild(Name);
+                                }
+                                //Size
+                                {
+                                    Element Size = doc.createElement("Size");
+                                    Size.appendChild(doc.createTextNode(orderedProduct.productSize));
+                                    Product.appendChild(Size);
+                                }
+                                //UnitCost
+                                {
+                                    Element UnitCost = doc.createElement("UnitCost");
+                                    UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice.toPlainString()));
+                                    Product.appendChild(UnitCost);
+                                }
+                                //Quantity
+                                {
+                                    Element Quantity = doc.createElement("Quantity");
+                                    Quantity.appendChild(doc.createTextNode(String.valueOf(orderedProduct.orderedQuantity)));
+                                    Product.appendChild(Quantity);
+                                }
+                                //TotalCost
+                                {
+                                    Element TotalCost = doc.createElement("TotalCost");
+                                    TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
+                                    tCost = tCost.add(orderedProduct.extendedCost);
+                                    Product.appendChild(TotalCost);
+                                }
+                            }
+                            //Total for current customerName
+                            {
+                                Element tCostE = doc.createElement("totalCost");
+                                tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                                products.appendChild(tCostE);
+                            }
+
+
+                            ////DbInt.pCon.close();
+
+
+                            setProgress(getProg() + yearProgressInc);
+                        }
+                        // OverallTotalCost elements
                         {
-                            Element header = doc.createElement("header");
-                            header.appendChild(doc.createTextNode(headerS));
-                            headerS = "false";
-                            products.appendChild(header);
+                            Element TotalCost = doc.createElement("TotalCost");
+                            TotalCost.appendChild(doc.createTextNode((overallTotalCost.toPlainString())));
+                            info.appendChild(TotalCost);
                         }
+                        // OverallTotalQuantity elements
                         {
-                            Element prodTable = doc.createElement("prodTable");
-                            prodTable.appendChild(doc.createTextNode("true"));
-                            products.appendChild(prodTable);
+                            Element TotalQuantity = doc.createElement("totalQuantity");
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity)));
+                            info.appendChild(TotalQuantity);
                         }
-                        //YearTitle
-                        {
-                            Element title = doc.createElement("title");
-                            title.appendChild(doc.createTextNode(year));
-                            products.appendChild(title);
-                        }
-                        Order.orderArray orderArray = Order.createOrderArray(year, customerName, true);
-                        BigDecimal tCost = BigDecimal.ZERO;
-                        overallTotalCost = orderArray.totalCost;
-                        overallTotalQuantity = orderArray.totalQuantity;
-                        //For each product in the table set the data
-                        for (Product.formattedProduct orderedProduct : orderArray.orderData) {
-                            Element Product = doc.createElement("Product");
-                            products.appendChild(Product);
-                            //ID
-                            {
-                                Element ID = doc.createElement("ID");
-                                ID.appendChild(doc.createTextNode(orderedProduct.productID));
-                                Product.appendChild(ID);
-                            }
-                            //Name
-                            {
-                                Element Name = doc.createElement("Name");
-                                Name.appendChild(doc.createTextNode(orderedProduct.productName));
-                                Product.appendChild(Name);
-                            }
-                            //Size
-                            {
-                                Element Size = doc.createElement("Size");
-                                Size.appendChild(doc.createTextNode(orderedProduct.productSize));
-                                Product.appendChild(Size);
-                            }
-                            //UnitCost
-                            {
-                                Element UnitCost = doc.createElement("UnitCost");
-                                UnitCost.appendChild(doc.createTextNode(orderedProduct.productUnitPrice.toPlainString()));
-                                Product.appendChild(UnitCost);
-                            }
-                            //Quantity
-                            {
-                                Element Quantity = doc.createElement("Quantity");
-                                Quantity.appendChild(doc.createTextNode(String.valueOf(orderedProduct.orderedQuantity)));
-                                Product.appendChild(Quantity);
-                            }
-                            //TotalCost
-                            {
-                                Element TotalCost = doc.createElement("TotalCost");
-                                TotalCost.appendChild(doc.createTextNode(String.valueOf(orderedProduct.extendedCost)));
-                                tCost = tCost.add(orderedProduct.extendedCost);
-                                Product.appendChild(TotalCost);
-                            }
-                        }
-                        //Total for current customerName
-                        {
-                            Element tCostE = doc.createElement("totalCost");
-                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
-                            products.appendChild(tCostE);
-                        }
-
-
-                        ////DbInt.pCon.close();
-
-
-                        setProgress(getProg() + yearProgressInc);
-                    }
-                    // OverallTotalCost elements
-                    {
-                        Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode((overallTotalCost.toPlainString())));
-                        info.appendChild(TotalCost);
-                    }
-                    // OverallTotalQuantity elements
-                    {
-                        Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity)));
-                        info.appendChild(TotalQuantity);
                     }
                     setProgress(100);
+
                 }
                 break;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -39,8 +39,7 @@ import java.util.Objects;
 public class Order {
     // --Commented out by Inspection (7/27/16 3:02 PM):Product product = new Product();
 
-    private final ObservableList<Product.formattedProductProps> orders;
-    private final String name;
+    private final ObservableList<formattedProductProps> orders;
     private final String year;
     private final Integer custID;
     private final Boolean paid;
@@ -50,9 +49,8 @@ public class Order {
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
     private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
 
-    public Order(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, Boolean paid, Boolean delivered, String uName) {
+    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, Boolean paid, Boolean delivered, String uName) {
         this.orders = orders;
-        this.name = name;
         this.year = year;
         this.custID = custID;
         this.paid = paid;
@@ -60,9 +58,10 @@ public class Order {
         this.uName = uName;
     }
 
-    public Order(ObservableList<Product.formattedProductProps> orders, String name, String year, Integer custID, Boolean paid, Boolean delivered) {
-        this(orders, name, year, custID, paid, delivered, DbInt.getUserName());
+    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, Boolean paid, Boolean delivered) {
+        this(orders, year, custID, paid, delivered, DbInt.getUserName());
     }
+
     public static orderDetails getOrder(String year, Integer id) {
         orderDetails order = null;
         try (Connection con = DbInt.getConnection(year);
@@ -81,135 +80,8 @@ public class Order {
         return order;
     }
 
-    public static orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders) {
-        return createOrderArray(year, cID, excludeZeroOrders, "*");
-    }
-
-    public static orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders, String Category) {
-        BigDecimal totL = BigDecimal.ZERO;
-        int QuantL = 0;
-        Customer customer = null;
-        try {
-            customer = new Customer(cID, year);
-        } catch (Customer.CustomerNotFoundException e) {
-            LogToFile.log(e, Severity.WARNING, "Customer not found. Refresh and try again.");
-        }
-
-
-        //Table rows array
-        ArrayList<Product.formattedProduct> allProducts = new ArrayList<Product.formattedProduct>();
-        int OrderID = customer.getOrderId();
-        //Defines Arraylist of order quanitities
-        int noProductsOrdered = 0;
-        //Fills OrderQuantities Array
-        //For Each product get quantity
-
-
-            int quant = 0;
-        if (!Objects.equals(Category, "*")) {
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                //prep.setString(1, Integer.toString(i));
-                prep.setString(1, Category);
-
-                prep.setInt(2, OrderID);
-
-                try (ResultSet rs = prep.executeQuery()) {
-                    while (rs.next()) {
-
-                        quant = rs.getInt("SUM(Quantity)");
-                        if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
-                            BigDecimal unitCost = rs.getBigDecimal("Cost");
-                            allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
-                            totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
-                            QuantL += quant;
-                            noProductsOrdered++;
-
-                        }
-                    }
-                }
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        } else {
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                //prep.setString(1, Integer.toString(i));
-                prep.setInt(1, OrderID);
-
-                try (ResultSet rs = prep.executeQuery()) {
-
-                    while (rs.next()) {
-                        quant = rs.getInt("SUM(Quantity)");
-                        if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
-                            BigDecimal unitCost = rs.getBigDecimal("Cost");
-                            allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
-                            totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
-                            QuantL += quant;
-                            noProductsOrdered++;
-
-                        }
-                    }
-                }
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        }
-
-        //Fills row array for table with info
-
-
-
-        //Re create rows to remove blank rows
-        Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
-
-        System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
-        return new orderArray(orderedProducts, totL, QuantL);
-
-
-    }
-
     public static orderArray createOrderArray(String year) {
-        BigDecimal totL = BigDecimal.ZERO;
-        int QuantL = 0;
-
-        //Table rows array
-        ArrayList<Product.formattedProduct> allProducts = new ArrayList<Product.formattedProduct>();
-        //Defines Arraylist of order quanitities
-        int noProductsOrdered = 0;
-        //Fills OrderQuantities Array
-        //For Each product get quantity
-
-        int quant = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            //prep.setString(1, Integer.toString(i));
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                while (rs.next()) {
-                    quant = rs.getInt("SUM(Quantity)");
-                    if (quant > 0) {
-                        BigDecimal unitCost = rs.getBigDecimal("Cost");
-                        allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
-                        totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
-                        QuantL += quant;
-                        noProductsOrdered++;
-
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        //Fills row array for table with info
-
-
-        //Re create rows to remove blank rows
-        Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
-
-        System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
-        return new orderArray(orderedProducts, totL, QuantL);
+        return createOrderArray(year, DbInt.getUserName());
     }
 
     public static orderArray createOrderArray(String year, String uName) {
@@ -217,13 +89,13 @@ public class Order {
         int QuantL = 0;
 
         //Table rows array
-        ArrayList<Product.formattedProduct> allProducts = new ArrayList<Product.formattedProduct>();
+        ArrayList<formattedProduct> allProducts = new ArrayList<formattedProduct>();
         //Defines Arraylist of order quanitities
         int noProductsOrdered = 0;
         //Fills OrderQuantities Array
         //For Each product get quantity
 
-        int quant = 0;
+        int quant;
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE uName=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, uName);
@@ -234,7 +106,7 @@ public class Order {
                     quant = rs.getInt("SUM(Quantity)");
                     if (quant > 0) {
                         BigDecimal unitCost = rs.getBigDecimal("Cost");
-                        allProducts.add(new Product.formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
+                        allProducts.add(new formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
                         totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
                         QuantL += quant;
                         noProductsOrdered++;
@@ -249,18 +121,108 @@ public class Order {
 
 
         //Re create rows to remove blank rows
-        Product.formattedProduct[] orderedProducts = new Product.formattedProduct[noProductsOrdered];
+        formattedProduct[] orderedProducts = new formattedProduct[noProductsOrdered];
 
+        //noinspection SuspiciousSystemArraycopy
         System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
         return new orderArray(orderedProducts, totL, QuantL);
     }
 
-    public static orderArray createNewOrder(Product.formattedProductProps[] orderData) {
+    public static orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders) {
+        return createOrderArray(year, cID, excludeZeroOrders, "*");
+    }
+
+    public static orderArray createOrderArray(String year, int cID, Boolean excludeZeroOrders, String Category) {
         BigDecimal totL = BigDecimal.ZERO;
         int QuantL = 0;
-        Product.formattedProduct[] orders = new Product.formattedProduct[orderData.length];
+        Customer customer;
+        try {
+            customer = new Customer(cID, year);
+
+
+            //Table rows array
+            ArrayList<formattedProduct> allProducts = new ArrayList<formattedProduct>();
+            int OrderID = customer.getOrderId();
+            //Defines Arraylist of order quanitities
+            int noProductsOrdered = 0;
+            //Fills OrderQuantities Array
+            //For Each product get quantity
+
+
+            int quant;
+            if (!Objects.equals(Category, "*")) {
+                try (Connection con = DbInt.getConnection(year);
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                    //prep.setString(1, Integer.toString(i));
+                    prep.setString(1, Category);
+
+                    prep.setInt(2, OrderID);
+
+                    try (ResultSet rs = prep.executeQuery()) {
+                        while (rs.next()) {
+
+                            quant = rs.getInt("SUM(Quantity)");
+                            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+                                BigDecimal unitCost = rs.getBigDecimal("Cost");
+                                allProducts.add(new formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
+                                totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                                QuantL += quant;
+                                noProductsOrdered++;
+
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            } else {
+                try (Connection con = DbInt.getConnection(year);
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                    //prep.setString(1, Integer.toString(i));
+                    prep.setInt(1, OrderID);
+
+                    try (ResultSet rs = prep.executeQuery()) {
+
+                        while (rs.next()) {
+                            quant = rs.getInt("SUM(Quantity)");
+                            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+                                BigDecimal unitCost = rs.getBigDecimal("Cost");
+                                allProducts.add(new formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
+                                totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
+                                QuantL += quant;
+                                noProductsOrdered++;
+
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            }
+
+            //Fills row array for table with info
+
+
+            //Re create rows to remove blank rows
+            formattedProduct[] orderedProducts = new formattedProduct[noProductsOrdered];
+
+            //noinspection SuspiciousSystemArraycopy
+            System.arraycopy(allProducts.toArray(), 0, orderedProducts, 0, noProductsOrdered);
+
+            return new orderArray(orderedProducts, totL, QuantL);
+        } catch (CustomerNotFoundException e) {
+            LogToFile.log(e, Severity.WARNING, "Customer not found. Refresh and try again.");
+        }
+        return new orderArray(null, BigDecimal.ZERO, 0);
+
+    }
+
+    public static orderArray createNewOrder(formattedProductProps[] orderData) {
+        BigDecimal totL = BigDecimal.ZERO;
+        int QuantL = 0;
+        formattedProduct[] orders = new formattedProduct[orderData.length];
         for (int i = 0; i < orderData.length; i++) {
-            orders[i] = new Product.formattedProduct(orderData[i].getProductKey(), orderData[i].getProductID(), orderData[i].getProductName(), orderData[i].getProductSize(), orderData[i].getProductUnitPrice(), orderData[i].getProductCategory(), orderData[i].getOrderedQuantity(), orderData[i].getExtendedCost());
+            orders[i] = new formattedProduct(orderData[i].getProductKey(), orderData[i].getProductID(), orderData[i].getProductName(), orderData[i].getProductSize(), orderData[i].getProductUnitPrice(), orderData[i].getProductCategory(), orderData[i].getOrderedQuantity(), orderData[i].getExtendedCost());
             totL = totL.add(orders[i].extendedCost);
             QuantL += orders[i].orderedQuantity;
         }
@@ -297,21 +259,35 @@ public class Order {
 
     }
 
+    public double getProgress() {
+        return progress.get();
+    }
+
+    public ReadOnlyDoubleProperty progressProperty() {
+        return progress.getReadOnlyProperty();
+    }
+
+    public String getMessage() {
+        return message.get();
+    }
+
+    public ReadOnlyStringProperty messageProperty() {
+        return message.getReadOnlyProperty();
+    }
+
     public String updateOrder(failCallback fail) throws Exception {
         List<Integer> Ids = new ArrayList<>();
         int numRows = orders.size();
-        ObservableList<Product.formattedProductProps> orderNoZero = FXCollections.observableArrayList();
-        try {
-            for (Product.formattedProductProps order : orders) {
+        ObservableList<formattedProductProps> orderNoZero = FXCollections.observableArrayList();
+
+        for (formattedProductProps order : orders) {
 
 
                 if (order.getOrderedQuantity() > 0) {
                     orderNoZero.add(order);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("SELECT idOrders FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, custID);
@@ -353,7 +329,7 @@ public class Order {
             }
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeOrd = con.prepareStatement("INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                for (Product.formattedProductProps prod : orderNoZero) {
+                for (formattedProductProps prod : orderNoZero) {
 
                     writeOrd.setString(1, uName);
                     writeOrd.setInt(2, custID);
@@ -383,21 +359,6 @@ public class Order {
             message.set("Building Order");
 
 
-            progressDivisor = 2 * numRows;
-            progressIncrement = 50 / progressDivisor;
-            //Loops through And adds product numbers to Order string
-/*            int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
-
-            for (int i = 0; i < numRows; i++) {
-                progress.set(getProgress() + progressIncrement, 100);
-                InsertOrderStringBuilder.insert(insertProductNumberHere, ",\"");
-                InsertOrderStringBuilder.insert(insertProductNumberHere + 2, i);
-                InsertOrderStringBuilder.insert(insertProductNumberHere + 2 + IntegerLength(i), '"');
-                insertProductNumberHere += 3 + IntegerLength(i);
-                InsertOrderStringBuilder.append(",?");
-            }
-            InsertOrderStringBuilder.insert(insertProductNumberHere, ") ");
-            InsertOrderStringBuilder.append(')');*/
 
             fail.doAction();
 
@@ -431,7 +392,7 @@ public class Order {
 
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeOrd = con.prepareStatement("INSERT INTO orderedproductsview(uName,custId, orderID, ProductID, Quantity) VALUES(?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                for (Product.formattedProductProps prod : orderNoZero) {
+                for (formattedProductProps prod : orderNoZero) {
 
                     writeOrd.setString(1, uName);
                     writeOrd.setInt(2, custID);
@@ -460,44 +421,17 @@ public class Order {
         return Ids.get(Ids.size() - 1).toString();
     }
 
-    public double getProgress() {
-        return progress.get();
-    }
-
-    public ReadOnlyDoubleProperty progressProperty() {
-        return progress.getReadOnlyProperty();
-    }
-
-    public String getMessage() {
-        return message.get();
-    }
-
-    public ReadOnlyStringProperty messageProperty() {
-        return message.getReadOnlyProperty();
-    }
-
-    interface updateProgCallback {
-        void doAction(double progress, int max);
-    }
 
     interface failCallback {
         void doAction() throws InterruptedException;
     }
 
-    interface updateMessageCallback {
-        void doAction(String message);
-    }
-
-    interface getProgCallback {
-        double doAction();
-    }
-
     public static class orderArray {
-        public final Product.formattedProduct[] orderData;
+        public final formattedProduct[] orderData;
         public BigDecimal totalCost;
         public int totalQuantity;
 
-        public orderArray(Product.formattedProduct[] orderData, BigDecimal totalCost, int totalQuantity) {
+        public orderArray(formattedProduct[] orderData, BigDecimal totalCost, int totalQuantity) {
             this.orderData = orderData;
             this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;

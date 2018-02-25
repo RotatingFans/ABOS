@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -49,7 +49,7 @@ public class CustomerController {
     private String totQuant = "0";
     private String totCost = "$0.00";
     private Boolean columnsFilled = false;
-    private ObservableList<Product.formattedProductProps> data;
+    private ObservableList<formattedProductProps> data;
     private MainController mainController;
 
     public void initCustomer(String cYear, String cName, MainController mainCont) {
@@ -123,7 +123,7 @@ public class CustomerController {
     private void initialize() {
         try {
             customerDbInfo = new Customer(cID, year);
-        } catch (Customer.CustomerNotFoundException e) {
+        } catch (CustomerNotFoundException e) {
             LogToFile.log(e, Severity.WARNING, "Customer could not be found. Please try restarting the application.");
         }
         name = customerDbInfo.getName();
@@ -162,21 +162,21 @@ public class CustomerController {
     }
 
     private void fillTable() {
-        Order.orderArray order = null;
+        Order.orderArray order;
         order = Order.createOrderArray(year, cID, true);
         data = FXCollections.observableArrayList();
 
         int i = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
         if (!columnsFilled) {
             String[][] columnNames = {{"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}, {"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}};
             for (String[] column : columnNames) {
-                TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
+                TableColumn<formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
                 tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
                 customerOrders.getColumns().add(tbCol);
             }
@@ -209,7 +209,7 @@ public class CustomerController {
      */
     private int getNoMulchOrdered() {
         int quantMulchOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if ((aData.getProductName().contains("Mulch")) && (aData.getProductName().contains("Bulk"))) {
                 quantMulchOrdered += aData.getOrderedQuantity();
             }
@@ -224,7 +224,7 @@ public class CustomerController {
      */
     private int getNoLivePlantsOrdered() {
         int livePlantsOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if (aData.getProductName().contains("-P") || aData.getProductName().contains("-FV")) {
                 livePlantsOrdered += aData.getOrderedQuantity();
             }
@@ -239,7 +239,7 @@ public class CustomerController {
      */
     private int getNoLawnProductsOrdered() {
         int lawnProductsOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if (aData.getProductName().contains("-L")) {
                 lawnProductsOrdered += aData.getOrderedQuantity();
             }

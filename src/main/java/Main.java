@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -49,7 +49,7 @@ import java.util.Properties;
 public class Main extends Application {
     @FXML
     private TreeView<String> selectNav;
-    private Stage masterStage;
+
     // main method is only for legacy support - java 8 won't call it for a javafx application.
     public static void main(String[] args) { launch(args); }
 
@@ -156,7 +156,7 @@ public class Main extends Application {
             }
         });
         stage.setMaximized(true);
-        masterStage = stage;
+        Stage masterStage = stage;
         controller.initialize(stage);
 
         stage.show();

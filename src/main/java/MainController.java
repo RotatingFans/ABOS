@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -288,7 +288,7 @@ public class MainController {
         FXMLLoader loader;
         Pane finalNewPane;
         // String tabTitle = "";
-        if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue(), "RootNode")) {
+        if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue().getKey(), "RootNode")) {
             switch (cell.getValue().getValue().getKey()) {
                 case "Window": {
                     switch (cell.getValue().getKey()) {

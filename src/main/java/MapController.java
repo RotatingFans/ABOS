@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -88,6 +88,7 @@ public class MapController implements Initializable {
             List<String> ret = new ArrayList<>();
 
             try (Connection con = DbInt.getConnection(year);
+
                  PreparedStatement prep = con.prepareStatement("SELECT * FROM customerview", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                  ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
@@ -172,16 +173,14 @@ public class MapController implements Initializable {
             Iterable<String> yearsD;
         yearsD = DbInt.getUserYears();
         String Name;
-        final String[] Phone = new String[1];
-        final String[] Address = new String[1];
 
-            yearsD.forEach(year -> {
+
+        yearsD.forEach(year -> {
                 Customer cust = new Customer(customer.getName(), year);
 
 
                 String PhoneD = cust.getPhone();
-                Phone[0] = PhoneD;
-                Address[0] = cust.getAddr();
+
 /*                                                if (m.infoPanel.getComponentCount() > 8) {
                                                     m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
 

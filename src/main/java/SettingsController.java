@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -400,7 +400,7 @@ public class SettingsController {
 
         DonationsT.setText(Config.getProp("CustomerDonations"));
 
-        if (Config.getProp("CustomerDonations") == null) {
+        if (Config.getProp("CustomerDonations").isEmpty()) {
             DonationsT.setText("0.0");
         }
 
