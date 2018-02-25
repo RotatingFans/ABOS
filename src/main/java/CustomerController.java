@@ -163,7 +163,7 @@ public class CustomerController {
 
     private void fillTable() {
         Order.orderArray order = null;
-        order = new Order().createOrderArray(year, cID, true);
+        order = Order.createOrderArray(year, cID, true);
         data = FXCollections.observableArrayList();
 
         int i = 0;

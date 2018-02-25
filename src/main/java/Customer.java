@@ -17,6 +17,10 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
@@ -51,6 +55,9 @@ public class Customer {
     private String orderId = "";
     private String user = "";
     private BigDecimal Donation = BigDecimal.ZERO;
+
+    private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
+    private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
 
     public Customer(Integer ID, String name, String year, String address,
                     String town,
@@ -262,13 +269,13 @@ public class Customer {
         Donation = donation;
     }
 
-    public int updateValues(updateProgCallback updateProg, failCallback fail, updateMessageCallback updateMessage, getProgCallback getProgress) throws Exception {
+    public int updateValues(failCallback fail) throws Exception {
         if (Objects.equals(DbInt.getCustInf(year, ID, "name", ""), "")) {
             //Insert Mode
-            double progressIncrement = (100 - getProgress.doAction()) / 3;
-            updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+            double progressIncrement = (100 - getProgress()) / 3;
+            progress.set(getProgress() + progressIncrement);
             fail.doAction();
-            updateMessage.doAction("Adding Customer");
+            message.set("Adding Customer");
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeCust = con.prepareStatement("INSERT INTO customerview (uName, Name, streetAddress, City, State, Zip, Lat, Lon, Phone, Email, Donation) VALUES (?,?,?,?,?,?,?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 writeCust.setString(1, this.user);
@@ -288,7 +295,7 @@ public class Customer {
                 fail.doAction();
                 writeCust.execute();
             }
-            updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+            progress.set(getProgress() + progressIncrement);
      /*       try (PreparedStatement prep1 = DbInt.getPrep("Set", "INSERT INTO CUSTOMERS(ADDRESS, TOWN, STATE, ZIPCODE, Lat, Lon, ORDERED, NI, NH) VALUES(?,?,?,?,?,?, 'True','False','False')")) {
                 prep1.setString(1, this.address);
                 prep1.setString(2, this.town);
@@ -300,12 +307,12 @@ public class Customer {
 
                 prep1.execute();
             }*/
-            updateProg.doAction(getProgress.doAction() + progressIncrement, 100);
+            progress.set(getProgress() + progressIncrement);
 
 
         } else {
 
-            updateProg.doAction(10, 100);
+            progress.set(10);
 
             //Updates customer table in Year DB with new info.
             try (Connection con = DbInt.getConnection(year);
@@ -325,7 +332,7 @@ public class Customer {
 
                 CustomerUpdate.execute();
             }
-            updateProg.doAction(20, 100);
+            progress.set(20);
 
         }
         Integer cID = 0;
@@ -383,7 +390,7 @@ public class Customer {
      * @return The amount of Bulk mulch ordered
      */
     public int getNoMulchOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = Order.createOrderArray(year, ID, true);
         int quantMulchOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("Mulch")) && (productOrder.productName.contains("Bulk"))) {
@@ -412,7 +419,7 @@ public class Customer {
      * @return The amount of Lawn and Garden Products ordered
      */
     public int getNoLivePlantsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = Order.createOrderArray(year, ID, true);
         int livePlantsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("-P")) && (productOrder.productName.contains("-FV"))) {
@@ -429,7 +436,7 @@ public class Customer {
      * @return The amount of Live Plants ordered
      */
     public int getNoLawnProductsOrdered() {
-        Order.orderArray order = new Order().createOrderArray(year, ID, true);
+        Order.orderArray order = Order.createOrderArray(year, ID, true);
         int lawnProductsOrdered = 0;
         for (Product.formattedProduct productOrder : order.orderData) {
             if (productOrder.productName.contains("-L")) {
@@ -612,6 +619,22 @@ public Boolean getDelivered() {
         return ret;
     }
 
+    public double getProgress() {
+        return progress.get();
+    }
+
+    public ReadOnlyDoubleProperty progressProperty() {
+        return progress.getReadOnlyProperty();
+    }
+
+    public String getMessage() {
+        return message.get();
+    }
+
+    public ReadOnlyStringProperty messageProperty() {
+        return message.getReadOnlyProperty();
+    }
+    
     interface updateProgCallback {
         void doAction(double progress, int max);
     }

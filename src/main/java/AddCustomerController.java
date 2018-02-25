@@ -382,7 +382,7 @@ public class AddCustomerController {
      * Fills product table with info with quantities set to Amount customer ordered.
      */
     private void fillOrderedTable() {
-        Order.orderArray order = new Order().createOrderArray(year, customerInfo.getId(), false);
+        Order.orderArray order = Order.createOrderArray(year, customerInfo.getId(), false);
         data = FXCollections.observableArrayList();
 
         int i = 0;

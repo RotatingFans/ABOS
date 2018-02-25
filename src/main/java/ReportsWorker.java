@@ -76,6 +76,7 @@ class ReportsWorker extends Task<Integer> {
     private final String pdfLoc;
     private Document doc = null;
     private File xmlTempFile = null;
+    private Double prog = 0.0;
     // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
 
     /**
@@ -212,12 +213,11 @@ class ReportsWorker extends Task<Integer> {
                 String customer = cust.getName();
                 // Root element
                 Order.orderArray orderArray;
-                Order order = new Order();
                 if (Objects.equals(category, "All")) {
-                    orderArray = order.createOrderArray(selectedYear, custId, true);
+                    orderArray = Order.createOrderArray(selectedYear, custId, true);
 
                 } else {
-                    orderArray = order.createOrderArray(selectedYear, custId, true, category);
+                    orderArray = Order.createOrderArray(selectedYear, custId, true, category);
                 }
                 //Set Items
                 {
@@ -277,7 +277,7 @@ class ReportsWorker extends Task<Integer> {
                             products.appendChild(title);
                         }
                     }
-                    setProgress(getProgress() + (custProgressIncValue / 10));
+                    setProgress(getProg() + (custProgressIncValue / 10));
                     BigDecimal tCost = BigDecimal.ZERO;
 
                     if (orderArray.totalQuantity > 0) {
@@ -331,7 +331,7 @@ class ReportsWorker extends Task<Integer> {
                                     }
                                 }
                             }
-                            setProgress(getProgress() + productProgressIncValue);
+                            setProgress(getProg() + productProgressIncValue);
 
                         }
                         //Total Cost for this Year
@@ -484,12 +484,11 @@ class ReportsWorker extends Task<Integer> {
             switch (reportType) {
 
                 case "Year Totals": {
-                    Order order = new Order();
                     Order.orderArray orderArray = null;
                     if (user == null) {
-                        orderArray = order.createOrderArray(selectedYear);
+                        orderArray = Order.createOrderArray(selectedYear);
                     } else {
-                        orderArray = order.createOrderArray(selectedYear, user);
+                        orderArray = Order.createOrderArray(selectedYear, user);
 
                     }
                     //Products for year
@@ -579,7 +578,7 @@ class ReportsWorker extends Task<Integer> {
                                     }
                                 }
                             }
-                            setProgress(getProgress() + productIncValue);
+                            setProgress(getProg() + productIncValue);
                         }
                         //Total Cost for list
                         {
@@ -605,8 +604,7 @@ class ReportsWorker extends Task<Integer> {
                 }
                 break;
                 case "Customer Year Totals": {
-                    Order order = new Order();
-                    Order.orderArray orderArray = order.createOrderArray(selectedYear, customerName, true);
+                    Order.orderArray orderArray = Order.createOrderArray(selectedYear, customerName, true);
                     //Set Items
                     {
                         //Product Elements
@@ -691,7 +689,7 @@ class ReportsWorker extends Task<Integer> {
                                     }
                                 }
                             }
-                            setProgress(getProgress() + productIncValue);
+                            setProgress(getProg() + productIncValue);
                         }
                         //Total Cost for this Year
                         {
@@ -749,8 +747,7 @@ class ReportsWorker extends Task<Integer> {
                             title.appendChild(doc.createTextNode(year));
                             products.appendChild(title);
                         }
-                        Order order = new Order();
-                        Order.orderArray orderArray = order.createOrderArray(year, customerName, true);
+                        Order.orderArray orderArray = Order.createOrderArray(year, customerName, true);
                         BigDecimal tCost = BigDecimal.ZERO;
                         overallTotalCost = orderArray.totalCost;
                         overallTotalQuantity = orderArray.totalQuantity;
@@ -807,7 +804,7 @@ class ReportsWorker extends Task<Integer> {
                         ////DbInt.pCon.close();
 
 
-                        setProgress(getProgress() + yearProgressInc);
+                        setProgress(getProg() + yearProgressInc);
                     }
                     // OverallTotalCost elements
                     {
@@ -1048,7 +1045,11 @@ class ReportsWorker extends Task<Integer> {
 
     }
 
+    private double getProg() {
+        return prog;
+    }
     private void setProgress(double progress) {
+        prog += progress;
         updateProgress(progress, 100.0);
     }
 }

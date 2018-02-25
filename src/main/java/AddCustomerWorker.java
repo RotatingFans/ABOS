@@ -134,10 +134,21 @@ class AddCustomerWorker extends Task<Integer> {
         updateProgress(0, 100);
         Customer customer = new Customer(ID, NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Paid, Delivered, Email,
                 Name, new BigDecimal(DonationsT), uName);
-        Integer custID = customer.updateValues((p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress());
-        String Id = Order.updateOrder(ProductTable.getItems(), Name, year, custID, Paid, Delivered,
-                (p, m) -> updateProgress(p, m), () -> AddCustomerWorker.failIfInterrupted(), (m) -> updateMessage(m), () -> getProgress(),
-                uName);
+        customer.progressProperty().addListener(((observableValue, oldProgress, newProgress) -> {
+            updateProgress(newProgress.doubleValue(), 100);
+        }));
+        customer.messageProperty().addListener(((observableValue, oldMessage, newMessage) -> {
+            updateMessage(newMessage);
+        }));
+        Integer custID = customer.updateValues(() -> AddCustomerWorker.failIfInterrupted());
+        Order order = new Order(ProductTable.getItems(), Name, year, custID, Paid, Delivered, uName);
+        order.progressProperty().addListener(((observableValue, oldProgress, newProgress) -> {
+            updateProgress(newProgress.doubleValue(), 100);
+        }));
+        order.messageProperty().addListener(((observableValue, oldMessage, newMessage) -> {
+            updateMessage(newMessage);
+        }));
+        String Id = order.updateOrder(() -> AddCustomerWorker.failIfInterrupted());
 
         updateProgress(100, 100);
 
