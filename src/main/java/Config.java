@@ -21,7 +21,6 @@
   Created by patrick on 4/16/15.
  */
 
-import com.sun.istack.internal.NotNull;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -145,7 +144,7 @@ class Config {
 //        }
 //    }
 // --Commented out by Inspection STOP (1/25/16 10:13 AM)
-@NotNull
+@Nonnull
     public static String getProp(String property) {
         if (doesConfExist()) {
             Properties prop = new Properties();

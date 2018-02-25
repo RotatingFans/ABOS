@@ -21,7 +21,6 @@
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-import com.sun.istack.internal.NotNull;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -88,7 +87,7 @@ public class DbInt {
         return ret;
     }
 
-    @NotNull
+    @Nonnull
     public static Connection getConnection(String Db) throws SQLException {
 
         try {
@@ -201,7 +200,7 @@ public class DbInt {
      *
      * @return the PreparedStatemtn that was created.
      */
-    @NotNull
+    @Nonnull
     public static Connection getConnection() throws SQLException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
