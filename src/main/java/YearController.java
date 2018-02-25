@@ -135,10 +135,10 @@ public class YearController {
     private void fillTable() {
         Order.orderArray order = null;
         if (Objects.equals(uName, "")) {
-            order = new Order().createOrderArray(year);
+            order = Order.createOrderArray(year);
 
         } else {
-            order = new Order().createOrderArray(year, uName);
+            order = Order.createOrderArray(year, uName);
 
         }
         ObservableList<Product.formattedProductProps> data = FXCollections.observableArrayList();
