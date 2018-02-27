@@ -200,6 +200,7 @@ public class Year {
                          "  `idcategories` INT NOT NULL AUTO_INCREMENT,\n" +
                          "  `catName` VARCHAR(255) NOT NULL,\n" +
                          "  `catDate` DATE NULL,\n" +
+                         "UNIQUE INDEX `catName_UNIQUE` (`catName` ASC)," +
                          "  PRIMARY KEY (`idcategories`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
@@ -215,6 +216,7 @@ public class Year {
                          "  `Cost` decimal(9,2) NOT NULL,\n" +
                          "  `Category` varchar(255) NOT NULL,\n" +
                          "  PRIMARY KEY (`idproducts`)\n" +
+                         "UNIQUE INDEX `ID_UNIQUE` (`ID` ASC)," +
                          ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
@@ -527,7 +529,7 @@ public class Year {
     public void updateDb(String year, ObservableList<formattedProductProps> products, Collection<category> rowsCats) {
         //Delete Year Customer table
 
-        try (Connection con = DbInt.getConnection(year);
+       /* try (Connection con = DbInt.getConnection(year);
              PreparedStatement addCol = con.prepareStatement("DELETE FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             addCol.addBatch("DELETE FROM products");
             addCol.addBatch("ALTER TABLE products AUTO_INCREMENT = 1");
@@ -543,7 +545,7 @@ public class Year {
             addCol.executeBatch();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+        }*/
         //Recreate Year Customer table
 
         //Create Products Table
@@ -558,9 +560,13 @@ public class Year {
         //Add Categories
         rowsCats.forEach(cat -> {
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)" +
+                         "ON DUPLICATE KEY UPDATE catName=?, catDate=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, cat.catName);
                 prep.setDate(2, Date.valueOf(cat.catDate));
+                prep.setString(3, cat.catName);
+                prep.setDate(4, Date.valueOf(cat.catDate));
 
                 prep.execute();
             } catch (SQLException e) {
@@ -568,8 +574,10 @@ public class Year {
             }
         });
         //Insert products into Product table
+
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)" +
+                     "ON DUPLICATE KEY UPDATE ID=?, Name=?, Cost=?, UnitSize=?, Category=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             for (formattedProductProps curRow : products) {
                 String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
                 prep.setString(1, curRow.getProductID());
@@ -577,6 +585,12 @@ public class Year {
                 prep.setBigDecimal(3, curRow.getProductUnitPrice());
                 prep.setString(4, curRow.getProductSize());
                 prep.setString(5, cat);
+
+                prep.setString(6, curRow.getProductID());
+                prep.setString(7, curRow.getProductName());
+                prep.setBigDecimal(8, curRow.getProductUnitPrice());
+                prep.setString(9, curRow.getProductSize());
+                prep.setString(10, cat);
                 prep.execute();
             }
         } catch (SQLException e) {
