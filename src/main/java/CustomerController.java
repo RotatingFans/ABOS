@@ -191,6 +191,7 @@ public class CustomerController {
 
         totQuant = (Integer.toString(order.totalQuantity));
         totCost = ("$" + order.totalCost.toPlainString());
+        customerOrders.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
     }
 

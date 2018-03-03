@@ -23,16 +23,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="728.0" prefWidth="1517.0" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-            xmlns="http://javafx.com/javafx/8.0.131" fx:controller="MapController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="728.0" prefWidth="1349.0" styleClass="pane"
+            stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121"
+            fx:controller="MapController">
     <children>
-        <SplitPane dividerPositions="0.8092409240924092" prefHeight="730.0" prefWidth="1517.0"
+        <SplitPane dividerPositions="0.8092409240924092" prefHeight="730.0" styleClass="pane"
                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                    AnchorPane.topAnchor="0.0">
             <items>
-                <GoogleMapView fx:id="googleMapView" prefHeight="382.0" prefWidth="587.0"/>
-                <VBox prefHeight="728.0" prefWidth="303.0">
+                <GoogleMapView fx:id="googleMapView" prefHeight="382.0"/>
+                <VBox prefHeight="728.0" styleClass="pane">
                     <children>
                         <Label text="Customer Name">
                             <font>

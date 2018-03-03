@@ -162,7 +162,7 @@ public class YearController {
 
 
         yearOrders.setItems(data);
-
+        yearOrders.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     private class infoValPair {

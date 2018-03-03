@@ -133,6 +133,8 @@ public class MainController {
 
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize(Stage stage) {
+        //TODO revert Dev Tests
+        //DbInt.verifyLogin(new Pair<>("User", "pass"));
         login(false);
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getUserYears();

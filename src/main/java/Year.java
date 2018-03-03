@@ -215,8 +215,8 @@ public class Year {
                          "  `UnitSize` varchar(255) NOT NULL,\n" +
                          "  `Cost` decimal(9,2) NOT NULL,\n" +
                          "  `Category` varchar(255) NOT NULL,\n" +
-                         "  PRIMARY KEY (`idproducts`)\n" +
                          "UNIQUE INDEX `ID_UNIQUE` (`ID` ASC)," +
+                         "  PRIMARY KEY (`idproducts`)\n" +
                          ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {

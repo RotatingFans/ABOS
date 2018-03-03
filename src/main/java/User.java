@@ -114,7 +114,7 @@ public class User {
     }
 
     public User(String userName, String fullName, String years, boolean admin) {
-        this(userName, fullName, "", years, admin, 0);
+        this(userName, fullName, "", years, admin, 1);
 
     }
 

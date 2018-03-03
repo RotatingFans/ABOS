@@ -163,6 +163,8 @@ public class AddCustomerController {
 
         NameEditCustomer = customerInfo.getName();
         edit = true;
+        ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         //Add a Event to occur if a cell is changed in the table
 
     }
@@ -243,6 +245,7 @@ public class AddCustomerController {
             }
         }));
         fillTable();
+        ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
     }
 
@@ -423,7 +426,6 @@ public class AddCustomerController {
 
 
         ProductTable.getColumns().addAll(quantityCol, priceCol);
-
 
         columnsFilled = true;
 
