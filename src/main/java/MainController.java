@@ -641,6 +641,8 @@ public class MainController {
         AnchorPane.setTopAnchor(tabContentPane, 0.0);
         AnchorPane.setLeftAnchor(tabContentPane, 0.0);
         AnchorPane.setRightAnchor(tabContentPane, 0.0);
+        tabContentPane.setMinWidth(0);
+        tabContentPane.setMinHeight(0);
         tab.setContent(tabContentPane);
         tab.setClosable(true);
 
@@ -676,7 +678,8 @@ public class MainController {
         stage.setTitle(tabTitle);
         stage.setScene(new Scene(fillPane));
         stage.initOwner(getWindow());
-
+        stage.setMinWidth(850);
+        stage.setMinHeight(850);
         stage.show();
 
         return stage;

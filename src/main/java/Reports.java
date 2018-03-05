@@ -44,6 +44,8 @@ class Reports extends Window {
             stage.setTitle("Reports");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(owner);
+            stage.setMinWidth(415);
+            stage.setMinHeight(491);
             stage.showAndWait();
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");

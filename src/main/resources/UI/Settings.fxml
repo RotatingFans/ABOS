@@ -25,25 +25,28 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 <?import java.lang.String?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="686.0" prefWidth="1367.0" styleClass="pane"
-            stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="SettingsController">
-   <children>
-       <BorderPane prefHeight="686.0" styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="SettingsController"
+            styleClass="pane"
+>
          <center>
-             <TabPane prefHeight="200.0" styleClass="pane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+             <TabPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="pane"
+                      tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
               <tabs>
                 <Tab text="General">
                   <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
-                           <children>
-                               <FlowPane layoutX="302.0" layoutY="207.0" prefHeight="613.0" styleClass="pane"
-                                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                         AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                      <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                layoutX="302.0" layoutY="207.0" styleClass="pane"
+
+                      >
                                  <children>
                                      <HBox styleClass="HBox">
                                          <children>
-                                             <Label alignment="CENTER" prefHeight="26.0" text="Database Location:"
+                                             <Label alignment="CENTER" text="Database Location:"
                                                     textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                  <opaqueInsets>
                                                      <Insets />
@@ -54,8 +57,8 @@
                                              </Label>
                                              <TextField fx:id="DbLoc" promptText="Database Location" text=""/>
                                              <Button mnemonicParsing="false" onAction="#verifyConnection"
-                                                     prefHeight="26.0" text="Verify Connection"/>
-                                             <Button mnemonicParsing="false" onAction="#verifyAdmin" prefHeight="26.0"
+                                                     text="Verify Connection"/>
+                                             <Button mnemonicParsing="false" onAction="#verifyAdmin"
                                                      text="Verify Database"/>
                                          </children>
                                          <FlowPane.margin>
@@ -64,20 +67,20 @@
                                      </HBox>
                                  </children>
                               </FlowPane>
-                           </children>
-                        </AnchorPane>
+
                   </content>
                 </Tab>
                 <Tab text="Add Customer">
                   <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
-                            <children>
-                                <FlowPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                      <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                styleClass="pane"
+                      >
                                     <children>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Customer Name"
+                                                <Label alignment="CENTER" text="Customer Name"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -91,7 +94,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Street Address"
+                                                <Label alignment="CENTER" text="Street Address"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -105,7 +108,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Zip Code"
+                                                <Label alignment="CENTER" text="Zip Code"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -119,7 +122,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Town"
+                                                <Label alignment="CENTER" text="Town"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -133,7 +136,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="State"
+                                                <Label alignment="CENTER" text="State"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -147,7 +150,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Phone"
+                                                <Label alignment="CENTER" text="Phone"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -161,7 +164,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Email"
+                                                <Label alignment="CENTER" text="Email"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -175,7 +178,7 @@
                                         </HBox>
                                         <HBox styleClass="HBox">
                                             <children>
-                                                <Label alignment="CENTER" prefHeight="25.0" text="Donations"
+                                                <Label alignment="CENTER" text="Donations"
                                                        textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                     <opaqueInsets>
                                                         <Insets />
@@ -199,20 +202,20 @@
                                         </HBox>
                                     </children>
                                 </FlowPane>
-                            </children>
-                    </AnchorPane>
+
                   </content>
                 </Tab>
                   <Tab text="Reports">
                       <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
-                              <children>
-                                  <FlowPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                          <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                    styleClass="pane"
+                          >
                                       <children>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Report Type"
+                                                  <Label alignment="CENTER" text="Report Type"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -221,7 +224,7 @@
                                                           <Insets right="5.0" />
                                                       </HBox.margin>
                                                   </Label>
-                                                  <ComboBox fx:id="cmbxReportType" prefHeight="26.0"
+                                                  <ComboBox fx:id="cmbxReportType"
                                                             promptText="Choose A Report Type">
                                               <items>
                                                   <FXCollections fx:factory="observableArrayList">
@@ -238,7 +241,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout Name"
+                                                  <Label alignment="CENTER" text="Scout Name"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -255,7 +258,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0"
+                                                  <Label alignment="CENTER"
                                                          text="Scout Street Address" textAlignment="CENTER"
                                                          HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
@@ -273,7 +276,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout Zip Code"
+                                                  <Label alignment="CENTER" text="Scout Zip Code"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -290,7 +293,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout Town"
+                                                  <Label alignment="CENTER" text="Scout Town"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -307,7 +310,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout State"
+                                                  <Label alignment="CENTER" text="Scout State"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -324,7 +327,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout Phone"
+                                                  <Label alignment="CENTER" text="Scout Phone"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -341,7 +344,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Scout Rank"
+                                                  <Label alignment="CENTER" text="Scout Rank"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -358,7 +361,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="25.0" text="Logo Location:"
+                                                  <Label alignment="CENTER" text="Logo Location:"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -376,7 +379,7 @@
                                           </HBox>
                                           <HBox styleClass="HBox">
                                               <children>
-                                                  <Label alignment="CENTER" prefHeight="26.0" text="PDF Save Location:"
+                                                  <Label alignment="CENTER" text="PDF Save Location:"
                                                          textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                       <opaqueInsets>
                                                           <Insets />
@@ -395,24 +398,21 @@
                                           
                                       </children>
                                   </FlowPane>
-                              </children>
-                          </AnchorPane>
+
                       </content>
                   </Tab>
                   <Tab text="License">
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
-                        <children>
-                            <WebView fx:id="licenseWebView" layoutX="92.0" layoutY="132.0" prefHeight="613.0"
-                                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                        </children>
-                      </AnchorPane>
+
+                      <WebView fx:id="licenseWebView" layoutX="92.0" layoutY="132.0"
+
+                      />
+
                   </Tab>
               </tabs>
             </TabPane>
          </center>
          <bottom>
-             <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
+             <ButtonBar BorderPane.alignment="CENTER">
               <buttons>
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK" />
                   <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
@@ -420,5 +420,3 @@
             </ButtonBar>
          </bottom>
       </BorderPane>
-   </children>
-</AnchorPane>

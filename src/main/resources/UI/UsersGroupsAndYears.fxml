@@ -24,19 +24,22 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="736.0" styleClass="pane" stylesheets="@Main.css"
-            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="UsersGroupsAndYearsController">
-    <children>
-        <BorderPane layoutX="299.0" layoutY="117.0" prefHeight="736.0" styleClass="pane" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="pane"
+            stylesheets="@Main.css"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="UsersGroupsAndYearsController" layoutX="299.0"
+            layoutY="117.0"
+>
             <left>
-                <BorderPane styleClass="pane" BorderPane.alignment="CENTER">
+                <BorderPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                            styleClass="pane" BorderPane.alignment="CENTER">
 
                     <top>
                         <Label text="Years" BorderPane.alignment="CENTER"/>
                     </top>
                     <bottom>
-                        <HBox alignment="CENTER" prefHeight="29.0" BorderPane.alignment="CENTER">
+                        <HBox alignment="CENTER" BorderPane.alignment="CENTER">
                             <children>
                                 <Button fx:id="deleteYearBtn" mnemonicParsing="false" onAction="#deleteYear"
                                         text="Delete" HBox.hgrow="ALWAYS">
@@ -54,57 +57,63 @@
                         </HBox>
                     </bottom>
                     <center>
-                        <ListView fx:id="yearsList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"
+                        <ListView fx:id="yearsList" BorderPane.alignment="CENTER"
                                   id="UGY_yearsNav"/>
                     </center>
                 </BorderPane>
             </left>
             <center>
-                <TabPane fx:id="tabPane" prefHeight="200.0" styleClass="pane" tabClosingPolicy="UNAVAILABLE"
+                <TabPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                         fx:id="tabPane" styleClass="pane" tabClosingPolicy="UNAVAILABLE"
                          BorderPane.alignment="CENTER" id="UGY_tabPane">
                     <tabs>
                         <Tab text="Users&amp;Groups">
                             <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
-                                    <children>
-                                        <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0"
-                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                                    AnchorPane.topAnchor="0.0">
+
+                                <BorderPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                            AnchorPane.topAnchor="0.0" styleClass="pane"
+
+                                >
                                             <center>
-                                                <SplitPane dividerPositions="0.6633380884450785" orientation="VERTICAL"
-                                                           prefHeight="703.0" styleClass="pane">
+                                                <SplitPane maxHeight="Infinity" maxWidth="Infinity"
+                                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                           dividerPositions="0.6633380884450785" orientation="VERTICAL"
+                                                           styleClass="pane">
                                                     <items>
-                                                        <GridPane prefHeight="432.0" prefWidth="1047.0">
+                                                        <GridPane>
                                                             <columnConstraints>
-                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="357.0"
-                                                                                   minWidth="10.0" prefWidth="342.0"/>
-                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="256.0"
-                                                                                   minWidth="0.0" prefWidth="75.0"/>
-                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="571.0"
-                                                                                   minWidth="10.0" prefWidth="270.0"/>
-                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="332.0"
-                                                                                   minWidth="10.0" prefWidth="66.0"/>
-                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="358.0"
-                                                                                   minWidth="10.0" prefWidth="315.0"/>
+                                                                <ColumnConstraints hgrow="ALWAYS"
+                                                                />
+                                                                <ColumnConstraints hgrow="ALWAYS"
+                                                                />
+                                                                <ColumnConstraints hgrow="ALWAYS"
+                                                                />
+                                                                <ColumnConstraints hgrow="ALWAYS"
+                                                                />
+                                                                <ColumnConstraints hgrow="ALWAYS"
+                                                                />
 
                                                             </columnConstraints>
                                                             <rowConstraints>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                <RowConstraints
                                                                                 vgrow="ALWAYS"/>
                                                             </rowConstraints>
                                                             <children>
-                                                                <BorderPane prefHeight="310.0" prefWidth="206.0"
+                                                                <BorderPane
                                                                             styleClass="pane">
                                                                     <center>
                                                                         <ListView fx:id="allUsersList"
-                                                                                  prefHeight="459.0"/>
+                                                                        />
                                                                     </center>
                                                                     <top>
                                                                         <Label text="All users"
                                                                                BorderPane.alignment="CENTER"/>
                                                                     </top>
                                                                     <bottom>
-                                                                        <HBox alignment="CENTER" prefHeight="29.0"
+                                                                        <HBox alignment="CENTER"
                                                                               BorderPane.alignment="CENTER">
                                                                             <children>
                                                                                 <Button mnemonicParsing="false"
@@ -134,47 +143,57 @@
 
                                                                     </bottom>
                                                                 </BorderPane>
-                                                                <VBox prefHeight="200.0" prefWidth="100.0"
+                                                                <VBox
                                                                       GridPane.columnIndex="1">
                                                                     <children>
                                                                         <Label/>
                                                                         <Button mnemonicParsing="false"
                                                                                 onAction="#moveUserToYear"
-                                                                                prefHeight="73.0" prefWidth="71.0"
+
                                                                                 text="--&gt;" VBox.vgrow="ALWAYS"/>
                                                                         <Button alignment="CENTER"
                                                                                 mnemonicParsing="false"
                                                                                 onAction="#removeUserFromYear"
-                                                                                prefHeight="76.0" prefWidth="71.0"
+
                                                                                 text="&lt;--" VBox.vgrow="ALWAYS"/>
                                                                     </children>
                                                                 </VBox>
-                                                                <BorderPane styleClass="pane" GridPane.columnIndex="2">
+                                                                <BorderPane maxHeight="Infinity" maxWidth="Infinity"
+                                                                            AnchorPane.bottomAnchor="0.0"
+                                                                            AnchorPane.leftAnchor="0.0"
+                                                                            AnchorPane.rightAnchor="0.0"
+                                                                            AnchorPane.topAnchor="0.0" styleClass="pane"
+                                                                            GridPane.columnIndex="2">
                                                                     <center>
                                                                         <ListView fx:id="yearUserList"
-                                                                                  prefHeight="367.0" prefWidth="358.0"/>
+                                                                        />
                                                                     </center>
                                                                     <top>
                                                                         <Label text="Users in year"
                                                                                BorderPane.alignment="CENTER"/>
                                                                     </top>
                                                                     <bottom>
-                                                                        <HBox prefHeight="33.0" prefWidth="358.0"
+                                                                        <HBox
                                                                               BorderPane.alignment="CENTER"/>
                                                                     </bottom>
                                                                 </BorderPane>
-                                                                <Region prefHeight="433.0" prefWidth="146.0"
+                                                                <Region
                                                                         GridPane.columnIndex="3"/>
-                                                                <BorderPane styleClass="pane" GridPane.columnIndex="4">
+                                                                <BorderPane maxHeight="Infinity" maxWidth="Infinity"
+                                                                            AnchorPane.bottomAnchor="0.0"
+                                                                            AnchorPane.leftAnchor="0.0"
+                                                                            AnchorPane.rightAnchor="0.0"
+                                                                            AnchorPane.topAnchor="0.0" styleClass="pane"
+                                                                            GridPane.columnIndex="4">
                                                                     <center>
-                                                                        <ListView fx:id="groupList" prefHeight="200.0"/>
+                                                                        <ListView fx:id="groupList"/>
                                                                     </center>
                                                                     <top>
                                                                         <Label text="Groups"
                                                                                BorderPane.alignment="CENTER"/>
                                                                     </top>
                                                                     <bottom>
-                                                                        <HBox alignment="CENTER" prefHeight="29.0"
+                                                                        <HBox alignment="CENTER"
                                                                               BorderPane.alignment="CENTER">
                                                                             <children>
                                                                                 <Button fx:id="deleteGroupBtn"
@@ -210,26 +229,36 @@
                                                             </children>
                                                         </GridPane>
 
-                                                        <AnchorPane fx:id="bottomUserPane" minHeight="0.0"
-                                                                    minWidth="0.0" prefHeight="100.0" styleClass="pane">
-                                                            <children>
-                                                                <BorderPane styleClass="pane"
-                                                                            AnchorPane.bottomAnchor="0.0"
-                                                                            AnchorPane.leftAnchor="0.0"
-                                                                            AnchorPane.rightAnchor="0.0"
-                                                                            AnchorPane.topAnchor="0.0">
+
+                                                        <BorderPane maxHeight="Infinity" maxWidth="Infinity"
+                                                                    AnchorPane.bottomAnchor="0.0"
+                                                                    AnchorPane.leftAnchor="0.0"
+                                                                    AnchorPane.rightAnchor="0.0"
+                                                                    AnchorPane.topAnchor="0.0" styleClass="pane"
+
+
+                                                        >
                                                                     <center>
-                                                                        <SplitPane dividerPositions="0.5"
-                                                                                   prefHeight="461.0" styleClass="pane">
+                                                                        <SplitPane maxHeight="Infinity"
+                                                                                   maxWidth="Infinity"
+                                                                                   AnchorPane.bottomAnchor="0.0"
+                                                                                   AnchorPane.leftAnchor="0.0"
+                                                                                   AnchorPane.rightAnchor="0.0"
+                                                                                   AnchorPane.topAnchor="0.0"
+                                                                                   dividerPositions="0.5"
+                                                                                   styleClass="pane">
                                                                             <items>
-                                                                                <AnchorPane prefHeight="200.0"
-                                                                                            styleClass="pane">
-                                                                                    <children>
-                                                                                        <BorderPane styleClass="pane"
-                                                                                                    AnchorPane.bottomAnchor="0.0"
-                                                                                                    AnchorPane.leftAnchor="0.0"
-                                                                                                    AnchorPane.rightAnchor="0.0"
-                                                                                                    AnchorPane.topAnchor="0.0">
+
+                                                                                <BorderPane maxHeight="Infinity"
+                                                                                            maxWidth="Infinity"
+                                                                                            AnchorPane.bottomAnchor="0.0"
+                                                                                            AnchorPane.leftAnchor="0.0"
+                                                                                            AnchorPane.rightAnchor="0.0"
+                                                                                            AnchorPane.topAnchor="0.0"
+                                                                                            styleClass="pane"
+
+
+                                                                                >
                                                                                             <top>
                                                                                                 <Label text="Users to manage"
                                                                                                        BorderPane.alignment="CENTER"/>
@@ -237,21 +266,17 @@
                                                                                             <center>
                                                                                                 <TreeView
                                                                                                         fx:id="managedUserList"
-                                                                                                        prefHeight="200.0"
+
                                                                                                         BorderPane.alignment="CENTER"/>
                                                                                             </center>
                                                                                         </BorderPane>
-                                                                                    </children>
-                                                                                </AnchorPane>
-                                                                                <AnchorPane prefHeight="200.0"
-                                                                                            styleClass="pane">
-                                                                                    <children>
-                                                                                        <FlowPane prefHeight="230.0"
+
+
+                                                                                <FlowPane
                                                                                                   styleClass="Lightpane"
-                                                                                                  AnchorPane.bottomAnchor="0.0"
-                                                                                                  AnchorPane.leftAnchor="0.0"
-                                                                                                  AnchorPane.rightAnchor="0.0"
-                                                                                                  AnchorPane.topAnchor="0.0">
+
+
+                                                                                >
                                                                                             <children>
                                                                                                 <Label text="Select User's Group">
                                                                                                     <FlowPane.margin>
@@ -262,14 +287,12 @@
                                                                                                         fx:id="userGroup"/>
                                                                                             </children>
                                                                                         </FlowPane>
-                                                                                    </children>
-                                                                                </AnchorPane>
+
                                                                             </items>
                                                                         </SplitPane>
                                                                     </center>
                                                                 </BorderPane>
-                                                            </children>
-                                                        </AnchorPane>
+
                                                     </items>
                                                 </SplitPane>
                                             </center>
@@ -285,36 +308,37 @@
                                                 </HBox>
                                             </bottom>
                                         </BorderPane>
-                                    </children>
-                                </AnchorPane>
+
                             </content>
                         </Tab>
                         <Tab fx:id="productsTab" disable="true" text="Products">
                             <content>
-                                <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                <BorderPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                            AnchorPane.topAnchor="0.0" styleClass="pane"
+
                                             BorderPane.alignment="CENTER">
                                     <center>
-                                        <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0"
+                                        <ScrollPane maxHeight="Infinity" maxWidth="Infinity"
+                                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                    fitToHeight="true" fitToWidth="true"
                                                     styleClass="pane">
                                             <content>
-                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="322.0"
-                                                            styleClass="pane" AnchorPane.bottomAnchor="0.0"
-                                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                                            AnchorPane.topAnchor="0.0">
-                                                    <children>
-                                                        <TableView fx:id="ProductTable" editable="true"
-                                                                   prefHeight="322.0" AnchorPane.bottomAnchor="0.0"
-                                                                   AnchorPane.leftAnchor="0.0"
-                                                                   AnchorPane.rightAnchor="0.0"
-                                                                   AnchorPane.topAnchor="0.0"/>
-                                                    </children>
-                                                </AnchorPane>
+
+                                                <TableView fx:id="ProductTable" editable="true"
+
+
+                                                />
+
                                             </content>
                                         </ScrollPane>
                                     </center>
                                     <top>
-                                        <FlowPane prefHeight="44.0" styleClass="pane" BorderPane.alignment="CENTER">
+                                        <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                  AnchorPane.topAnchor="0.0" styleClass="pane"
+                                                  BorderPane.alignment="CENTER">
                                             <children>
                                                 <Button mnemonicParsing="false" onAction="#tablefromDb"
                                                         text="Fill Table from pre-existing database"/>
@@ -366,7 +390,7 @@
                                                             </children>
                                                         </VBox>
                                                         <Button mnemonicParsing="false" onAction="#addBtnPressed"
-                                                                prefHeight="42.0" text="Add"/>
+                                                                text="Add"/>
                                                     </children>
                                                     <FlowPane.margin>
                                                         <Insets right="5.0"/>
@@ -377,7 +401,7 @@
                                         </FlowPane>
                                     </top>
                                     <bottom>
-                                        <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
+                                        <ButtonBar BorderPane.alignment="CENTER">
                                             <buttons>
                                                 <Button defaultButton="true" mnemonicParsing="false" onAction="#submit"
                                                         text="OK"/>
@@ -391,5 +415,4 @@
                 </TabPane>
             </center>
         </BorderPane>
-    </children>
-</AnchorPane>
+

@@ -46,6 +46,8 @@ class Settings extends Window {
             stage.setTitle("Settings");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(owner);
+            stage.setMinWidth(800);
+            stage.setMinHeight(674);
             stage.showAndWait();
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
@@ -66,6 +68,8 @@ class Settings extends Window {
             stage.setScene(root);
             stage.setTitle("Settings");
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setMinWidth(800);
+            stage.setMinHeight(674);
             stage.showAndWait();
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");

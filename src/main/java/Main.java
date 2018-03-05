@@ -148,6 +148,8 @@ public class Main extends Application {
         stage.setScene(new Scene(root));
         stage.getScene().getStylesheets().add("UI/Main.css");
         stage.initStyle(StageStyle.UNIFIED);
+        stage.setMinWidth(700);
+        stage.setMinHeight(600);
         stage.setOnCloseRequest(windowEvent -> {
             if (windowEvent.getSource() != stage.getOwner()) {
                 stage.close();

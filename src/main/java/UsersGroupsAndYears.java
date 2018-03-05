@@ -40,6 +40,7 @@ public class UsersGroupsAndYears extends Window {
             stage.setTitle("Add User");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(owner);
+
             stage.showAndWait();
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
