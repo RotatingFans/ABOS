@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -85,38 +85,6 @@ public class Group {
         return groups;
 
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getYear() {
-        return year;
-    }
-
-    public int getID() throws GroupNotFoundException {
-        int gID = -1;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, name);
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    gID = rs.getInt("ID");
-                    ////DbInt.pCon.close();
-                }
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        if (gID < 0) {
-            throw new GroupNotFoundException();
-        }
-        return gID;
-    }
-
     public Iterable<User> getUsers() {
         ArrayList<User> groups = new ArrayList<>();
         if (Objects.equals(name, "Ungrouped")) {
@@ -156,9 +124,46 @@ public class Group {
         return groups;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public int getID() throws GroupNotFoundException {
+        int gID = -1;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, name);
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    gID = rs.getInt("ID");
+                    ////DbInt.pCon.close();
+                }
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        if (gID < 0) {
+            throw new GroupNotFoundException();
+        }
+        return gID;
+    }
+
+
+
     public String toString() {
         return name;
     }
 
-    public class GroupNotFoundException extends Exception {}
+    public class GroupNotFoundException extends Exception {
+        public GroupNotFoundException() {
+            super();
+        }
+    }
 }

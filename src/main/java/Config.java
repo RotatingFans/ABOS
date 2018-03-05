@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -76,57 +76,7 @@ class Config {
     }
 
     public static String getDbLoc() {
-        if (doesConfExist()) {
-            Properties prop = new Properties();
-            InputStream input = null;
-            String loc = "";
-            try {
-
-                input = new FileInputStream("./ABOSConfig.properties");
-
-                // load a properties file
-                prop.load(input);
-
-                // get the property value and print it out
-                loc = prop.getProperty("databaseLocation");
-
-
-            } catch (IOException ex) {
-                LogToFile.log(ex, Severity.SEVERE, "Error reading config file, ensure the software has access to the directory.");
-                //System.out.print(ex.getMessage());
-            } finally {
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-                        LogToFile.log(e, Severity.WARNING, "");
-                    }
-                }
-            }
-
-
-            return loc;
-        } else {
-            createConfigFile();
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Set Configuration?");
-            alert.setHeaderText("Software needs to be configured.");
-            alert.setContentText("A configuration file has been created. Would you like to edit it?");
-
-            ButtonType buttonTypeOne = new ButtonType("Edit");
-            ButtonType buttonTypeTwo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonTypeOne) {
-                new Settings();
-                return getDbLoc();
-
-            } else {
-                return null;
-            }
-        }
+        return getProp("databaseLocation");
     }
 
     public static String getSSL() {
@@ -194,7 +144,7 @@ class Config {
 //        }
 //    }
 // --Commented out by Inspection STOP (1/25/16 10:13 AM)
-
+@Nonnull
     public static String getProp(String property) {
         if (doesConfExist()) {
             Properties prop = new Properties();
@@ -240,12 +190,13 @@ class Config {
             alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
 
             Optional<ButtonType> result = alert.showAndWait();
+
             if (result.get() == buttonTypeOne) {
                 new Settings();
                 return getProp(property);
 
             } else {
-                return null;
+                return "";
             }
         }
     }

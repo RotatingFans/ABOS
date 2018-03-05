@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) Patrick Magauran 2017.
+  ~ Copyright (c) Patrick Magauran 2018.
   ~   Licensed under the AGPLv3. All conditions of said license apply.
   ~       This file is part of ABOS.
   ~
@@ -26,21 +26,21 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="YearController">
-    <BorderPane prefHeight="745.0" prefWidth="1288.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+            minWidth="-Infinity" prefHeight="745.0" prefWidth="1167.0" styleClass="pane" stylesheets="@Main.css"
+            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+            AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="YearController">
+    <BorderPane prefHeight="745.0" styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                 AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <center>
 
-            <SplitPane dividerPositions="0.29797979797979796" prefHeight="668.0" prefWidth="1288.0"
+            <SplitPane dividerPositions="0.29797979797979796" prefHeight="668.0" styleClass="pane"
                        BorderPane.alignment="CENTER">
                 <items>
                     <VBox fx:id="yearInfo" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0"
+                    <AnchorPane minHeight="0.0" minWidth="0.0" styleClass="pane" AnchorPane.bottomAnchor="0.0"
+                                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="pane" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <content>
                                 <AnchorPane>
@@ -57,7 +57,7 @@
             </SplitPane>
         </center>
         <bottom>
-            <HBox prefHeight="27.0" prefWidth="1288.0" BorderPane.alignment="CENTER">
+            <HBox prefHeight="27.0" BorderPane.alignment="CENTER">
                 <children>
                     <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#refresh" text="Refresh"
                             HBox.hgrow="ALWAYS">

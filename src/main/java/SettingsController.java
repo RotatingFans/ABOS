@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -23,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -97,6 +98,8 @@ public class SettingsController {
     private TextField logoLoc;
     @FXML
     private TextField pdfLoc;
+    @FXML
+    private WebView licenseWebView;
     private Settings settings;
 
     public SettingsController() {
@@ -359,8 +362,9 @@ public class SettingsController {
 
         DbLoc.setText(Config.getDbLoc());
 
+        URL url = getClass().getResource("LICENSE.html");
 
-
+        licenseWebView.getEngine().load(url.toExternalForm());
 
         Name.setText(Config.getProp("CustomerName"));
 
@@ -400,7 +404,7 @@ public class SettingsController {
 
         DonationsT.setText(Config.getProp("CustomerDonations"));
 
-        if (Config.getProp("CustomerDonations") == null) {
+        if (Config.getProp("CustomerDonations").isEmpty()) {
             DonationsT.setText("0.0");
         }
 

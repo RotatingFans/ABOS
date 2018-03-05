@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) Patrick Magauran 2017.
+  ~ Copyright (c) Patrick Magauran 2018.
   ~   Licensed under the AGPLv3. All conditions of said license apply.
   ~       This file is part of ABOS.
   ~
@@ -22,23 +22,23 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddUserController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="718.0" styleClass="pane"
+            stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddUserController">
     <children>
-        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+        <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
             <top>
-                <FlowPane BorderPane.alignment="CENTER">
+                <FlowPane styleClass="pane" BorderPane.alignment="CENTER">
                     <children>
                         <HBox alignment="CENTER" fillHeight="false">
                             <children>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Username"/>
                                         <TextField fx:id="userNameField" promptText="Username"/>
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Password"/>
                                         <PasswordField fx:id="passwordField" promptText="Password"/>
@@ -65,7 +65,7 @@
                 </FlowPane>
             </top>
             <bottom>
-                <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
                     <buttons>
                         <Button fx:id="deleteUserButton" disable="true" mnemonicParsing="false" onAction="#deleteUser"
                                 style="-fx-background-color: RED;" text="Delete" textFill="WHITE"/>
@@ -75,7 +75,7 @@
                 </ButtonBar>
             </bottom>
             <center>
-                <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <ScrollPane fitToWidth="true" prefHeight="200.0" styleClass="pane" BorderPane.alignment="CENTER">
                     <content>
                         <Accordion fx:id="yearsPanel"/>
                     </content>

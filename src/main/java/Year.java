@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -38,205 +38,13 @@ public class Year {
     private final String year;
     private final String uName;
 
-    private String prefix = "ABOS-Test-";
-
     public Year(String year) {
-        this.uName = "";
-
-        this.year = year;
+        this(year, "");
     }
 
     public Year(String year, String uName) {
         this.uName = uName;
         this.year = year;
-    }
-
-    public Iterable<String> getCustomerNames() {
-        Collection<String> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(rs.getString("Name"));
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
-
-    public Iterable<String> getCustomerNames(String user) {
-        Collection<String> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(rs.getString("Name"));
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
-
-    public Iterable<Customer> getCustomers(String user) {
-        Collection<Customer> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, user);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year));
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
-
-    public Iterable<Customer> getCustomers() {
-        Collection<Customer> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(new Customer(rs.getInt("idCustomers"), year));
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        } catch (Customer.CustomerNotFoundException ignored) {
-
-        }
-
-
-        return ret;
-    }
-
-    public Iterable<category> getCategories() {
-        Collection<category> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM categories", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-             ResultSet rs = prep.executeQuery()) {
-            while (rs.next()) {
-
-                ret.add(new category(rs.getString("catName"), rs.getString("catDate")));
-                ////DbInt.pCon.close();
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
-
-    private Object getTots(String info, int retType) {
-        Object ret = "";
-        if (info == "Donations") {
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT Doantion FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                prep.setString(1, uName);
-
-                try (ResultSet rs = prep.executeQuery()) {
-
-
-                    //prep.setString(1, info);
-
-
-                    while (rs.next()) {
-                        switch (retType) {
-                            case retBigDec:
-                                ret = rs.getBigDecimal("Donation");
-                                break;
-
-                        }
-
-                    }
-                }
-                //////DbInt.pCon.close()
-
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        } else {
-            try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT * FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                prep.setString(1, uName);
-
-                try (ResultSet rs = prep.executeQuery()) {
-
-                    //prep.setString(1, info);
-
-
-                    while (rs.next()) {
-                        switch (retType) {
-                            case retInteger:
-                                ret = rs.getInt(info);
-                                break;
-                            case retString:
-                                ret = rs.getString(info);
-                                break;
-                            case retBigDec:
-                                ret = rs.getBigDecimal(info);
-                                break;
-
-                        }
-
-                    }
-                    //////DbInt.pCon.close();
-                }
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        }
-
-        return ret;
     }
 
     public void deleteYear() {
@@ -275,218 +83,6 @@ public class Year {
         }
     }
 
-    /*public void updateTots(BigDecimal donations, Integer Lg, Integer LP, Integer Mulch, BigDecimal OT, Integer Customers, BigDecimal Commis, BigDecimal GTot) {
-        try (PreparedStatement totalInsertString = DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(?,?,?,?,?,?,?,?)")) {
-            totalInsertString.setBigDecimal(1, (donations.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(2, Lg);
-            totalInsertString.setInt(3, (LP));
-            totalInsertString.setInt(4, (Mulch));
-            totalInsertString.setBigDecimal(5, (OT.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setInt(6, (Customers));
-            totalInsertString.setBigDecimal(7, (Commis.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.setBigDecimal(8, (GTot.setScale(2, BigDecimal.ROUND_HALF_EVEN)));
-            totalInsertString.execute();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, "Could not update year totals. Please delete and recreate the order.");
-        }
-    }*/
-
-
-    /**
-     * Gets the Total Lawn ANd Garden quantities Using getTots Function
-     *
-     * @return The total Lawn ANd Garden quantities amount
-     *//*
-    public int getLG() {
-        return (int) getTots("LG", retInteger);
-    }
-
-    *//**
-     * Gets the Total Live Plants quantities Using getTots Function
-     *
-     * @return The total Live Plants quantities amount
-     *//*
-    public int getLP() {
-        return (int) getTots("LP", retInteger);
-    }
-
-    *//**
-     * Gets the Total Mulch quantities Using getTots Function
-     *
-     * @return The total Mulch quantities amount
-     *//*
-    public int getMulch() {
-        return (int) getTots("MULCH", retInteger);
-    }
-*/
-    /**
-     * Gets the order Total Using getTots Function
-     *
-     * @return The Order total amount
-     */
-    /**
-     * Gets the Total Donations Using getTots Function
-     *
-     * @return The total donation amount
-     */
-    public BigDecimal getDonations() {
-        BigDecimal ret = BigDecimal.ZERO;
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Donation FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                //prep.setString(1, info);
-
-
-                while (rs.next()) {
-                    ret = ret.add(rs.getBigDecimal("Donation"));
-
-
-                }
-            }
-            //////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return ret;
-    }
-
-    public BigDecimal getOT() {
-        BigDecimal ret = BigDecimal.ZERO;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Cost FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                //prep.setString(1, info);
-
-
-                while (rs.next()) {
-
-                    ret = ret.add(rs.getBigDecimal("Cost"));
-
-                }
-            }
-
-            //////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return ret;
-    }
-
-    /**
-     * Gets the Total Customer Using getTots Function
-     *
-     * @return The total amount of Customers
-     */
-    public int getNoCustomers() {
-        int ret = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT COUNT(*) FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                //prep.setString(1, info);
-
-
-                while (rs.next()) {
-
-                    ret = rs.getInt("COUNT(*)");
-
-                }
-            }
-
-            //////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return ret;
-    }
-
-    /**
-     * Gets the Total Commissions Using getTots Function
-     *
-     * @return The total Commissions amount
-     */
-    public BigDecimal getCommis() {
-        BigDecimal totalCost = getGTot();
-        BigDecimal commision = BigDecimal.ZERO;
-        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
-            commision = totalCost.multiply(new BigDecimal("0.05"));
-        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
-            commision = totalCost.multiply(new BigDecimal("0.1"));
-        } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
-            commision = totalCost.multiply(new BigDecimal("0.15"));
-        }
-        return commision;
-    }
-
-    /**
-     * Gets the Grand Total Using getTots Function
-     * aeaeaeae
-     *
-     * @return The Grand total amount
-     */
-    public BigDecimal getGTot() {
-        return getDonations().add(getOT());
-    }
-
-    public int getQuant() {
-        int ret = 0;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT SUM(Quant) FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                //prep.setString(1, info);
-
-
-                while (rs.next()) {
-
-                    ret = rs.getInt("SUM(Quant)");
-
-                }
-            }
-
-            //////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return ret;
-    }
-
-    public Product.formattedProduct[] getAllProducts() {
-        //String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
-        List<Product.formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
-        //Get a prepared statement to retrieve data
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-             ResultSet ProductInfoResultSet = prep.executeQuery()) {
-            //Run through Data set and add info to ProductInfoArray
-            while (ProductInfoResultSet.next()) {
-
-                ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getBigDecimal("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        return ProductInfoArray.toArray(new Product.formattedProduct[ProductInfoArray.size()]);
-
-    }
-
     public boolean addressExists(String address, String zipCode) {
         Boolean exists = false;
         try (Connection con = DbInt.getConnection(year);
@@ -508,14 +104,16 @@ public class Year {
         }
         return exists;
     }
-//LEFT(USER(), (LOCATE('@', USER()) - 1))
 
     /**
      * Creates Database for the year specified.
      */
-    public void CreateDb(ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
+    public void CreateDb(ObservableList<formattedProductProps> products, Collection<category> rowsCats) {
+        String prefix = DbInt.prefix;
+
+
         if (DbInt.createDb(year)) {
-            char[] possibleCharacters = (new String("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")).toCharArray();
+            char[] possibleCharacters = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").toCharArray();
             String randomStr = RandomStringUtils.random(15, 0, possibleCharacters.length - 1, false, false, possibleCharacters, new SecureRandom());
             String createAndGrantCommand = "CREATE USER '" + year + "'@'localhost' IDENTIFIED BY '" + randomStr + "'";
             try (Connection con = DbInt.getConnection();
@@ -602,6 +200,7 @@ public class Year {
                          "  `idcategories` INT NOT NULL AUTO_INCREMENT,\n" +
                          "  `catName` VARCHAR(255) NOT NULL,\n" +
                          "  `catDate` DATE NULL,\n" +
+                         "UNIQUE INDEX `catName_UNIQUE` (`catName` ASC)," +
                          "  PRIMARY KEY (`idcategories`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
@@ -616,6 +215,7 @@ public class Year {
                          "  `UnitSize` varchar(255) NOT NULL,\n" +
                          "  `Cost` decimal(9,2) NOT NULL,\n" +
                          "  `Category` varchar(255) NOT NULL,\n" +
+                         "UNIQUE INDEX `ID_UNIQUE` (`ID` ASC)," +
                          "  PRIMARY KEY (`idproducts`)\n" +
                          ")", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
@@ -879,8 +479,7 @@ public class Year {
             // col = String.format("%s, \"%s\" VARCHAR(255)", col, Integer.toString(i));
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                for (int i = 0; i < products.size(); i++) {
-                    Product.formattedProductProps curRow = products.get(i);
+                for (formattedProductProps curRow : products) {
                     String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
                     prep.setString(1, curRow.getProductID());
                     prep.setString(2, curRow.getProductName());
@@ -927,10 +526,10 @@ public class Year {
 
     }
 
-    public void updateDb(String year, ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
+    public void updateDb(String year, ObservableList<formattedProductProps> products, Collection<category> rowsCats) {
         //Delete Year Customer table
 
-        try (Connection con = DbInt.getConnection(year);
+       /* try (Connection con = DbInt.getConnection(year);
              PreparedStatement addCol = con.prepareStatement("DELETE FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             addCol.addBatch("DELETE FROM products");
             addCol.addBatch("ALTER TABLE products AUTO_INCREMENT = 1");
@@ -946,7 +545,7 @@ public class Year {
             addCol.executeBatch();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+        }*/
         //Recreate Year Customer table
 
         //Create Products Table
@@ -961,9 +560,13 @@ public class Year {
         //Add Categories
         rowsCats.forEach(cat -> {
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO categories(catName, catDate) VALUES (?,?)" +
+                         "ON DUPLICATE KEY UPDATE catName=?, catDate=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, cat.catName);
                 prep.setDate(2, Date.valueOf(cat.catDate));
+                prep.setString(3, cat.catName);
+                prep.setDate(4, Date.valueOf(cat.catDate));
 
                 prep.execute();
             } catch (SQLException e) {
@@ -971,16 +574,23 @@ public class Year {
             }
         });
         //Insert products into Product table
+
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            for (int i = 0; i < products.size(); i++) {
-                Product.formattedProductProps curRow = products.get(i);
+             PreparedStatement prep = con.prepareStatement("INSERT INTO products(ID, Name, Cost, UnitSize, Category) VALUES (?,?,?,?,?)" +
+                     "ON DUPLICATE KEY UPDATE ID=?, Name=?, Cost=?, UnitSize=?, Category=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            for (formattedProductProps curRow : products) {
                 String cat = (curRow.getProductCategory() != null) ? curRow.getProductCategory() : "";
                 prep.setString(1, curRow.getProductID());
                 prep.setString(2, curRow.getProductName());
                 prep.setBigDecimal(3, curRow.getProductUnitPrice());
                 prep.setString(4, curRow.getProductSize());
                 prep.setString(5, cat);
+
+                prep.setString(6, curRow.getProductID());
+                prep.setString(7, curRow.getProductName());
+                prep.setBigDecimal(8, curRow.getProductUnitPrice());
+                prep.setString(9, curRow.getProductSize());
+                prep.setString(10, cat);
                 prep.execute();
             }
         } catch (SQLException e) {
@@ -1020,6 +630,357 @@ public class Year {
             throw new AccessException("You are not Admin.");
         }
     }
+
+    private Object getTots(String info, int retType) {
+        Object ret = "";
+        if (Objects.equals(info, "Donations")) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT Doantion FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, uName);
+
+                try (ResultSet rs = prep.executeQuery()) {
+
+
+                    //prep.setString(1, info);
+
+
+                    while (rs.next()) {
+                        switch (retType) {
+                            case retBigDec:
+                                ret = rs.getBigDecimal("Donation");
+                                break;
+
+                        }
+
+                    }
+                }
+                //////DbInt.pCon.close()
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        } else {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, uName);
+
+                try (ResultSet rs = prep.executeQuery()) {
+
+                    //prep.setString(1, info);
+
+
+                    while (rs.next()) {
+                        switch (retType) {
+                            case retInteger:
+                                ret = rs.getInt(info);
+                                break;
+                            case retString:
+                                ret = rs.getString(info);
+                                break;
+                            case retBigDec:
+                                ret = rs.getBigDecimal(info);
+                                break;
+
+                        }
+
+                    }
+                    //////DbInt.pCon.close();
+                }
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        }
+
+        return ret;
+    }
+
+    public formattedProduct[] getAllProducts() {
+        //String[] toGet = {"ID", "PNAME", "SIZE", "UNIT"};
+        List<formattedProduct> ProductInfoArray = new ArrayList<>(); //Single array to store all data to add to table.
+        //Get a prepared statement to retrieve data
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM products", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet ProductInfoResultSet = prep.executeQuery()) {
+            //Run through Data set and add info to ProductInfoArray
+            while (ProductInfoResultSet.next()) {
+
+                ProductInfoArray.add(new formattedProduct(ProductInfoResultSet.getInt("idproducts"), ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("Name"), ProductInfoResultSet.getString("UnitSize"), ProductInfoResultSet.getBigDecimal("Cost"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ProductInfoArray.toArray(new formattedProduct[ProductInfoArray.size()]);
+
+    }
+
+    public Iterable<String> getCustomerNames() {
+        Collection<String> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(rs.getString("Name"));
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<String> getCustomerNames(String user) {
+        Collection<String> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Name FROM customerview  WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(rs.getString("Name"));
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<Customer> getCustomers() {
+        Collection<Customer> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(new Customer(rs.getInt("idCustomers"), year));
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        } catch (CustomerNotFoundException ignored) {
+
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<Customer> getCustomers(String user) {
+        Collection<Customer> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, user);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+
+                while (rs.next()) {
+
+                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year));
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    public Iterable<category> getCategories() {
+        Collection<category> ret = new ArrayList<>();
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT * FROM categories", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            while (rs.next()) {
+
+                ret.add(new category(rs.getString("catName"), rs.getString("catDate")));
+                ////DbInt.pCon.close();
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+
+        return ret;
+    }
+
+    /**
+     * Gets the Total Donations Using getTots Function
+     *
+     * @return The total donation amount
+     */
+    public BigDecimal getDonations() {
+        BigDecimal ret = BigDecimal.ZERO;
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Donation FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
+
+
+                while (rs.next()) {
+                    ret = ret.add(rs.getBigDecimal("Donation"));
+
+
+                }
+            }
+            //////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
+    }
+
+    public BigDecimal getOT() {
+        BigDecimal ret = BigDecimal.ZERO;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Cost FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
+
+
+                while (rs.next()) {
+
+                    ret = ret.add(rs.getBigDecimal("Cost"));
+
+                }
+            }
+
+            //////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
+    }
+
+    /**
+     * Gets the Total Customer Using getTots Function
+     *
+     * @return The total amount of Customers
+     */
+    public int getNoCustomers() {
+        int ret = 0;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT COUNT(*) FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
+
+
+                while (rs.next()) {
+
+                    ret = rs.getInt("COUNT(*)");
+
+                }
+            }
+
+            //////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
+    }
+
+    /**
+     * Gets the Total Commissions Using getTots Function
+     *
+     * @return The total Commissions amount
+     */
+    public BigDecimal getCommis() {
+        BigDecimal totalCost = getGTot();
+        BigDecimal commision = BigDecimal.ZERO;
+        if ((totalCost.compareTo(new BigDecimal("299.99")) > 0) && (totalCost.compareTo(new BigDecimal("500.01")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.05"));
+        } else if ((totalCost.compareTo(new BigDecimal("500.01")) > 0) && (totalCost.compareTo(new BigDecimal("1000.99")) < 0)) {
+            commision = totalCost.multiply(new BigDecimal("0.1"));
+        } else if (totalCost.compareTo(new BigDecimal("1000")) >= 0) {
+            commision = totalCost.multiply(new BigDecimal("0.15"));
+        }
+        return commision;
+    }
+
+    /**
+     * Gets the Grand Total Using getTots Function
+     * aeaeaeae
+     *
+     * @return The Grand total amount
+     */
+    public BigDecimal getGTot() {
+        return getDonations().add(getOT());
+    }
+
+    public int getQuant() {
+        int ret = 0;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT SUM(Quant) FROM ordersview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, uName);
+
+            try (ResultSet rs = prep.executeQuery()) {
+
+                //prep.setString(1, info);
+
+
+                while (rs.next()) {
+
+                    ret = rs.getInt("SUM(Quant)");
+
+                }
+            }
+
+            //////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return ret;
+    }
+
     public static class category {
         public String catName;
         public String catDate;

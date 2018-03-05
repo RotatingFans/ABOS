@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -87,7 +87,8 @@ public class DbInt {
         return ret;
     }
 
-    public static Connection getConnection(String Db) {
+    @Nonnull
+    public static Connection getConnection(String Db) throws SQLException {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -95,8 +96,6 @@ public class DbInt {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
-        Statement st = null;
-        ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
@@ -114,8 +113,11 @@ public class DbInt {
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
-
-            return cpds.getConnection();
+            Connection con = cpds.getConnection();
+            if (con == null) {
+                throw new SQLException("Unable to acquire connection", "08001");
+            }
+            return con;
 
         } catch (CommunicationsException e) {
             promptConfig();
@@ -150,26 +152,12 @@ public class DbInt {
                     }
                     LogToFile.log(ex, Severity.SEVERE, "");
                 } else {
-                    LogToFile.log(ex, Severity.WARNING, "");
+                    LogToFile.log(ex, Severity.WARNING, CommonErrors.returnSqlMessage(ex));
                 }
             }
 
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-
-
-            } catch (SQLException ex) {
-                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
-            }
         }
-        return null;
+        throw new SQLException("Unable to acquire connection", "08001");
     }
 
     public static boolean testConnection() {
@@ -180,8 +168,7 @@ public class DbInt {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
-        Statement st = null;
-        ResultSet rs = null;
+
         pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + "Commons", Config.getSSL());
@@ -205,20 +192,6 @@ public class DbInt {
 
         } catch (Exception e) {
             return false;
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-
-
-            } catch (SQLException ex) {
-                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
-            }
         }
     }
 
@@ -227,15 +200,14 @@ public class DbInt {
      *
      * @return the PreparedStatemtn that was created.
      */
-    public static Connection getConnection() {
+    @Nonnull
+    public static Connection getConnection() throws SQLException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
-        Statement st = null;
-        ResultSet rs = null;
         pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
@@ -250,8 +222,11 @@ public class DbInt {
             //return rs;
 
 
-            return cpds.getConnection();
-
+            Connection con = cpds.getConnection();
+            if (con == null) {
+                throw new SQLException("Unable to acquire connection", "08001");
+            }
+            return con;
         } catch (CommunicationsException e) {
             promptConfig();
         } catch (SQLException ex) {
@@ -265,26 +240,12 @@ public class DbInt {
             } else {
 
 
-                LogToFile.log(ex, Severity.WARNING, "");
+                LogToFile.log(ex, Severity.WARNING, CommonErrors.returnSqlMessage(ex));
 
             }
 
-        } finally {
-
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-
-
-            } catch (SQLException ex) {
-                LogToFile.log(ex, Severity.WARNING, ex.getMessage());
-            }
         }
-        return null;
+        throw new SQLException("Unable to acquire connection", "08001");
     }
 
 
@@ -464,10 +425,9 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
                 LogToFile.log(ex, Severity.FINER, "Derby shut down normally");
 
-            } else if (ex.getErrorCode() == 1007) {
             } else {
 
-                LogToFile.log(ex, Severity.SEVERE, ex.getMessage());
+                LogToFile.log(ex, Severity.SEVERE, CommonErrors.returnSqlMessage(ex));
             }
 
         }
@@ -523,7 +483,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            } catch (Customer.CustomerNotFoundException ignored) {
+            } catch (CustomerNotFoundException ignored) {
             }
         }
 

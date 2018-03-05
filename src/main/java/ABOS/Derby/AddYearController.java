@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -193,7 +193,9 @@ public class AddYearController {
                 LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
             } finally {
                 try {
-                    osw.close();
+                    if (osw != null) {
+                        osw.close();
+                    }
                 } catch (IOException e) {
                     LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
                 }

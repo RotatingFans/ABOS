@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
@@ -32,6 +33,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -132,8 +134,15 @@ public class MainController {
     }
 
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
-    public void initialize(Stage stage) {
-        login(false);
+    public void initialize(Stage stage, Application.Parameters parameters) {
+        Map<String, String> params = parameters.getNamed();
+        if (params.containsKey("username") && params.containsKey("password")) {
+            if (!DbInt.verifyLogin(new Pair<>(params.get("username"), params.get("password")))) {
+                login(true);
+            }
+        } else {
+            login(false);
+        }
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getUserYears();
         if (!years.isEmpty()) {
@@ -288,7 +297,7 @@ public class MainController {
         FXMLLoader loader;
         Pane finalNewPane;
         // String tabTitle = "";
-        if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue(), "RootNode")) {
+        if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue().getKey(), "RootNode")) {
             switch (cell.getValue().getValue().getKey()) {
                 case "Window": {
                     switch (cell.getValue().getKey()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -138,7 +138,7 @@ public class AddUserController {
     private void deleteUser(ActionEvent event) {
 
         final String user = userNameField.getText();
-        if (user != DbInt.getUserName()) {
+        if (!Objects.equals(user, DbInt.getUserName())) {
 
 
             Optional<Group> returnGroup = Optional.empty();
@@ -256,7 +256,7 @@ public class AddUserController {
                 yearItem.getChildren().add(groupItem);
                 try {
                     groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
-                } catch (Group.GroupNotFoundException e) {}
+                } catch (Group.GroupNotFoundException ignored) {}
             });
             yearTView = new TreeView(yearItem);
             yearItem.setExpanded(true);
@@ -340,8 +340,7 @@ public class AddUserController {
 
                     }
 
-                } catch (Group.GroupNotFoundException e) {
-                    e.printStackTrace();
+                } catch (Group.GroupNotFoundException ignored) {
                 }
             });
             yearTView = new TreeView(yearItem);

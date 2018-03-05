@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -38,9 +38,10 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Customer {
     private final String name;
+    private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
+    private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
     private int ID = -1;
     private String nameEdited = "";
-
     private String year = "";
     private String address = "";
     private String town = "";
@@ -52,12 +53,8 @@ public class Customer {
     private Boolean paid = false;
     private Boolean delivered = false;
     private String email = "";
-    private String orderId = "";
     private String user = "";
     private BigDecimal Donation = BigDecimal.ZERO;
-
-    private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
-    private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
 
     public Customer(Integer ID, String name, String year, String address,
                     String town,
@@ -73,6 +70,7 @@ public class Customer {
                     BigDecimal Donation) {
         this(ID, name, year, address, town, state, zipCode, lat, lon, phone, paid, delivered, email, nameEdited, Donation, DbInt.getUserName());
     }
+
     public Customer(Integer ID, String name, String year, String address,
                     String town,
                     String state,
@@ -99,18 +97,13 @@ public class Customer {
         this.paid = paid;
         this.delivered = delivered;
         this.email = email;
-        this.orderId = orderId;
         this.Donation = Donation;
         this.nameEdited = nameEdited;
         this.user = user;
     }
 
     public Customer(String name, String year) {
-        this.user = DbInt.getUserName();
-
-        this.name = name;
-        this.year = year;
-        this.nameEdited = name;
+        this(-1, name, year, "", "", "", "", 0.0, 0.0, "", false, false, "", "", BigDecimal.ZERO, DbInt.getUserName());
     }
 
     public Customer(int ID, String year) throws CustomerNotFoundException {
@@ -132,7 +125,7 @@ public class Customer {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
 
-        if (ret != "") {
+        if (!Objects.equals(ret, "")) {
             this.ID = ID;
             this.name = ret;
             this.year = year;
@@ -167,107 +160,10 @@ public class Customer {
     }
 
     public Customer() {
-        this.ID = -1;
-        this.name = "";
-        this.year = "";
-        this.address = "";
-        this.town = "";
-        this.state = "";
-        this.zipCode = "";
-        this.lat = 0.0;
-        this.lon = 0.0;
-        this.phone = "";
-        this.paid = false;
-        this.delivered = false;
-        this.email = "";
-        this.orderId = "";
-        this.Donation = BigDecimal.ZERO;
-        this.nameEdited = "";
-        this.user = DbInt.getUserName();
+        this(-1, "", "", "", "", "", "", 0.0, 0.0, "", false, false, "", "", BigDecimal.ZERO, DbInt.getUserName());
     }
 
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Customer)) {
-            return false;
-        }
-        Customer other = (Customer) obj;
-        return this.address.equals(other.address);
-    }
 
-    public int hashCode() {
-        return address.hashCode();
-    }
-
-    public Double getLat() {
-        Double ret = lat;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Lat FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
-            try (ResultSet rs = prep.executeQuery()) {
-
-                while (rs.next()) {
-
-                    ret = rs.getDouble("Lat");
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        return ret;
-    }
-
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
-    public Double getLon() {
-        Double ret = lon;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Lon FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, ID);
-            try (ResultSet rs = prep.executeQuery()) {
-
-                while (rs.next()) {
-
-                    ret = rs.getDouble("Lon");
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        return ret;
-    }
-
-    public void setLon(Double lon) {
-        this.lon = lon;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public void setDonation(BigDecimal donation) {
-        Donation = donation;
-    }
 
     public int updateValues(failCallback fail) throws Exception {
         if (Objects.equals(DbInt.getCustInf(year, ID, "name", ""), "")) {
@@ -392,7 +288,7 @@ public class Customer {
     public int getNoMulchOrdered() {
         Order.orderArray order = Order.createOrderArray(year, ID, true);
         int quantMulchOrdered = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("Mulch")) && (productOrder.productName.contains("Bulk"))) {
                 quantMulchOrdered += productOrder.orderedQuantity;
             }
@@ -421,7 +317,7 @@ public class Customer {
     public int getNoLivePlantsOrdered() {
         Order.orderArray order = Order.createOrderArray(year, ID, true);
         int livePlantsOrdered = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             if ((productOrder.productName.contains("-P")) && (productOrder.productName.contains("-FV"))) {
                 livePlantsOrdered += productOrder.orderedQuantity;
             }
@@ -438,12 +334,76 @@ public class Customer {
     public int getNoLawnProductsOrdered() {
         Order.orderArray order = Order.createOrderArray(year, ID, true);
         int lawnProductsOrdered = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             if (productOrder.productName.contains("-L")) {
                 lawnProductsOrdered += productOrder.orderedQuantity;
             }
         }
         return lawnProductsOrdered;
+    }
+
+    public Double getLat() {
+        Double ret = lat;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Lat FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setInt(1, ID);
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getDouble("Lat");
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        return ret;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLon() {
+        Double ret = lon;
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT Lon FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setInt(1, ID);
+            try (ResultSet rs = prep.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ret = rs.getDouble("Lon");
+
+                }
+            }
+            ////DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        return ret;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public void setDonation(BigDecimal donation) {
+        Donation = donation;
     }
 
     public Integer getId() {
@@ -495,12 +455,12 @@ public class Customer {
         return name;
     }
 
-    public String getUser() {
-        return user;
-    }
-
     public void setName(String name) {
         this.nameEdited = name;
+    }
+
+    public String getUser() {
+        return user;
     }
 
     /**
@@ -533,15 +493,18 @@ public class Customer {
         return year;
     }
 
+    public void setYear(String year) {
+        this.year = year;
+    }
 
-/**
+    /**
      * Return Delivery status of the customer whose name has been specified.
      *
      * @return The Delivery status of the specified customer
- */
+     */
 
-public Boolean getDelivered() {
-    return Order.getOrder(year, ID).delivered;
+    public Boolean getDelivered() {
+        return Order.getOrder(year, ID).delivered;
     }
 
     public void setDelivered(Boolean delivered) {
@@ -588,9 +551,7 @@ public Boolean getDelivered() {
         return ret;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
+
 
     /**
      * Return Donation amount of the customer whose name has been specified.
@@ -634,22 +595,26 @@ public Boolean getDelivered() {
     public ReadOnlyStringProperty messageProperty() {
         return message.getReadOnlyProperty();
     }
-    
-    interface updateProgCallback {
-        void doAction(double progress, int max);
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Customer)) {
+            return false;
+        }
+        Customer other = (Customer) obj;
+        return this.address.equals(other.address);
     }
+
+    public int hashCode() {
+        return address.hashCode();
+    }
+
 
     interface failCallback {
         void doAction() throws InterruptedException;
     }
 
-    interface updateMessageCallback {
-        void doAction(String message);
-    }
 
-    interface getProgCallback {
-        double doAction();
-    }
-
-    public class CustomerNotFoundException extends Exception {}
 }

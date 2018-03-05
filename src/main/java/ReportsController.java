@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -298,8 +298,8 @@ public class ReportsController {
             cmbxCustomers.getItems().clear();
 
             if (cmbxReportType.getSelectionModel().getSelectedIndex() == 2) {
-                if (selectedYear != "") {
-                    Year year = null;
+                if (!Objects.equals(selectedYear, "")) {
+                    Year year;
                     if (Objects.equals(selectedUser, "")) {
                         year = new Year(selectedYear);
                     } else {
@@ -316,8 +316,8 @@ public class ReportsController {
                     cmbxCustomers.setDisable(false);
                 }
             }
-            if (selectedYear != "") {
-                Year year = null;
+            if (!Objects.equals(selectedYear, "")) {
+                Year year;
                 if (Objects.equals(selectedUser, "")) {
                     year = new Year(selectedYear);
                 } else {

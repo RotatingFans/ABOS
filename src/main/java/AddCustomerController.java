@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Patrick Magauran 2017.
+ * Copyright (c) Patrick Magauran 2018.
  *   Licensed under the AGPLv3. All conditions of said license apply.
  *       This file is part of ABOS.
  *
@@ -92,15 +92,10 @@ public class AddCustomerController {
     private BigDecimal totalCostFinal = BigDecimal.ZERO;
     //Variables used to calculate difference of orders when in edit mode.
     private String NameEditCustomer = null;
-    private int preEditMulchSales = 0;
-    private int preEditLawnProductSales = 0;
-    private int preEditLivePlantSales = 0;
-    private BigDecimal preEditDonations = BigDecimal.ZERO;
     private BigDecimal preEditOrderCost = BigDecimal.ZERO;
     private Customer customerInfo = new Customer();
-    private int newCustomer = 0;
     private Boolean columnsFilled = false;
-    private ObservableList<Product.formattedProductProps> data;
+    private ObservableList<formattedProductProps> data;
     private MainController mainCont;
     private TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent;
 
@@ -162,12 +157,14 @@ public class AddCustomerController {
             }
         }));
         DonationsT.setText(customerInfo.getDontation().toPlainString());
-        preEditDonations = customerInfo.getDontation();
+        BigDecimal preEditDonations = customerInfo.getDontation();
         //Fill the table with their previous order info on record.
         fillOrderedTable();
 
         NameEditCustomer = customerInfo.getName();
         edit = true;
+        ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         //Add a Event to occur if a cell is changed in the table
 
     }
@@ -191,7 +188,6 @@ public class AddCustomerController {
         this.treeParent = treeParent;
 
         mainCont = mainController;
-        newCustomer = 1;
         parentTab = parent;
         NameEditCustomer = "";
         year = aYear;
@@ -230,7 +226,7 @@ public class AddCustomerController {
         Paid.setSelected(Boolean.valueOf(Config.getProp("CustomerPaid")));
         Delivered.setSelected(Boolean.valueOf(Config.getProp("CustomerDelivered")));
 
-        DonationsT.setText((Config.getProp("CustomerDonation") != null || Config.getProp("CustomerDonation").isEmpty()) ? Config.getProp("CustomerDonation") : "0.0");
+        DonationsT.setText(!Config.getProp("CustomerDonation").isEmpty() ? Config.getProp("CustomerDonation") : "0.0");
         DecimalFormat format = new DecimalFormat("#.0");
 
         DonationsT.setTextFormatter(new TextFormatter<>(c ->
@@ -249,6 +245,7 @@ public class AddCustomerController {
             }
         }));
         fillTable();
+        ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
     }
 
@@ -317,14 +314,14 @@ public class AddCustomerController {
      */
     private void fillTable() {
 
-        Product.formattedProduct[] productArray = yearInfo.getAllProducts();
+        formattedProduct[] productArray = yearInfo.getAllProducts();
         Object[][] rows = new Object[productArray.length][6];
         data = FXCollections.observableArrayList();
 
         int i = 0;
-        for (Product.formattedProduct productOrder : productArray) {
+        for (formattedProduct productOrder : productArray) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
@@ -374,13 +371,13 @@ public class AddCustomerController {
                 lastKey = null;
             }
         });*/
-        Callback<TableColumn<Product.formattedProductProps, String>, TableCell<Product.formattedProductProps, String>> txtCellFactory =
-                (TableColumn<Product.formattedProductProps, String> p) -> {return new EditingCell();};
+        Callback<TableColumn<formattedProductProps, String>, TableCell<formattedProductProps, String>> txtCellFactory =
+                (TableColumn<formattedProductProps, String> p) -> {return new EditingCell();};
 
         if (!columnsFilled) {
             String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
             for (String[] column : columnNames) {
-                TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
+                TableColumn<formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
                 tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
                 ProductTable.getColumns().add(tbCol);
             }
@@ -388,8 +385,8 @@ public class AddCustomerController {
 
 
         //{"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}
-        TableColumn<Product.formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
-        TableColumn<Product.formattedProductProps, String> priceCol = new TableColumn<>("Price");
+        TableColumn<formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
+        TableColumn<formattedProductProps, String> priceCol = new TableColumn<>("Price");
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("orderedQuantityString"));
 
         quantityCol.setCellFactory(txtCellFactory);
@@ -426,25 +423,9 @@ public class AddCustomerController {
 
         });
         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
-/*        priceCol.setCellValueFactory(cellData -> {
-            Product.formattedProductProps data = cellData.getValue();
-            return Bindings.createStringBinding(
-                    () -> {
-                        try {
-                            BigDecimal price = new BigDecimal(data.getProductUnitPrice());
-                            int quantity = data.getOrderedQuantity();
-                            return price.multiply(new BigDecimal(quantity)).toPlainString();
-                        } catch (NumberFormatException nfe) {
-                            return "0.0" ;
-                        }
-                    },
-                    data.productUnitPrice,
-                    data.orderedQuantity
-            );
-        });*/
+
 
         ProductTable.getColumns().addAll(quantityCol, priceCol);
-
 
         columnsFilled = true;
 
@@ -459,8 +440,8 @@ public class AddCustomerController {
     private void fillOrderedTable() {
         Order.orderArray order = Order.createOrderArray(year, customerInfo.getId(), false);
         data = FXCollections.observableArrayList();
-        Callback<TableColumn<Product.formattedProductProps, String>, TableCell<Product.formattedProductProps, String>> txtCellFactory =
-                (TableColumn<Product.formattedProductProps, String> p) -> {return new EditingCell();};
+        Callback<TableColumn<formattedProductProps, String>, TableCell<formattedProductProps, String>> txtCellFactory =
+                (TableColumn<formattedProductProps, String> p) -> {return new EditingCell();};
         ProductTable.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent t) -> {
             if (ProductTable.getEditingCell() == null && t.getCode() == KeyCode.ENTER) {
                 if (t.isShiftDown()) {
@@ -494,23 +475,23 @@ public class AddCustomerController {
 
 
         int i = 0;
-        for (Product.formattedProduct productOrder : order.orderData) {
+        for (formattedProduct productOrder : order.orderData) {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
-            Product.formattedProductProps prodProps = new Product.formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
+            formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
             i++;
         }
         if (!columnsFilled) {
             String[][] columnNames = {{"ID", "productID"}, {"Item", "productName"}, {"Size", "productSize"}, {"Price/Item", "productUnitPrice"}};
             for (String[] column : columnNames) {
-                TableColumn<Product.formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
+                TableColumn<formattedProductProps, String> tbCol = new TableColumn<>(column[0]);
                 tbCol.setCellValueFactory(new PropertyValueFactory<>(column[1]));
                 ProductTable.getColumns().add(tbCol);
             }
         }
         //{"Quantity", "orderedQuantity"}, {"Price", "extendedCost"}
-        TableColumn<Product.formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
-        TableColumn<Product.formattedProductProps, String> priceCol = new TableColumn<>("Price");
+        TableColumn<formattedProductProps, String> quantityCol = new TableColumn<>("Quantity");
+        TableColumn<formattedProductProps, String> priceCol = new TableColumn<>("Price");
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("orderedQuantityString"));
 
         quantityCol.setCellFactory(txtCellFactory);
@@ -554,9 +535,9 @@ public class AddCustomerController {
         ProductTable.setItems(data);
 
         //Fills original totals to calculate new values to insert in TOTALS table
-        preEditMulchSales = getNoMulchOrdered();
-        preEditLawnProductSales = getNoLawnProductsOrdered();
-        preEditLivePlantSales = getNoLivePlantsOrdered();
+        int preEditMulchSales = getNoMulchOrdered();
+        int preEditLawnProductSales = getNoLawnProductsOrdered();
+        int preEditLivePlantSales = getNoLivePlantsOrdered();
 
     }
 
@@ -678,7 +659,7 @@ public class AddCustomerController {
      */
     private int getNoMulchOrdered() {
         int quantMulchOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if ((aData.getProductName().contains("Mulch")) && (aData.getProductName().contains("Bulk"))) {
                 quantMulchOrdered += aData.getOrderedQuantity();
             }
@@ -693,7 +674,7 @@ public class AddCustomerController {
      */
     private int getNoLivePlantsOrdered() {
         int livePlantsOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if (aData.getProductName().contains("-P") || aData.getProductName().contains("-FV")) {
                 livePlantsOrdered += aData.getOrderedQuantity();
             }
@@ -708,7 +689,7 @@ public class AddCustomerController {
      */
     private int getNoLawnProductsOrdered() {
         int lawnProductsOrdered = 0;
-        for (Product.formattedProductProps aData : data) {
+        for (formattedProductProps aData : data) {
             if (aData.getProductName().contains("-L")) {
                 lawnProductsOrdered += aData.getOrderedQuantity();
             }
@@ -742,27 +723,6 @@ public class AddCustomerController {
     private boolean infoEntered() {
         return !((Name.getText().isEmpty()) && (Address.getText().isEmpty()));
     }
-
-    /**
-     * Updates the totals tables
-     *//*
-    private void updateTots() {
-        *//*
-          get current totals
-          add to them
-          update
-         *//*
-        BigDecimal donationChange = new BigDecimal((Objects.equals(DonationsT.getText(), "")) ? "0" : DonationsT.getText()).subtract(preEditDonations);
-        BigDecimal donations = yearInfo.getDonations().add(donationChange);
-        int Lg = yearInfo.getLG() + (getNoLawnProductsOrdered() - preEditLawnProductSales);
-        int LP = yearInfo.getLP() + (getNoLivePlantsOrdered() - preEditLivePlantSales);
-        int Mulch = yearInfo.getMulch() + (getNoMulchOrdered() - preEditMulchSales);
-        BigDecimal OT = yearInfo.getOT().add(totalCostFinal.subtract(preEditOrderCost));
-        int Customers = (yearInfo.getNoCustomers() + newCustomer);
-        BigDecimal GTot = yearInfo.getGTot().add(totalCostFinal.subtract(preEditOrderCost).add(donationChange));
-        BigDecimal Commis = getCommission(GTot);
-        yearInfo.updateTots(donations, Lg, LP, Mulch, OT, Customers, Commis, GTot);
-    }*/
 
     private class EditingCell extends TableCell {
 
@@ -798,7 +758,7 @@ public class AddCustomerController {
             super.cancelEdit();
             try {
                 setText(getItem().toString());
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
             setGraphic(null);
         }
 

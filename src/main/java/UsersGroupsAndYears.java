@@ -43,8 +43,9 @@ public class UsersGroupsAndYears extends Window {
             stage.showAndWait();
         } catch (IOException e) {
             LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AccessException e) {
+            LogToFile.log(e, Severity.WARNING, "You do not have permission to access this window.");
+
         }
     }
 

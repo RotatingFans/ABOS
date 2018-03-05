@@ -24,21 +24,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="736.0" prefWidth="1407.0"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="736.0" styleClass="pane" stylesheets="@Main.css"
             xmlns="http://javafx.com/javafx/8.0.121" fx:controller="UsersGroupsAndYearsController">
     <children>
-        <BorderPane layoutX="299.0" layoutY="117.0" prefHeight="736.0" prefWidth="1407.0" AnchorPane.bottomAnchor="0.0"
+        <BorderPane layoutX="299.0" layoutY="117.0" prefHeight="736.0" styleClass="pane" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <left>
-                <BorderPane BorderPane.alignment="CENTER">
-                    <center>
-                        <ListView fx:id="yearsList" prefHeight="200.0" prefWidth="200.0"/>
-                    </center>
+                <BorderPane styleClass="pane" BorderPane.alignment="CENTER">
+
                     <top>
                         <Label text="Years" BorderPane.alignment="CENTER"/>
                     </top>
                     <bottom>
-                        <HBox alignment="CENTER" prefHeight="29.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                        <HBox alignment="CENTER" prefHeight="29.0" BorderPane.alignment="CENTER">
                             <children>
                                 <Button fx:id="deleteYearBtn" mnemonicParsing="false" onAction="#deleteYear"
                                         text="Delete" HBox.hgrow="ALWAYS">
@@ -55,210 +53,183 @@
                             </children>
                         </HBox>
                     </bottom>
+                    <center>
+                        <ListView fx:id="yearsList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"
+                                  id="UGY_yearsNav"/>
+                    </center>
                 </BorderPane>
             </left>
             <center>
-                <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE"
-                         BorderPane.alignment="CENTER">
+                <TabPane fx:id="tabPane" prefHeight="200.0" styleClass="pane" tabClosingPolicy="UNAVAILABLE"
+                         BorderPane.alignment="CENTER" id="UGY_tabPane">
                     <tabs>
                         <Tab text="Users&amp;Groups">
                             <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" styleClass="pane">
                                     <children>
-                                        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                        <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0"
+                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                    AnchorPane.topAnchor="0.0">
                                             <center>
                                                 <SplitPane dividerPositions="0.6633380884450785" orientation="VERTICAL"
-                                                           prefHeight="703.0" prefWidth="1207.0">
+                                                           prefHeight="703.0" styleClass="pane">
                                                     <items>
-                                                        <AnchorPane fx:id="topUsersPane" minHeight="0.0" minWidth="0.0"
-                                                                    prefHeight="100.0" prefWidth="160.0">
-                                                            <children>
-                                                                <SplitPane
-                                                                        dividerPositions="0.36824605153782214, 0.4247714048212801, 0.8113050706566916"
-                                                                        layoutX="67.0" layoutY="135.0"
-                                                                        prefHeight="461.0" prefWidth="1205.0"
-                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                        AnchorPane.leftAnchor="0.0"
-                                                                        AnchorPane.rightAnchor="0.0"
-                                                                        AnchorPane.topAnchor="0.0">
-                                                                    <items>
-                                                                        <AnchorPane minHeight="0.0" minWidth="0.0"
-                                                                                    prefHeight="160.0"
-                                                                                    prefWidth="100.0">
-                                                                            <children>
-                                                                                <BorderPane
-                                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                                        AnchorPane.leftAnchor="0.0"
-                                                                                        AnchorPane.rightAnchor="0.0"
-                                                                                        AnchorPane.topAnchor="0.0">
-                                                                                    <center>
-                                                                                        <ListView fx:id="allUsersList"
-                                                                                                  prefHeight="459.0"
-                                                                                                  prefWidth="354.0"/>
-                                                                                    </center>
-                                                                                    <top>
-                                                                                        <Label text="All users"
-                                                                                               BorderPane.alignment="CENTER"/>
-                                                                                    </top>
-                                                                                    <bottom>
-                                                                                        <HBox alignment="CENTER"
-                                                                                              prefHeight="29.0"
-                                                                                              prefWidth="200.0"
-                                                                                              BorderPane.alignment="CENTER">
-                                                                                            <children>
-                                                                                                <Button mnemonicParsing="false"
-                                                                                                        onAction="#deleteUser"
-                                                                                                        text="Delete"
-                                                                                                        HBox.hgrow="ALWAYS">
-                                                                                                    <HBox.margin>
-                                                                                                        <Insets/>
-                                                                                                    </HBox.margin>
-                                                                                                </Button>
-                                                                                                <Button mnemonicParsing="false"
-                                                                                                        onAction="#editUser"
-                                                                                                        text="Edit"
-                                                                                                        HBox.hgrow="ALWAYS">
-                                                                                                    <HBox.margin>
-                                                                                                        <Insets left="10.0"/>
-                                                                                                    </HBox.margin>
-                                                                                                </Button>
-                                                                                                <Button mnemonicParsing="false"
-                                                                                                        onAction="#addUser"
-                                                                                                        text="Add"
-                                                                                                        HBox.hgrow="ALWAYS">
-                                                                                                    <HBox.margin>
-                                                                                                        <Insets left="10.0"/>
-                                                                                                    </HBox.margin>
-                                                                                                </Button>
-                                                                                            </children>
-                                                                                        </HBox>
+                                                        <GridPane prefHeight="432.0" prefWidth="1047.0">
+                                                            <columnConstraints>
+                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="357.0"
+                                                                                   minWidth="10.0" prefWidth="342.0"/>
+                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="256.0"
+                                                                                   minWidth="0.0" prefWidth="75.0"/>
+                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="571.0"
+                                                                                   minWidth="10.0" prefWidth="270.0"/>
+                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="332.0"
+                                                                                   minWidth="10.0" prefWidth="66.0"/>
+                                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="358.0"
+                                                                                   minWidth="10.0" prefWidth="315.0"/>
 
-                                                                                    </bottom>
-                                                                                </BorderPane>
-                                                                            </children>
-                                                                        </AnchorPane>
-                                                                        <AnchorPane minHeight="0.0" minWidth="0.0"
-                                                                                    prefHeight="160.0"
-                                                                                    prefWidth="100.0">
-                                                                            <children>
-                                                                                <SplitPane
-                                                                                        dividerPositions="0.13347921225382933"
-                                                                                        layoutX="-2.0" layoutY="84.0"
-                                                                                        orientation="VERTICAL"
-                                                                                        prefHeight="459.0"
-                                                                                        prefWidth="58.0"
-                                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                                        AnchorPane.leftAnchor="0.0"
-                                                                                        AnchorPane.rightAnchor="0.0"
-                                                                                        AnchorPane.topAnchor="0.0">
-                                                                                    <items>
-                                                                                        <Button mnemonicParsing="false"
-                                                                                                onAction="#moveUserToYear"
-                                                                                                prefHeight="57.0"
-                                                                                                prefWidth="62.0"
-                                                                                                text="--&gt;"/>
-                                                                                        <Button mnemonicParsing="false"
-                                                                                                onAction="#removeUserFromYear"
-                                                                                                prefHeight="70.0"
-                                                                                                prefWidth="62.0"
-                                                                                                text="&lt;--"/>
-                                                                                    </items>
-                                                                                </SplitPane>
-                                                                            </children>
-                                                                        </AnchorPane>
-                                                                        <AnchorPane prefHeight="200.0"
-                                                                                    prefWidth="200.0">
-                                                                            <children>
-                                                                                <BorderPane
-                                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                                        AnchorPane.leftAnchor="0.0"
-                                                                                        AnchorPane.rightAnchor="0.0"
-                                                                                        AnchorPane.topAnchor="0.0">
-                                                                                    <center>
-                                                                                        <ListView fx:id="yearUserList"
-                                                                                                  prefHeight="459.0"
-                                                                                                  prefWidth="597.0"/>
-                                                                                    </center>
-                                                                                    <top>
-                                                                                        <Label text="Users in year"
-                                                                                               BorderPane.alignment="CENTER"/>
-                                                                                    </top>
-                                                                                </BorderPane>
-                                                                            </children>
-                                                                        </AnchorPane>
-                                                                        <BorderPane BorderPane.alignment="CENTER">
-                                                                            <center>
-                                                                                <ListView fx:id="groupList"
-                                                                                          prefHeight="200.0"
-                                                                                          prefWidth="200.0"/>
-                                                                            </center>
-                                                                            <top>
-                                                                                <Label text="Groups"
-                                                                                       BorderPane.alignment="CENTER"/>
-                                                                            </top>
-                                                                            <bottom>
-                                                                                <HBox alignment="CENTER"
-                                                                                      prefHeight="29.0"
-                                                                                      prefWidth="200.0"
-                                                                                      BorderPane.alignment="CENTER">
-                                                                                    <children>
-                                                                                        <Button fx:id="deleteGroupBtn"
-                                                                                                disable="true"
-                                                                                                mnemonicParsing="false"
-                                                                                                onAction="#deleteGroup"
-                                                                                                text="Delete"
-                                                                                                HBox.hgrow="ALWAYS">
-                                                                                            <HBox.margin>
-                                                                                                <Insets/>
-                                                                                            </HBox.margin>
-                                                                                        </Button>
-                                                                                        <Button fx:id="editGroupBtn"
-                                                                                                mnemonicParsing="false"
-                                                                                                onAction="#editGroup"
-                                                                                                text="Edit"
-                                                                                                HBox.hgrow="ALWAYS">
-                                                                                            <HBox.margin>
-                                                                                                <Insets left="10.0"/>
-                                                                                            </HBox.margin>
-                                                                                        </Button>
-                                                                                        <Button fx:id="addGroupBtn"
-                                                                                                mnemonicParsing="false"
-                                                                                                onAction="#addGroup"
-                                                                                                text="Add"
-                                                                                                HBox.hgrow="ALWAYS">
-                                                                                            <HBox.margin>
-                                                                                                <Insets left="10.0"/>
-                                                                                            </HBox.margin>
-                                                                                        </Button>
-                                                                                    </children>
-                                                                                </HBox>
-                                                                            </bottom>
-                                                                        </BorderPane>
-                                                                    </items>
-                                                                </SplitPane>
-                                                            </children>
-                                                        </AnchorPane>
-                                                        <AnchorPane fx:id="bottomUserPane" minHeight="0.0"
-                                                                    minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                                            </columnConstraints>
+                                                            <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                                vgrow="ALWAYS"/>
+                                                            </rowConstraints>
                                                             <children>
-                                                                <BorderPane AnchorPane.bottomAnchor="0.0"
+                                                                <BorderPane prefHeight="310.0" prefWidth="206.0"
+                                                                            styleClass="pane">
+                                                                    <center>
+                                                                        <ListView fx:id="allUsersList"
+                                                                                  prefHeight="459.0"/>
+                                                                    </center>
+                                                                    <top>
+                                                                        <Label text="All users"
+                                                                               BorderPane.alignment="CENTER"/>
+                                                                    </top>
+                                                                    <bottom>
+                                                                        <HBox alignment="CENTER" prefHeight="29.0"
+                                                                              BorderPane.alignment="CENTER">
+                                                                            <children>
+                                                                                <Button mnemonicParsing="false"
+                                                                                        onAction="#deleteUser"
+                                                                                        text="Delete"
+                                                                                        HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                                <Button mnemonicParsing="false"
+                                                                                        onAction="#editUser" text="Edit"
+                                                                                        HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets left="10.0"/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                                <Button mnemonicParsing="false"
+                                                                                        onAction="#addUser" text="Add"
+                                                                                        HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets left="10.0"/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                            </children>
+                                                                        </HBox>
+
+                                                                    </bottom>
+                                                                </BorderPane>
+                                                                <VBox prefHeight="200.0" prefWidth="100.0"
+                                                                      GridPane.columnIndex="1">
+                                                                    <children>
+                                                                        <Label/>
+                                                                        <Button mnemonicParsing="false"
+                                                                                onAction="#moveUserToYear"
+                                                                                prefHeight="73.0" prefWidth="71.0"
+                                                                                text="--&gt;" VBox.vgrow="ALWAYS"/>
+                                                                        <Button alignment="CENTER"
+                                                                                mnemonicParsing="false"
+                                                                                onAction="#removeUserFromYear"
+                                                                                prefHeight="76.0" prefWidth="71.0"
+                                                                                text="&lt;--" VBox.vgrow="ALWAYS"/>
+                                                                    </children>
+                                                                </VBox>
+                                                                <BorderPane styleClass="pane" GridPane.columnIndex="2">
+                                                                    <center>
+                                                                        <ListView fx:id="yearUserList"
+                                                                                  prefHeight="367.0" prefWidth="358.0"/>
+                                                                    </center>
+                                                                    <top>
+                                                                        <Label text="Users in year"
+                                                                               BorderPane.alignment="CENTER"/>
+                                                                    </top>
+                                                                    <bottom>
+                                                                        <HBox prefHeight="33.0" prefWidth="358.0"
+                                                                              BorderPane.alignment="CENTER"/>
+                                                                    </bottom>
+                                                                </BorderPane>
+                                                                <Region prefHeight="433.0" prefWidth="146.0"
+                                                                        GridPane.columnIndex="3"/>
+                                                                <BorderPane styleClass="pane" GridPane.columnIndex="4">
+                                                                    <center>
+                                                                        <ListView fx:id="groupList" prefHeight="200.0"/>
+                                                                    </center>
+                                                                    <top>
+                                                                        <Label text="Groups"
+                                                                               BorderPane.alignment="CENTER"/>
+                                                                    </top>
+                                                                    <bottom>
+                                                                        <HBox alignment="CENTER" prefHeight="29.0"
+                                                                              BorderPane.alignment="CENTER">
+                                                                            <children>
+                                                                                <Button fx:id="deleteGroupBtn"
+                                                                                        disable="true"
+                                                                                        mnemonicParsing="false"
+                                                                                        onAction="#deleteGroup"
+                                                                                        text="Delete"
+                                                                                        HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                                <Button fx:id="editGroupBtn"
+                                                                                        mnemonicParsing="false"
+                                                                                        onAction="#editGroup"
+                                                                                        text="Edit" HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets left="10.0"/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                                <Button fx:id="addGroupBtn"
+                                                                                        mnemonicParsing="false"
+                                                                                        onAction="#addGroup" text="Add"
+                                                                                        HBox.hgrow="ALWAYS">
+                                                                                    <HBox.margin>
+                                                                                        <Insets left="10.0"/>
+                                                                                    </HBox.margin>
+                                                                                </Button>
+                                                                            </children>
+                                                                        </HBox>
+                                                                    </bottom>
+                                                                </BorderPane>
+                                                            </children>
+                                                        </GridPane>
+
+                                                        <AnchorPane fx:id="bottomUserPane" minHeight="0.0"
+                                                                    minWidth="0.0" prefHeight="100.0" styleClass="pane">
+                                                            <children>
+                                                                <BorderPane styleClass="pane"
+                                                                            AnchorPane.bottomAnchor="0.0"
                                                                             AnchorPane.leftAnchor="0.0"
                                                                             AnchorPane.rightAnchor="0.0"
                                                                             AnchorPane.topAnchor="0.0">
                                                                     <center>
                                                                         <SplitPane dividerPositions="0.5"
-                                                                                   prefHeight="461.0"
-                                                                                   prefWidth="1205.0">
+                                                                                   prefHeight="461.0" styleClass="pane">
                                                                             <items>
                                                                                 <AnchorPane prefHeight="200.0"
-                                                                                            prefWidth="200.0">
+                                                                                            styleClass="pane">
                                                                                     <children>
-                                                                                        <BorderPane
-                                                                                                AnchorPane.bottomAnchor="0.0"
-                                                                                                AnchorPane.leftAnchor="0.0"
-                                                                                                AnchorPane.rightAnchor="0.0"
-                                                                                                AnchorPane.topAnchor="0.0">
+                                                                                        <BorderPane styleClass="pane"
+                                                                                                    AnchorPane.bottomAnchor="0.0"
+                                                                                                    AnchorPane.leftAnchor="0.0"
+                                                                                                    AnchorPane.rightAnchor="0.0"
+                                                                                                    AnchorPane.topAnchor="0.0">
                                                                                             <top>
                                                                                                 <Label text="Users to manage"
                                                                                                        BorderPane.alignment="CENTER"/>
@@ -267,17 +238,16 @@
                                                                                                 <TreeView
                                                                                                         fx:id="managedUserList"
                                                                                                         prefHeight="200.0"
-                                                                                                        prefWidth="200.0"
                                                                                                         BorderPane.alignment="CENTER"/>
                                                                                             </center>
                                                                                         </BorderPane>
                                                                                     </children>
                                                                                 </AnchorPane>
                                                                                 <AnchorPane prefHeight="200.0"
-                                                                                            prefWidth="200.0">
+                                                                                            styleClass="pane">
                                                                                     <children>
                                                                                         <FlowPane prefHeight="230.0"
-                                                                                                  prefWidth="597.0"
+                                                                                                  styleClass="Lightpane"
                                                                                                   AnchorPane.bottomAnchor="0.0"
                                                                                                   AnchorPane.leftAnchor="0.0"
                                                                                                   AnchorPane.rightAnchor="0.0"
@@ -289,8 +259,7 @@
                                                                                                     </FlowPane.margin>
                                                                                                 </Label>
                                                                                                 <ComboBox
-                                                                                                        fx:id="userGroup"
-                                                                                                        prefWidth="150.0"/>
+                                                                                                        fx:id="userGroup"/>
                                                                                             </children>
                                                                                         </FlowPane>
                                                                                     </children>
@@ -322,21 +291,20 @@
                         </Tab>
                         <Tab fx:id="productsTab" disable="true" text="Products">
                             <content>
-                                <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                                             BorderPane.alignment="CENTER">
                                     <center>
                                         <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0"
-                                                    prefWidth="200.0">
+                                                    styleClass="pane">
                                             <content>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="322.0"
-                                                            prefWidth="590.0" AnchorPane.bottomAnchor="0.0"
+                                                            styleClass="pane" AnchorPane.bottomAnchor="0.0"
                                                             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                                             AnchorPane.topAnchor="0.0">
                                                     <children>
                                                         <TableView fx:id="ProductTable" editable="true"
-                                                                   prefHeight="322.0" prefWidth="590.0"
-                                                                   AnchorPane.bottomAnchor="0.0"
+                                                                   prefHeight="322.0" AnchorPane.bottomAnchor="0.0"
                                                                    AnchorPane.leftAnchor="0.0"
                                                                    AnchorPane.rightAnchor="0.0"
                                                                    AnchorPane.topAnchor="0.0"/>
@@ -346,7 +314,7 @@
                                         </ScrollPane>
                                     </center>
                                     <top>
-                                        <FlowPane prefHeight="44.0" prefWidth="1207.0" BorderPane.alignment="CENTER">
+                                        <FlowPane prefHeight="44.0" styleClass="pane" BorderPane.alignment="CENTER">
                                             <children>
                                                 <Button mnemonicParsing="false" onAction="#tablefromDb"
                                                         text="Fill Table from pre-existing database"/>
@@ -356,37 +324,37 @@
                                                         text="Generate XML and fill table from CSV"/>
                                                 <Button mnemonicParsing="false" onAction="#tableFrmXML"
                                                         text="Generate Table from XML"/>
-                                                <HBox>
+                                                <HBox styleClass="HBox">
                                                     <children>
-                                                        <VBox>
+                                                        <VBox styleClass="VBox">
                                                             <children>
                                                                 <Label text="Product ID"/>
                                                                 <TextField fx:id="idTb" promptText="ID"/>
                                                             </children>
                                                         </VBox>
-                                                        <VBox>
+                                                        <VBox styleClass="VBox">
                                                             <children>
                                                                 <Label text="Product Name"/>
                                                                 <TextField fx:id="itemTb" promptText="Name"/>
                                                             </children>
                                                         </VBox>
-                                                        <VBox>
+                                                        <VBox styleClass="VBox">
                                                             <children>
                                                                 <Label text="Product Size"/>
                                                                 <TextField fx:id="sizeTb" promptText="Size"/>
                                                             </children>
                                                         </VBox>
-                                                        <VBox>
+                                                        <VBox styleClass="VBox">
                                                             <children>
                                                                 <Label text="Unit Cost"/>
                                                                 <TextField fx:id="rateTb" promptText="Unit Cost"/>
                                                             </children>
                                                         </VBox>
-                                                        <VBox>
+                                                        <VBox styleClass="VBox">
                                                             <children>
                                                                 <Label text="Category"/>
                                                                 <ComboBox fx:id="categoriesCmbx"
-                                                                          onAction="#catCmbxChanged" prefWidth="150.0"
+                                                                          onAction="#catCmbxChanged"
                                                                           promptText="Select A Category">
                                                                     <items>
                                                                         <FXCollections fx:factory="observableArrayList">
@@ -398,7 +366,7 @@
                                                             </children>
                                                         </VBox>
                                                         <Button mnemonicParsing="false" onAction="#addBtnPressed"
-                                                                prefHeight="42.0" prefWidth="62.0" text="Add"/>
+                                                                prefHeight="42.0" text="Add"/>
                                                     </children>
                                                     <FlowPane.margin>
                                                         <Insets right="5.0"/>
@@ -409,7 +377,7 @@
                                         </FlowPane>
                                     </top>
                                     <bottom>
-                                        <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                        <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
                                             <buttons>
                                                 <Button defaultButton="true" mnemonicParsing="false" onAction="#submit"
                                                         text="OK"/>
