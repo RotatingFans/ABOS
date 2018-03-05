@@ -157,7 +157,8 @@ public class Main extends Application {
         });
         stage.setMaximized(true);
         Stage masterStage = stage;
-        controller.initialize(stage);
+
+        controller.initialize(stage, getParameters());
 
         stage.show();
     }

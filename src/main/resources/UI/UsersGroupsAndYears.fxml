@@ -54,13 +54,14 @@
                         </HBox>
                     </bottom>
                     <center>
-                        <ListView fx:id="yearsList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+                        <ListView fx:id="yearsList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"
+                                  id="UGY_yearsNav"/>
                     </center>
                 </BorderPane>
             </left>
             <center>
                 <TabPane fx:id="tabPane" prefHeight="200.0" styleClass="pane" tabClosingPolicy="UNAVAILABLE"
-                         BorderPane.alignment="CENTER">
+                         BorderPane.alignment="CENTER" id="UGY_tabPane">
                     <tabs>
                         <Tab text="Users&amp;Groups">
                             <content>

@@ -23,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -97,6 +98,8 @@ public class SettingsController {
     private TextField logoLoc;
     @FXML
     private TextField pdfLoc;
+    @FXML
+    private WebView licenseWebView;
     private Settings settings;
 
     public SettingsController() {
@@ -359,8 +362,9 @@ public class SettingsController {
 
         DbLoc.setText(Config.getDbLoc());
 
+        URL url = getClass().getResource("LICENSE.html");
 
-
+        licenseWebView.getEngine().load(url.toExternalForm());
 
         Name.setText(Config.getProp("CustomerName"));
 

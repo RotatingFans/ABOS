@@ -212,7 +212,7 @@
                                                                 text="..."/>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="yearPane">
+                                                <HBox fx:id="yearPane" styleClass="HBox">
                                                     <children>
                                                         <Label alignment="CENTER" prefHeight="25.0" text="Year"
                                                                textAlignment="CENTER">
@@ -229,7 +229,7 @@
                                                         </ComboBox>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="userPanel">
+                                                <HBox fx:id="userPanel" styleClass="HBox">
                                                     <children>
                                                         <Label alignment="CENTER" prefHeight="25.0" text="User"
                                                                textAlignment="CENTER">
@@ -246,7 +246,7 @@
                                                         </ComboBox>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="customerPane">
+                                                <HBox fx:id="customerPane" styleClass="HBox">
                                                     <children>
                                                         <Label alignment="CENTER" prefHeight="25.0" text="Customer"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -266,7 +266,7 @@
                                                         <Insets right="5.0"/>
                                                     </FlowPane.margin>
                                                 </HBox>
-                                                <HBox fx:id="categoryPane">
+                                                <HBox fx:id="categoryPane" styleClass="HBox">
                                                     <children>
                                                         <Label alignment="CENTER" prefHeight="25.0" text="Category"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">

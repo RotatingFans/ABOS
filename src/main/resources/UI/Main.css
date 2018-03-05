@@ -6,8 +6,11 @@
     -fx-font-size: 20px;
 
 }
-#selectNav {
+#selectNav, #UGY_yearsNav {
 -fx-background-color: #37474F;
+}
+#UGY_tabPane {
+-fx-padding: 0 0 0 2;
 }
 * {
     -fx-font-size: 11pt;
@@ -90,7 +93,7 @@ transparent
 
 }
 .table-view .column-header .column-resize-line {
-    -fx-background-color: #4f5b62
+    -fx-background-color: #4f5b62;
 -fx-border-width: 4;
 
 }
@@ -172,17 +175,17 @@ transparent
     -fx-background-color: black;
 }
 
-.text-field {
+.text-field, .combo-box-base {
     -fx-font-size: 12pt;
     -fx-font-family: "Segoe UI Semibold";
      -fx-text-fill: white;
-    -fx-padding: 0 0 2 0;
+    -fx-padding: 4;
     -fx-border-width: 0 0 2 0;
     -fx-border-color: #248222;
 }
-.text-field:focused {
+.text-field:focused, .combo-box-base:focused {
 
-    -fx-padding: 0 0 4 0;
+    -fx-padding: 4;
     -fx-border-width: 0 0 2 0;
     -fx-border-color: #5ab250;
 }
@@ -212,12 +215,12 @@ transparent
     -fx-text-fill: #d8d8d8;
     -fx-background-insets: 0 0 0 0, 0, 1, 2;
 }
-.combo-box-base,
 .check-box .box{
     -fx-border-color: #e2e2e2;
     -fx-border-width: 2;
     -fx-background-radius: 0;
     -fx-background-color: #263238;
+    -fx-padding: 5 22 5 22;
 
     -fx-background-insets: 0 0 0 0, 0, 1, 2;
 }
