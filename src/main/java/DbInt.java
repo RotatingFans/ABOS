@@ -463,7 +463,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
     }
 
     public static Iterable<Customer> getAllCustomers() {
-        Collection<String> names = new ArrayList<>();
+        //Collection<String> names = new ArrayList<>();
         Collection<Customer> ret = new ArrayList<>();
         Iterable<String> years = getUserYears();
         for (String year : years) {
@@ -473,10 +473,8 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
                  ResultSet rs = prep.executeQuery()) {
                 while (rs.next()) {
                     String name = rs.getString("Name");
-                    if (!names.contains(name)) {
-                        names.add(name);
                         ret.add(new Customer(rs.getInt("idCustomers"), year));
-                    }
+
 
                 }
                 ////DbInt.pCon.close()

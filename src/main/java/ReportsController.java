@@ -26,21 +26,15 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.sf.saxon.s9api.SaxonApiException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
@@ -84,7 +78,7 @@ public class ReportsController {
     @FXML
     private ComboBox<Object> cmbxYears;
     @FXML
-    private ComboBox<TreeItemPair<String, Integer>> cmbxCustomers;
+    private ComboBox<TreeItemPair<String, ArrayList<Customer>>> cmbxCustomers;
     //private Label includeHeaderL;
     @FXML
     private TabPane reportTabPane;
@@ -121,158 +115,22 @@ public class ReportsController {
 
 
 
-/*
-    public static void main(String... args) {
-        try {
-            new Reports();
-
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    /**
-     * Get info on a product
-     *
-     * @return The info of the product specified
-     */
-
-    /*private static Iterable<String> getYears() {
-        Collection<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
-             ResultSet rs = prep.executeQuery()) {
-
-
-            while (rs.next()) {
-
-                ret.add(rs.getString("YEARS"));
-
-            }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-
-        return ret;
-    }
-
-    private static Iterable<String> getCustomers() {
-        Collection<String> ret = new ArrayList<>();
-        Iterable<String> years = getYears();
-        for (String year : years) {
-
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
-                 ResultSet rs = prep.executeQuery()
-            ) {
-
-
-                while (rs.next()) {
-                    String name = rs.getString("NAME");
-                    if (!ret.contains(name)) {
-                        ret.add(name);
-                    }
-
-                }
-                ////DbInt.pCon.close();
-
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        }
-
-
-        return ret;
-    }
-*/
-    private static String getCityState(String zipCode) throws IOException {
-        //String AddressF = Address.replace(" ","+");
-        //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
-
-        //Defines connection
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        String city = "";
-        String State = "";
-        //Creates Response buffer for Web response
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            //Fill String buffer with response
-            while ((inputLine = in.readLine()) != null) {
-                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-                response.append(inputLine);
-            }
-
-
-            //Parses XML response and fills City and State Variables
-            InputSource is = new InputSource(new StringReader(response.toString()));
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
-
-            doc.getDocumentElement().normalize();
-
-            //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-            NodeList nList = doc.getElementsByTagName("place");
-
-
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                Node nNode = nList.item(temp);
-
-
-                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-                    Element eElement = (Element) nNode;
-
-
-                    city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                    State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
-
-                    //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                }
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error Parsing geolaction data. Please try again or contact support.");
-        } catch (IOException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error Reading geolaction data. Please try again or contact support.");
-        } catch (RuntimeException e) {
-            LogToFile.log(e, Severity.SEVERE, "Unknown error. Please contact support.");
-        }
-
-        //Formats City and state into one string to return
-        String fullName = city + '&';
-        fullName += State;
-        //print result
-        //	return parseCoords(response.toString());
-        return fullName;
-    }
-
     @FXML
     private void reportTypeChange(ActionEvent actionEvent) {
         ComboBox comboBox = (ComboBox) actionEvent.getSource();
 
         Object selected = comboBox.getSelectionModel().getSelectedItem();
+        reportTabPane.getTabs().get(1).setDisable(true);
+        okButton.setDisable(true);
         if (selected != null) {
             nextButton.setDisable(false);
+
         }
     }
 
     @FXML
     private void selectedYearChanged(ActionEvent actionEvent) {
+
         //ComboBox comboBox = (ComboBox) actionEvent.getSource();
         if (cmbxReportType.getSelectionModel().getSelectedIndex() != 3) {
             userPanel.setDisable(false);
@@ -291,6 +149,21 @@ public class ReportsController {
     @FXML
     private void selectedUserChanged(ActionEvent actionEvent) {
         //ComboBox comboBox = (ComboBox) actionEvent.getSource();
+        switch (cmbxReportType.getSelectionModel().getSelectedItem().toString()) {
+
+            case "Year Totals":
+                okButton.setDisable(cmbxUser.getSelectionModel().getSelectedItem() == null);
+                break;
+            case "Year Totals; Spilt by Customer":
+                okButton.setDisable(cmbxUser.getSelectionModel().getSelectedItem() == null);
+                break;
+            case "Customer Year Totals":
+                okButton.setDisable(true);
+                break;
+            case "Customer All-Time Totals":
+                okButton.setDisable(true);
+                break;
+        }
         if (cmbxReportType.getSelectionModel().getSelectedIndex() != 3) {
 
             String selectedYear = cmbxYears.getSelectionModel().getSelectedItem().toString();
@@ -308,10 +181,10 @@ public class ReportsController {
                     }
                     Iterable<Customer> customersY = year.getCustomers();
                     cmbxCustomers.getItems().removeAll();
-                    cmbxCustomers.getItems().add(new TreeItemPair<String, Integer>("", 0));
-                    cmbxCustomers.getSelectionModel().select(new TreeItemPair<String, Integer>("", 0));
                     customersY.forEach(customer -> {
-                        cmbxCustomers.getItems().add(new TreeItemPair<String, Integer>(customer.getName(), customer.getId()));
+                        ArrayList custList = new ArrayList();
+                        custList.add(customer);
+                        cmbxCustomers.getItems().add(new TreeItemPair<String, ArrayList<Customer>>(customer.getName(), custList));
                     });
                     cmbxCustomers.setDisable(false);
                 }
@@ -324,15 +197,35 @@ public class ReportsController {
                     year = new Year(selectedYear, selectedUser);
 
                 }
+                cmbxCategory.getItems().clear();
+                cmbxCategory.getItems().add("All");
                 year.getCategories().forEach(category -> cmbxCategory.getItems().add(category.catName));
-
+                cmbxCategory.getSelectionModel().selectFirst();
             }
         }
     }
 
     @FXML
+    private void selectedCustomerChanged(ActionEvent actionEvent) {
+        switch (cmbxReportType.getSelectionModel().getSelectedItem().toString()) {
+
+            case "Year Totals":
+                okButton.setDisable(true);
+                break;
+            case "Year Totals; Spilt by Customer":
+                okButton.setDisable(true);
+                break;
+            case "Customer Year Totals":
+                okButton.setDisable(cmbxCustomers.getSelectionModel().getSelectedItem() == null);
+                break;
+            case "Customer All-Time Totals":
+                okButton.setDisable(cmbxCustomers.getSelectionModel().getSelectedItem() == null);
+                break;
+        }
+    }
+    @FXML
     private void selectedCategoryChanged(ActionEvent actionEvent) {
-        includeHeader.setDisable(cmbxCategory.getSelectionModel().getSelectedItem().equals("All"));
+        includeHeader.setDisable(cmbxCategory.getSelectionModel().getSelectedItem().equals("All") || cmbxReportType.getSelectionModel().getSelectedIndex() == 0);
     }
 
     @FXML
@@ -377,8 +270,9 @@ public class ReportsController {
     public void next(ActionEvent event) {
         updateCombos();
         nextButton.setDisable(true);
-        okButton.setDisable(false);
+        // okButton.setDisable(false);
         reportTabPane.getSelectionModel().select(reportTabPane.getSelectionModel().getSelectedIndex() + 1);
+        reportTabPane.getTabs().get(1).setDisable(false);
     }
 
     @FXML
@@ -387,16 +281,16 @@ public class ReportsController {
         switch (cmbxReportType.getSelectionModel().getSelectedIndex()) {
             case 0:
                 repTitle = "Year of " + cmbxYears.getSelectionModel().getSelectedItem();
-                Splitting = "Year:";
+                Splitting = "";
 
                 break;
             case 1:
-                repTitle = cmbxCustomers.getSelectionModel().getSelectedItem() + " " + cmbxYears.getSelectionModel().getSelectedItem();
+                repTitle = "";
                 Splitting = "";
 
                 break;
             case 2:
-                repTitle = cmbxCustomers.getSelectionModel().getSelectedItem() + " " + cmbxYears.getSelectionModel().getSelectedItem();
+                repTitle = cmbxCustomers.getSelectionModel().getSelectedItem() + " " + cmbxYears.getSelectionModel().getSelectedItem() + " Order";
                 Splitting = "";
 
                 break;
@@ -409,10 +303,11 @@ public class ReportsController {
         }
         ProgressForm progDial = new ProgressForm();
         String selectedYear = (cmbxYears.getSelectionModel().getSelectedItem() != null) ? cmbxYears.getSelectionModel().getSelectedItem().toString() : "";
-        String selectedUser = cmbxUser.getSelectionModel().getSelectedItem().getValue();
-        Integer selectedCustomer = (cmbxCustomers.getSelectionModel().getSelectedItem() != null) ? cmbxCustomers.getSelectionModel().getSelectedItem().getValue() : 0;
+        String selectedUser = (cmbxUser.getSelectionModel().getSelectedItem() != null) ? cmbxUser.getSelectionModel().getSelectedItem().getValue() : "";
+        String selectedCategory = (cmbxCategory.getSelectionModel().getSelectedItem() != null) ? cmbxCategory.getSelectionModel().getSelectedItem().toString() : "";
+        ArrayList<Customer> selectedCustomers = (cmbxCustomers.getSelectionModel().getSelectedItem() != null) ? cmbxCustomers.getSelectionModel().getSelectedItem().getValue() : new ArrayList<Customer>();
 
-        ReportsWorker reportsWorker = new ReportsWorker(cmbxReportType.getSelectionModel().getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), cmbxCategory.getSelectionModel().getSelectedItem().toString(), selectedUser, selectedCustomer, repTitle, Splitting, includeHeader.isSelected(), pdfLoc.getText());
+        ReportsWorker reportsWorker = new ReportsWorker(cmbxReportType.getSelectionModel().getSelectedItem().toString(), selectedYear, scoutName.getText(), scoutStAddr.getText(), addrFormat, scoutRank.getText(), scoutPhone.getText(), logoLoc.getText(), selectedCategory, selectedUser, selectedCustomers, repTitle, Splitting, includeHeader.isSelected(), pdfLoc.getText());
 
         progDial.activateProgressBar(reportsWorker);
 
@@ -525,7 +420,10 @@ public class ReportsController {
 
     private void updateCombos() {
         Iterable<String> years = DbInt.getUserYears();
-
+        cmbxCategory.getItems().clear();
+        cmbxUser.getItems().clear();
+        cmbxCustomers.getItems().clear();
+        cmbxYears.getItems().clear();
         switch (cmbxReportType.getSelectionModel().getSelectedItem().toString()) {
 
             case "Year Totals":
@@ -534,7 +432,8 @@ public class ReportsController {
                 customerPane.setDisable(true);
                 cmbxYears.getItems().clear();
                 //cmbxYears.getItems().add("");
-
+                categoryPane.setDisable(false);
+                includeHeader.setDisable(true);
                 years.forEach(cmbxYears.getItems()::add);
 
                 //cmbxYears.
@@ -548,6 +447,9 @@ public class ReportsController {
                 cmbxYears.getItems().clear();
                 //cmbxYears.getItems().addAll(years);
                 years.forEach(cmbxYears.getItems()::add);
+                categoryPane.setDisable(false);
+                includeHeader.setDisable(false);
+
                 // cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
             case "Customer Year Totals":
@@ -559,23 +461,37 @@ public class ReportsController {
                 years.forEach(cmbxYears.getItems()::add);
                 //    cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 cmbxCustomers.setDisable(false);
+                categoryPane.setDisable(false);
+                includeHeader.setDisable(false);
 
 
                 break;
             case "Customer All-Time Totals":
                 userPanel.setDisable(true);
-
+                categoryPane.setDisable(true);
                 cmbxUser.getItems().add(new TreeItemPair<String, String>("Yourself", DbInt.getUserName()));
                 cmbxUser.getSelectionModel().selectFirst();
                 yearPane.setDisable(true);
                 customerPane.setDisable(false);
                 cmbxCustomers.getItems().removeAll();
                 Iterable<Customer> customers = DbInt.getAllCustomers();
-                cmbxCustomers.getItems().add(new TreeItemPair<String, Integer>(""));
-                cmbxCustomers.getSelectionModel().select(new TreeItemPair<String, Integer>(""));
+
+                HashMap<String, ArrayList<Customer>> curCustomers = new HashMap<>();
                 customers.forEach(customer -> {
-                    cmbxCustomers.getItems().add(new TreeItemPair<String, Integer>(customer.getName(), customer.getId()));
+                    if (curCustomers.containsKey(customer.getName())) {
+                        curCustomers.get(customer.getName()).add(customer);
+                    } else {
+                        ArrayList<Customer> customerArrayList = new ArrayList<>();
+                        customerArrayList.add(customer);
+                        curCustomers.put(customer.getName(), customerArrayList);
+                    }
                 });
+                curCustomers.forEach((name, customersList) -> {
+                    cmbxCustomers.getItems().add(new TreeItemPair<String, ArrayList<Customer>>(name, customersList));
+
+                });
+                includeHeader.setDisable(true);
+
                 //      cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
         }

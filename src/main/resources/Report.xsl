@@ -27,6 +27,10 @@
                 <xsl:value-of select="LawnGardenReports/info/reportTitle"/>
             </title>
             <style type="text/css">
+                * {
+                margin-top: 0px;
+                margin-bottom: 0px;
+                }
                 .LBordered {
                 border-left: 1px solid black;
                 border-collapse: collapse;
@@ -114,20 +118,23 @@
                                 </tr>
                             </table>
                             <div>
-                                <h2 style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
+                                <h2 style="text-align:center; position:relative;">
                                     <xsl:value-of select="/LawnGardenReports/info/reportTitle"/>
                                 </h2>
                             </div>
                         </xsl:if>
                         <div>
                             <h2 class="SplitTitle"
-                                style="text-align:left; position:relative; padding-top:20px; padding-bottom:20px">
+                                style="text-align:center; position:relative;">
                                 <xsl:value-of select="//splitting"/>
+                                <xsl:text>&#xA0;</xsl:text>
+                                <xsl:value-of select="title"/>
+
                             </h2>
 
 
                             <xsl:if test="custAddr">
-                                <div style="float:left; padding-top:20px; padding-bottom: 20px;clear:both;">
+                                <div style="float:left;clear:both;">
                                     <h4>
                                         <xsl:value-of select="name"/>
                                     </h4>
@@ -145,15 +152,12 @@
                             <div>
                                 <xsl:for-each select="specialInfo">
                                     <h2 class="specialInfo"
-                                        style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
+                                        style="text-align:center; position:relative">
                                         <xsl:value-of select="text"/>
                                     </h2>
                                 </xsl:for-each>
                             </div>
-                            <h2 class="SplitTitle"
-                                style="text-align:center; position:relative; padding-top:20px; padding-bottom:20px">
-                                <xsl:value-of select="title"/>
-                            </h2>
+
                         </div>
                         <xsl:if test="prodTable">
 
@@ -234,7 +238,7 @@
 
                     </div>
                 </xsl:for-each>
-                <h2 style="text-align:right; position:relative; padding-top:20px; padding-bottom:20px">
+                <h2 style="text-align:right; position:relative;">
                     TOTALS
                 </h2>
                 <div style="position:relative;">
