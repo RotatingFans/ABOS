@@ -1,8 +1,8 @@
-#YearDescription, #CustomerDescription, .Info-Header {
+#YearDescription, #CustomerDescription, .Info-Header,  {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
-#YearValue, #CustomerValue {
+#YearValue, #CustomerValue, #AddCustomer-RunningTotalLbl {
     -fx-font-size: 20px;
 
 }

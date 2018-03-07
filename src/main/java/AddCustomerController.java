@@ -83,6 +83,8 @@ public class AddCustomerController {
     private ComboBox<String> userCmbx;
     @FXML
     private Button okButton;
+    @FXML
+    private Label runningTotalLabel;
     private Tab parentTab = null;
     private Stage parentStage = null;
     private Pane tPane;
@@ -411,6 +413,7 @@ public class AddCustomerController {
                     totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
                 });
+                runningTotalLabel.setText("Total: " + totalCostFinal.toPlainString());
             } catch (NumberFormatException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid number");
                 alert.setHeaderText("You have entered an invalid number.");
@@ -516,6 +519,8 @@ public class AddCustomerController {
                     totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Order total
 
                 });
+                runningTotalLabel.setText("Total: " + totalCostFinal.toPlainString());
+
             } catch (NumberFormatException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid number");
                 alert.setHeaderText("You have entered an invalid number.");
