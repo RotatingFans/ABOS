@@ -70,7 +70,7 @@ class ReportsWorker extends Task<Integer> {
     private final String logoLoc;
     private final String category;
     private final String user;
-    private final int customerName;
+    private final ArrayList<Customer> customers;
     private final String repTitle;
     private final String Splitting;
     private final Boolean includeHeader;
@@ -83,7 +83,7 @@ class ReportsWorker extends Task<Integer> {
 
     /**
      * Creates an instance of the worker
-     *  @param reportType    the type of report
+     * @param reportType    the type of report
      * @param selectedYear  the selected year
      * @param scoutName     name of the scout to put in header
      * @param scoutStAddr   address  of the scout to put in header
@@ -93,13 +93,13 @@ class ReportsWorker extends Task<Integer> {
      * @param logoLoc       Location on disk of the logo
      * @param category      Category to generate report for
      * @param user          User to create Report as
-     * @param customerName  Name of the customer
+     * @param customers  Name of the customer
      * @param repTitle      Title of the report
      * @param splitting     Split the report in any way?
      * @param includeHeader Include a header?
      * @param pdfLoc1       Location to save the pdf
      */
-    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, int customerName, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
+    public ReportsWorker(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, ArrayList<Customer> customers, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType;
         this.selectedYear = selectedYear;
@@ -111,7 +111,7 @@ class ReportsWorker extends Task<Integer> {
         this.logoLoc = logoLoc;
         this.category = category;
         this.user = user;
-        this.customerName = customerName;
+        this.customers = customers;
         this.repTitle = repTitle;
         Splitting = splitting;
         this.includeHeader = includeHeader;
@@ -460,9 +460,12 @@ class ReportsWorker extends Task<Integer> {
                 }
                 // Splitter elements
                 {
-                    Element splitting = doc.createElement("splitting");
-                    splitting.appendChild(doc.createTextNode(Splitting));
-                    info.appendChild(splitting);
+                    if (!Splitting.isEmpty()) {
+                        Element splitting = doc.createElement("splitting");
+
+                        splitting.appendChild(doc.createTextNode(Splitting));
+                        info.appendChild(splitting);
+                    }
                 }
 
 
@@ -509,12 +512,7 @@ class ReportsWorker extends Task<Integer> {
                             prodTable.appendChild(doc.createTextNode("true"));
                             products.appendChild(prodTable);
                         }
-                        //YearTitle
-                        {
-                            Element title = doc.createElement("title");
-                            title.appendChild(doc.createTextNode(selectedYear));
-                            products.appendChild(title);
-                        }
+
                         /*{
                             if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo");
@@ -608,41 +606,76 @@ class ReportsWorker extends Task<Integer> {
                 }
                 break;
                 case "Customer Year Totals": {
-                    Order.orderArray orderArray = Order.createOrderArray(selectedYear, customerName, true);
+                    Order.orderArray orderArray = Order.createOrderArray(selectedYear, customers.get(0).getId(), true);
+                    Customer cust = new Customer(customers.get(0).getId(), selectedYear);
                     //Set Items
                     {
-                        //Product Elements
                         Element products = doc.createElement("customerYear");
-                        rootElement.appendChild(products);
+
+                        {
+                            Element custAddr = doc.createElement("custAddr");
+                            custAddr.appendChild(doc.createTextNode("true"));
+                            products.appendChild(custAddr);
+                        }
+                        // customername elements
+                        {
+                            Element custName = doc.createElement("name");
+                            custName.appendChild(doc.createTextNode(cust.getName()));
+                            products.appendChild(custName);
+                        }
+                        // StreetAddress elements
+                        {
+                            Element StreetAddress = doc.createElement("streetAddress");
+                            StreetAddress.appendChild(doc.createTextNode(cust.getAddr()));
+                            products.appendChild(StreetAddress);
+                        }
+                        // City elements
+                        {
+                            Element city = doc.createElement("city");
+                            String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip();
+                            city.appendChild(doc.createTextNode(addr));
+                            products.appendChild(city);
+                        }
+
+                        // phone elements
+                        {
+                            Element phone = doc.createElement("PhoneNumber");
+                            phone.appendChild(doc.createTextNode(cust.getPhone()));
+                            products.appendChild(phone);
+                        }
                         {
                             Element header = doc.createElement("header");
                             header.appendChild(doc.createTextNode("true"));
                             products.appendChild(header);
                         }
-                        {
-                            Element prodTable = doc.createElement("prodTable");
-                            prodTable.appendChild(doc.createTextNode("true"));
-                            products.appendChild(prodTable);
-                        }
-                        //YearTitle
-                        {
+                        /*{
                             Element title = doc.createElement("title");
-                            title.appendChild(doc.createTextNode(selectedYear));
+                            title.appendChild(doc.createTextNode(cust.getName() + ' ' + selectedYear + " Order"));
                             products.appendChild(title);
-                        }
+                        }*/
                         {
                             if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please Have the total payment listed below ready and be present on that date.";
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (cust.getPaid() ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }
-                                info.appendChild(title);
+                                products.appendChild(title);
                             }
-
                         }
+
+
+                        //Product Elements
+                        rootElement.appendChild(products);
+
+                        {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
+                        }
+
                         setProgress(5);
                         BigDecimal tCost = BigDecimal.ZERO;
                         int productIncValue = 90 / orderArray.orderData.length;
@@ -722,14 +755,13 @@ class ReportsWorker extends Task<Integer> {
                     // Collection<String> customerYears = new ArrayList<>();
                     ArrayList<String> years = DbInt.getUserYears();
                     if (years != null && !years.isEmpty()) {
-                        String headerS = "true";
-                        BigDecimal overallTotalCost = BigDecimal.ZERO;
-                        int overallTotalQuantity = 0;
+                        final String[] headerS = {"true"};
+                        final BigDecimal[] overallTotalCost = {BigDecimal.ZERO};
+                        final int[] overallTotalQuantity = {0};
                         int yearProgressInc = 95 / (years.size());
                         //For Each Year
-                        for (String year : years) {
-                            //Get Customer with name ?
-                            Year yearObj = new Year(year);
+                        customers.forEach(cust -> {
+
 
                             //    customerYears.add(year);
                             //Product Elements
@@ -737,8 +769,8 @@ class ReportsWorker extends Task<Integer> {
                             rootElement.appendChild(products);
                             {
                                 Element header = doc.createElement("header");
-                                header.appendChild(doc.createTextNode(headerS));
-                                headerS = "false";
+                                header.appendChild(doc.createTextNode(headerS[0]));
+                                headerS[0] = "false";
                                 products.appendChild(header);
                             }
                             {
@@ -746,16 +778,49 @@ class ReportsWorker extends Task<Integer> {
                                 prodTable.appendChild(doc.createTextNode("true"));
                                 products.appendChild(prodTable);
                             }
+                            {
+                                Element custAddr = doc.createElement("custAddr");
+                                custAddr.appendChild(doc.createTextNode("true"));
+                                products.appendChild(custAddr);
+                            }
+                            // customername elements
+                            {
+                                Element custName = doc.createElement("name");
+                                custName.appendChild(doc.createTextNode(cust.getName()));
+                                products.appendChild(custName);
+                            }
+                            // StreetAddress elements
+                            {
+                                Element StreetAddress = doc.createElement("streetAddress");
+                                StreetAddress.appendChild(doc.createTextNode(cust.getAddr()));
+                                products.appendChild(StreetAddress);
+                            }
+                            // City elements
+                            {
+                                Element city = doc.createElement("city");
+                                String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip();
+                                city.appendChild(doc.createTextNode(addr));
+                                products.appendChild(city);
+                            }
+
+                            // phone elements
+                            {
+                                Element phone = doc.createElement("PhoneNumber");
+                                phone.appendChild(doc.createTextNode(cust.getPhone()));
+                                products.appendChild(phone);
+                            }
+
                             //YearTitle
                             {
                                 Element title = doc.createElement("title");
-                                title.appendChild(doc.createTextNode(year));
+                                title.appendChild(doc.createTextNode(cust.getYear()));
                                 products.appendChild(title);
                             }
-                            Order.orderArray orderArray = Order.createOrderArray(year, customerName, true);
+
+                            Order.orderArray orderArray = Order.createOrderArray(cust.getYear(), cust.getId(), true);
                             BigDecimal tCost = BigDecimal.ZERO;
-                            overallTotalCost = orderArray.totalCost;
-                            overallTotalQuantity = orderArray.totalQuantity;
+                            overallTotalCost[0] = orderArray.totalCost;
+                            overallTotalQuantity[0] = orderArray.totalQuantity;
                             //For each product in the table set the data
                             for (formattedProduct orderedProduct : orderArray.orderData) {
                                 Element Product = doc.createElement("Product");
@@ -798,7 +863,7 @@ class ReportsWorker extends Task<Integer> {
                                     Product.appendChild(TotalCost);
                                 }
                             }
-                            //Total for current customerName
+                            //Total for current customers
                             {
                                 Element tCostE = doc.createElement("totalCost");
                                 tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
@@ -810,17 +875,18 @@ class ReportsWorker extends Task<Integer> {
 
 
                             setProgress(getProg() + yearProgressInc);
-                        }
+                        });
+
                         // OverallTotalCost elements
                         {
                             Element TotalCost = doc.createElement("TotalCost");
-                            TotalCost.appendChild(doc.createTextNode((overallTotalCost.toPlainString())));
+                            TotalCost.appendChild(doc.createTextNode((overallTotalCost[0].toPlainString())));
                             info.appendChild(TotalCost);
                         }
                         // OverallTotalQuantity elements
                         {
                             Element TotalQuantity = doc.createElement("totalQuantity");
-                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity)));
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity[0])));
                             info.appendChild(TotalQuantity);
                         }
                     }
@@ -938,7 +1004,11 @@ class ReportsWorker extends Task<Integer> {
                 baosT = (ByteArrayOutputStream) osT;
 
                 baosT.writeTo(xhtmlfos);
-                String cssText = "  .LBordered {\n" +
+                String cssText = "* {\n" +
+                        "                margin-top: 0px;\n" +
+                        "                margin-bottom: 0px;\n" +
+                        "                } " +
+                        " .LBordered {\n" +
                         "                border-left: 1px solid black;\n" +
                         "                border-bottom: 1px solid black;\n" +
 
