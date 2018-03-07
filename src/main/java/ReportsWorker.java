@@ -75,6 +75,7 @@ class ReportsWorker extends Task<Integer> {
     private final String Splitting;
     private final Boolean includeHeader;
     private final String pdfLoc;
+
     private Document doc = null;
     private File xmlTempFile = null;
     private Double prog = 0.0;
@@ -210,6 +211,7 @@ class ReportsWorker extends Task<Integer> {
             int custProgressIncValue = 90 / ((customers instanceof Collection<?>) ? ((Collection<?>) customers).size() : 1);
 
             customers.forEach(cust -> {
+                Boolean paid = cust.getPaid();
                 int custId = cust.getId();
                 String customer = cust.getName();
                 // Root element
@@ -271,7 +273,7 @@ class ReportsWorker extends Task<Integer> {
                             Element title = doc.createElement("specialInfo");
                             {
                                 Element text = doc.createElement("text");
-                                String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please have the total payment listed below ready and be present on that date.";
+                                String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (paid ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
                                 text.appendChild(doc.createTextNode(notice));
                                 title.appendChild(text);
                             }
@@ -513,19 +515,20 @@ class ReportsWorker extends Task<Integer> {
                             title.appendChild(doc.createTextNode(selectedYear));
                             products.appendChild(title);
                         }
-                        {
+                        /*{
                             if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ". Please Have the total payment listed below ready and be present on that date.";
+
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (paid ? "Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }
                                 info.appendChild(title);
                             }
 
-                        }
+                        }*/
                         setProgress(10);
                         BigDecimal tCost = BigDecimal.ZERO;
                         orderArray.totalCost = BigDecimal.ZERO;
