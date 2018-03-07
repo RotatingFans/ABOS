@@ -798,15 +798,16 @@ public class Year {
         Collection<Customer> ret = new ArrayList<>();
 
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name, uName FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, user);
 
             try (ResultSet rs = prep.executeQuery()) {
 
 
                 while (rs.next()) {
+//        this(-1, name, year, null, null, null, null, null, null, null, false, false, null, null, null, DbInt.getUserName());
 
-                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year));
+                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year, null, null, null, null, null, null, null, false, false, null, null, null, rs.getString("uName")));
 
                 }
             }

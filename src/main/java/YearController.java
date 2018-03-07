@@ -135,7 +135,7 @@ public class YearController {
     private void fillTable() {
         Order.orderArray order;
         if (Objects.equals(uName, "")) {
-            order = Order.createOrderArray(year);
+            order = Order.createOrderArray(year, "");
 
         } else {
             order = Order.createOrderArray(year, uName);

@@ -128,6 +128,7 @@ public class CustomerController {
         }
         name = customerDbInfo.getName();
         //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
+        fillTable();
 
         List<infoValPair> customerInfoStrings = new ArrayList<>();
         customerInfoStrings.add(new infoValPair("Name", name));
@@ -147,7 +148,6 @@ public class CustomerController {
             valLabel.setId("CustomerValue");
             customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
         });
-        fillTable();
 
     }
 

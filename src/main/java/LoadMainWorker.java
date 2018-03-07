@@ -83,7 +83,10 @@ class LoadMainWorker extends Task<TreeItem<TreeItemPair<String, Pair<String, Obj
 
     @Override
     protected TreeItem<TreeItemPair<String, Pair<String, Object>>> call() throws Exception {
+        long startTime = System.nanoTime();
+
         updateMessage("Loading Data");
+
         Iterable<String> ret = DbInt.getUserYears();
         TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
         MainController.contextTreeItem userRoot = mainController.new contextTreeItem("Groups/Users", new Pair<String, String>("RootNode", ""));
@@ -129,6 +132,10 @@ class LoadMainWorker extends Task<TreeItem<TreeItemPair<String, Pair<String, Obj
 
 
         }
+        long endTime = System.nanoTime();
+        double totalTime = (endTime - startTime) / 1000000;
+        System.out.println("Inital load took " + totalTime + "ms");
+        LogToFile.log(null, Severity.FINEST, "Inital load took " + totalTime + "ms");
         return root;
     }
 }

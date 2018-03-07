@@ -19,14 +19,15 @@
 
 //import javax.swing.*;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 
-import java.beans.PropertyVetoException;
 import java.sql.*;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -39,7 +40,10 @@ import java.util.*;
 public class DbInt {
     public static Connection pCon = null;
     public static String prefix = "ABOS-Test-";
-    private static ComboPooledDataSource cpds = new ComboPooledDataSource();
+    //private static ComboPooledDataSource cpds = new ComboPooledDataSource();
+    private static HashMap<String, HikariDataSource> connectionPools = new HashMap<>();
+    private static boolean isConfigured = false;
+    private static Settable<String> currentUserName = new Settable<>("", "");
     private static String username;
     private static String password;
     private static boolean isAdmin;
@@ -100,24 +104,39 @@ public class DbInt {
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
         try {
-            cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
-        } catch (PropertyVetoException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
-        }
-        cpds.setJdbcUrl(url);
-        cpds.setUser(username);
-        cpds.setPassword(password);
-        try {
+            if (connectionPools.containsKey(url)) {
+                Connection con = connectionPools.get(url).getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con;
+            } else {
+                HikariConfig config = new HikariConfig();
+                config.setJdbcUrl(url);
+                config.setUsername(username);
+                config.setPassword(password);
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                config.addDataSourceProperty("useServerPrepStmts", "true");
+                config.addDataSourceProperty("useLocalSessionState", "true");
+                config.addDataSourceProperty("useLocalTransactionState", "true");
+                config.addDataSourceProperty("rewriteBatchedStatements", "true");
+                config.addDataSourceProperty("cacheResultSetMetadata", "true");
+                config.addDataSourceProperty("cacheServerConfiguration", "true");
+                config.addDataSourceProperty("elideSetAutoCommits", "true");
+                config.addDataSourceProperty("maintainTimeStats", "false");
+                HikariDataSource ds = new HikariDataSource(config);
+                connectionPools.put(url, ds);
+                Connection con = ds.getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con;
 
-
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-
-            Connection con = cpds.getConnection();
-            if (con == null) {
-                throw new SQLException("Unable to acquire connection", "08001");
             }
-            return con;
+
+
 
         } catch (CommunicationsException e) {
             promptConfig();
@@ -172,23 +191,44 @@ public class DbInt {
         pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + "Commons", Config.getSSL());
-        try {
-            cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
-        } catch (PropertyVetoException e) {
-            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
-        }
-        cpds.setJdbcUrl(url);
-        cpds.setUser(username);
-        cpds.setPassword(password);
-        cpds.setAcquireRetryAttempts(2);
-        try {
 
+        try {
+            if (connectionPools.containsKey(url)) {
+                Connection con = connectionPools.get(url).getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con.isValid(15);
+            } else {
+                HikariConfig config = new HikariConfig();
+                config.setJdbcUrl(url);
+                config.setUsername(username);
+                config.setPassword(password);
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                config.addDataSourceProperty("useServerPrepStmts", "true");
+                config.addDataSourceProperty("useLocalSessionState", "true");
+                config.addDataSourceProperty("useLocalTransactionState", "true");
+                config.addDataSourceProperty("rewriteBatchedStatements", "true");
+                config.addDataSourceProperty("cacheResultSetMetadata", "true");
+                config.addDataSourceProperty("cacheServerConfiguration", "true");
+                config.addDataSourceProperty("elideSetAutoCommits", "true");
+                config.addDataSourceProperty("maintainTimeStats", "false");
+                HikariDataSource ds = new HikariDataSource(config);
+                connectionPools.put(url, ds);
+                Connection con = ds.getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con.isValid(15);
+
+            }
 
             // DriverManager.getConnection("jdbc:derby:;shutdown=true");
             //return rs;
 
 
-            return cpds.getConnection().isValid(15);
 
         } catch (Exception e) {
             return false;
@@ -209,24 +249,41 @@ public class DbInt {
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
         pCon = null;
-        //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
-        //cpds.deb
-        cpds.setJdbcUrl(url);
-        cpds.setUser(username);
-        cpds.setPassword(password);
+
         try {
+            if (connectionPools.containsKey(url)) {
+                Connection con = connectionPools.get(url).getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con;
+            } else {
+                HikariConfig config = new HikariConfig();
+                config.setJdbcUrl(url);
+                config.setUsername(username);
+                config.setPassword(password);
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                config.addDataSourceProperty("useServerPrepStmts", "true");
+                config.addDataSourceProperty("useLocalSessionState", "true");
+                config.addDataSourceProperty("useLocalTransactionState", "true");
+                config.addDataSourceProperty("rewriteBatchedStatements", "true");
+                config.addDataSourceProperty("cacheResultSetMetadata", "true");
+                config.addDataSourceProperty("cacheServerConfiguration", "true");
+                config.addDataSourceProperty("elideSetAutoCommits", "true");
+                config.addDataSourceProperty("maintainTimeStats", "false");
+                HikariDataSource ds = new HikariDataSource(config);
+                connectionPools.put(url, ds);
+                Connection con = ds.getConnection(); // fetch a connection
+                if (con == null) {
+                    throw new SQLException("Unable to acquire connection", "08001");
+                }
+                return con;
 
-
-            // DriverManager.getConnection("jdbc:derby:;shutdown=true");
-            //return rs;
-
-
-            Connection con = cpds.getConnection();
-            if (con == null) {
-                throw new SQLException("Unable to acquire connection", "08001");
             }
-            return con;
+
         } catch (CommunicationsException e) {
             promptConfig();
         } catch (SQLException ex) {
@@ -587,29 +644,32 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
     }
 
     public static String getUserName() {
-        String ret = "";
+        return currentUserName.orElseGetAndSet(() -> {
+            String ret = "";
 
-        try (Connection con = DbInt.getConnection();
-             PreparedStatement prep = con.prepareStatement("SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("SELECT LEFT(USER(), (LOCATE('@', USER()) - 1)) as 'uName'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
 
-            try (ResultSet rs = prep.executeQuery()) {
+                try (ResultSet rs = prep.executeQuery()) {
 
-                while (rs.next()) {
+                    while (rs.next()) {
 
-                    ret = rs.getString("uName");
+                        ret = rs.getString("uName");
 
+                    }
                 }
+                ////DbInt.pCon.close();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
             }
-            ////DbInt.pCon.close();
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-
-        }
 
 
-        return ret;
+            return ret;
+        });
+
     }
 
     public static User getUser(String year) {
