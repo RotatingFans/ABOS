@@ -20,12 +20,10 @@
   -->
 
 <?import com.lynden.gmapsfx.GoogleMapView?>
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" prefHeight="1"
-            prefWidth="1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="MapController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" minHeight="-Infinity" minWidth="-Infinity" prefHeight="738.0"
+            prefWidth="1768.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+            AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="MapController">
     <children>
         <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                   AnchorPane.topAnchor="0.0">
@@ -38,49 +36,7 @@
             </rowConstraints>
             <children>
                 <GoogleMapView fx:id="googleMapView" prefHeight="1" prefWidth="1"/>
-                <VBox styleClass="pane" GridPane.columnIndex="1">
-                    <children>
-                        <Label text="Customer Name">
-                            <font>
-                                <Font name="System Bold" size="24.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="custName" text="">
-                            <font>
-                                <Font size="22.0"/>
-                            </font>
-                        </Label>
-                        <Label text="Customer Phone">
-                            <font>
-                                <Font name="System Bold" size="24.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="custPhone" text="">
-                            <font>
-                                <Font size="22.0"/>
-                            </font>
-                        </Label>
-                        <Label text="Customer Address">
-                            <font>
-                                <Font name="System Bold" size="24.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="custAddress" text="">
-                            <font>
-                                <Font size="22.0"/>
-                            </font>
-                        </Label>
-                        <Label text="Customer Orders">
-                            <font>
-                                <Font name="System Bold" size="24.0"/>
-                            </font>
-                        </Label>
-                        <HBox fx:id="custOrders">
-
-                        </HBox>
-
-                    </children>
-                </VBox>
+                <VBox fx:id="infoPanel" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1"/>
             </children>
         </GridPane>
     </children>

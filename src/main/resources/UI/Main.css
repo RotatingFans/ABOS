@@ -1,4 +1,4 @@
-#YearDescription, #CustomerDescription {
+#YearDescription, #CustomerDescription, .Info-Header {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
@@ -31,6 +31,16 @@
     -fx-background-color: #263238;
 
 }
+.Map-Info-Box {
+    -fx-background-color: #546E7A;
+-fx-border-color:
+        #263238
+#263238
+        #263238
+        #263238;
+    -fx-border-width: 10
+    -fx-padding 4;
+    }
 .Lightpane {
     -fx-background-color: #546E7A;
 

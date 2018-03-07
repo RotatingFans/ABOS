@@ -27,6 +27,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -43,10 +45,12 @@ import java.util.ResourceBundle;
 
 public class MapController implements Initializable {
 
-    public HBox custOrders;
-    public Label custAddress;
-    public Label custPhone;
-    public Label custName;
+    //  public HBox custOrders;
+    // public Label custAddress;
+    //public Label custPhone;
+    //public Label custName;
+    @FXML
+    private VBox infoPanel;
     @FXML
     private Button button;
 
@@ -54,6 +58,7 @@ public class MapController implements Initializable {
     private GoogleMapView googleMapView;
 
     private MainController mainCont;
+    private HashMap<LatLongComparable, ArrayList<Customer>> customersToClick = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -61,17 +66,18 @@ public class MapController implements Initializable {
     }
 
     protected void configureMap() {
-        MapOptions mapOptions = new MapOptions();
+        try {
+            MapOptions mapOptions = new MapOptions();
 
-        mapOptions.center(new LatLong(47.6097, -122.3331))
-                .mapType(MapTypeIdEnum.ROADMAP).zoom(9);
-        GoogleMap map = googleMapView.createMap(mapOptions, false);
+            mapOptions.center(new LatLong(47.6097, -122.3331))
+                    .mapType(MapTypeIdEnum.ROADMAP).zoom(9);
 
 
-        //initMap();
-        final double[] totCoords = {0, 0, 0};
-        double totLat = 0;
-        final double[] totLon = {0};
+            //initMap();
+            final double[] totCoords = {0, 0, 0};
+            double totLat = 0;
+            final double[] totLon = {0};
+            HashMap<Marker, LatLongComparable> markers = new HashMap<>();
 /*        List<String> Addr = getAllCustomersInfo("ADDRESS");
         List<String> Town = getAllCustomersInfo("TOWN");
         List<String> State = getAllCustomersInfo("STATE");
@@ -81,39 +87,32 @@ public class MapController implements Initializable {
         List<String> Ord = getAllCustomersInfo("Ordered");
         List<String> NI = getAllCustomersInfo("NI");
         List<String> NH = getAllCustomersInfo("NH");*/
-        //cPoints = new Object[Addr.size()];
-        Iterable<String> years = DbInt.getUserYears();
-        List<Customer> customers = new ArrayList<Customer>();
-        years.forEach(year -> {
-            List<String> ret = new ArrayList<>();
+            //cPoints = new Object[Addr.size()];
+            Iterable<String> years = DbInt.getUserYears();
+            // List<LatLong> customers = new ArrayList<LatLong>();
+            years.forEach(year -> {
+                List<String> ret = new ArrayList<>();
+                Year yearObj = new Year(year);
+                yearObj.getCustomers().forEach(customer -> {
+                    LatLongComparable custLatLong = new LatLongComparable(customer.getLat(), customer.getLon());
+                    if (!customersToClick.containsKey(custLatLong)) {
+                        double lat = customer.getLat();
+                        double lon = customer.getLon();
+                        totCoords[0] += lat;
+                        totCoords[1] += lon;
+                        MarkerOptions opts = new MarkerOptions();
+                        String address = customer.getAddr();
+                        String cName = customer.getName();
 
-            try (Connection con = DbInt.getConnection(year);
+                        opts.title(cName + " " + address + " " + customer.getCustAddressFrmName()[0] + ", " + customer.getCustAddressFrmName()[1]);
+                        opts.position(new LatLong(lat, lon));
+                        Marker m = new Marker(opts);
 
-                 PreparedStatement prep = con.prepareStatement("SELECT * FROM customerview", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                 ResultSet rs = prep.executeQuery()) {
-                while (rs.next()) {
-                    Customer cust;
-                    try {
-                        cust = new Customer(rs.getInt("idcustomers"), year);
-                        if (!customers.contains(cust)) {
-                            customers.add(cust);
-                            double lat = rs.getDouble("Lat");
-                            double lon = rs.getDouble("Lon");
-                            totCoords[0] += lat;
-                            totCoords[1] += lon;
-                            MarkerOptions opts = new MarkerOptions();
-                            String address = rs.getString("streetAddress");
-                            String cName = rs.getString("Name");
-
-                            opts.title(cName + " " + address + " " + rs.getString("City") + ", " + rs.getString("State"));
-                            opts.position(new LatLong(lat, lon));
-                            Marker m = new Marker(opts);
-
-                            // cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
-                            //Determine color of dot
-                            //Green = orderd
-                            //Cyan = Not Interested
-                            //Magenta = not home
+                        // cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
+                        //Determine color of dot
+                        //Green = orderd
+                        //Cyan = Not Interested
+                        //Magenta = not home
             /*if (Ord.get(Ord.size() - 1).equals("True")) {
                 m.setBackColor(Color.GREEN);
             }
@@ -123,24 +122,33 @@ public class MapController implements Initializable {
             if (NH.get(NH.size() - 1).equals("True")) {
                 m.setBackColor(Color.MAGENTA);
             }*/
-                            //String id = getCustInfo("Set", "CUSTOMERID", Addr.get(i)).get(0);
-                            map.addMarker(m);
-                            map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> markerClicked(cust));
-                            totCoords[2]++;
-                        }
+                        //String id = getCustInfo("Set", "CUSTOMERID", Addr.get(i)).get(0);
+                        markers.put(m, custLatLong);
+                        totCoords[2]++;
+                        ArrayList<Customer> customs = new ArrayList();
+                        customs.add(customer);
+                        customersToClick.put(custLatLong, customs);
 
-                    } catch (Exception e) {
-                        LogToFile.log(e, Severity.WARNING, "Error adding mappoint. Please try again or contact support.");
+                    } else {
+                        customersToClick.get(custLatLong).add(customer);
                     }
-                }
-                ////DbInt.pCon.close()
+                });
 
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        });
+            });
+            GoogleMap map = googleMapView.createMap(mapOptions, false);
 
-        map.setCenter(new LatLong(totCoords[0] / totCoords[2], totCoords[1] / totCoords[2]));
+
+            markers.forEach((m, latLon) -> {
+                map.addMarker(m);
+                map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> markerClicked(latLon));
+            });
+
+            map.setCenter(new LatLong(totCoords[0] / totCoords[2], totCoords[1] / totCoords[2]));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -155,7 +163,7 @@ public class MapController implements Initializable {
 
     }
 
-    private void markerClicked(Customer customer) {
+    private void markerClicked(LatLongComparable latLong) {
 
         //System.out.println(mapMarker + " is clicked");
         //System.out.println(cP.getAddress());
@@ -164,50 +172,92 @@ public class MapController implements Initializable {
         //custAddress.setText(address);
         //Customer cust = new Customer()
 
-        custOrders.getChildren().removeAll();
-            // m.OrderStat.setText("Has Ordered");
+        infoPanel.getChildren().clear();
+        // m.OrderStat.setText("Has Ordered");
                                         /*Get info about customer that has clicked
                                         Display name Phone  Order status
                                         Creates a button for each ordered year to view more information
                                         */
-            Iterable<String> yearsD;
+        Iterable<String> yearsD;
         yearsD = DbInt.getUserYears();
         String Name;
 
-
-        yearsD.forEach(year -> {
-                Customer cust = new Customer(customer.getName(), year);
-
-
-                String PhoneD = cust.getPhone();
+        List<Customer> customers = customersToClick.get(latLong);
+        HashMap<String, HBox> custNames = new HashMap<>();
+        customers.forEach(customer -> {
+            if (custNames.containsKey(customer.getName())) {
+                String PhoneD = customer.getPhone();
 
 /*                                                if (m.infoPanel.getComponentCount() > 8) {
                                                     m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
 
                                                 }*/
-                    Button b = new Button(year);
-                    b.setOnAction(e1 -> {
-                        Pane newPane = null;
-                        FXMLLoader loader;
-                        String tabTitle;
-                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
-                        try {
-                            newPane = loader.load();
-                        } catch (IOException e) {
-                            LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
-                        }
-                        CustomerController customerCont = loader.getController();
+                Button b = new Button(customer.getYear());
+                b.setOnAction(e1 -> {
+                    Pane newPane = null;
+                    FXMLLoader loader;
+                    String tabTitle;
+                    loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                    }
+                    CustomerController customerCont = loader.getController();
 
-                        customerCont.initCustomer(year, cust.getName(), mainCont);
-                        tabTitle = ("Customer View - " + cust.getName() + " - " + year);
-                        mainCont.addTab(newPane, tabTitle);
-                    });
-                    custOrders.getChildren().add(b);
+                    customerCont.initCustomer(customer, mainCont);
+                    tabTitle = ("Customer View - " + customer.getName() + " - " + customer.getYear());
+                    mainCont.addTab(newPane, tabTitle);
+                });
+                custNames.get(customer.getName()).getChildren().add(b);
+            } else {
+                HBox custOrders = new HBox();
 
-            });
-        custName.setText(customer.getName());
-        custPhone.setText(customer.getPhone());
-        custAddress.setText(customer.getAddr());
+                Label addrHeader = new Label("Customer address");
+                Label nameHeader = new Label("Customer Name");
+                Label phoneHeader = new Label("Customer Phone");
+                Label orderHeader = new Label("Customer Orders");
+                addrHeader.getStyleClass().add("Info-Header");
+                nameHeader.getStyleClass().add("Info-Header");
+                phoneHeader.getStyleClass().add("Info-Header");
+                orderHeader.getStyleClass().add("Info-Header");
+
+                Label custAddress = new Label(customer.getAddr());
+                Label custPhone = new Label(customer.getPhone());
+                Label custName = new Label(customer.getName());
+                String PhoneD = customer.getPhone();
+                custNames.put(customer.getName(), custOrders);
+/*                                                if (m.infoPanel.getComponentCount() > 8) {
+                                                    m.infoPanel.remove(m.infoPanel.getComponentCount() - 1);
+
+                                                }*/
+                Button b = new Button(customer.getYear());
+                b.setOnAction(e1 -> {
+                    Pane newPane = null;
+                    FXMLLoader loader;
+                    String tabTitle;
+                    loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                    try {
+                        newPane = loader.load();
+                    } catch (IOException e) {
+                        LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                    }
+                    CustomerController customerCont = loader.getController();
+
+                    customerCont.initCustomer(customer, mainCont);
+                    tabTitle = ("Customer View - " + customer.getName() + " - " + customer.getYear());
+                    mainCont.addTab(newPane, tabTitle);
+                });
+                custOrders.getChildren().add(b);
+                VBox info = new VBox(nameHeader, custName, phoneHeader, custPhone, addrHeader, custAddress, orderHeader, custOrders);
+                info.getStyleClass().add("Map-Info-Box");
+                infoPanel.getChildren().add(info);
+            }
+
+
+        });
+
+
 
                    /* if (NI.get(NI.size() - 1).equals("True")) {
                         m.OrderStat.setText("Not interested");
@@ -263,7 +313,8 @@ public class MapController implements Initializable {
      */
     private List<String> getAllCustomersInfo(String info) {
         List<String> ret = new ArrayList<>();
-
+        LatLong test = new LatLong(12.2, 12.3);
+        test.hashCode();
         try (Connection con = DbInt.getConnection("Set");
              PreparedStatement prep = con.prepareStatement("SELECT * FROM Customers", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = prep.executeQuery()) {
@@ -303,5 +354,23 @@ public class MapController implements Initializable {
         return ret;
     }
 
+    class LatLongComparable extends LatLong {
 
+        public LatLongComparable(double latitude, double longitude) {
+            super(latitude, longitude);
+        }
+
+        @Override
+        public int hashCode() {
+            return Double.hashCode(getLatitude()) + Double.hashCode(getLongitude());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof LatLongComparable)) { return false; }
+            if (o == this) { return true; }
+            LatLongComparable compare = (LatLongComparable) o;
+            return (this.getLatitude() == compare.getLatitude() && this.getLongitude() == compare.getLongitude());
+        }
+    }
 }
