@@ -39,7 +39,6 @@ public class CustomerController {
     //public String year;
     private String name;
     private int cID;
-    //TODO Add Active search with only results shown
 
     private Customer customerDbInfo;
     @FXML

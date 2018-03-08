@@ -78,7 +78,7 @@ public class ConvertDerbyToSQL extends Application {
             Set<String> years = new HashSet<>();
 
             Boolean newUser = !DbInt.verifyLogin(new Pair<>(userName, password));
-            if (!DbInt.verifyLogin(new Pair<>(adminUser, adminPass))) {
+            if (!DbInt.verifyLoginAndUser(new Pair<>(adminUser, adminPass))) {
                 throw new Exception("Invalid Admin Username/Password");
 
             }
@@ -122,7 +122,7 @@ public class ConvertDerbyToSQL extends Application {
 
                 yearNew.CreateDb(productList, rowCats);
                 User yearUser = new User(userName, fullName, usersManage, years, true, 1);
-                DbInt.verifyLogin(new Pair<>(userName, password));
+                DbInt.verifyLoginAndUser(new Pair<>(userName, password));
                 try (Connection con = DbInt.getConnection(year);
                      PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                     prep.setString(1, userName);

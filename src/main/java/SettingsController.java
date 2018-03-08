@@ -117,13 +117,7 @@ public class SettingsController {
     }
 */
 
-   /* private static void open(URI uri) {
-        if (Desktop.isDesktopSupported()) {
-            try {
-                Desktop.getDesktop().browse(uri);
-            } catch (IOException e) { *//* TODO: error handling *//* }
-        } else { *//* TODO: error handling *//* }
-    }*/
+
 
     @FXML
     public void promptLogo(ActionEvent event) {
@@ -191,7 +185,7 @@ public class SettingsController {
 
         result.ifPresent(userPass -> {
             saveData();
-            if (DbInt.verifyLogin(userPass)) {
+            if (DbInt.verifyLoginAndUser(userPass)) {
                 if (DbInt.testConnection()) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Connection Successful");
@@ -483,6 +477,7 @@ public class SettingsController {
     }
 
     private void saveData() {
+        String ssl = Config.getSSL();
         //General
         //If firstRun Create DB, if not, update Db Location
         Properties prop = new Properties();
@@ -495,7 +490,7 @@ public class SettingsController {
             if (Config.doesConfExist()) {
 
                 prop.put("databaseLocation", DbLoc.getText());
-                prop.put("SSL", "TRUE");
+                prop.put("SSL", ssl);
             } else if (!Config.doesConfExist()) {
                 prop.put("databaseLocation", DbLoc.getText());
                 prop.put("SSL", "TRUE");

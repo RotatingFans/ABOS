@@ -410,9 +410,15 @@ public class UsersGroupsAndYearsController {
             years.add(yearName);
             Set<String> yearSet = new HashSet<>(years);
 
-            User latestUser = DbInt.getCurrentUser();
-            latestUser.setYears(yearSet);
-            latestUser.addToYear(yearName);
+            User latestUser = null;
+            try {
+                latestUser = DbInt.getCurrentUser();
+                latestUser.setYears(yearSet);
+                latestUser.addToYear(yearName);
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+
             yearsList.getItems().add(yearName);
 
         });
@@ -501,6 +507,7 @@ public class UsersGroupsAndYearsController {
                             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
                         try (Connection con = DbInt.getConnection("Commons");
+                             //TODO mysql Version
                              //PreparedStatement prep = con.prepareStatement("DROP USER IF EXISTS `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                              PreparedStatement prep = con.prepareStatement("DROP USER `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 

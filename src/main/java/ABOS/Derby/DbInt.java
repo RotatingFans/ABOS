@@ -136,8 +136,8 @@ public class DbInt {
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK) {
-                        new Settings(null);
-                        return getPrep(Db, Command);
+                        //   new Settings(null);
+                        // return getPrep(Db, Command);
                     } else {
                         Alert closingWarning = new Alert(Alert.AlertType.WARNING);
                         closingWarning.setTitle("Warning!");

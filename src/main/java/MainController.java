@@ -108,7 +108,7 @@ public class MainController {
         Optional<Pair<String, String>> result = dialog.showAndWait();
 
         result.ifPresent(userPass -> {
-            if (!DbInt.verifyLogin(userPass)) {
+            if (!DbInt.verifyLoginAndUser(userPass)) {
                 login(true);
             }
             if (!DbInt.testConnection()) {
@@ -137,7 +137,7 @@ public class MainController {
     public void initialize(Stage stage, Application.Parameters parameters) {
         Map<String, String> params = parameters.getNamed();
         if (params.containsKey("username") && params.containsKey("password")) {
-            if (!DbInt.verifyLogin(new Pair<>(params.get("username"), params.get("password")))) {
+            if (!DbInt.verifyLoginAndUser(new Pair<>(params.get("username"), params.get("password")))) {
                 login(true);
             }
         } else {
@@ -146,8 +146,15 @@ public class MainController {
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getUserYears();
         if (!years.isEmpty()) {
-            User latestUser = DbInt.getCurrentUser();
-            stage.setTitle("ABOS - " + latestUser.getFullName());
+            User latestUser = null;
+            try {
+                latestUser = DbInt.getCurrentUser();
+                stage.setTitle("ABOS - " + latestUser.getFullName());
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+            }
         }
         //loadTreeItems("initial 1", "initial 2", "initial 3");
         fillTreeView();

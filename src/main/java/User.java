@@ -172,6 +172,7 @@ public class User {
     }
 
     public static void updateUser(String uName, String password) {
+        //TODO mysql version
         // String createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
         String createAndGrantCommand = "SET PASSWORD FOR '" + uName + "'@'%' = PASSWORD('" + password + "')";
 

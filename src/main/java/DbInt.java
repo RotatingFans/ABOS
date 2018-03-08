@@ -21,8 +21,10 @@
 
 
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -162,7 +164,7 @@ public class DbInt {
                     } else {
                         Alert closingWarning = new Alert(Alert.AlertType.WARNING);
                         closingWarning.setTitle("Warning!");
-                        closingWarning.setHeaderText("The program cannot run withou the database");
+                        closingWarning.setHeaderText("The program cannot run without the database");
                         closingWarning.setContentText("Application is closing. Please restart application and create the database in the setting dialog.");
 
 
@@ -173,6 +175,38 @@ public class DbInt {
                 } else {
                     LogToFile.log(ex, Severity.WARNING, CommonErrors.returnSqlMessage(ex));
                 }
+            }
+
+        } catch (HikariPool.PoolInitializationException ex) {
+            if (ex.getCause() instanceof MySQLSyntaxErrorException) {
+                if (Objects.equals(((MySQLSyntaxErrorException) ex.getCause()).getSQLState(), "42000")) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("ERROR!");
+                    alert.setHeaderText("The program cannot find the specified database");
+                    alert.setContentText("Would you like to open the settings Dialog to create it?");
+
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK) {
+                        new Settings(null);
+                        return getConnection(Db);
+                    } else {
+                        Alert closingWarning = new Alert(Alert.AlertType.WARNING);
+                        closingWarning.setTitle("Warning!");
+                        closingWarning.setHeaderText("The program cannot run without the database");
+                        closingWarning.setContentText("Application is closing. Please restart application and create the database in the setting dialog.");
+
+
+                        closingWarning.showAndWait();
+                        System.exit(0);
+                    }
+                    LogToFile.log(ex, Severity.SEVERE, "");
+                } else {
+                    LogToFile.log(ex, Severity.WARNING, CommonErrors.returnSqlMessage(((MySQLSyntaxErrorException) ex.getCause())));
+                }
+            } else {
+                LogToFile.log(ex, Severity.SEVERE, "");
+
             }
 
         }
@@ -676,7 +710,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return new User(year);
     }
 
-    public static User getCurrentUser() {
+    public static User getCurrentUser() throws SQLException {
         User curUser = null;
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("SELECT Years, fullName, Admin FROM userView", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -689,12 +723,17 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             ////DbInt.pCon.close()
 
         } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            if (Objects.equals(e.getSQLState(), "42000")) {
+                throw e;
+            } else {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+            }
         }
         return curUser;
     }
 
-    public static Boolean verifyLogin(Pair<String, String> userPass) {
+    public static Boolean verifyLoginAndUser(Pair<String, String> userPass) {
         username = userPass.getKey();
         password = userPass.getValue();
         Boolean successful = false;
@@ -731,8 +770,58 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
             if (Objects.equals(e.getSQLState(), "28000")) {
                 successful = false;
+            } else if (Objects.equals(e.getSQLState(), "42000")) {
+                successful = true;
             } else {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
+
+            }
+        }
+
+        return successful;
+    }
+
+    public static Boolean verifyLogin(Pair<String, String> userPass) {
+        username = userPass.getKey();
+        password = userPass.getValue();
+        Boolean successful = false;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+
+            LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
+        }
+        Statement st = null;
+        ResultSet rs = null;
+        pCon = null;
+        //String Db = String.format("L&G%3",year);
+        String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
+
+        try {
+
+
+            pCon = DriverManager.getConnection(url, username, password);
+            if (pCon.isValid(2)) {
+
+                successful = true;
+
+            }
+
+            ////DbInt.pCon.close();
+
+        } catch (CommunicationsException e) {
+            promptConfig();
+            LogToFile.log(e, Severity.FINEST, "Error contacting Database");
+        } catch (SQLException e) {
+
+            if (Objects.equals(e.getSQLState(), "28000")) {
+                successful = false;
+            } else if (Objects.equals(e.getSQLState(), "42000")) {
+                successful = true;
+            } else {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+
 
             }
         }

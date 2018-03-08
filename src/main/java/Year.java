@@ -64,7 +64,7 @@ public class Year {
             } catch (Exception ignored) {
             }
             DbInt.deleteDb(year);
-
+            //TODO mysql version [If Exists]
             try (Connection con = DbInt.getConnection("Commons");
                  PreparedStatement prep = con.prepareStatement("DROP USER '" + year + "'@'localhost'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
