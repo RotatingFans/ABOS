@@ -2,7 +2,7 @@ ABOS
 =======
 ABOS Is a sale management system geared towards my Boy Scout Troop's annual lawn and Garden sale.
 The software boasts quite a few features:
-
+ - Multi User support
  - Manage multiple years seamlessly
  - A map to view your customer spread 
  - Ability to generate a variety of reports
@@ -18,7 +18,8 @@ This software has been developed as a side project of mine, starting back in 201
 
 License
 ------------
-*   c3p0 connectionPool Version 0.9.5.2 
+*   HikariCP Version 2.7.8 Apache Version 2
+*   SLF4J MIT
 *   Apache Commons Version 3.7 Apache Version 2
 *   iText Version 5.10  AGPL v3
 *   JTidy Version 938  Custom license
