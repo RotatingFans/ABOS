@@ -40,12 +40,12 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 public class DbInt {
-    public static Connection pCon = null;
     public static String prefix = "ABOS-Test-";
     //private static ComboPooledDataSource cpds = new ComboPooledDataSource();
     private static HashMap<String, HikariDataSource> connectionPools = new HashMap<>();
     private static boolean isConfigured = false;
     private static Settable<String> currentUserName = new Settable<>("", "");
+    private static Settable<Version> databaseVersion = new Settable<>(new Version(-1, -1, -1), new Version(-1, -1, -1));
     private static String username;
     private static String password;
     private static boolean isAdmin;
@@ -102,7 +102,6 @@ public class DbInt {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
-        pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
         try {
@@ -134,6 +133,8 @@ public class DbInt {
                 if (con == null) {
                     throw new SQLException("Unable to acquire connection", "08001");
                 }
+                databaseVersion.setIfNot(new Version(con.getMetaData().getDatabaseProductVersion()));
+
                 return con;
 
             }
@@ -222,7 +223,6 @@ public class DbInt {
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
 
-        pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + "Commons", Config.getSSL());
 
@@ -282,7 +282,6 @@ public class DbInt {
 
             LogToFile.log(e, Severity.SEVERE, "Error loading database library. Please try reinstalling or contacting support.");
         }
-        pCon = null;
         String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
         try {
@@ -311,9 +310,11 @@ public class DbInt {
                 HikariDataSource ds = new HikariDataSource(config);
                 connectionPools.put(url, ds);
                 Connection con = ds.getConnection(); // fetch a connection
+
                 if (con == null) {
                     throw new SQLException("Unable to acquire connection", "08001");
                 }
+                databaseVersion.setIfNot(new Version(con.getMetaData().getDatabaseProductVersion()));
                 return con;
 
             }
@@ -745,7 +746,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         }
         Statement st = null;
         ResultSet rs = null;
-        pCon = null;
+        Connection pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
@@ -758,6 +759,8 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
                 if (curUser != null) {
                     successful = true;
                     isAdmin = curUser.isAdmin();
+                    databaseVersion.setIfNot(new Version(pCon.getMetaData().getDatabaseProductVersion()));
+
                 }
             }
 
@@ -794,7 +797,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         }
         Statement st = null;
         ResultSet rs = null;
-        pCon = null;
+        Connection pCon = null;
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/?useSSL=%s", Config.getDbLoc(), Config.getSSL());
 
@@ -803,6 +806,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
             pCon = DriverManager.getConnection(url, username, password);
             if (pCon.isValid(2)) {
+                databaseVersion.setIfNot(new Version(pCon.getMetaData().getDatabaseProductVersion()));
 
                 successful = true;
 
@@ -849,6 +853,10 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
     public static boolean isAdmin() {
         return isAdmin;
+    }
+
+    public static Version getDatabaseVersion() {
+        return databaseVersion.get();
     }
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**

@@ -64,9 +64,14 @@ public class Year {
             } catch (Exception ignored) {
             }
             DbInt.deleteDb(year);
-            //TODO mysql version [If Exists]
+            String command;
+            if (DbInt.getDatabaseVersion().greaterThanOrEqual("5.7")) {
+                command = "DROP USER IF EXISTS `" + year + "'@'localhost'";
+            } else {
+                command = "DROP USER '" + year + "'@'localhost'";
+            }
             try (Connection con = DbInt.getConnection("Commons");
-                 PreparedStatement prep = con.prepareStatement("DROP USER '" + year + "'@'localhost'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                 PreparedStatement prep = con.prepareStatement(command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.execute();
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));

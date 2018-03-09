@@ -506,10 +506,16 @@ public class UsersGroupsAndYearsController {
                         } catch (SQLException e) {
                             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                         }
+                        String command;
+                        if (DbInt.getDatabaseVersion().greaterThanOrEqual("5.7")) {
+                            command = "DROP USER IF EXISTS `" + user + "`@`%`";
+                        } else {
+                            command = "DROP USER `" + user + "`@`%`";
+                        }
                         try (Connection con = DbInt.getConnection("Commons");
-                             //TODO mysql Version
+
                              //PreparedStatement prep = con.prepareStatement("DROP USER IF EXISTS `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                             PreparedStatement prep = con.prepareStatement("DROP USER `" + user + "`@`%`", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                             PreparedStatement prep = con.prepareStatement(command, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
                             prep.execute();
                         } catch (SQLException e) {

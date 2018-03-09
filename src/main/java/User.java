@@ -172,10 +172,12 @@ public class User {
     }
 
     public static void updateUser(String uName, String password) {
-        //TODO mysql version
-        // String createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
-        String createAndGrantCommand = "SET PASSWORD FOR '" + uName + "'@'%' = PASSWORD('" + password + "')";
-
+        String createAndGrantCommand;
+        if (DbInt.getDatabaseVersion().greaterThanOrEqual("5.7")) {
+            createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";
+        } else {
+            createAndGrantCommand = "SET PASSWORD FOR '" + uName + "'@'%' = PASSWORD('" + password + "')";
+        }
         try (Connection con = DbInt.getConnection();
              PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.addBatch(createAndGrantCommand);

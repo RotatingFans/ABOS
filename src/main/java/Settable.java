@@ -17,6 +17,7 @@
  *       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -28,8 +29,8 @@ public class Settable<T> {
     public Settable(T val, T inval) {
 
         this.val = val;
-        this.inval = val;
-        set = val != inval;
+        this.inval = inval;
+        set = (!Objects.equals(val, inval));
     }
 
     public Settable(T val) {
@@ -58,6 +59,13 @@ public class Settable<T> {
 
     }
 
+    public void setIfNot(T val) {
+        if (!set) {
+            this.val = val;
+            set = true;
+        }
+    }
+
     public T get() {
         return isSet() ? val : inval;
     }
@@ -68,20 +76,20 @@ public class Settable<T> {
     }
 
     public void ifSet(Consumer<? super T> consumer) {
-        if (this.set && val != inval) {
+        if (this.set && !Objects.equals(val, inval)) {
             consumer.accept(this.val);
         }
     }
 
     public T orElseGetAndSet(Supplier<? extends T> var1) {
-        if (!(this.set && val != inval)) {
+        if (!(this.set && !Objects.equals(val, inval))) {
             this.val = var1.get();
         }
         return this.val;
     }
 
     public T orElseGet(Supplier<? extends T> var1) {
-        return (this.set && val != inval) ? this.val : var1.get();
+        return (this.set && !Objects.equals(val, inval)) ? this.val : var1.get();
     }
 }
 
