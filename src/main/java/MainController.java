@@ -136,6 +136,9 @@ public class MainController {
     // the initialize method is automatically invoked by the FXMLLoader - it's magic
     public void initialize(Stage stage, Application.Parameters parameters) {
         Map<String, String> params = parameters.getNamed();
+        if (params.containsKey("config")) {
+            Config.setConfigLocation(params.get("config"));
+        }
         if (params.containsKey("username") && params.containsKey("password")) {
             if (!DbInt.verifyLoginAndUser(new Pair<>(params.get("username"), params.get("password")))) {
                 login(true);
@@ -143,6 +146,7 @@ public class MainController {
         } else {
             login(false);
         }
+        DbInt.setPrefix(Config.getPrefix());
         // DbInt.username = "tw";
         ArrayList<String> years = DbInt.getUserYears();
         if (!years.isEmpty()) {

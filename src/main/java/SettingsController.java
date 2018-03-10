@@ -478,6 +478,7 @@ public class SettingsController {
 
     private void saveData() {
         String ssl = Config.getSSL();
+        String prefix = Config.getPrefix();
         //General
         //If firstRun Create DB, if not, update Db Location
         Properties prop = new Properties();
@@ -491,9 +492,11 @@ public class SettingsController {
 
                 prop.put("databaseLocation", DbLoc.getText());
                 prop.put("SSL", ssl);
+                prop.setProperty("databasePrefix", prefix);
             } else if (!Config.doesConfExist()) {
                 prop.put("databaseLocation", DbLoc.getText());
                 prop.put("SSL", "TRUE");
+                prop.setProperty("databasePrefix", "ABOS-Test-");
 
                 prop.store(output, null);
                 prop = new Properties();

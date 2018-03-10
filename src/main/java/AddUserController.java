@@ -101,7 +101,7 @@ public class AddUserController {
             if (newUser) {
                 User.createUser(userNameField.getText(), passwordField.getText(), fullNameField.getText(), adminCheckbox.isSelected());
             } else {
-                User.updateUser(userNameField.getText(), passwordField.getText());
+                User.updateUser(userNameField.getText(), passwordField.getText(), fullNameField.getText(), adminCheckbox.isSelected());
 
             }
             ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();

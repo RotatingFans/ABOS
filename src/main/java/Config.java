@@ -30,6 +30,15 @@ import java.util.Optional;
 import java.util.Properties;
 
 class Config {
+    private static String ConfigLocation = "./ABOSConfig.properties";
+
+    public static String getConfigLocation() {
+        return ConfigLocation;
+    }
+
+    public static void setConfigLocation(String configLocation) {
+        ConfigLocation = configLocation;
+    }
 
     public static boolean doesConfExist() {
         @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") Properties prop = new Properties();
@@ -37,7 +46,7 @@ class Config {
         boolean loc = false;
         try {
 
-            input = new FileInputStream("./ABOSConfig.properties");
+            input = new FileInputStream(ConfigLocation);
 
             // load a properties file
             prop.load(input);
@@ -77,6 +86,10 @@ class Config {
 
     public static String getDbLoc() {
         return getProp("databaseLocation");
+    }
+
+    public static String getPrefix() {
+        return getProp("databasePrefix");
     }
 
     public static String getSSL() {
@@ -152,7 +165,7 @@ class Config {
             String loc = "";
             try {
 
-                input = new FileInputStream("./ABOSConfig.properties");
+                input = new FileInputStream(ConfigLocation);
 
                 // load a properties file
                 prop.load(input);
@@ -206,11 +219,12 @@ class Config {
         OutputStream output = null;
 
         try {
-            output = new FileOutputStream("./ABOSConfig.properties");
+            output = new FileOutputStream(ConfigLocation);
 
             //Add DB setting
             prop.setProperty("databaseLocation", "");
             prop.setProperty("SSL", "TRUE");
+            prop.setProperty("databasePrefix", "ABOS-Test-");
 
 
             //AddCustomer

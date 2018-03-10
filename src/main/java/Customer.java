@@ -651,7 +651,7 @@ public class Customer {
             return false;
         }
         Customer other = (Customer) obj;
-        return this.address.get().equals(other.address);
+        return this.address.get().equals(other.address.get());
     }
 
     public int hashCode() {

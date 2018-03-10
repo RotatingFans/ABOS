@@ -171,7 +171,31 @@ public class User {
 
     }
 
-    public static void updateUser(String uName, String password) {
+    public static void updateUser(String uName, String password, String fullName, Boolean admin) {
+        if (admin) {
+
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, RELOAD, INDEX, ALTER, SHOW DATABASES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, TRIGGER, SUPER ON *.* TO '" + uName + "'@'%' WITH GRANT OPTION", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+
+                prep.executeBatch();
+
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("UPDATE Users SET fullName=?, Admin=?, Years=? WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, fullName);
+            prep.setInt(2, admin ? 1 : 0);
+            prep.setString(3, "");
+            prep.setString(4, uName);
+
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
         String createAndGrantCommand;
         if (DbInt.getDatabaseVersion().greaterThanOrEqual("5.7")) {
             createAndGrantCommand = "ALTER USER '" + uName + "'@'%' IDENTIFIED BY '" + password + "'";

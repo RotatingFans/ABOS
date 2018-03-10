@@ -50,6 +50,9 @@ public class DbInt {
     private static String password;
     private static boolean isAdmin;
 
+    public static void setPrefix(String newPrefix) {
+        prefix = newPrefix;
+    }
     /**
      * Gets the specified Customer info
      *

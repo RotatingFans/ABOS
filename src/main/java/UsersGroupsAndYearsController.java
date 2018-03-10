@@ -101,7 +101,12 @@ public class UsersGroupsAndYearsController {
         yearsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Year year = new Year(newValue);
             yearUserList.getItems().clear();
+
             try {
+                allUsersList.getItems().clear();
+
+                allUsersList.getItems().addAll(DbInt.getUsers());
+
                 Collection<User> users = year.getUsers();
                 yearUserList.getItems().addAll(users);
                 allUsersList.getItems().removeIf(user -> {
@@ -602,7 +607,7 @@ public class UsersGroupsAndYearsController {
                 } else {
                     Set<String> years = new HashSet<>();
                     //User.createUser(uName, pass, fullNameField.getText(), admin);
-                    User.updateUser(uName, pass);
+                    User.updateUser(uName, pass, fName, admin);
                     user.setFullName(fName);
                     user.setAdmin(admin);
                     user.getYears().forEach(year -> {

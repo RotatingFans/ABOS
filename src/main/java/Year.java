@@ -121,6 +121,10 @@ public class Year {
             char[] possibleCharacters = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").toCharArray();
             String randomStr = RandomStringUtils.random(15, 0, possibleCharacters.length - 1, false, false, possibleCharacters, new SecureRandom());
             String createAndGrantCommand = "CREATE USER '" + year + "'@'localhost' IDENTIFIED BY '" + randomStr + "'";
+
+            if (DbInt.getDatabaseVersion().greaterThanOrEqual("5.7")) {
+                createAndGrantCommand = "CREATE USER IF NOT EXISTS '" + year + "'@'localhost' IDENTIFIED BY '" + randomStr + "'";
+            }
             try (Connection con = DbInt.getConnection();
                  PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
