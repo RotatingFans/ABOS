@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -729,10 +730,34 @@ public class AddCustomerController {
         return !((Name.getText().isEmpty()) && (Address.getText().isEmpty()));
     }
 
-    private class EditingCell extends TableCell {
+    private class EditingCell<S, T> extends TableCell<S, T> {
 
         private TextField textField;
 
+        @Override
+        public void commitEdit(T item) {
+            // This block is necessary to support commit on losing focus, because
+            // the baked-in mechanism sets our editing state to false before we can
+            // intercept the loss of focus. The default commitEdit(...) method
+            // simply bails if we are not editing...
+            if (!isEditing() && !item.equals(getItem())) {
+                TableView<S> table = getTableView();
+                if (table != null) {
+                    TableColumn<S, T> column = getTableColumn();
+                    TableColumn.CellEditEvent<S, T> event = new TableColumn.CellEditEvent<>(
+                            table, new TablePosition<S, T>(table, getIndex(), column),
+                            TableColumn.editCommitEvent(), item
+                    );
+                    Event.fireEvent(column, event);
+                }
+            }
+
+            super.commitEdit(item);
+        }
+
+        private void commitEditString(String val) {
+            commitEdit((T) val);
+        }
         @Override
         public void startEdit() {
             if (!isEmpty()) {
@@ -755,7 +780,7 @@ public class AddCustomerController {
         }
 
         public void commit() {
-            commitEdit(textField.getText());
+            commitEditString(textField.getText());
         }
 
         @Override
@@ -768,7 +793,7 @@ public class AddCustomerController {
         }
 
         @Override
-        public void updateItem(Object item, boolean empty) {
+        public void updateItem(T item, boolean empty) {
             super.updateItem(item, empty);
 
             if (empty) {
@@ -793,12 +818,12 @@ public class AddCustomerController {
             //doesn't work if clicking a different cell, only focusing out of table
             textField.focusedProperty().addListener(
                     (ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
-                        if (!arg2) commitEdit(textField.getText());
+                        if (!arg2) commitEditString(textField.getText());
                     });
 
             textField.setOnKeyReleased((KeyEvent t) -> {
                 if (t.getCode() == KeyCode.ENTER) {
-                    commitEdit(textField.getText());
+                    commitEditString(textField.getText());
                     EditingCell.this.getTableView().getSelectionModel().selectBelowCell();
                     EditingCell.this.getTableView().requestFocus();
                 } else if (t.getCode() == KeyCode.RIGHT) {

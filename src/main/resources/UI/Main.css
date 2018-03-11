@@ -36,7 +36,8 @@
  .Map-Info-Box {
      -fx-background-color: #546E7A;
      -fx-border-color: #263238 #263238 #263238 #263238;
-     -fx-border-width: 10 -fx-padding 4;
+     -fx-border-width: 10;
+      -fx-padding: 4;
 }
  .Lightpane {
      -fx-background-color: #546E7A;
