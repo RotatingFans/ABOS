@@ -92,7 +92,7 @@ public class Main extends Application {
         // load the scene fxml UI.
         // grabs the UI scenegraph view from the loader.
         // grabs the UI controller for the view from the loader.
-        final FXMLLoader loader = new FXMLLoader(getClass().getResource("UI/Main.fxml"));
+        final FXMLLoader loader = new FXMLLoader(getClass().getResource("/UI/Main.fxml"));
         final Parent root = loader.load();
         final MainController controller = loader.getController();
         if (checkUpdates()) {
@@ -144,7 +144,7 @@ public class Main extends Application {
         stage.setScene(new Scene(root));
         stage.getScene().getStylesheets().add("UI/Main.css");
         stage.initStyle(StageStyle.UNIFIED);
-//        stage.getIcons().add(new Image(getClass().getResourceAsStream("myIcon.png")));
+//        stage.getIcons().add(new Image(getClass().getResourceAsStream("/myIcon.png")));
         TreeItem<String> rootItem = new TreeItem<String>("Inbox");
         rootItem.setExpanded(true);
         for (int i = 1; i < 6; i++) {
@@ -170,7 +170,7 @@ public class Main extends Application {
 /*    private void addYears() {
         Collection<String> ret = new ArrayList<>();
         ///Select all years
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
+        try (PreparedStatement prep = Utilities.DbInt.getPrep("Set", "SELECT Years.YEARS FROM Years");
              ResultSet rs = prep.executeQuery()
         ) {
 
@@ -182,12 +182,12 @@ public class Main extends Application {
             }
 
             rs.close();
-            if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
-                DbInt.pCon = null;
+            if (Utilities.DbInt.pCon != null) {
+                //Utilities.DbInt.pCon.close();
+                Utilities.DbInt.pCon = null;
             }
         } catch (Exception e) {
-            LogToFile.log(e, Severity.SEVERE, "Error while Selecting years from Database");
+            Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, "Error while Selecting years from Database");
 
             //e.printStackTrace();
             // System.out.println("Error Start");
@@ -204,7 +204,7 @@ public class Main extends Application {
         for (String aRet : ret) {
             JButton b = new JButton(aRet);
             b.addActionListener(e -> {
-                //On button click open Year window
+                //On button click open Utilities.Year window
                 new YearWindow(((AbstractButton) e.getSource()).getText());
 
             });

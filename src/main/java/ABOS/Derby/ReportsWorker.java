@@ -328,7 +328,7 @@ class ReportsWorker extends Task<Integer> {
                             setProgress(getProgress() + productProgressIncValue);
 
                         }
-                        //Total Cost for this Year
+                        //Total Cost for this Utilities.Year
                         {
                             Element tCostE = doc.createElement("totalCost");
                             tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
@@ -672,7 +672,7 @@ class ReportsWorker extends Task<Integer> {
                             }
                             setProgress(getProgress() + productIncValue);
                         }
-                        //Total Cost for this Year
+                        //Total Cost for this Utilities.Year
                         {
                             Element tCostE = doc.createElement("totalCost");
                             tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
@@ -702,9 +702,9 @@ class ReportsWorker extends Task<Integer> {
                     BigDecimal overallTotalCost = BigDecimal.ZERO;
                     int overallTotalQuantity = 0;
                     int yearProgressInc = 95 / ((years instanceof Collection<?>) ? ((Collection<?>) years).size() : 1);
-                    //For Each Year
+                    //For Each Utilities.Year
                     for (String year : years) {
-                        //Get Customer with name ?
+                        //Get Utilities.Customer with name ?
                         Year yearObj = new Year(year);
 
                         //    customerYears.add(year);
@@ -783,7 +783,7 @@ class ReportsWorker extends Task<Integer> {
                         }
 
 
-                        ////DbInt.pCon.close();
+                        ////Utilities.DbInt.pCon.close();
 
 
                         setProgress(getProgress() + yearProgressInc);
@@ -867,7 +867,7 @@ class ReportsWorker extends Task<Integer> {
         Processor proc = new Processor(false);
         XsltCompiler comp = proc.newXsltCompiler();
 
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream("Report.xsl")) {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("/Report.xsl")) {
 
 
             XsltExecutable exp = comp.compile(new StreamSource(in));

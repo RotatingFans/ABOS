@@ -94,7 +94,7 @@ public class Order {
 
             progressDivisor = 2 * numRows;
             progressIncrement = 50 / progressDivisor;
-            //Loops through And adds product numbers to Order string
+            //Loops through And adds product numbers to Utilities.Order string
             int insertProductNumberHere = InsertOrderStringBuilder.length() - 9;
 
             for (int i = 0; i < numRows; i++) {
@@ -190,7 +190,7 @@ public class Order {
             //Close prepared statement
             ProductInfoResultSet.close();
             if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
+                //Utilities.DbInt.pCon.close();
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
@@ -215,7 +215,7 @@ public class Order {
 
                     while (rs.next()) {
                         quant = Integer.parseInt(rs.getString(String.valueOf(i)));
-                        //DbInt.pCon.close();
+                        //Utilities.DbInt.pCon.close();
                     }
                 }
 
@@ -258,7 +258,7 @@ public class Order {
             //Close prepared statement
             ProductInfoResultSet.close();
             if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
+                //Utilities.DbInt.pCon.close();
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
@@ -281,7 +281,7 @@ public class Order {
 
                     while (rs.next()) {
                         quant += Integer.parseInt(rs.getString(String.valueOf(i)));
-                        //DbInt.pCon.close();
+                        //Utilities.DbInt.pCon.close();
                     }
                 }
 

@@ -536,7 +536,7 @@ public class AddYearController {
     /*    public static void main(String... args) {
             try {
 
-                AddYear dialog = new AddYear();
+                Launchers.AddYear dialog = new Launchers.AddYear();
                 dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 dialog.setVisible(true);
             } catch (RuntimeException e) {

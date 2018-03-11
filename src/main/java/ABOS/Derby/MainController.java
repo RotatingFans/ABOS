@@ -69,7 +69,7 @@ public class MainController {
                 // load new pane
                 switch (newValue.getValue()) {
                     case "Add Customer": {
-                        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                        loader = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class MainController {
                         new Reports(tabPane2.getScene().getWindow());
                         break;
                     case "View Map":
-                        loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                        loader = new FXMLLoader(getClass().getResource("/UI/Map.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -106,7 +106,7 @@ public class MainController {
                     default:
 
                         if (Objects.equals(observable.getValue().getParent().getValue(), "Root Node")) {
-                            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                            loader = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
                             try {
                                 newPane = loader.load();
                             } catch (IOException e) {
@@ -117,7 +117,7 @@ public class MainController {
                             tabTitle = ("Year View - " + newValue.getValue());
 
                         } else {
-                            loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                            loader = new FXMLLoader(getClass().getResource("/UI/Customer.fxml"));
                             try {
                                 newPane = loader.load();
                             } catch (IOException e) {
@@ -146,7 +146,7 @@ public class MainController {
         if (cell != null && cell.getValue() != null) {
             switch (cell.getValue()) {
                 case "Add Customer": {
-/*                    loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+/*                    loader = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
                     try {
                         newPane = loader.load();
                     } catch (IOException e) {
@@ -157,7 +157,7 @@ public class MainController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -170,7 +170,7 @@ public class MainController {
                                 addCustCont.initAddCust(cell.getParent().getValue(), this, openTabInCurrentWindow(NewPane2, tabTitle));
 
                             }, () -> { //Open In New Tab
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -182,7 +182,7 @@ public class MainController {
                                 String tabTitle = ("Add Customer - " + cell.getParent().getValue());
                                 addCustCont.initAddCust(cell.getParent().getValue(), this, addTab(NewPane2, tabTitle));
                             }, () -> { //Open In New Window
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -200,16 +200,16 @@ public class MainController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> new Reports(tabPane2.getScene().getWindow()), null, null, null);
-                    //  new Reports(tabPane2.getScene().getWindow());
+                    //  new Launchers.Reports(tabPane2.getScene().getWindow());
                     break;
                 case "View Map":
-/*                    loader = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+/*                    loader = new FXMLLoader(getClass().getResource("/UI/Map.fxml"));
                     try {
                         newPane = loader.load();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    // MapController mapCont = loader.getController();
+                    // Controllers.MapController mapCont = loader.getController();
                     // mapCont.initMap(this);
                     // addTab(newPane, "Map");
                     finalNewPane = newPane;*/
@@ -217,7 +217,7 @@ public class MainController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Map.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -231,7 +231,7 @@ public class MainController {
                                 openTabInCurrentWindow(NewPane2, tabTitle);
 
                             }, () -> { //Open In New Tab
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Map.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -244,7 +244,7 @@ public class MainController {
                                 String tabTitle = ("Map");
                                 addTab(NewPane2, tabTitle);
                             }, () -> { //Open In New Window
-                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Map.fxml"));
+                                FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Map.fxml"));
 
                                 Pane NewPane2 = null;
                                 try {
@@ -262,18 +262,18 @@ public class MainController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> new AddYear(getWindow()), null, null, null);
-                    // new AddYear(getWindow());
+                    // new Launchers.AddYear(getWindow());
                     break;
                 case "Settings":
                     cmContent = createContextMenuContent(
                             //Open
                             () -> new Settings(tabPane2.getScene().getWindow()), null, null, null);
-                    // new Settings(tabPane2.getScene().getWindow());
+                    // new Launchers.Settings(tabPane2.getScene().getWindow());
                     break;
                 default:
 
                     if (Objects.equals(cell.getParent().getValue(), "Root Node")) {
-                /*        loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                /*        loader = new FXMLLoader(getClass().getResource("/UI/Utilities.Year.fxml"));
                        try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -283,7 +283,7 @@ public class MainController {
                         cmContent = createContextMenuContent(
                                 //Open
                                 () -> {
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -296,7 +296,7 @@ public class MainController {
                                     String tabTitle = ("Year View - " + cell.getValue());
                                     openTabInCurrentWindow(NewPane2, tabTitle);
                                 }, () -> { //Open In New Tab
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -309,7 +309,7 @@ public class MainController {
                                     String tabTitle = ("Year View - " + cell.getValue());
                                     addTab(NewPane2, tabTitle);
                                 }, () -> { //Open In New Window
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -325,18 +325,18 @@ public class MainController {
 
 
                     } else {
-/*                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+/*                        loader = new FXMLLoader(getClass().getResource("/UI/Utilities.Customer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
-                            LogToFile.log(e,Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
+                            Utilities.LogToFile.log(e,Utilities.Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                         }
                         finalNewPane = newPane;*/
 
                         cmContent = createContextMenuContent(
                                 //Open
                                 () -> {
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Customer.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -349,7 +349,7 @@ public class MainController {
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
                                     openTabInCurrentWindow(NewPane2, tabTitle);
                                 }, () -> { //Open In New Tab
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Customer.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -362,7 +362,7 @@ public class MainController {
                                     String tabTitle = ("Customer View - " + cell.getValue() + " - " + cell.getParent().getValue());
                                     addTab(NewPane2, tabTitle);
                                 }, () -> { //Open In New Window
-                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                                    FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/UI/Customer.fxml"));
 
                                     Pane NewPane2 = null;
                                     try {
@@ -471,14 +471,14 @@ public class MainController {
 //    public void openAddCustomer(String year) {
 //        Pane newPane = null;
 //        FXMLLoader loader;
-//        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+//        loader = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
 //        try {
 //            newPane = loader.load();
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-//        AddCustomerController addCustCont = loader.getController();
-//        Tab tab = addTab(newPane, "Add Customer - " + year);
+//        Controllers.AddCustomerController addCustCont = loader.getController();
+//        Tab tab = addTab(newPane, "Add Utilities.Customer - " + year);
 //        // get children of parent of secPane (the VBox)
 //
 //        addCustCont.initAddCust(year, this, tab);
@@ -488,7 +488,7 @@ public class MainController {
     public void openEditCustomer(String year, String custName) {
         Pane newPane = null;
         FXMLLoader loader;
-        loader = new FXMLLoader(getClass().getResource("UI/AddCustomer.fxml"));
+        loader = new FXMLLoader(getClass().getResource("/UI/AddCustomer.fxml"));
         try {
             newPane = loader.load();
         } catch (IOException e) {
@@ -517,7 +517,7 @@ public class MainController {
 /*        for (String aRet : ret) {
             JButton b = new JButton(aRet);
             b.addActionListener(e -> {
-                //On button click open Year window
+                //On button click open Utilities.Year window
                 new YearWindow(((AbstractButton) e.getSource()).getText());
 
             });

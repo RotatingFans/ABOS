@@ -25,7 +25,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
             stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121"
-            fx:controller="CustomerController">
+            fx:controller="Controllers.CustomerController">
     <center>
 
         <SplitPane dividerPositions="0.29797979797979796" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"

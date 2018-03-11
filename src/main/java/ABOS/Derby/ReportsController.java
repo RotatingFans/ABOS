@@ -113,14 +113,14 @@ public class ReportsController {
     private String repTitle = "";
     // --Commented out by Inspection (7/27/16 3:02 PM):private File xmlTempFile = null;
     // --Commented out by Inspection (7/27/16 3:02 PM):private File[] xmlTempFileA = null;
-    // private ReportsWorker reportsWorker = null;
+    // private Workers.ReportsWorker reportsWorker = null;
 
 
 
 /*
     public static void main(String... args) {
         try {
-            new Reports();
+            new Launchers.Reports();
 
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -135,7 +135,7 @@ public class ReportsController {
 
     /*private static Iterable<String> getYears() {
         Collection<String> ret = new ArrayList<>();
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT YEARS FROM Years");
+        try (PreparedStatement prep = Utilities.DbInt.getPrep("Set", "SELECT YEARS FROM Years");
              ResultSet rs = prep.executeQuery()) {
 
 
@@ -144,10 +144,10 @@ public class ReportsController {
                 ret.add(rs.getString("YEARS"));
 
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, Utilities.CommonErrors.returnSqlMessage(e));
         }
 
 
@@ -159,7 +159,7 @@ public class ReportsController {
         Iterable<String> years = getYears();
         for (String year : years) {
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, "SELECT NAME FROM Customers");
                  ResultSet rs = prep.executeQuery()
             ) {
 
@@ -171,10 +171,10 @@ public class ReportsController {
                     }
 
                 }
-                ////DbInt.pCon.close();
+                ////Utilities.DbInt.pCon.close();
 
             } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, Utilities.CommonErrors.returnSqlMessage(e));
             }
         }
 
@@ -535,7 +535,7 @@ public class ReportsController {
 // --Commented out by Inspection START (7/27/16 3:02 PM):
 //    private String getDate(String catName){
 //        Date ret = null;
-//        try (PreparedStatement prep = DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
+//        try (PreparedStatement prep = Utilities.DbInt.getPrep("set", "SELECT Date FROM Categories WHERE Name=?")) {
 //
 //
 //            prep.setString(1, catName);
@@ -548,7 +548,7 @@ public class ReportsController {
 //
 //                }
 //            }
-//            ////DbInt.pCon.close();
+//            ////Utilities.DbInt.pCon.close();
 //
 //        } catch (SQLException e) {
 //            e.printStackTrace();

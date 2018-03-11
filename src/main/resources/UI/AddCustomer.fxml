@@ -24,7 +24,7 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="pane" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0"
             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddCustomerController">
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.AddCustomerController">
             <top>
                 <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="pane" AnchorPane.bottomAnchor="0.0"
                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"

@@ -40,7 +40,7 @@ class Settings extends Window {
 
         Scene root;
         try {
-            loader = new FXMLLoader(getClass().getResource("UI/Settings.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/UI/Settings.fxml"));
             root = new Scene(loader.load());
             SettingsController settingsController = loader.getController();
             settingsController.initUI(this);

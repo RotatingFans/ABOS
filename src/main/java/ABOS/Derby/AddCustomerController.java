@@ -96,7 +96,7 @@ public class AddCustomerController {
     private MainController mainCont;
 
     /**
-     * Used to open dialog with already existing customer information from year as specified in Customer Report.
+     * Used to open dialog with already existing customer information from year as specified in Utilities.Customer Report.
      *
      * @param customerName the name of the customer being edited.
      */
@@ -115,7 +115,7 @@ public class AddCustomerController {
         String state = addr[1];
         String zip = addr[2];
         String streetAdd = addr[3];
-        //Fill in Customer info fields.
+        //Fill in Utilities.Customer info fields.
         Address.setText(streetAdd);
         Town.setText(city);
         State.setText(state);
@@ -275,14 +275,14 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Utilities.Order total
 
             });
 
         });
         priceCol.setCellValueFactory(new PropertyValueFactory<>("extendedCost"));
 /*        priceCol.setCellValueFactory(cellData -> {
-            Product.formattedProductProps data = cellData.getValue();
+            Product.Utilities.formattedProductProps data = cellData.getValue();
             return Bindings.createStringBinding(
                     () -> {
                         try {
@@ -351,7 +351,7 @@ public class AddCustomerController {
             t.getTableView().refresh();
             totalCostFinal = BigDecimal.ZERO;
             t.getTableView().getItems().forEach(item -> {
-                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Order total
+                totalCostFinal = totalCostFinal.add((BigDecimal) item.getExtendedCost());//Recalculate Utilities.Order total
 
             });
 
@@ -409,9 +409,9 @@ public class AddCustomerController {
                                     setVisible(false);
                                 }
                             } catch (CancellationException e) {
-                                LogToFile.log(e, Severity.INFO, "The process was cancelled.");
+                                Utilities.LogToFile.log(e, Utilities.Severity.INFO, "The process was cancelled.");
                             } catch (Exception e) {
-                                LogToFile.log(e, Severity.WARNING, "The process Failed.");
+                                Utilities.LogToFile.log(e, Utilities.Severity.WARNING, "The process Failed.");
                             }
                             addCustWork = null;
                             progDial.dispose();
@@ -431,7 +431,7 @@ public class AddCustomerController {
             FXMLLoader loader;
             progDial.getDialogStage().close();
             updateTots();
-            loader = new FXMLLoader(getClass().getResource("UI/Year.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
             try {
                 newPane = loader.load();
             } catch (IOException e) {

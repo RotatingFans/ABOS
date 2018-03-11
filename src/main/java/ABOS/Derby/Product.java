@@ -65,7 +65,7 @@ public class Product {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
