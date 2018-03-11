@@ -776,38 +776,28 @@ public class Year {
     }
 
     public Iterable<Customer> getCustomers() {
-        Collection<Customer> ret = new ArrayList<>();
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idCustomers FROM customerview WHERE " + (Objects.equals(uName, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, uName);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    ret.add(new Customer(rs.getInt("idCustomers"), year));
-
-                }
-            }
-            ////DbInt.pCon.close()
-
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        } catch (CustomerNotFoundException ignored) {
-
-        }
-
-
-        return ret;
+        return getCustomers(uName);
     }
 
     public Iterable<Customer> getCustomers(String user) {
         Collection<Customer> ret = new ArrayList<>();
 
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT idCustomers, Name, uName FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT `idCustomers`, `uName`,\n" +
+                     "    `Name`,\n" +
+                     "    `streetAddress`,\n" +
+                     "    `City`,\n" +
+                     "    `State`,\n" +
+                     "    `Zip`,\n" +
+                     "    `Phone`,\n" +
+                     "    `Email`,\n" +
+                     "    `Lat`,\n" +
+                     "    `Lon`,\n" +
+                     "    `Ordered`,\n" +
+                     "    `nH`,\n" +
+                     "    `nI`,\n" +
+                     "    `orderID`,\n" +
+                     "    `Donation` FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, user);
 
             try (ResultSet rs = prep.executeQuery()) {
@@ -816,7 +806,7 @@ public class Year {
                 while (rs.next()) {
 //        this(-1, name, year, null, null, null, null, null, null, null, false, false, null, null, null, DbInt.getUserName());
 
-                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year, null, null, null, null, null, null, null, false, false, null, null, null, rs.getString("uName")));
+                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year, rs.getString("streetAddress"), rs.getString("City"), rs.getString("State"), rs.getString("Zip"), rs.getDouble("lat"), rs.getDouble("lon"), rs.getString("Phone"), false, false, rs.getString("Email"), null, rs.getBigDecimal("Donation"), rs.getString("uName")));
 
                 }
             }

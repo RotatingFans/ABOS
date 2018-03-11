@@ -447,6 +447,10 @@ public class Customer {
         });
     }
 
+    public String getFormattedAddress() {
+        return getAddr() + " " + getTown() + ", " + getState() + " " + getZip();
+    }
+
     public String getTown() {
         return this.town.orElseGetAndSet(() -> { return DbInt.getCustInf(year.get(), ID.get(), "City", town.get());});
     }

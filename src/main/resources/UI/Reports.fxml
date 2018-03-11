@@ -59,6 +59,7 @@
                                                                     <String fx:value="Year Totals; Spilt by Customer"/>
                                                                     <String fx:value="Customer Year Totals"/>
                                                                     <String fx:value="Customer All-Time Totals"/>
+                                                                    <String fx:value="Address Order History"/>
                                                                 </FXCollections>
                                                             </items>
                                                         </ComboBox>
@@ -192,7 +193,7 @@
                                                 </HBox>
                                                 <HBox styleClass="HBox">
                                                     <children>
-                                                        <Label alignment="CENTER" text="PDF Save Location:"
+                                                        <Label alignment="CENTER" text="Save Location:"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                             <opaqueInsets>
                                                                 <Insets/>
@@ -201,7 +202,7 @@
                                                                 <Insets right="5.0"/>
                                                             </HBox.margin>
                                                         </Label>
-                                                        <TextField fx:id="pdfLoc" promptText="PDF Save Location"/>
+                                                        <TextField fx:id="pdfLoc" promptText="Save Location"/>
                                                         <Button mnemonicParsing="false" onAction="#promptPDF"
                                                                 text="..."/>
                                                     </children>

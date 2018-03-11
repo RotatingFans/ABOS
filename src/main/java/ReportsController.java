@@ -19,19 +19,21 @@
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.sf.saxon.s9api.SaxonApiException;
 
+import javax.swing.filechooser.FileSystemView;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,7 +227,8 @@ public class ReportsController {
     }
     @FXML
     private void selectedCategoryChanged(ActionEvent actionEvent) {
-        includeHeader.setDisable(cmbxCategory.getSelectionModel().getSelectedItem().equals("All") || cmbxReportType.getSelectionModel().getSelectedIndex() == 0);
+
+        includeHeader.setDisable(cmbxReportType.getSelectionModel().getSelectedIndex() == 4 || cmbxReportType.getSelectionModel().getSelectedIndex() == 0 || cmbxCategory.getSelectionModel().getSelectedItem().equals("All"));
     }
 
     @FXML
@@ -247,15 +250,26 @@ public class ReportsController {
     @FXML
     public void promptPDF(ActionEvent event) {
         //Creates a JFileChooser to select save location of XML file
+        FileChooser.ExtensionFilter filter;
+        String ending;
+        if (cmbxReportType.getSelectionModel().getSelectedIndex() == 4) {
+            filter = new FileChooser.ExtensionFilter("CSV files", "*.csv", "*.CSV");
+            ending = ".csv";
+
+        } else {
+            filter = new FileChooser.ExtensionFilter("Portable Document files", "*.pdf", "*.PDF");
+            ending = ".pdf";
+
+        }
         FileChooser chooser = new FileChooser();
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Portable Document files", "*.pdf", "*.PDF");
         chooser.getExtensionFilters().add(filter);
         chooser.setSelectedExtensionFilter(filter);
+        chooser.setInitialDirectory(FileSystemView.getFileSystemView().getDefaultDirectory());
         File pdf = chooser.showSaveDialog(reports);
         if (pdf != null) {
             String path = pdf.getAbsolutePath();
-            if (!path.toLowerCase().endsWith(".pdf")) {
-                path += ".pdf";
+            if (!path.toLowerCase().endsWith(ending)) {
+                path += ending;
             }
             pdfLoc.setText(path);
         }
@@ -299,6 +313,54 @@ public class ReportsController {
                 Splitting = "Year:";
 
                 break;
+            case 4:
+                ProgressForm progDial = new ProgressForm();
+                orderHistoryReportWorker reportsWorker = new orderHistoryReportWorker(pdfLoc.getText());
+
+                progDial.activateProgressBar(reportsWorker);
+
+                reportsWorker.setOnSucceeded(event -> {
+                    progDial.getDialogStage().close();
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Saved");
+                    alert.setHeaderText("CSV saved");
+                    alert.show();
+                    close();
+                });
+
+                reportsWorker.setOnFailed(event -> {
+                    progDial.getDialogStage().close();
+                    Throwable e = reportsWorker.getException();
+
+
+                    if (e instanceof SQLException) {
+                        LogToFile.log((SQLException) e, Severity.SEVERE, CommonErrors.returnSqlMessage(((SQLException) reportsWorker.getException())));
+
+                    }
+                    if (e instanceof InterruptedException) {
+                        if (reportsWorker.isCancelled()) {
+                            LogToFile.log((InterruptedException) e, Severity.FINE, "Report generation process canceled.");
+
+                        }
+                    }
+                    if (e instanceof Exception) {
+                        LogToFile.log((Exception) e, Severity.WARNING, reportsWorker.getMessage());
+                    }
+                    if (e instanceof FileNotFoundException) {
+                        LogToFile.log((FileNotFoundException) e, Severity.WARNING, "Error accessing CSV file. Please check if it is open in any other programs and close it.");
+                    }
+                    if (e instanceof FileSystemException) {
+                        LogToFile.log((FileSystemException) e, Severity.WARNING, "Error opening file for writing. Ensure path is correct.");
+                    }
+                    if (e instanceof IOException) {
+                        LogToFile.log((IOException) e, Severity.WARNING, reportsWorker.getMessage());
+                    }
+
+                });
+                progDial.getDialogStage().show();
+                new Thread(reportsWorker).start();
+                return;
+
 
         }
         ProgressForm progDial = new ProgressForm();
@@ -350,7 +412,7 @@ public class ReportsController {
             }
             if (e instanceof InterruptedException) {
                 if (reportsWorker.isCancelled()) {
-                    LogToFile.log((InterruptedException) e, Severity.FINE, "Add Customer process canceled.");
+                    LogToFile.log((InterruptedException) e, Severity.FINE, "Report Generation process canceled.");
 
                 }
             }
@@ -492,6 +554,18 @@ public class ReportsController {
                 });
                 includeHeader.setDisable(true);
 
+                //      cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
+                break;
+            case "Address Order History":
+                userPanel.setDisable(true);
+                categoryPane.setDisable(true);
+                yearPane.setDisable(true);
+                customerPane.setDisable(true);
+                includeHeader.setDisable(true);
+                okButton.setDisable(false);
+                if (!pdfLoc.getText().toLowerCase().endsWith(".csv")) {
+                    pdfLoc.setText("");
+                }
                 //      cmbxYears.getSelectionModel().select(cmbxYears.getItems().size() - 1);
                 break;
         }
