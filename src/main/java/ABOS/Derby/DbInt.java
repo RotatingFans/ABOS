@@ -41,7 +41,7 @@ public class DbInt {
 
 
     /**
-     * Gets the specified Customer info
+     * Gets the specified Utilities.Customer info
      *
      * @param yearL The year to search
      * @param name  The customer name
@@ -53,7 +53,7 @@ public class DbInt {
     }
 
     /**
-     * Gets the specified Customer info
+     * Gets the specified Utilities.Customer info
      *
      * @param yearL      The year to search
      * @param name       The customer name
@@ -76,7 +76,7 @@ public class DbInt {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -136,7 +136,7 @@ public class DbInt {
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK) {
-                        new Settings(null);
+                        new Launchers.Settings();
                         return getPrep(Db, Command);
                     } else {
                         Alert closingWarning = new Alert(Alert.AlertType.WARNING);
@@ -239,7 +239,7 @@ public class DbInt {
                     }
 
                 }
-                ////DbInt.pCon.close();
+                ////Utilities.DbInt.pCon.close();
 
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -261,7 +261,7 @@ public class DbInt {
                 ret.add(rs.getString("YEARS"));
 
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -286,7 +286,7 @@ public class DbInt {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));

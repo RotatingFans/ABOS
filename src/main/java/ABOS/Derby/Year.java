@@ -56,7 +56,7 @@ public class Year {
                 ret.add(rs.getString("NAME"));
 
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -76,7 +76,7 @@ public class Year {
             while (rs.next()) {
 
                 ret.add(new category(rs.getString("NAME"), rs.getString("DATE")));
-                ////DbInt.pCon.close();
+                ////Utilities.DbInt.pCon.close();
             }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -111,7 +111,7 @@ public class Year {
                 }
 
             }
-            //////DbInt.pCon.close();
+            //////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -196,14 +196,14 @@ public class Year {
     /**
      * Gets the order Total Using getTots Function
      *
-     * @return The Order total amount
+     * @return The Utilities.Order total amount
      */
     public BigDecimal getOT() {
         return (BigDecimal) getTots("TOTAL", retBigDec);
     }
 
     /**
-     * Gets the Total Customer Using getTots Function
+     * Gets the Total Utilities.Customer Using getTots Function
      *
      * @return The total amount of Customers
      */
@@ -246,13 +246,13 @@ public class Year {
                 ProductInfoArray.add(new Product.formattedProduct(ProductInfoResultSet.getString("ID"), ProductInfoResultSet.getString("PNAME"), ProductInfoResultSet.getString("SIZE"), ProductInfoResultSet.getString("UNIT"), ProductInfoResultSet.getString("Category"), 0, BigDecimal.ZERO));
             }
             DbInt.pCon.commit();
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
 
             //Close prepared statement
             ProductInfoResultSet.close();
             if (DbInt.pCon != null) {
-                //DbInt.pCon.close();
+                //Utilities.DbInt.pCon.close();
                 DbInt.pCon = null;
             }
         } catch (SQLException e) {
@@ -274,7 +274,7 @@ public class Year {
                 exists = true;
 
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -309,10 +309,10 @@ public class Year {
             }
 
 /*            //Create Residence Table
-            try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))")) {
+            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, "CREATE TABLE Residence(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Action varchar(255))")) {
                 prep.execute();
             } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, Utilities.CommonErrors.returnSqlMessage(e));
             }*/
 
             //Create Categories Table
@@ -363,7 +363,7 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-            //ADD to Year
+            //ADD to Utilities.Year
             addYear();
         } else {
             LogToFile.log(null, Severity.WARNING, "Year already exists: Please rename the year you are adding or delete the Year you are trying to overwrite.");
@@ -372,7 +372,7 @@ public class Year {
     }
 
     public void updateDb(String year, ObservableList<Product.formattedProductProps> products, Collection<category> rowsCats) {
-        //Delete Year Customer table
+        //Delete Utilities.Year Utilities.Customer table
 
         try (PreparedStatement addCol = DbInt.getPrep(year, "DROP TABLE \"PRODUCTS\"")) {
             addCol.execute();
@@ -385,7 +385,7 @@ public class Year {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        //Recreate Year Customer table
+        //Recreate Utilities.Year Utilities.Customer table
 
         try (PreparedStatement addCol = DbInt.getPrep(year, "CREATE TABLE PRODUCTS(PID INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),ID VARCHAR(255), PName VARCHAR(255), Unit VARCHAR(255), Size VARCHAR(255), Category VARCHAR(255))")) {
             addCol.execute();

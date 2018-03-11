@@ -93,7 +93,7 @@ public class MapController implements Initializable {
                 opts.position(new LatLong(lat, lon));
                 Marker m = new Marker(opts);
 
-                // cPoints[i] = new cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
+                // cPoints[i] = new Utilities.cPoint(lat, lon, Addr.get(i), Town.get(i), State.get(i));
                 //Determine color of dot
                 //Green = orderd
                 //Cyan = Not Interested
@@ -126,7 +126,7 @@ public class MapController implements Initializable {
         googleMapView.addMapInializedListener(() -> configureMap());
 
 
-        //new MapController(map(), this);
+        //new Controllers.MapController(map(), this);
 
 
     }
@@ -138,7 +138,7 @@ public class MapController implements Initializable {
         //String address = marker.getTitle();
 
         custAddress.setText(address);
-        //Customer cust = new Customer()
+        //Utilities.Customer cust = new Utilities.Customer()
         List<String> o = getCustInfo("Set", "ORDERED", address);
         // m.Orders.setText(o.get(o.size() - 1).toString());
         List<String> NI = getCustInfo("Set", "NI", address);
@@ -148,7 +148,7 @@ public class MapController implements Initializable {
         if (o.get(o.size() - 1).equals("True")) {
             // m.OrderStat.setText("Has Ordered");
                                         /*Get info about customer that has clicked
-                                        Display name Phone  Order status
+                                        Display name Phone  Utilities.Order status
                                         Creates a button for each ordered year to view more information
                                         */
             Iterable<String> yearsD;
@@ -173,7 +173,7 @@ public class MapController implements Initializable {
                         Pane newPane = null;
                         FXMLLoader loader;
                         String tabTitle;
-                        loader = new FXMLLoader(getClass().getResource("UI/Customer.fxml"));
+                        loader = new FXMLLoader(getClass().getResource("/UI/Customer.fxml"));
                         try {
                             newPane = loader.load();
                         } catch (IOException e) {
@@ -256,7 +256,7 @@ public class MapController implements Initializable {
                 ret.add(rs.getString(info));
 
             }
-            ////DbInt.pCon.close();
+            ////Utilities.Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -280,7 +280,7 @@ public class MapController implements Initializable {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));

@@ -37,7 +37,7 @@ public class AddYear extends Window {
 
         Scene root;
         try {
-            loader = new FXMLLoader(getClass().getResource("UI/AddYear.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/UI/AddYear.fxml"));
             root = new Scene(loader.load());
             AddYearController addYearController = loader.getController();
             addYearController.initAddYear(this);
@@ -58,7 +58,7 @@ public class AddYear extends Window {
 
         Scene root;
         try {
-            loader = new FXMLLoader(getClass().getResource("UI/AddYear.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/UI/AddYear.fxml"));
             root = new Scene(loader.load());
             AddYearController addYearController = loader.getController();
             addYearController.initAddYear(year, this);

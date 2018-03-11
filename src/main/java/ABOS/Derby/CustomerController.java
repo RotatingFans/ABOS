@@ -62,7 +62,7 @@ public class CustomerController {
         cID = customerDbInfo.getId();
         fillTable();
 
-        //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
+        //frame.setTitle("ABOS - Utilities.Customer View - " + name + " - " + year);
 
         List<infoValPair> customerInfoStrings = new ArrayList<>();
         customerInfoStrings.add(new infoValPair("Name", name));
@@ -92,7 +92,7 @@ public class CustomerController {
     private void initialize() {
         customerDbInfo = new Customer(cID, year);
         name = customerDbInfo.getName();
-        //frame.setTitle("ABOS - Customer View - " + name + " - " + year);
+        //frame.setTitle("ABOS - Utilities.Customer View - " + name + " - " + year);
 
         List<infoValPair> customerInfoStrings = new ArrayList<>();
         customerInfoStrings.add(new infoValPair("Name", name));

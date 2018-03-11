@@ -23,22 +23,22 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="745.0" prefWidth="1236.0" styleClass="pane" stylesheets="@Main.css"
-            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-            AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="MainController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+            stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121"
+            fx:controller="Controllers.MainController">
     <center>
         <TabPane fx:id="tabPane2" styleClass="pane" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0"
                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                 BorderPane.alignment="CENTER">
+                 BorderPane.alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity">
             <tabs>
                 <!--<Tab fx:id="Welcome" closable="false" text="Welcome">
                     <content>
-                        <AnchorPane styleClass="pane" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
-                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <AnchorPane styleClass="pane"
+                                      >
                             <children>
-                                <Pane styleClass="pane" fx:id="tabPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                                <Pane styleClass="pane" fx:id="tabPane"
+                                       />
                             </children>
                         </AnchorPane>
                     </content>
@@ -47,9 +47,13 @@
         </TabPane>
     </center>
     <left>
-        <BorderPane fx:id="sidePane" prefHeight="200.0" styleClass="pane" BorderPane.alignment="CENTER">
+        <BorderPane fx:id="sidePane" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
             <center>
-                <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="pane" BorderPane.alignment="CENTER">
+                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="Infinity" maxWidth="Infinity"
+                            styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
                     <content>
                         <TreeView id="selectNav" fx:id="selectNav"/>
                     </content>

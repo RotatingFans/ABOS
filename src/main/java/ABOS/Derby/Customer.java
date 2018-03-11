@@ -102,7 +102,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -128,7 +128,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -155,7 +155,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -241,7 +241,7 @@ public class Customer {
             }
             updateProg.doAction(10, 100);
 
-            //Updates customer table in Year DB with new info.
+            //Updates customer table in Utilities.Year DB with new info.
             try (PreparedStatement CustomerUpdate = DbInt.getPrep(year, "UPDATE CUSTOMERS SET NAME=?, ADDRESS=?, TOWN=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, PHONE=?,PAID=?,DELIVERED=?, EMAIL=?, DONATION=? WHERE NAME = ?")) {
                 CustomerUpdate.setString(1, this.nameEdited);
                 CustomerUpdate.setString(2, this.address);
@@ -409,7 +409,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -502,9 +502,9 @@ public class Customer {
     }
 
     /**
-     * Return Order ID of the customer whose name has been specified.
+     * Return Utilities.Order ID of the customer whose name has been specified.
      *
-     * @return The Order ID of the specified customer
+     * @return The Utilities.Order ID of the specified customer
      */
     public String getOrderId() {
         return DbInt.getCustInf(year, name, "ORDERID", orderId);
@@ -533,7 +533,7 @@ public class Customer {
 
                 }
             }
-            ////DbInt.pCon.close();
+            ////Utilities.DbInt.pCon.close();
 
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));

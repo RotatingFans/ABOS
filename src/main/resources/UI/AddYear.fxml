@@ -24,32 +24,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" styleClass="pane" prefHeight="400.0" stylesheets="@Main.css"
-            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="AddYearController">
-    <children>
-        <BorderPane styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            styleClass="pane" BorderPane.alignment="CENTER" stylesheets="@Main.css"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.AddYearController">
             <center>
-                <ScrollPane styleClass="pane" fitToHeight="true" fitToWidth="true" prefHeight="200.0">
+                <ScrollPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                            styleClass="pane" fitToHeight="true" fitToWidth="true">
                     <content>
-                        <AnchorPane styleClass="pane" minHeight="0.0" minWidth="0.0" prefHeight="322.0"
-                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <children>
-                                <TableView fx:id="ProductTable" editable="true" prefHeight="322.0"
-                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                            </children>
-                        </AnchorPane>
+                        <TableView fx:id="ProductTable" editable="true"
+
+                        />
+
                     </content>
                 </ScrollPane>
             </center>
             <top>
-                <FlowPane styleClass="pane" prefHeight="156.0" BorderPane.alignment="CENTER">
+                <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                          styleClass="pane" BorderPane.alignment="CENTER">
                     <children>
                         <HBox styleClass="HBox">
                             <children>
-                                <Label prefHeight="26.0" text="Year"/>
+                                <Label text="Year"/>
                                 <TextField fx:id="yearText" promptText="Year to Create"/>
                             </children>
                             <FlowPane.margin>
@@ -103,7 +101,7 @@
                                         </ComboBox>
                                     </children>
                                 </VBox>
-                                <Button mnemonicParsing="false" onAction="#addBtnPressed" prefHeight="42.0" text="Add"/>
+                                <Button mnemonicParsing="false" onAction="#addBtnPressed" text="Add"/>
                             </children>
                             <FlowPane.margin>
                                 <Insets right="5.0"/>
@@ -114,7 +112,7 @@
                 </FlowPane>
             </top>
             <bottom>
-                <ButtonBar prefHeight="40.0" BorderPane.alignment="CENTER">
+                <ButtonBar BorderPane.alignment="CENTER">
                     <buttons>
                         <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
                         <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
@@ -123,5 +121,3 @@
             </bottom>
         </BorderPane>
 
-    </children>
-</AnchorPane>

@@ -38,7 +38,7 @@ class Reports extends Window {
 
         Scene root;
         try {
-            loader = new FXMLLoader(getClass().getResource("UI/Reports.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/UI/Reports.fxml"));
             root = new Scene(loader.load());
             ReportsController reportsController = loader.getController();
             reportsController.initUI(this);

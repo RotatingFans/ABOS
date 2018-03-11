@@ -55,7 +55,7 @@ public class SettingsController {
     private TextField DbLoc;
     @FXML
     private CheckBox CreateDb;
-    //Add Customer
+    //Add Utilities.Customer
     @FXML
     private CheckBox Delivered;
     @FXML
@@ -106,7 +106,7 @@ public class SettingsController {
 
     public static void main(String... args) {
         try {
-            new Settings();
+            new Launchers.Settings();
 
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -200,7 +200,7 @@ public class SettingsController {
         if (!Config.doesConfExist()) {
             Config.createConfigFile();
         }
-        //Main Content
+        //Launchers.Main Content
 
 
         DbLoc.setText(Config.getDbLoc());
@@ -309,12 +309,12 @@ public class SettingsController {
                 }
                 JLabel libs = new JLabel("<HTML><h2>Included Libraries:</h2>" +
                         "<ul>" +
-                        "<li>jDatePicker Version 1.3.4</li>" +
-                        "<li>Apache Derby Version 10.11</li>" +
-                        "<li>iText Version 5.5.10</li>" +
-                        "<li>JMapViewer Version 1.0.0</li>" +
-                        "<li>JTidy Version 938</li>" +
-                        "<li>Saxon Version 9</li>" +
+                        "<li>jDatePicker Utilities.Version 1.3.4</li>" +
+                        "<li>Apache Derby Utilities.Version 10.11</li>" +
+                        "<li>iText Utilities.Version 5.5.10</li>" +
+                        "<li>JMapViewer Utilities.Version 1.0.0</li>" +
+                        "<li>JTidy Utilities.Version 938</li>" +
+                        "<li>Saxon Utilities.Version 9</li>" +
                         "</ul></HTML>");
                 License.add(libs);
             }
@@ -361,7 +361,7 @@ public class SettingsController {
                 prop.setProperty("CustomerDonation", DonationsT.getText());
             }
             //Maps
-            //Reports
+            //Launchers.Reports
             {
                 prop.setProperty("ReportType", cmbxReportType.getSelectionModel().getSelectedIndex() >= 0 ? cmbxReportType.getSelectionModel().getSelectedItem().toString() : "");
                 prop.setProperty("ScoutName", scoutName.getText());

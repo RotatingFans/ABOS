@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
- * LogToFile class
+ * Utilities.LogToFile class
  * This class is intended to be use with the default logging class of java
  * It save the log in an XML file  and display a friendly message to the user
  *

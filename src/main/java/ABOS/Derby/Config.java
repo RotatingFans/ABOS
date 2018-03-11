@@ -222,7 +222,7 @@ class Config {
                 prop.setProperty("CustomerDonation", "");
             }
             //Maps
-            //Reports
+            //Launchers.Reports
             {
                 prop.setProperty("ReportType", "");
                 prop.setProperty("ScoutName", "");
