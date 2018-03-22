@@ -31,16 +31,11 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.net.HttpURLConnection;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Properties;
@@ -556,77 +551,6 @@ public class SettingsController {
 
     }
 
-    private String getCityState(String zipCode) throws IOException {
-        //String AddressF = Address.replace(" ","+");
-        //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
-
-        //Defines connection
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        String city = "";
-        String State = "";
-        //Creates Response buffer for Web response
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            //Fill String buffer with response
-            while ((inputLine = in.readLine()) != null) {
-                //inputLine = StringEscapeUtils.escapeHtml4(inputLine);
-                //inputLine = StringEscapeUtils.escapeXml11(inputLine);
-                response.append(inputLine);
-            }
-
-
-            //Parses XML response and fills City and State Variables
-            try {
-                InputSource is = new InputSource(new StringReader(response.toString()));
-
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(is);
-
-                doc.getDocumentElement().normalize();
-                LogToFile.log(null, Severity.FINEST, "Root element :" + doc.getDocumentElement().getNodeName());
-
-                NodeList nList = doc.getElementsByTagName("place");
-
-
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-
-                    Node nNode = nList.item(temp);
-
-
-                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
-
-                        Element eElement = (Element) nNode;
-
-
-                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
-
-                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
-
-
-                    }
-                }
-            } catch (Exception e) {
-                LogToFile.log(e, Severity.SEVERE, "Error parsing geolocation response. Please try again later or contacting support.");
-            }
-        }
-        //Formats City and state into one string to return
-        String fullName = city + '&';
-        fullName += State;
-        //print result
-        //	return parseCoords(response.toString());
-        return fullName;
-    }
 
 
 }

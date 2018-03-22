@@ -172,6 +172,10 @@ public class AddCustomerController {
         NameEditCustomer = customerInfo.getName();
         edit = true;
         ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        Platform.runLater(() -> {
+            Name.requestFocus();
+
+        });
 
         //Add a Event to occur if a cell is changed in the table
 
@@ -206,7 +210,7 @@ public class AddCustomerController {
         });
         userCmbx.getSelectionModel().select(user);
         Name.setText(Config.getProp("CustomerName"));
-
+        //Name.requestFocus();
         Address.setText(Config.getProp("CustomerAddress"));
         Town.setText(Config.getProp("CustomerTown"));
         State.setText(Config.getProp("CustomerState"));
@@ -249,12 +253,17 @@ public class AddCustomerController {
             if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
                 return null;
             } else {
+
                 return c;
             }
         }));
+
         fillTable();
         ProductTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        Platform.runLater(() -> {
 
+            Name.requestFocus();
+        });
     }
 
     public void initialize() {
@@ -414,7 +423,7 @@ public class AddCustomerController {
                 data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
                 data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
                 t.getTableView().refresh();
-                totalCostFinal = BigDecimal.ZERO;
+                totalCostFinal = new BigDecimal(DonationsT.getText());
                 t.getTableView().getItems().forEach(item -> {
                     totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Utilities.Order total
 
@@ -520,7 +529,7 @@ public class AddCustomerController {
                 data.get(t.getTablePosition().getRow()).orderedQuantity.set(quantity);
                 data.get(t.getTablePosition().getRow()).extendedCost.set(ItemTotalCost);
                 t.getTableView().refresh();
-                totalCostFinal = BigDecimal.ZERO;
+                totalCostFinal = new BigDecimal(DonationsT.getText());
                 t.getTableView().getItems().forEach(item -> {
                     totalCostFinal = totalCostFinal.add(item.getExtendedCost());//Recalculate Utilities.Order total
 

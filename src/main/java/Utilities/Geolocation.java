@@ -53,6 +53,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * Created by patrick on 7/26/16.
@@ -69,7 +70,8 @@ public class Geolocation {
     public static String getCityState(String zipCode) throws IOException {
         //String AddressF = Address.replace(" ","+");
         //The URL for the MapquestAPI
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=1&limit=1&accept-language=en-US", zipCode);
+
+        String url = String.format("https://api.opencagedata.com/geocode/v1/xml?key=4745cb28cf7744d7b43f1dd482b83d5d&countrycode=us&min_confidence=6&no_annotations=1&q=%s", zipCode);
 
         //Defines connection
         URL obj = new URL(url);
@@ -79,6 +81,7 @@ public class Geolocation {
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
         String city = "";
         String State = "";
+        Integer prevConfidence = 0;
         //Creates Response buffer for Web response
         try (BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()))) {
@@ -105,7 +108,7 @@ public class Geolocation {
 
                 //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
-                NodeList nList = doc.getElementsByTagName("place");
+                NodeList nList = doc.getElementsByTagName("result");
 
 
                 for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -116,11 +119,11 @@ public class Geolocation {
                     if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
 
                         Element eElement = (Element) nNode;
+                        if (Objects.equals(eElement.getElementsByTagName("_type").item(0).getTextContent(), "city") && Integer.valueOf(eElement.getElementsByTagName("confidence").item(0).getTextContent()) > prevConfidence) {
 
-
-                        city = eElement.getElementsByTagName("city").item(0).getTextContent();
-                        State = eElement.getElementsByTagName("state").item(0).getTextContent();
-
+                            city = eElement.getElementsByTagName("city").item(0).getTextContent();
+                            State = eElement.getElementsByTagName("state").item(0).getTextContent();
+                        }
 
                         //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
 
@@ -139,9 +142,10 @@ public class Geolocation {
         return fullName;
     }
 
-    public static Object[][] GetCoords(String Address) throws IOException {
-        String AddressF = Address.replace(" ", "+");
-        String url = String.format("http://open.mapquestapi.com/nominatim/v1/search.php?key=CCBtW1293lbtbxpRSnImGBoQopnvc4Mz&format=xml&q=%s&addressdetails=0&limit=1", AddressF);
+    public static Coords GetCoords(String Address) throws IOException {
+        String AddressF = Address.replace(" ", "%20");
+        String url = String.format("https://api.opencagedata.com/geocode/v1/xml?key=4745cb28cf7744d7b43f1dd482b83d5d&countrycode=us&min_confidence=6&no_annotations=1&q=%s", AddressF);
+        Integer prevConfidence = 0;
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -168,7 +172,59 @@ public class Geolocation {
 
 
             //print result
-            return parseCoords(response.toString());
+            Coords coords = new Coords();
+            try {
+                InputSource is = new InputSource(new StringReader(response.toString()));
+
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(is);
+
+                //optional, but recommended
+                //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+                doc.getDocumentElement().normalize();
+
+                //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+                NodeList nList = doc.getElementsByTagName("result");
+
+                if (nList.getLength() < 1) { throw new addressException();}
+
+
+                for (int temp = 0; temp < nList.getLength(); temp++) {
+
+                    Node nNode = nList.item(temp);
+
+
+                    if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+
+                        Element eElement = (Element) nNode;
+                        if (Objects.equals(eElement.getElementsByTagName("_type").item(0).getTextContent(), "building") && Integer.valueOf(eElement.getElementsByTagName("confidence").item(0).getTextContent()) > prevConfidence) {
+                            Element geometry = (Element) eElement.getElementsByTagName("geometry").item(0);
+
+
+                            coords.setLat(Double.valueOf(geometry.getElementsByTagName("lat").item(0).getTextContent()));
+                            coords.setLon(Double.valueOf(geometry.getElementsByTagName("lng").item(0).getTextContent()));
+                        }
+
+                        //final Object[] columnNames = {"Product Name", "Size", "Price/Item", "Quantity", "Total Cost"};
+
+
+                    }
+                }
+            } catch (IOException | ParserConfigurationException | SAXException e) {
+                LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please try again or contact support.");
+            }
+            if (coords.getLat() <= -190 && coords.getLon() <= -190) {
+                throw new addressException();
+
+            } else {
+
+
+                return coords;
+            }
+        } catch (Exception e) {
+            throw new addressException();
         }
     }
 
