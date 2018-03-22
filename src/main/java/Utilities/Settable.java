@@ -53,7 +53,7 @@ public class Settable<T> {
     public void set(T val) {
         if (!(val == null)) {
             this.val = val;
-            set = true;
+            set = (!Objects.equals(val, inval));
         } else {
             set = false;
         }

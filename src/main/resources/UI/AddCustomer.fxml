@@ -173,10 +173,10 @@
                 <ButtonBar BorderPane.alignment="CENTER">
                     <buttons>
                         <Label id="AddCustomer-RunningTotalLbl" fx:id="runningTotalLabel"/>
-                        <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#submit"
-                                text="OK"/>
-                        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#cancel"
-                                text="Cancel"/>
+                        <Button fx:id="okButton" defaultButton="true" focusTraversable="false" mnemonicParsing="false"
+                                onAction="#submit" text="OK"/>
+                        <Button fx:id="cancelButton" cancelButton="true" focusTraversable="false"
+                                mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
                     </buttons>
                 </ButtonBar>
             </bottom>

@@ -126,16 +126,16 @@ public class AddCustomerWorker extends Task<Customer> {
 
     @Override
     protected Customer call() throws Exception {
-        String address = String.format("%s %s, %s", Address, Town, State);//Formats address
+        String address = String.format("%s, %s, %s, %s", Address, Town, State, ZipCode);//Formats address
         updateMessage("Analyzing Address");
-        Object[][] coords;
+        Utilities.Coords coords;
         coords = Geolocation.GetCoords(address);
 
 
         int numRows = ProductTable.getItems().size();
 
-        double lat = Double.valueOf(coords[0][0].toString());
-        double lon = Double.valueOf(coords[0][1].toString());
+        double lat = coords.getLat();
+        double lon = coords.getLon();
         AddCustomerWorker.failIfInterrupted();
         updateProgress(0, 100);
         Customer customer = new Customer(ID, NameEditCustomer, year, Address, Town, State, ZipCode, lat, lon, Phone, Paid, Delivered, Email,

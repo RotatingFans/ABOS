@@ -60,8 +60,8 @@ public class Customer {
     private Utilities.Settable<String> name = new Utilities.Settable<>("");
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
     private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
-    private Utilities.Settable<Integer> ID = new Utilities.Settable(-1);
-    private Utilities.Settable<Integer> orderID = new Utilities.Settable(-1);
+    private Utilities.Settable<Integer> ID = new Utilities.Settable(-1, -1);
+    private Utilities.Settable<Integer> orderID = new Utilities.Settable(-1, -1);
     private Utilities.Settable<String> nameEdited = new Utilities.Settable("");
     private Utilities.Settable<String> year = new Utilities.Settable("");
     private Utilities.Settable<String> address = new Utilities.Settable("");
@@ -299,6 +299,7 @@ public class Customer {
                 }
             }
         }
+        this.ID.setIfNot(cID);
         return cID;
     }
 
