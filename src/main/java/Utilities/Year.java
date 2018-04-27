@@ -826,7 +826,7 @@ public class Year {
                 while (rs.next()) {
 //        this(-1, name, year, null, null, null, null, null, null, null, false, false, null, null, null, Utilities.DbInt.getUserName());
 
-                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year, rs.getString("streetAddress"), rs.getString("City"), rs.getString("State"), rs.getString("Zip"), rs.getDouble("lat"), rs.getDouble("lon"), rs.getString("Phone"), false, false, rs.getString("Email"), null, rs.getBigDecimal("Donation"), rs.getString("uName")));
+                    ret.add(new Customer(rs.getInt("idCustomers"), rs.getString("Name"), year, rs.getString("streetAddress"), rs.getString("City"), rs.getString("State"), rs.getString("Zip"), rs.getDouble("lat"), rs.getDouble("lon"), rs.getString("Phone"), null, null, rs.getString("Email"), null, rs.getBigDecimal("Donation"), rs.getString("uName")));
 
                 }
             }
