@@ -225,181 +225,183 @@ public class ReportsWorker extends Task<Integer> {
                 } else {
                     orderArray = Order.createOrderArray(selectedYear, custId, true, category);
                 }
-                //Set Items
-                {
-                    //Product Elements
-                    Element products = doc.createElement("customerYear");
-                    //YearTitle
+                if (orderArray.totalQuantity > 0) {
+                    //Set Items
                     {
-                        Element custAddr = doc.createElement("custAddr");
-                        custAddr.appendChild(doc.createTextNode("true"));
-                        products.appendChild(custAddr);
-                    }
-                    // customername elements
-                    {
-                        Element custName = doc.createElement("name");
-                        custName.appendChild(doc.createTextNode(customer));
-                        products.appendChild(custName);
-                    }
-                    // StreetAddress elements
-                    {
-                        Element StreetAddress = doc.createElement("streetAddress");
-                        StreetAddress.appendChild(doc.createTextNode(cust.getAddr()));
-                        products.appendChild(StreetAddress);
-                    }
-                    // City elements
-                    {
-                        Element city = doc.createElement("city");
-                        String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip();
-                        city.appendChild(doc.createTextNode(addr));
-                        products.appendChild(city);
-                    }
+                        //Product Elements
+                        Element products = doc.createElement("customerYear");
+                        //YearTitle
+                        {
+                            Element custAddr = doc.createElement("custAddr");
+                            custAddr.appendChild(doc.createTextNode("true"));
+                            products.appendChild(custAddr);
+                        }
+                        // customername elements
+                        {
+                            Element custName = doc.createElement("name");
+                            custName.appendChild(doc.createTextNode(customer));
+                            products.appendChild(custName);
+                        }
+                        // StreetAddress elements
+                        {
+                            Element StreetAddress = doc.createElement("streetAddress");
+                            StreetAddress.appendChild(doc.createTextNode(cust.getAddr()));
+                            products.appendChild(StreetAddress);
+                        }
+                        // City elements
+                        {
+                            Element city = doc.createElement("city");
+                            String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip();
+                            city.appendChild(doc.createTextNode(addr));
+                            products.appendChild(city);
+                        }
 
-                    // phone elements
-                    {
-                        Element phone = doc.createElement("PhoneNumber");
-                        phone.appendChild(doc.createTextNode(cust.getPhone()));
-                        products.appendChild(phone);
-                    }
-                    {
-                        Element header = doc.createElement("header");
-                        header.appendChild(doc.createTextNode("true"));
-                        products.appendChild(header);
-                    }
-                    {
-                        Element title = doc.createElement("title");
-                        title.appendChild(doc.createTextNode(customer + ' ' + selectedYear + " Order"));
-                        products.appendChild(title);
-                    }
-                    {
-                        if (includeHeader && !Objects.equals(category, "All")) {
-                            Element title = doc.createElement("specialInfo");
+                        // phone elements
+                        {
+                            Element phone = doc.createElement("PhoneNumber");
+                            phone.appendChild(doc.createTextNode(cust.getPhone()));
+                            products.appendChild(phone);
+                        }
+                        {
+                            Element header = doc.createElement("header");
+                            header.appendChild(doc.createTextNode("true"));
+                            products.appendChild(header);
+                        }
+                        {
+                            Element title = doc.createElement("title");
+                            title.appendChild(doc.createTextNode(customer + ' ' + selectedYear + " Order"));
+                            products.appendChild(title);
+                        }
+                        {
+                            if (includeHeader && !Objects.equals(category, "All")) {
+                                Element title = doc.createElement("specialInfo");
+                                {
+                                    Element text = doc.createElement("text");
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (paid ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
+                                    text.appendChild(doc.createTextNode(notice));
+                                    title.appendChild(text);
+                                }
+                                products.appendChild(title);
+                            }
+                        }
+                        setProgress(getProg() + (custProgressIncValue / 10));
+                        BigDecimal tCost = BigDecimal.ZERO;
+
+                        if (orderArray.totalQuantity > 0) {
+                            Element prodTable = doc.createElement("prodTable");
+                            prodTable.appendChild(doc.createTextNode("true"));
+                            products.appendChild(prodTable);
+                            int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length;
+                            //For each product ordered, enter info
+                            for (formattedProduct aRowDataF : orderArray.orderData) {
+                                if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
+
+                                    {
+                                        Element Product = doc.createElement("Product");
+                                        products.appendChild(Product);
+                                        //ID
+                                        {
+                                            Element ID = doc.createElement("ID");
+                                            ID.appendChild(doc.createTextNode(aRowDataF.productID));
+                                            Product.appendChild(ID);
+                                        }
+                                        //Name
+                                        {
+                                            Element Name = doc.createElement("Name");
+                                            Name.appendChild(doc.createTextNode(aRowDataF.productName));
+                                            Product.appendChild(Name);
+                                        }
+                                        //Size
+                                        {
+                                            Element Size = doc.createElement("Size");
+                                            Size.appendChild(doc.createTextNode(aRowDataF.productSize));
+                                            Product.appendChild(Size);
+                                        }
+                                        //UnitCost
+                                        {
+                                            Element UnitCost = doc.createElement("UnitCost");
+                                            UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
+                                            Product.appendChild(UnitCost);
+                                        }
+                                        //Quantity
+                                        {
+                                            Element Quantity = doc.createElement("Quantity");
+                                            Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
+                                            Product.appendChild(Quantity);
+                                        }
+                                        //TotalCost
+                                        {
+                                            Element TotalCost = doc.createElement("TotalCost");
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
+                                            tCost = tCost.add(aRowDataF.extendedCost);
+                                            Product.appendChild(TotalCost);
+                                        }
+                                    }
+                                }
+                                setProgress(getProg() + productProgressIncValue);
+
+                            }
+                            //Total Cost for this Utilities.Year
+                            {
+                                Element tCostE = doc.createElement("totalCost");
+                                tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
+                                products.appendChild(tCostE);
+                            }
+
+
+                        }
+                        Year cYear;
+                        if (user == null) {
+                            cYear = new Year(selectedYear);
+                        } else {
+                            cYear = new Year(selectedYear, user);
+
+                        }
+                        // OverallTotalCost elements
+                        {
+                            Element TotalCost = doc.createElement("TotalCost");
+                            TotalCost.appendChild(doc.createTextNode(cYear.getGTot().toPlainString()));
+                            info.appendChild(TotalCost);
+                        }
+                        // OverallTotalQuantity elements
+                        {
+                            Element TotalQuantity = doc.createElement("totalQuantity");
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
+                            info.appendChild(TotalQuantity);
+                        }
+                        BigDecimal donationBD = cust.getDontation();
+
+                        String donation = donationBD.toPlainString();
+                        if (!(donationBD.compareTo(BigDecimal.ZERO) <= 0)) {
+                            Element title = doc.createElement("DonationThanks");
                             {
                                 Element text = doc.createElement("text");
-                                String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (paid ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
+                                String notice = "Thank you for your $" + donation + " donation ";
                                 text.appendChild(doc.createTextNode(notice));
                                 title.appendChild(text);
                             }
                             products.appendChild(title);
-                        }
-                    }
-                    setProgress(getProg() + (custProgressIncValue / 10));
-                    BigDecimal tCost = BigDecimal.ZERO;
 
-                    if (orderArray.totalQuantity > 0) {
-                        Element prodTable = doc.createElement("prodTable");
-                        prodTable.appendChild(doc.createTextNode("true"));
-                        products.appendChild(prodTable);
-                        int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length;
-                        //For each product ordered, enter info
-                        for (formattedProduct aRowDataF : orderArray.orderData) {
-                            if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
-
-                                {
-                                    Element Product = doc.createElement("Product");
-                                    products.appendChild(Product);
-                                    //ID
-                                    {
-                                        Element ID = doc.createElement("ID");
-                                        ID.appendChild(doc.createTextNode(aRowDataF.productID));
-                                        Product.appendChild(ID);
-                                    }
-                                    //Name
-                                    {
-                                        Element Name = doc.createElement("Name");
-                                        Name.appendChild(doc.createTextNode(aRowDataF.productName));
-                                        Product.appendChild(Name);
-                                    }
-                                    //Size
-                                    {
-                                        Element Size = doc.createElement("Size");
-                                        Size.appendChild(doc.createTextNode(aRowDataF.productSize));
-                                        Product.appendChild(Size);
-                                    }
-                                    //UnitCost
-                                    {
-                                        Element UnitCost = doc.createElement("UnitCost");
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()));
-                                        Product.appendChild(UnitCost);
-                                    }
-                                    //Quantity
-                                    {
-                                        Element Quantity = doc.createElement("Quantity");
-                                        Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)));
-                                        Product.appendChild(Quantity);
-                                    }
-                                    //TotalCost
-                                    {
-                                        Element TotalCost = doc.createElement("TotalCost");
-                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)));
-                                        tCost = tCost.add(aRowDataF.extendedCost);
-                                        Product.appendChild(TotalCost);
-                                    }
-                                }
+                            {
+                                Element prodTable = doc.createElement("includeDonation");
+                                prodTable.appendChild(doc.createTextNode("true"));
+                                products.appendChild(prodTable);
                             }
-                            setProgress(getProg() + productProgressIncValue);
+                            {
+                                Element text = doc.createElement("Donation");
+                                text.appendChild(doc.createTextNode(donation));
+                                products.appendChild(text);
+                            }
+                            {
+                                Element text = doc.createElement("GrandTotal");
+                                text.appendChild(doc.createTextNode(tCost.add(new BigDecimal(donation)).toPlainString()));
+                                products.appendChild(text);
+                            }
 
                         }
-                        //Total Cost for this Utilities.Year
-                        {
-                            Element tCostE = doc.createElement("totalCost");
-                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)));
-                            products.appendChild(tCostE);
-                        }
-
+                        rootElement.appendChild(products);
 
                     }
-                    Year cYear;
-                    if (user == null) {
-                        cYear = new Year(selectedYear);
-                    } else {
-                        cYear = new Year(selectedYear, user);
-
-                    }
-                    // OverallTotalCost elements
-                    {
-                        Element TotalCost = doc.createElement("TotalCost");
-                        TotalCost.appendChild(doc.createTextNode(cYear.getGTot().toPlainString()));
-                        info.appendChild(TotalCost);
-                    }
-                    // OverallTotalQuantity elements
-                    {
-                        Element TotalQuantity = doc.createElement("totalQuantity");
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())));
-                        info.appendChild(TotalQuantity);
-                    }
-                    BigDecimal donationBD = cust.getDontation();
-
-                    String donation = donationBD.toPlainString();
-                    if (!(donationBD.compareTo(BigDecimal.ZERO) <= 0)) {
-                        Element title = doc.createElement("DonationThanks");
-                        {
-                            Element text = doc.createElement("text");
-                            String notice = "Thank you for your $" + donation + " donation ";
-                            text.appendChild(doc.createTextNode(notice));
-                            title.appendChild(text);
-                        }
-                        products.appendChild(title);
-
-                        {
-                            Element prodTable = doc.createElement("includeDonation");
-                            prodTable.appendChild(doc.createTextNode("true"));
-                            products.appendChild(prodTable);
-                        }
-                        {
-                            Element text = doc.createElement("Donation");
-                            text.appendChild(doc.createTextNode(donation));
-                            products.appendChild(text);
-                        }
-                        {
-                            Element text = doc.createElement("GrandTotal");
-                            text.appendChild(doc.createTextNode(tCost.add(new BigDecimal(donation)).toPlainString()));
-                            products.appendChild(text);
-                        }
-
-                    }
-                    rootElement.appendChild(products);
-
                 }
 
             });
