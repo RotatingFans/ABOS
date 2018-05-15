@@ -50,6 +50,7 @@ stages:
   - production
   - performance
   - cleanup
+  - deploy
 
 build:
   stage: build
@@ -63,6 +64,17 @@ build:
     - build
   only:
     - branches
+
+pages:
+  image: maven:3.3-jdk-8
+  script:
+  - mkdir -p ./public
+  - echo $(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q) > .public/version
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
 
 .test:
   services:
