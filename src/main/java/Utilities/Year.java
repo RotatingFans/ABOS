@@ -543,7 +543,7 @@ public class Year {
             });
 
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, Value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setString(1, "Version");
                 prep.setString(2, Config.getProgramVersion().toString());
 

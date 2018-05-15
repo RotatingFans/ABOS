@@ -500,7 +500,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, Value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, "Version");
             prep.setString(2, Config.getProgramVersion().toString());
 
@@ -930,7 +930,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
     public static Version getStoredProgramVersion(String Database) {
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("SELECT Value FROM Settings WHERE Key='Version'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             PreparedStatement prep = con.prepareStatement("SELECT Value FROM Settings WHERE key='Version'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = prep.executeQuery()) {
             rs.first();
             return new Version(rs.getString(1));
