@@ -38,6 +38,7 @@ package Utilities;/*
 
 import Exceptions.AccessException;
 import Exceptions.CustomerNotFoundException;
+import Exceptions.VersionException;
 import Launchers.Settings;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
@@ -450,6 +451,15 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("CREATE TABLE `Settings` (\n" +
+                     "  `key` VARCHAR(45) NOT NULL,\n" +
+                     "  `Value` VARCHAR(255) NULL,\n" +
+                     "  PRIMARY KEY (`key`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("CREATE TABLE `Years` (\n" +
                              "  `idYear` int(11) NOT NULL AUTO_INCREMENT,\n" +
                              "  `Year` varchar(4) NOT NULL,\n" +
@@ -484,6 +494,15 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
              PreparedStatement prep = con.prepareStatement("INSERT INTO Users(userName, fullName, Admin, Years) Values (?, ?, 1, '')", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, username);
             prep.setString(2, username);
+
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, "Version");
+            prep.setString(2, Config.getProgramVersion().toString());
 
             prep.execute();
         } catch (SQLException e) {
@@ -781,6 +800,34 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
                 if (curUser != null) {
                     successful = true;
                     isAdmin = curUser.isAdmin();
+                    Version localVersion = Config.getProgramVersion();
+                    Version remoteVersion = getStoredProgramVersion("Commons");
+                    if (localVersion.greaterThan(remoteVersion)) {
+                        if (isAdmin) {
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setTitle("Version Mismatch");
+                            alert.setHeaderText("Your software's version is greater than the remote.");
+                            alert.setContentText("Would you like to update the remote or run in compatibility mode?");
+
+                            ButtonType buttonTypeOne = new ButtonType("Update");
+                            ButtonType buttonTypeTwo = new ButtonType("Run in compatibility mode", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+                            Optional<ButtonType> result = alert.showAndWait();
+                            if (result.get() == buttonTypeOne) {
+                                //TODO Update
+                            }
+                        } else {
+                            LogToFile.log(new VersionException(), Severity.WARNING, "Your software's version is greater than the remote. The application will be running in compatibility mode.");
+
+                        }
+                    } else if (localVersion.equals(remoteVersion)) {
+                        LogToFile.log(null, Severity.FINEST, "Remote and Local are running on same version: " + localVersion.toString());
+                    } else {
+                        LogToFile.log(new VersionException(), Severity.SEVERE, "Remote version is greater than local. You MUST update your software to continue.");
+                        System.exit(0);
+                    }
                     databaseVersion.setIfNot(new Version(pCon.getMetaData().getDatabaseProductVersion()));
 
                 }
@@ -879,6 +926,22 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
     public static Version getDatabaseVersion() {
         return databaseVersion.get();
+    }
+
+    public static Version getStoredProgramVersion(String Database) {
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT Value FROM Settings WHERE Key='Version'", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = prep.executeQuery()) {
+            rs.first();
+            return new Version(rs.getString(1));
+
+
+            ////Utilities.DbInt.pCon.close()
+
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        return new Version("");
     }
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**

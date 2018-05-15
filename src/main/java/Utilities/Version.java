@@ -59,12 +59,24 @@ public class Version {
         return major > majorVal || (major >= majorVal && minor > minorVal) || (major >= majorVal && minor >= minorVal && revision > revisionVal);
     }
 
+    public static String format(String version) {
+        return new Version(version).toString();
+    }
+
     public boolean greaterThanOrEqual(String version) {
         String[] versionArray = version.split("\\.");
         int majorVal = versionArray.length >= 1 ? Integer.valueOf(versionArray[0]) : 0;
         int minorVal = versionArray.length >= 2 ? Integer.valueOf(versionArray[1]) : 0;
         int revisionVal = versionArray.length >= 3 ? Integer.valueOf(versionArray[2]) : 0;
         return (major >= majorVal && minor >= minorVal && revision >= revisionVal) || (major > majorVal) || (major >= majorVal && minor > minorVal);
+    }
+
+    public boolean greaterThan(Version version) {
+
+        int majorVal = version.major;
+        int minorVal = version.minor;
+        int revisionVal = version.revision;
+        return major > majorVal || (major >= majorVal && minor > minorVal) || (major >= majorVal && minor >= minorVal && revision > revisionVal);
     }
 
     @Override
@@ -90,4 +102,15 @@ public class Version {
         return Integer.hashCode(major) + Integer.hashCode(minor) + Integer.hashCode(revision);
     }
 
+    public boolean greaterThanOrEqual(Version version) {
+        int majorVal = version.major;
+        int minorVal = version.minor;
+        int revisionVal = version.revision;
+        return (major >= majorVal && minor >= minorVal && revision >= revisionVal) || (major > majorVal) || (major >= majorVal && minor > minorVal);
+    }
+
+    @Override
+    public String toString() {
+        return major + "." + minor + "." + revision;
+    }
 }
