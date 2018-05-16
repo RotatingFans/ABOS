@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) Patrick Magauran 2017.
+  ~ Copyright (c) Patrick Magauran 2018.
   ~   Licensed under the AGPLv3. All conditions of said license apply.
   ~       This file is part of ABOS.
   ~
@@ -24,32 +24,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/8.0.131" fx:controller="AddYearController">
-    <children>
-        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            styleClass="pane" BorderPane.alignment="CENTER" stylesheets="@Main.css"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.AddYearController">
             <center>
-                <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+                <ScrollPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                            styleClass="pane" fitToHeight="true" fitToWidth="true">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="322.0" prefWidth="590.0"
-                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <children>
-                                <TableView fx:id="ProductTable" editable="true" prefHeight="322.0" prefWidth="590.0"
-                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                            </children>
-                        </AnchorPane>
+                        <TableView fx:id="ProductTable" editable="true"
+
+                        />
+
                     </content>
                 </ScrollPane>
             </center>
             <top>
-                <FlowPane prefHeight="156.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+                <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                          styleClass="pane" BorderPane.alignment="CENTER">
                     <children>
-                        <HBox>
+                        <HBox styleClass="HBox">
                             <children>
-                                <Label prefHeight="26.0" prefWidth="36.0" text="Year"/>
+                                <Label text="Year"/>
                                 <TextField fx:id="yearText" promptText="Year to Create"/>
                             </children>
                             <FlowPane.margin>
@@ -63,36 +61,36 @@
                         <Button mnemonicParsing="false" onAction="#csvToXml"
                                 text="Generate XML and fill table from CSV"/>
                         <Button mnemonicParsing="false" onAction="#tableFrmXML" text="Generate Table from XML"/>
-                        <HBox>
+                        <HBox styleClass="HBox">
                             <children>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Product ID"/>
                                         <TextField fx:id="idTb" promptText="ID"/>
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Product Name"/>
                                         <TextField fx:id="itemTb" promptText="Name"/>
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Product Size"/>
                                         <TextField fx:id="sizeTb" promptText="Size"/>
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Unit Cost"/>
                                         <TextField fx:id="rateTb" promptText="Unit Cost"/>
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox styleClass="VBox">
                                     <children>
                                         <Label text="Category"/>
-                                        <ComboBox fx:id="categoriesCmbx" onAction="#catCmbxChanged" prefWidth="150.0"
+                                        <ComboBox fx:id="categoriesCmbx" onAction="#catCmbxChanged"
                                                   promptText="Select A Category">
                                             <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -103,8 +101,7 @@
                                         </ComboBox>
                                     </children>
                                 </VBox>
-                                <Button mnemonicParsing="false" onAction="#addBtnPressed" prefHeight="42.0"
-                                        prefWidth="62.0" text="Add"/>
+                                <Button mnemonicParsing="false" onAction="#addBtnPressed" text="Add"/>
                             </children>
                             <FlowPane.margin>
                                 <Insets right="5.0"/>
@@ -115,7 +112,7 @@
                 </FlowPane>
             </top>
             <bottom>
-                <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <ButtonBar BorderPane.alignment="CENTER">
                     <buttons>
                         <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
                         <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
@@ -124,5 +121,3 @@
             </bottom>
         </BorderPane>
 
-    </children>
-</AnchorPane>

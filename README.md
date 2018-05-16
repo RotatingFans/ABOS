@@ -2,7 +2,7 @@ ABOS
 =======
 ABOS Is a sale management system geared towards my Boy Scout Troop's annual lawn and Garden sale.
 The software boasts quite a few features:
-
+ - Multi User support
  - Manage multiple years seamlessly
  - A map to view your customer spread 
  - Ability to generate a variety of reports
@@ -14,16 +14,19 @@ The software boasts quite a few features:
 
 Development
 ----------
-This software has been developed as a side project of mine, starting back in 2013. The software is developed in Java using the IntelliJ IDE. The database is designed around Apache Derby. Reports are generated using Itext Version 5.10 with the XMLworker to use an XSL file, an XML file, Jtidy, and Saxon to generate a PDF.
+This software has been developed as a side project of mine, starting back in 2013. The software is developed in Java using the IntelliJ IDE. The database is designed around MySQL. Reports are generated using Itext Version 5.10 with the XMLworker to use an XSL file, an XML file, Jtidy, and Saxon to generate a PDF.
 
 License
 ------------
-*   Apache Derby Version 10.11  Apache Version 2
+*   HikariCP Version 2.7.8 Apache Version 2
+*   SLF4J MIT
+*   Apache Commons Version 3.7 Apache Version 2
 *   iText Version 5.10  AGPL v3
 *   JTidy Version 938  Custom license
 *   Saxon Version 9   MPLv2
 *   GMapsFX Versopm 2.12.0 Apache Version 2
 *   Maven Model Apache Version 2
+*   Flyway V5.0.7 Apache Version 2
 
     ABOS
     Copyright (C) 2017 Patrick Magauran

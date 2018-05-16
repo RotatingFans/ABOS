@@ -1,8 +1,221 @@
-#YearDescription, #CustomerDescription {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+#YearDescription, #CustomerDescription, .Info-Header {
+     -fx-font-size: 20px;
+     -fx-font-weight: bold;
 }
-#YearValue, #CustomerValue {
-    -fx-font-size: 20px;
+ #YearValue, #CustomerValue, #AddCustomer-RunningTotalLbl {
+     -fx-font-size: 20px;
+}
+ #selectNav, #UGY_yearsNav {
+     -fx-background-color: #37474F;
+}
+ #UGY_tabPane {
+     -fx-padding: 0 0 0 2;
+}
+ * {
+     -fx-font-size: 11pt;
+     -fx-font-family: "Segoe UI Semibold";
+     -fx-text-fill: white;
+     -fx-opacity: 1.0;
+}
 
+ .HBox {
+     -fx-padding: 1 4 1 4;
+}
+.VBox {
+     -fx-padding: 4 1 4 1;
+}
+ .background {
+     -fx-background-color: #263238;
+}
+ .pane {
+     -fx-background-color: #263238;
+}
+.pane:disabled {
+    -fx-opacity: 0.4;
+}
+ .Map-Info-Box {
+     -fx-background-color: #546E7A;
+     -fx-border-color: #263238 #263238 #263238 #263238;
+     -fx-border-width: 10;
+      -fx-padding: 4;
+}
+ .Lightpane {
+     -fx-background-color: #546E7A;
+}
+ .label {
+     -fx-font-size: 11pt;
+     -fx-font-family: "Segoe UI Semibold";
+     -fx-text-fill: white;
+     -fx-alignment: center-left;
+     -fx-text-alignment: left;
+}
+ .label-bright {
+     -fx-font-size: 11pt;
+     -fx-font-family: "Segoe UI Semibold";
+     -fx-text-fill: white;
+     -fx-opacity: 1;
+}
+ .combo-box-base > .arrow-button > .arrow, .tree-cell > .tree-disclosure-node > .arrow {
+     -fx-background-color: white;
+}
+ .label-header {
+     -fx-font-size: 32pt;
+     -fx-font-family: "Segoe UI Light";
+     -fx-text-fill: white;
+     -fx-opacity: 1;
+}
+ .table-view, .list-view, .tree-view{
+     -fx-base: #546E7A;
+     -fx-control-inner-background: #546E7A;
+     -fx-background-color: #546E7A;
+     -fx-table-cell-border-color: #4f5b62;
+     -fx-table-header-border-color: #4f5b62;
+     -fx-padding: 5;
+}
+ .table-view .column-header-background, .tab-header-area .tab-header-background, {
+     -fx-background-color: transparent;
+}
+ .table-view .column-header, .table-view .filler, .tab-header-area{
+     -fx-background-color: #546E7A;
+     -fx-border-color: transparent transparent #4f5b62 transparent;
+     -fx-border-insets: 0 0 1 0;
+}
+ .table-view {
+     -fx-table-cell-border-color: transparent;
+}
+ .table-view .column-header {
+     -fx-border-width: 0 0 2 0;
+}
+ .table-view .column-header .column-resize-line {
+     -fx-background-color: #4f5b62;
+     -fx-border-width: 4;
+}
+ .tab-header-area .tab{
+     -fx-size: 35;
+     -fx-background-color: #607D8B;
+}
+ .table-cell {
+     -fx-cell-size: 40px;
+    /* 24 */
+     -fx-border-color: transparent;
+     -fx-alignment: center-left;
+     -fx-text-alignment: left;
+}
+ .table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell .table-cell:selected, .tree-table-view > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell .tree-table-cell:selected {
+     -fx-background-insets: 0, 0 0 0 0;
+}
+ .table-view .column-header .label, .tab-header-area .tab .tab-label {
+    /* -fx-font-size: 20pt;
+     */
+     -fx-font-family: "Segoe UI Light";
+     -fx-text-fill: white;
+     -fx-alignment: center-left;
+     -fx-opacity: 1;
+}
+ .table-row-cell {
+     -fx-border-width: 0 0 2 0;
+     -fx-border-color: #455A64;
+     -fx-cell-size: 50px;
+}
+ .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected, .table-view:focused .table-row-cell:filled:focused:selected, .tab-header-area .tab:focused:selected,  .list-cell:hover, .list-cell:filled:selected{
+     -fx-background-color: #248222;
+     -fx-border-color: #248222;
+}
+/*.tree-view:hover > .virtual-flow > .clipped-container > .sheet > .tree-cell:hover, */
+ .table-view:hover .table-row-cell:hover {
+     -fx-background-color: #5ab250;
+     -fx-border-color: #5ab250;
+}
+ .tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-close-button {
+     -fx-background-color: #5ab250;
+}
+ .tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-close-button:hover {
+     -fx-background-color: derive(#5ab250, -30%);
+}
+ .split-pane-divider {
+     -fx-border-color: transparent #263238 transparent #263238;
+     -fx-background-color: transparent, #4f5b62;
+}
+ .split-plane {
+     -fx-padding: 1 0 0 0;
+}
+ .menu-bar {
+     -fx-background-color: #4f5b62;
+}
+ .context-menu {
+     -fx-background-color: #4f5b62;
+}
+ .menu-bar .label {
+     -fx-font-size: 14pt;
+     -fx-font-family: "Segoe UI Light";
+     -fx-text-fill: white;
+     -fx-opacity: 0.9;
+}
+ .menu .left-container {
+     -fx-background-color: black;
+}
+ .text-field, .combo-box-base {
+     -fx-font-size: 12pt;
+     -fx-font-family: "Segoe UI Semibold";
+     -fx-text-fill: white;
+     -fx-padding: 4;
+     -fx-border-width: 0 0 2 0;
+     -fx-border-color: #248222;
+}
+ .text-field:focused, .combo-box-base:focused {
+     -fx-padding: 4;
+     -fx-border-width: 0 0 2 0;
+     -fx-border-color: #5ab250;
+}
+ .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+     -fx-background-color: #5ab250;
+}
+ .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected, .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+     -fx-background-color: #5ab250;
+}
+/* * Metro style Push Button * Author: Pedro Duque Vieira * http://pixelduke.wordpress.com/2012/10/23/jmetro-windows-8-controls-on-java/ */
+ .button {
+     -fx-padding: 5 22 5 22;
+     -fx-border-color: #e2e2e2;
+     -fx-border-width: 2;
+     -fx-background-radius: 0;
+     -fx-background-color: #263238;
+     -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+     -fx-font-size: 11pt;
+     -fx-text-fill: #d8d8d8;
+     -fx-background-insets: 0 0 0 0, 0, 1, 2;
+}
+ .check-box .box{
+     -fx-border-color: #e2e2e2;
+     -fx-border-width: 2;
+     -fx-background-radius: 0;
+     -fx-background-color: #263238;
+     -fx-padding: 5 22 5 22;
+     -fx-background-insets: 0 0 0 0, 0, 1, 2;
+}
+ .combo-box-base:hover, .button:hover, .check-box:hover .box {
+     -fx-background-color: #3a3a3a;
+}
+ .button:pressed, .button:default:hover:pressed, .check-box:selected > .box > .mark, .check-box:indeterminate > .box > .mark {
+     -fx-background-color: white;
+     -fx-text-fill: #263238;
+}
+ .button:focused, .check-box:focused > .box {
+     -fx-border-color: white, white;
+     -fx-border-width: 1, 1;
+     -fx-border-style: solid, segments(1, 1);
+     -fx-border-radius: 0, 0;
+     -fx-border-insets: 1 1 1 1, 0;
+}
+ .button:disabled, .button:default:disabled, .check-box:disabled,  .combo-box-base:disabled {
+     -fx-opacity: 0.4;
+     -fx-background-color: #263238;
+     -fx-text-fill: white;
+}
+ .button:default {
+     -fx-background-color: #248222;
+     -fx-text-fill: #ffffff;
+}
+ .button:default:hover {
+     -fx-background-color: #5ab250;
 }
