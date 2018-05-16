@@ -81,6 +81,7 @@ public class LogToFile {
                         alert.setTitle("Error");
                         alert.setHeaderText("Error");
                         alert.setContentText(msg);
+                        alert.setResizable(true);
                         alert.showAndWait();
 
                     }
@@ -92,6 +93,8 @@ public class LogToFile {
                         alert.setTitle("Warning");
                         alert.setHeaderText("Warning");
                         alert.setContentText(msg);
+                        alert.setResizable(true);
+
                         alert.showAndWait();
                     }
                     break;
@@ -102,6 +105,8 @@ public class LogToFile {
                         alert.setTitle("Info");
                         // alert.setHeaderText("");
                         alert.setContentText(msg);
+                        alert.setResizable(true);
+
                         alert.showAndWait();
                     }
                     break;

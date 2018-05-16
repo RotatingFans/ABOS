@@ -116,6 +116,24 @@ public class Config {
     }
 
     /**
+     * @return The program version
+     */
+    public static Version getProgramVersion() {
+        final Properties properties = new Properties();
+        try {
+            properties.load(Config.class.getClass().getResourceAsStream("/CompileProps.properties"));
+
+            // read each line and write to System.out
+            return new Version(properties.getProperty("Version"));
+
+
+        } catch (IOException e) {
+            LogToFile.log(e, Severity.SEVERE, "Unable to determine program version. Please attempt a re-install of the software.");
+            return new Version("");
+        }
+    }
+
+    /**
      * @param property The propertiy to retrieve
      * @return The value of Property
      */

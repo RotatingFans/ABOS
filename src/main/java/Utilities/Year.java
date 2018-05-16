@@ -293,7 +293,15 @@ public class Year {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("CREATE TABLE `Settings` (\n" +
+                         "  `key` VARCHAR(45) NOT NULL,\n" +
+                         "  `Value` VARCHAR(255) NULL,\n" +
+                         "  PRIMARY KEY (`key`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.execute();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
             //Create Triggers
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("CREATE DEFINER=`" + year + "`@`localhost` TRIGGER `" + prefix + year + "`.`ordered_products_BEFORE_INSERT` BEFORE INSERT ON `ordered_products` FOR EACH ROW\n" +
@@ -534,19 +542,15 @@ public class Year {
                 }
             });
 
-          /*  //ORDers Table
-            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, String.format("CREATE TABLE ORDERS(OrderID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), NAME VARChAR(255) %s)", col))) {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, Value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, "Version");
+                prep.setString(2, Config.getProgramVersion().toString());
+
                 prep.execute();
             } catch (SQLException e) {
-                Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, Utilities.CommonErrors.returnSqlMessage(e));
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-            //Add default values to TOTALS
-            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, "INSERT INTO TOTALS(DONATIONS,LG,LP,MULCH,TOTAL,CUSTOMERS,COMMISSIONS,GRANDTOTAL) VALUES(0,0,0,0,0,0,0,0)")) {
-                prep.execute();
-            } catch (SQLException e) {
-                Utilities.LogToFile.log(e, Utilities.Severity.SEVERE, Utilities.CommonErrors.returnSqlMessage(e));
-            }*/
-            //ADD to Utilities.Year
 
             addYear();
         } else {

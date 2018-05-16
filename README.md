@@ -26,6 +26,7 @@ License
 *   Saxon Version 9   MPLv2
 *   GMapsFX Versopm 2.12.0 Apache Version 2
 *   Maven Model Apache Version 2
+*   Flyway V5.0.7 Apache Version 2
 
     ABOS
     Copyright (C) 2017 Patrick Magauran
