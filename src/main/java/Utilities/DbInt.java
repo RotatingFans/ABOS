@@ -49,6 +49,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
+import org.flywaydb.core.Flyway;
 
 import java.sql.*;
 import java.sql.Date;
@@ -408,6 +409,10 @@ public class DbInt {
             }
 
         }
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(url, username, password);
+        flyway.baseline();
+
         return true;
     }
 
@@ -775,6 +780,37 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return curUser;
     }
 
+    public static ArrayList<String> getDatabses() {
+        ArrayList ret = new ArrayList();
+        ret.add("Commons");
+        ret.addAll(getYears());
+        return ret;
+    }
+
+    public static Boolean migrateDatabase(String database) throws AccessException {
+        if (!isAdmin()) {
+            throw new AccessException("Admin Access Required");
+        }
+
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + database, Config.getSSL());
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(url, username, password);
+        flyway.migrate();
+        return true;
+    }
+
+    public static Boolean baselineDatabse(String database) throws AccessException {
+        if (!isAdmin()) {
+            throw new AccessException("Admin Access Required");
+        }
+
+        String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + database, Config.getSSL());
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(url, username, password);
+        flyway.baseline();
+        return true;
+    }
+
     public static Boolean verifyLoginAndUser(Pair<String, String> userPass) {
         username = userPass.getKey();
         password = userPass.getValue();
@@ -816,7 +852,13 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
                             Optional<ButtonType> result = alert.showAndWait();
                             if (result.get() == buttonTypeOne) {
-                                //TODO Update
+                                getDatabses().forEach((db) -> {
+                                    try {
+                                        migrateDatabase(db);
+                                    } catch (AccessException ignored) {
+
+                                    }
+                                });
                             }
                         } else {
                             LogToFile.log(new VersionException(), Severity.WARNING, "Your software's version is greater than the remote. The application will be running in compatibility mode.");
