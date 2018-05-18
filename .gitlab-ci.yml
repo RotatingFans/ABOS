@@ -15,7 +15,7 @@ build:
     - mkdir output
     - cp LICENSE output/LICENSE
     - cp README.md output/README.md
-    - cp $VERSION-with-dependencies.jar output/$VERSION.jar
+    - cp ABOS-$VERSION-with-dependencies.jar output/$VERSION.jar
   artifacts:
     paths:
       - output
