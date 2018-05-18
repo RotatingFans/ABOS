@@ -40,7 +40,7 @@ pages:
   stage: Tests
   script:
     - eval mvn site
-    - cp -r target/site/* public
+    - mv -r target/site/* public/
   artifacts:
     paths:
       - public
