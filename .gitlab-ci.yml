@@ -14,7 +14,7 @@ build:
     - eval mvn clean compile package
     - mkdir output
     - cp LICENSE output/LICENSE
-    - cp READEME.md output/README.md
+    - cp README.md output/README.md
     - cp VERSION-with-dependencies.jar output/VERSION.jar
   artifacts:
     paths:
