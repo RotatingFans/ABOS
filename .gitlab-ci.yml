@@ -3,7 +3,9 @@ stages:
   - Build
   - Tests
   - Deploy
-
+cache:
+  paths:
+    - repo/
 before_script:
   - export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 
@@ -15,7 +17,7 @@ build:
     - mkdir output
     - cp LICENSE output/LICENSE
     - cp README.md output/README.md
-    - cp ABOS-$VERSION-with-dependencies.jar output/$VERSION.jar
+    - cp ABOS-$VERSION-jar-with-dependencies.jar output/$VERSION.jar
   artifacts:
     paths:
       - output
