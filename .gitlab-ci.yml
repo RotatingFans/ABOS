@@ -17,12 +17,14 @@ build:
     - mkdir output
     - cp LICENSE output/LICENSE
     - cp README.md output/README.md
-    - cp ABOS-$VERSION-jar-with-dependencies.jar output/$VERSION.jar
+
+    - cp target/ABOS-$VERSION-jar-with-dependencies.jar output/$VERSION.jar
   artifacts:
     paths:
       - output
   tags:
     - linux
+
 Site:
   stage: Tests
   script:
