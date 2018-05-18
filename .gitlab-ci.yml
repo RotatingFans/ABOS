@@ -28,10 +28,10 @@ build:
 Site:
   stage: Tests
   script:
-    - eval mvn clean compile package
+    - eval mvn site
   artifacts:
     paths:
-      - target/*-with-dependencies.jar
+      - target/site
   tags:
     - linux
   only:
