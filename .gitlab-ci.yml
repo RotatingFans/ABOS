@@ -117,6 +117,7 @@ deploy2MainSite:
     - rm -f _downloads/V$VERSION.md
     - envsubst < _downloads/_template.md > _downloads/V$VERSION.md
     - cat ../Changes.txt >> _downloads/V$VERSION.md
+    - echo $VERSION > version-2.html
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
