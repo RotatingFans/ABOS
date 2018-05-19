@@ -90,33 +90,6 @@ pages:
 Deploy:
   stage: Deploy
   script:
-    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
-    - git clone git@gitlab.com:ABOS-Software/abos-software.gitlab.io.git pages
-    - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
-    - cd pages
-    - zip output/* Downloads/V$VERSION.zip
-    - $("sed -i -- 's/\^latest. \true/\1false/g' _downloads/*)"
-    - 'echo "---
-            version: $VERSION
-            changes:
-              - change:
-                description: $(cat ../Changes.txt)
-
-            link: /Downloads/V$VERSION.zip
-            latest: true
-            ---" > _downloads/V$VERSION.md'
-    - git commit . -m "Update to V$VERSION"
-    - git push
-    - cd ..
-    - cd pages-docs
-    - 'echo "---
-            title: V$VERSION
-            type: minor
-            ---
-            $(cat ../Changes.txt)" > _posts/V$VERSION.md'
-    - git commit . -m "Update to V$VERSION"
-    - git push
-    - cd ..
     - eval mvn clean compile package
   artifacts:
     paths:
