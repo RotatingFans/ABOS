@@ -8,6 +8,7 @@ cache:
     - repo/
 before_script:
   - export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+  - echo $VERSION
   ##
   ## Install ssh-agent if not already installed, it is required by Docker.
   ## (change apt-get to yum if you use an RPM-based image)
