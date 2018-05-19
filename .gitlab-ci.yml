@@ -1,9 +1,10 @@
-image: kaiwinter/docker-java8-maven
+image: rotatingfans/oraclejdk8-maven-alpine
 stages:
   - Build
   - Tests
   - Deploy
 cache:
+  untracked: true
   paths:
     - repo/
 before_script:
@@ -13,7 +14,7 @@ before_script:
   ## Install ssh-agent if not already installed, it is required by Docker.
   ## (change apt-get to yum if you use an RPM-based image)
   ##
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git curl jq zip sed -y )'
+  # - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git curl jq zip sed -y )'
 
   ##
   ## Run ssh-agent (inside the build environment)
@@ -88,12 +89,12 @@ pages:
     - linux
   only:
     - Develop
-deploy:
+deploy2MainSite:
   stage: Deploy
+  allow_failure: true
   script:
     - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/abos-software.gitlab.io.git pages
-    - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages
     - ls ..
     - zip Downloads/V$VERSION.zip ../output/*
@@ -109,7 +110,16 @@ deploy:
             ---" > _downloads/V$VERSION.md'
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
-    - cd ..
+  tags:
+    - linux
+  only:
+    - tags
+deploy2docs:
+  stage: Deploy
+  allow_failure: true
+  script:
+    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
+    - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages-docs
     - 'echo "---
             title: V$VERSION
@@ -118,7 +128,13 @@ deploy:
             $(cat ../Changes.txt)" > _posts/V$VERSION.md'
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
-    - cd ..
+  tags:
+    - linux
+  only:
+    - tags
+deploy2master:
+  stage: Deploy
+  script:
     - git merge master
     - git checkout master
     - git merge --no-ff development
@@ -126,6 +142,4 @@ deploy:
     - linux
   only:
     - tags
-
-
 
