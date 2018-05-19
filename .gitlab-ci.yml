@@ -27,7 +27,7 @@ before_script:
   ## (change apt-get to yum if you use an RPM-based image)
   ##
   # - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git curl jq zip sed -y )'
-
+  - apk --update add envsubst
   ##
   ## Run ssh-agent (inside the build environment)
   ##
@@ -112,13 +112,11 @@ deploy2MainSite:
     - cd pages
     - ls ..
     - zip Downloads/V$VERSION.zip ../output/*
-    - '$(sed -i -- "s/latest: true/latest: false/g" _downloads/*)'
-    - 'echo -e "---\n
-version: $VERSION\n
-link: /Downloads/V$VERSION.zip\n
-latest: true\n
----\n
-$(cat ../Changes.txt)" > _downloads/V$VERSION.md'
+    - export DOWNLOAD_LINK=$(echo "/Downloads/V$VERSION.zip")
+    - export LATEST=$(echo "true")
+    - rm -f _downloads/V$VERSION.md
+    - envsubst < _downloads/_template.md > _downloads/V$VERSION.md
+    - cat ../Changes.txt >> _downloads/V$VERSION.md
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
@@ -131,12 +129,10 @@ deploy2docs:
   script:
     - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
+    - rm -f _posts/V$VERSION.md
+    - envsubst < _posts/_template.md > _posts/V$VERSION.md
+    - cat ../Changes.txt >> _posts/V$VERSION.md
     - cd pages-docs
-    - 'echo -e "---\n
-title: V$VERSION\n
-type: minor\n
----\n
-$(cat ../Changes.txt)" > _posts/V$VERSION.md'
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
