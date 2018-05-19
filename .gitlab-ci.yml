@@ -79,7 +79,7 @@ pages:
   stage: Tests
   script:
     - eval mvn site
-    - mv target/site/* public/
+    - mv target/site/* public
   artifacts:
     paths:
       - public
