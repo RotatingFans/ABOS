@@ -20,7 +20,7 @@ cache:
     - .m2/repository
 
 before_script:
-  - export VERSION=$(mvn $MAVEN_CLI_OPTS -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+  - export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
   - echo $VERSION
   ##
   ## Install ssh-agent if not already installed, it is required by Docker.
