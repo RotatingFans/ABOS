@@ -94,9 +94,9 @@ Deploy:
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages
     - zip output/* Downloads/V$VERSION.zip
-    - $("sed -i -- 's/latest: true/latest: false/g' _downloads/*)"
+    - $("sed -i -- 's/\^latest. \true/\1false/g' _downloads/*)"
 
-    - echo "---
+    - 'echo "---
             version: $VERSION
             changes:
               - change:
@@ -104,16 +104,16 @@ Deploy:
 
             link: /Downloads/V$VERSION.zip
             latest: true
-            ---" > _downloads/V$VERSION.md
+            ---" > _downloads/V$VERSION.md'
     - git commit . -m "Update to V$VERSION"
     - git push
     - cd ..
     - cd pages-docs
-    - echo "---
+    - 'echo "---
             title: V$VERSION
             type: minor
             ---
-            $(cat ../Changes.txt)" > _posts/V$VERSION.md
+            $(cat ../Changes.txt)" > _posts/V$VERSION.md'
     - git commit . -m "Update to V$VERSION"
     - git push
     - cd ..
