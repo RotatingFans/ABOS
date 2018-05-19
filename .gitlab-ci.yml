@@ -66,6 +66,7 @@ build:
   stage: Build
   script:
     - eval mvn $MAVEN_CLI_OPTS clean compile package
+    - rm -r output/
     - mkdir output
     - cp LICENSE output/LICENSE
     - cp README.md output/README.md
@@ -92,6 +93,7 @@ pages:
   stage: Tests
   script:
     - eval mvn $MAVEN_CLI_OPTS site
+    - rm -r public/
     - mkdir public
     - mv target/site/* public
   artifacts:
