@@ -93,7 +93,8 @@ deploy:
     - git clone git@gitlab.com:ABOS-Software/abos-software.gitlab.io.git pages
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages
-    - zip output/* Downloads/V$VERSION.zip
+    - eval $(ls)
+    - zip ../output/* Downloads/V$VERSION.zip
     - $("sed -i -- 's/\^latest. \true/\1false/g' _downloads/*)"
     - 'echo "---
             version: $VERSION
