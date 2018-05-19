@@ -107,8 +107,8 @@ deploy:
             link: /Downloads/V$VERSION.zip
             latest: true
             ---" > _downloads/V$VERSION.md'
-    - git add -A && git commit -m  "Update to V$VERSION"
-    - git push
+    - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
+    - git push >/dev/null 2>&1
     - cd ..
     - cd pages-docs
     - 'echo "---
@@ -116,8 +116,8 @@ deploy:
             type: minor
             ---
             $(cat ../Changes.txt)" > _posts/V$VERSION.md'
-    - git add -A && git commit -m  "Update to V$VERSION"
-    - git push
+    - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
+    - git push >/dev/null 2>&1
     - cd ..
   tags:
     - linux
