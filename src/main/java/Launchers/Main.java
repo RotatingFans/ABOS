@@ -61,7 +61,7 @@ public class Main extends Application {
     public Boolean checkUpdates() {
 // Make a URL to the web page
         try {
-            URL url = new URL("https://roatingfans.gitlab.io/ABOS/version2.html");
+            URL url = new URL("https://abos-software.gitlab.io/version-2.html");
 
             // Get the input stream through URL Connection
             URLConnection con = url.openConnection();
@@ -120,7 +120,7 @@ public class Main extends Application {
                 if (Desktop.isDesktopSupported()) {
                     new Thread(() -> {
                         try {
-                            Desktop.getDesktop().browse(new URI("https://gitlab.com/RoatingFans/ABOS/tags"));
+                            Desktop.getDesktop().browse(new URI("https://abos-software.gitlab.io/download/"));
 
                         } catch (URISyntaxException | IOException e) {
                             LogToFile.log(e, Severity.WARNING, "Error opening download window. Please try navigating to https://gitlab.com/RoatingFans/ABOS/tags");
