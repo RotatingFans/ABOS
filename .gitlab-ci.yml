@@ -125,7 +125,6 @@ deploy:
     - linux
   only:
     - tags
-    - master
 Deploy:
   stage: Deploy
   script:
