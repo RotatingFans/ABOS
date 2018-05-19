@@ -119,6 +119,9 @@ deploy:
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
     - cd ..
+    - git merge master
+    - git checkout master
+    - git merge --no-ff development
   tags:
     - linux
   only:
