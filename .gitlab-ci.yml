@@ -21,7 +21,7 @@ cache:
     - .m2/repository
 
 before_script:
-  - export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+  - export VERSION=$(mvn $MAVEN_CLI_OPTS -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
   - echo $VERSION
   ##
   ## Install ssh-agent if not already installed, it is required by Docker.
@@ -66,7 +66,7 @@ before_script:
 build:
   stage: Build
   script:
-    - eval mvn clean compile package
+    - eval mvn $MAVEN_CLI_OPTS clean compile package
     - mkdir output
     - cp LICENSE output/LICENSE
     - cp README.md output/README.md
@@ -80,7 +80,7 @@ build:
 Site:
   stage: Tests
   script:
-    - eval mvn site
+    - eval mvn $MAVEN_CLI_OPTS site
   artifacts:
     paths:
       - target/site
@@ -92,7 +92,7 @@ Site:
 pages:
   stage: Tests
   script:
-    - eval mvn site
+    - eval mvn $MAVEN_CLI_OPTS site
     - mkdir public
     - mv target/site/* public
   artifacts:
