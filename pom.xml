@@ -26,6 +26,40 @@
     <groupId>rotatingFans.ABOS</groupId>
     <artifactId>ABOS</artifactId>
     <version>2.2.3</version>
+    <name>ABOS</name>
+    <description>A smart sales management system for your annual fundraisers.</description>
+    <url>https://abos-software.gitlab.io</url>
+    <inceptionYear>2014</inceptionYear>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License, Version 3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>pMagauran</id>
+            <name>Patrick Magauran</name>
+            <email>patmagauran.j@gmail.com</email>
+            <url>https://rotatingfans.github.io</url>
+            <roles>
+                <role>Project Leader</role>
+                <role>UI Designer</role>
+                <role>Web site Maintainer</role>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>America/New_York</timezone>
+            <properties>
+                <picUrl>https://rotatingfans.github.io/static/assets/img/landing/RF.jpg</picUrl>
+            </properties>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+
+        </contributor>
+    </contributors>
     <profiles>
         <profile>
             <id>java8-doclint-disabled</id>
@@ -47,9 +81,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.0</version>
-                <configuration>
-                    <additionalOptions>${javadoc.opts}</additionalOptions>
-                </configuration>
+
             </plugin>
 
             <!-- Source Code Cross-Reference -->
