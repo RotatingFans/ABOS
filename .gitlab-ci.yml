@@ -16,7 +16,6 @@ variables:
 # To keep cache across branches add 'key: "$CI_JOB_NAME"'
 cache:
   key: "$CI_JOB_NAME"
-  untracked: true
   paths:
     - .m2/repository
 
