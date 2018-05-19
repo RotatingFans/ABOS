@@ -113,12 +113,12 @@ deploy2MainSite:
     - ls ..
     - zip Downloads/V$VERSION.zip ../output/*
     - '$(sed -i -- "s/latest: true/latest: false/g" _downloads/*)'
-    - 'echo -e "--- \n
-            version: $VERSION \n
-            link: /Downloads/V$VERSION.zip \n
-            latest: true \n
-            --- \n
-            $(cat ../Changes.txt)" > _downloads/V$VERSION.md'
+    - 'echo -e "---\n
+version: $VERSION\n
+link: /Downloads/V$VERSION.zip\n
+latest: true\n
+---\n
+$(cat ../Changes.txt)" > _downloads/V$VERSION.md'
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
@@ -132,11 +132,11 @@ deploy2docs:
     - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages-docs
-    - 'echo -e "--- \n
-            title: V$VERSION \n
-            type: minor \n
-            --- \n
-            $(cat ../Changes.txt)" > _posts/V$VERSION.md'
+    - 'echo -e "---\n
+title: V$VERSION\n
+type: minor\n
+---\n
+$(cat ../Changes.txt)" > _posts/V$VERSION.md'
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
@@ -148,7 +148,7 @@ deploy2master:
   script:
     - git merge master
     - git checkout master
-    - git merge --no-ff Develop
+    - git merge --no-ff origin/Develop
   tags:
     - linux
   only:
