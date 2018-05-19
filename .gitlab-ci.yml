@@ -107,7 +107,7 @@ deploy2MainSite:
   stage: Deploy
   allow_failure: true
   script:
-    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
+    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.release.description' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/abos-software.gitlab.io.git pages
     - cd pages
     - ls ..
@@ -128,7 +128,7 @@ deploy2docs:
   stage: Deploy
   allow_failure: true
   script:
-    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
+    - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.release.description' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages-docs
     - export POST_NAME="_posts/$(date '+%Y-%m-%d')-V$VERSION.md"
