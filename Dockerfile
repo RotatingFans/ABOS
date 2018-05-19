@@ -8,7 +8,7 @@ MAINTAINER Patrick Magauran (https://gitlab.com/RoatingFans)
 
 
 # update dpkg repositories
-RUN apk add --update openssh-client git curl jq zip sed wget ca-certificates tar
+RUN apk add --update openssh-client git curl jq zip sed wget ca-certificates tar gettext
 
 # get maven 3.3.9
 RUN wget --no-verbose -O /tmp/apache-maven-3.5.3.tar.gz http://apache.osuosl.org/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz

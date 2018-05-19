@@ -1,4 +1,4 @@
-image: rotatingfans/oraclejdk8-maven-alpine
+image: rotatingfans/oraclejdk8-maven-alpine:latest
 stages:
   - Build
   - Tests
@@ -27,7 +27,7 @@ before_script:
   ## (change apt-get to yum if you use an RPM-based image)
   ##
   # - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git curl jq zip sed -y )'
-  - apk --update add envsubst
+  # - apk --update add gettext
   ##
   ## Run ssh-agent (inside the build environment)
   ##
