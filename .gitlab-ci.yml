@@ -87,8 +87,8 @@ pages:
     - linux
   only:
     - Develop
-Deploy:
-  stage: Deploy
+deploy:
+  stage: Tests
   script:
     - eval mvn clean compile package
   artifacts:
