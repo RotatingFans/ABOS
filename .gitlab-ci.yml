@@ -131,9 +131,9 @@ deploy2docs:
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
     - cd pages-docs
     - export POST_NAME="_posts/$(date '+%Y-%m-%d')-V$VERSION.md"
-    - rm -f _posts/V$VERSION.md
-    - envsubst < _posts/_template.md > _posts/V$VERSION.md
-    - cat ../Changes.txt >> _posts/V$VERSION.md
+    - rm -f $POST_NAME
+    - envsubst < _posts/_template.md > $POST_NAME
+    - cat ../Changes.txt >> $POST_NAME
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
