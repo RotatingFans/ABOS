@@ -74,6 +74,7 @@ Site:
     - linux
   only:
     - master
+    - tags
 pages:
   stage: Tests
   script:
