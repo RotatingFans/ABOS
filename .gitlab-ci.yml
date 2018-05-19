@@ -79,6 +79,7 @@ pages:
   stage: Tests
   script:
     - eval mvn site
+    - mkdir public
     - mv target/site/* public
   artifacts:
     paths:
@@ -118,23 +119,10 @@ deploy:
     - git add -A && git commit -m  "Update to V$VERSION"
     - git push
     - cd ..
-  artifacts:
-    paths:
-      - target/*-with-dependencies.jar
   tags:
     - linux
   only:
     - tags
-Deploy:
-  stage: Deploy
-  script:
-    - eval mvn clean compile package
-  artifacts:
-    paths:
-      - target/*-with-dependencies.jar
-  tags:
-    - linux
-  only:
-    - Develop
+
 
 
