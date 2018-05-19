@@ -129,10 +129,10 @@ deploy2docs:
   script:
     - curl https://gitlab.com/api/v4/projects/517415/repository/tags/$CI_COMMIT_TAG | jq '.message' > Changes.txt
     - git clone git@gitlab.com:ABOS-Software/ABOS-Docs.git pages-docs
+    - cd pages-docs
     - rm -f _posts/V$VERSION.md
     - envsubst < _posts/_template.md > _posts/V$VERSION.md
     - cat ../Changes.txt >> _posts/V$VERSION.md
-    - cd pages-docs
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1
   tags:
