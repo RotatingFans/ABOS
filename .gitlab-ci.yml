@@ -95,7 +95,7 @@ deploy:
     - cd pages
     - ls
     - zip ../output/* Downloads/V$VERSION.zip
-    - $("sed -i -- 's/\^latest. \true/\1false/g' _downloads/*)"
+    - $(sed -i -- 's/\^latest. \true/\1false/g' _downloads/*)
     - 'echo "---
             version: $VERSION
             changes:
