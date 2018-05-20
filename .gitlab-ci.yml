@@ -113,10 +113,10 @@ deploy2MainSite:
     - cd pages
     - ls ..
     - zip Downloads/V$VERSION.zip ../output/*
-    - '$(sed -i -- "s/latest: true/latest: false/g" _downloads/*)'
+    - '$(sed -i -- "s/latest: true/latest: false/g" _posts/*)'
     - export DOWNLOAD_LINK=$(echo "/Downloads/V$VERSION.zip")
     - export LATEST=$(echo "true")
-    - export POST_NAME="_downloads/$(date '+%Y-%m-%d')-V$VERSION.md"
+    - export POST_NAME="_posts/$(date '+%Y-%m-%d')-V$VERSION.md"
     - rm -f POST_NAME
     - envsubst < _downloads/_template.md > POST_NAME
     - cat ../Changes.txt >> POST_NAME
