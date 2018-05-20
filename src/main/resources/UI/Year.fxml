@@ -22,17 +22,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="pane" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="contentPane" stylesheets="@Main.css"
+            AnchorPane.bottomAnchor="0.0"
             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
             xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.YearController">
         <center>
 
-            <SplitPane dividerPositions="0.29797979797979796" styleClass="pane" AnchorPane.bottomAnchor="0.0"
+            <SplitPane dividerPositions="0.29797979797979796" styleClass="containerPane" AnchorPane.bottomAnchor="0.0"
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                        BorderPane.alignment="CENTER">
                 <items>
-                    <VBox fx:id="yearInfo"/>
-                    <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="pane" AnchorPane.bottomAnchor="0.0"
+                    <VBox fx:id="yearInfo" styleClass="containerPane"/>
+                    <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="informationPane"
+                                AnchorPane.bottomAnchor="0.0"
                                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <content>
 
@@ -48,7 +50,7 @@
             </SplitPane>
         </center>
         <bottom>
-            <HBox BorderPane.alignment="CENTER">
+            <HBox BorderPane.alignment="CENTER" styleClass="informationPane">
                 <children>
                     <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#refresh" text="Refresh"
                             HBox.hgrow="ALWAYS">

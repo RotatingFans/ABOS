@@ -37,7 +37,7 @@
             </rowConstraints>
             <children>
                 <GoogleMapView fx:id="googleMapView" prefHeight="1" prefWidth="1"/>
-                <VBox fx:id="infoPanel" prefHeight="1" prefWidth="1" GridPane.columnIndex="1"/>
+                <VBox fx:id="infoPanel" styleClass="contentPane" prefHeight="1" prefWidth="1" GridPane.columnIndex="1"/>
             </children>
         </GridPane>
     </children>

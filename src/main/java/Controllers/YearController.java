@@ -106,7 +106,9 @@ public class YearController {
             Label valLabel = new Label(pair.value);
             keyLabel.setId("YearDescription");
             valLabel.setId("YearValue");
-            yearInfo.getChildren().add(new VBox(keyLabel, valLabel));
+            VBox info = new VBox(keyLabel, valLabel);
+            info.getStyleClass().add("informationPane");
+            yearInfo.getChildren().add(info);
         });
 
 

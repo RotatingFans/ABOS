@@ -22,20 +22,21 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="contentPane"
             stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="Controllers.CustomerController">
     <center>
 
-        <SplitPane dividerPositions="0.29797979797979796" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+        <SplitPane dividerPositions="0.29797979797979796" maxHeight="Infinity" maxWidth="Infinity"
+                   styleClass="contentPane"
                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                    AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
             <items>
-                <VBox fx:id="customerInfo" styleClass="pane"/>
+                <VBox fx:id="customerInfo" styleClass="containerPane"/>
 
                 <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="Infinity" maxWidth="Infinity"
-                            styleClass="pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            styleClass="informationPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <content>
 
@@ -51,7 +52,7 @@
         </SplitPane>
     </center>
     <bottom>
-        <HBox BorderPane.alignment="CENTER">
+        <HBox BorderPane.alignment="CENTER" styleClass="informationPane">
             <children>
                 <Button mnemonicParsing="false" onAction="#refresh" text="Refresh" HBox.hgrow="ALWAYS">
                     <HBox.margin>

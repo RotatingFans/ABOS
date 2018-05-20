@@ -82,7 +82,9 @@ public class CustomerController {
             javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
             keyLabel.setId("CustomerDescription");
             valLabel.setId("CustomerValue");
-            customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
+            VBox info = new VBox(keyLabel, valLabel);
+            info.getStyleClass().add("informationPane");
+            customerInfo.getChildren().add(info);
         });
 
 
@@ -120,7 +122,9 @@ public class CustomerController {
             javafx.scene.control.Label valLabel = new javafx.scene.control.Label(pair.value);
             keyLabel.setId("CustomerDescription");
             valLabel.setId("CustomerValue");
-            customerInfo.getChildren().add(new VBox(keyLabel, valLabel));
+            VBox info = new VBox(keyLabel, valLabel);
+            info.getStyleClass().add("informationPane");
+            customerInfo.getChildren().add(info);
         });
 
 
