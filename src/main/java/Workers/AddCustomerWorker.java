@@ -48,7 +48,7 @@ public class AddCustomerWorker extends Task<Customer> {
     private final String DonationsT;
     private final String NameEditCustomer;
     private final String uName;
-    private final Boolean Paid;
+    private final BigDecimal Paid;
     private final Boolean Delivered;
 
     /**
@@ -65,7 +65,7 @@ public class AddCustomerWorker extends Task<Customer> {
      * @param paid             Did they pay
      * @param delivered        Was it deleivered
      */
-    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, Boolean paid, Boolean delivered, String uName) {
+    public AddCustomerWorker(Integer id, String Address, String Town, String State, String year, TableView ProductTable, String name, String zipCode, String phone, String email, String donationsT, String nameEditCustomer, String paid, Boolean delivered, String uName) {
         ID = id;
         this.Address = Address;
         this.Town = Town;
@@ -78,7 +78,7 @@ public class AddCustomerWorker extends Task<Customer> {
         Email = email;
         DonationsT = donationsT;
         NameEditCustomer = nameEditCustomer;
-        Paid = paid;
+        Paid = new BigDecimal(paid);
         Delivered = delivered;
         this.uName = uName;
     }

@@ -66,7 +66,7 @@ public class AddCustomerController {
     @FXML
     private CheckBox Delivered;
     @FXML
-    private CheckBox Paid;
+    private TextField Paid;
     @FXML
     private TableView ProductTable;
     @FXML
@@ -120,6 +120,7 @@ public class AddCustomerController {
 
     public void initAddCust(Customer customer, MainController mainController, Tab parent, String user, TreeItem<TreeItemPair<String, Pair<String, Object>>> treeParent) {
         this.treeParent = treeParent;
+        customer.refreshData();
         mainCont = mainController;
         parentTab = parent;
         year = customer.getYear();
@@ -131,6 +132,7 @@ public class AddCustomerController {
             userCmbx.getItems().add(uMan);
         });
         userCmbx.getSelectionModel().select(user);
+        userCmbx.setDisable(true);
         //Set the address
         String[] addr = customerInfo.getCustAddressFrmName();
         String city = addr[0];
@@ -143,13 +145,28 @@ public class AddCustomerController {
         State.setText(state);
         ZipCode.setText(zip);
         Phone.setText(customerInfo.getPhone());
-        Paid.setSelected(customerInfo.getPaid());
+        Paid.setText(customerInfo.getPaid().toPlainString());
         Delivered.setSelected(customerInfo.getDelivered());
         Email.setText(customerInfo.getEmail());
         Name.setText(customerInfo.getName());
         DecimalFormat format = new DecimalFormat("#.0");
 
         DonationsT.setTextFormatter(new TextFormatter<>(c ->
+        {
+            if (c.getControlNewText().isEmpty()) {
+                return c;
+            }
+
+            ParsePosition parsePosition = new ParsePosition(0);
+            Object object = format.parse(c.getControlNewText(), parsePosition);
+
+            if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+                return null;
+            } else {
+                return c;
+            }
+        }));
+        Paid.setTextFormatter(new TextFormatter<>(c ->
         {
             if (c.getControlNewText().isEmpty()) {
                 return c;
@@ -235,13 +252,29 @@ public class AddCustomerController {
         Phone.setText(Config.getProp("CustomerPhone"));
         Email.setText(Config.getProp("CustomerEmail"));
 
-        Paid.setSelected(Boolean.valueOf(Config.getProp("CustomerPaid")));
+        Paid.setText(!Config.getProp("CustomerPaid").isEmpty() ? Config.getProp("CustomerPaid") : "0.0");
         Delivered.setSelected(Boolean.valueOf(Config.getProp("CustomerDelivered")));
 
         DonationsT.setText(!Config.getProp("CustomerDonation").isEmpty() ? Config.getProp("CustomerDonation") : "0.0");
         DecimalFormat format = new DecimalFormat("#.0");
 
         DonationsT.setTextFormatter(new TextFormatter<>(c ->
+        {
+            if (c.getControlNewText().isEmpty()) {
+                return c;
+            }
+
+            ParsePosition parsePosition = new ParsePosition(0);
+            Object object = format.parse(c.getControlNewText(), parsePosition);
+
+            if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+                return null;
+            } else {
+
+                return c;
+            }
+        }));
+        Paid.setTextFormatter(new TextFormatter<>(c ->
         {
             if (c.getControlNewText().isEmpty()) {
                 return c;
@@ -283,6 +316,21 @@ public class AddCustomerController {
 
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == ButtonType.OK) {
+                    commitChanges();
+                    //updateTots();
+                    //close
+                    // ... user chose OK
+                }
+            } else if (new BigDecimal(Paid.getText()).subtract(totalCostFinal).compareTo(BigDecimal.ZERO) > 0) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Overpaid");
+                alert.setHeaderText("You entered more paid than total order.");
+                alert.setContentText("Would you like to place the extra as a donation?");
+
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    DonationsT.setText(new BigDecimal(Paid.getText()).subtract(totalCostFinal).toPlainString());
                     commitChanges();
                     //updateTots();
                     //close
@@ -490,6 +538,7 @@ public class AddCustomerController {
                 t.consume();
             }*/
         });
+        totalCostFinal = new BigDecimal(DonationsT.getText());
 
 
         int i = 0;
@@ -497,6 +546,7 @@ public class AddCustomerController {
             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
             formattedProductProps prodProps = new formattedProductProps(productOrder.productKey, productOrder.productID, productOrder.productName, productOrder.productSize, productOrder.productUnitPrice, productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
             data.add(prodProps);
+            totalCostFinal = totalCostFinal.add(productOrder.extendedCost);
             i++;
         }
         if (!columnsFilled) {
@@ -558,6 +608,7 @@ public class AddCustomerController {
         int preEditMulchSales = getNoMulchOrdered();
         int preEditLawnProductSales = getNoLawnProductsOrdered();
         int preEditLivePlantSales = getNoLivePlantsOrdered();
+        runningTotalLabel.setText("Total: " + totalCostFinal.toPlainString());
 
     }
 
@@ -581,7 +632,7 @@ public class AddCustomerController {
                 Email.getText(),
                 DonationsT.getText().isEmpty() ? "0.0" : DonationsT.getText(),
                 Objects.equals(NameEditCustomer, "") ? Name.getText() : NameEditCustomer,
-                Paid.isSelected(),
+                Paid.getText().isEmpty() ? "0.0" : Paid.getText(),
                 Delivered.isSelected(),
                 userCmbx.getSelectionModel().getSelectedItem());
 

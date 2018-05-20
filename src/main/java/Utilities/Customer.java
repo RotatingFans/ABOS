@@ -71,7 +71,7 @@ public class Customer {
     private Utilities.Settable<Double> lat = new Utilities.Settable<>();
     private Utilities.Settable<Double> lon = new Utilities.Settable<>();
     private Utilities.Settable<String> phone = new Utilities.Settable("");
-    private Utilities.Settable<Boolean> paid = new Utilities.Settable();
+    private Utilities.Settable<BigDecimal> paid = new Utilities.Settable();
     private Utilities.Settable<Boolean> delivered = new Utilities.Settable();
     private Utilities.Settable<String> email = new Utilities.Settable();
     private Utilities.Settable<String> user = new Utilities.Settable("");
@@ -85,7 +85,7 @@ public class Customer {
                     Double lat,
                     Double lon,
                     String phone,
-                    Boolean paid,
+                    BigDecimal paid,
                     Boolean delivered,
                     String email,
                     String nameEdited,
@@ -118,7 +118,7 @@ public class Customer {
                     Double lat,
                     Double lon,
                     String phone,
-                    Boolean paid,
+                    BigDecimal paid,
                     Boolean delivered,
                     String email,
                     String nameEdited,
@@ -143,7 +143,7 @@ public class Customer {
     }
 
     public Customer(String name, String year) {
-        this(-1, name, year, null, null, null, null, null, null, null, false, false, null, null, null, DbInt.getUserName());
+        this(-1, name, year, null, null, null, null, null, null, null, BigDecimal.ZERO, false, null, null, null, DbInt.getUserName());
     }
 
     /** Gets customer information using ID and year from the databse
@@ -211,7 +211,7 @@ public class Customer {
     }
 
     public Customer() {
-        this(null, null, null, null, null, null, null, null, null, null, false, false, null, null, null, DbInt.getUserName());
+        this(null, null, null, null, null, null, null, null, null, null, BigDecimal.ZERO, false, null, null, null, DbInt.getUserName());
     }
 
     /**
@@ -560,11 +560,11 @@ public class Customer {
      *
      * @return The Payment status of the specified customer
      */
-    public Boolean getPaid() {
+    public BigDecimal getPaid() {
         return this.paid.orElseGetAndSet(() -> { return Order.getOrder(year.get(), ID.get()).paid;});
     }
 
-    public void setPaid(Boolean paid) {
+    public void setPaid(BigDecimal paid) {
         this.paid.set(paid);
     }
 
@@ -666,9 +666,7 @@ public class Customer {
     }
 
     public void refreshData() {
-        orderID.clear();
-        nameEdited.clear();
-        year.clear();
+
         address.clear();
         town.clear();
         state.clear();
@@ -679,7 +677,6 @@ public class Customer {
         paid.clear();
         delivered.clear();
         email.clear();
-        user.clear();
         Donation.clear();
         orders.clear();
     }

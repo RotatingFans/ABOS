@@ -143,7 +143,12 @@
                                         <Insets right="5.0"/>
                                     </HBox.margin>
                                 </CheckBox>
-                                <CheckBox fx:id="Paid" mnemonicParsing="false" text="Paid"/>
+                                <HBox>
+                                    <children>
+                                        <Label text="Paid"/>
+                                        <TextField fx:id="Paid" promptText="Paid Amount"/>
+                                    </children>
+                                </HBox>
                             </children>
                         </HBox>
                         <HBox layoutX="1138.0" layoutY="36.0">

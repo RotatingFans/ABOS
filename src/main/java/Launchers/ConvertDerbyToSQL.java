@@ -68,7 +68,7 @@ public class ConvertDerbyToSQL extends Application {
     }
 
     @Override
-    public void start(final Stage stage) throws Exception {
+    public void start(final Stage stage) {
         Convert();
         stage.close();
         Platform.exit();
@@ -149,12 +149,13 @@ public class ConvertDerbyToSQL extends Application {
                         Integer cID = customerDbInfo.getId();
                         ABOS.Derby.Order.orderArray order = new ABOS.Derby.Order().createOrderArray(year, customerDbInfo.getName(), false);
                         data = FXCollections.observableArrayList();
-
+                        BigDecimal cost = BigDecimal.ZERO;
                         int i = 1;
                         for (ABOS.Derby.Product.formattedProduct productOrder : order.orderData) {
                             //String productID, String productName, String productSize, String productUnitPrice, String productCategory, int orderedQuantity, BigDecimal extendedCost
                             formattedProductProps prodProps = new formattedProductProps(i, productOrder.productID, productOrder.productName, productOrder.productSize, new BigDecimal(productOrder.productUnitPrice.replace("$", "")), productOrder.productCategory, productOrder.orderedQuantity, productOrder.extendedCost);
                             data.add(prodProps);
+                            cost = cost.add(productOrder.extendedCost);
                             i++;
                         }
                         if (!columnsFilled) {
@@ -212,7 +213,7 @@ public class ConvertDerbyToSQL extends Application {
                                     customerDbInfo.getEmail(),
                                     customerDbInfo.getDontation().toPlainString(),
                                     customerDbInfo.getName(),
-                                    Boolean.valueOf(customerDbInfo.getPaid()),
+                                    (Boolean.valueOf(customerDbInfo.getPaid()) ? BigDecimal.ONE.multiply(cost) : BigDecimal.ZERO).toPlainString(),
                                     Boolean.valueOf(customerDbInfo.getDelivered()),
                                     userName);
 

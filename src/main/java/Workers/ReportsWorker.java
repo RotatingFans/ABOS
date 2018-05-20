@@ -214,7 +214,7 @@ public class ReportsWorker extends Task<Integer> {
             int custProgressIncValue = 90 / ((customers instanceof Collection<?> && !((Collection) customers).isEmpty()) ? ((Collection<?>) customers).size() : 1);
 
             customers.forEach(cust -> {
-                Boolean paid = cust.getPaid();
+                BigDecimal paid = cust.getPaid();
                 int custId = cust.getId();
                 String customer = cust.getName();
                 // Root element
@@ -277,7 +277,7 @@ public class ReportsWorker extends Task<Integer> {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (paid ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (". Total paid to date: $" + paid.toPlainString());
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }
@@ -663,7 +663,7 @@ public class ReportsWorker extends Task<Integer> {
                                 Element title = doc.createElement("specialInfo");
                                 {
                                     Element text = doc.createElement("text");
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (cust.getPaid() ? ". Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.");
+                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + (". Total paid to date: $" + cust.getPaid().toPlainString());
                                     text.appendChild(doc.createTextNode(notice));
                                     title.appendChild(text);
                                 }

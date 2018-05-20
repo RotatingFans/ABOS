@@ -787,13 +787,14 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return ret;
     }
 
-    public static Boolean migrateDatabase(String database) throws AccessException {
+    public static Boolean migrateDatabase(String database, String location) throws AccessException {
         if (!isAdmin()) {
             throw new AccessException("Admin Access Required");
         }
 
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + database, Config.getSSL());
         Flyway flyway = new Flyway();
+        flyway.setLocations(location);
         flyway.setDataSource(url, username, password);
         flyway.migrate();
         return true;
@@ -807,6 +808,12 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + database, Config.getSSL());
         Flyway flyway = new Flyway();
         flyway.setDataSource(url, username, password);
+        if (database.equals("Commons")) {
+            flyway.setLocations("db.migration/commons");
+        } else {
+            flyway.setLocations("db.migration/year");
+
+        }
         flyway.baseline();
         return true;
     }
@@ -854,7 +861,13 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
                             if (result.get() == buttonTypeOne) {
                                 getDatabses().forEach((db) -> {
                                     try {
-                                        migrateDatabase(db);
+                                        if (db.equals("Commons")) {
+                                            migrateDatabase(db, "db.migration/commons");
+
+                                        } else {
+                                            migrateDatabase(db, "db.migration/year");
+
+                                        }
                                     } catch (AccessException ignored) {
 
                                     }
@@ -983,7 +996,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        return new Version("");
+        return new Version("0.0");
     }
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
 //    /**
