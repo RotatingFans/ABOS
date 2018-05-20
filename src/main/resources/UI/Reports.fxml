@@ -24,23 +24,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" styleClass="contentPane"
             stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="Controllers.ReportsController">
             <center>
-                <TabPane fx:id="reportTabPane" maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+                <TabPane fx:id="reportTabPane" maxHeight="Infinity" maxWidth="Infinity" styleClass="contentPane"
                          tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <tabs>
                         <Tab closable="false" text="Report Type">
                             <content>
 
-                                <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
+                                <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="containerPane"
                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <children>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Report Type"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -73,11 +73,12 @@
                         <Tab closable="false" disable="true" text="Report Info">
                             <content>
 
-                                <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="pane"
-                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <FlowPane maxHeight="Infinity" maxWidth="Infinity" orientation="VERTICAL"
+                                          styleClass="containerPane" AnchorPane.bottomAnchor="0.0"
+                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                          AnchorPane.topAnchor="0.0">
                                             <children>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Name"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -91,7 +92,7 @@
                                                         <TextField fx:id="scoutName" promptText="Scout Name"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Street Address"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -105,7 +106,7 @@
                                                         <TextField fx:id="scoutStAddr" promptText="Street Address"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Zip Code"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -119,7 +120,7 @@
                                                         <TextField fx:id="scoutZip" promptText="Scout Zip Code"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Town"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -133,7 +134,7 @@
                                                         <TextField fx:id="scoutTown" promptText="Scout Town"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout State"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -147,7 +148,7 @@
                                                         <TextField fx:id="scoutState" promptText="Scout State"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Phone"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -161,7 +162,7 @@
                                                         <TextField fx:id="scoutPhone" promptText="Scout Phone"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Scout Rank"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -175,7 +176,7 @@
                                                         <TextField fx:id="scoutRank" promptText="Scout Rank"/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Logo Location:"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -191,7 +192,7 @@
                                                                 text="..."/>
                                                     </children>
                                                 </HBox>
-                                                <HBox styleClass="HBox">
+                                                <HBox styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Save Location:"
                                                                textAlignment="CENTER" HBox.hgrow="ALWAYS">
@@ -207,7 +208,7 @@
                                                                 text="..."/>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="yearPane" styleClass="HBox">
+                                                <HBox fx:id="yearPane" styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Year" textAlignment="CENTER">
                                                             <opaqueInsets>
@@ -223,7 +224,7 @@
                                                         </ComboBox>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="userPanel" styleClass="HBox">
+                                                <HBox fx:id="userPanel" styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="User" textAlignment="CENTER">
                                                             <opaqueInsets>
@@ -239,7 +240,7 @@
                                                         </ComboBox>
                                                     </children>
                                                 </HBox>
-                                                <HBox fx:id="customerPane" styleClass="HBox">
+                                                <HBox fx:id="customerPane" styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Customer" textAlignment="CENTER"
                                                                HBox.hgrow="ALWAYS">
@@ -260,7 +261,7 @@
                                                         <Insets right="5.0"/>
                                                     </FlowPane.margin>
                                                 </HBox>
-                                                <HBox fx:id="categoryPane" styleClass="HBox">
+                                                <HBox fx:id="categoryPane" styleClass="HBox, informationPane">
                                                     <children>
                                                         <Label alignment="CENTER" text="Category" textAlignment="CENTER"
                                                                HBox.hgrow="ALWAYS">
@@ -290,7 +291,7 @@
                                                     </FlowPane.margin>
                                                 </HBox>
                                                 <CheckBox fx:id="includeHeader" disable="true" mnemonicParsing="false"
-                                                          text="Include Due Header">
+                                                          styleClass="informationPane" text="Include Due Header">
                                                     <HBox.margin>
                                                         <Insets right="5.0"/>
                                                     </HBox.margin>
@@ -304,7 +305,7 @@
                 </TabPane>
             </center>
             <bottom>
-                <ButtonBar BorderPane.alignment="CENTER">
+                <ButtonBar styleClass="informationPane" BorderPane.alignment="CENTER">
                     <buttons>
                         <Button fx:id="nextButton" mnemonicParsing="false" onAction="#next" text="Next"/>
                         <Button fx:id="okButton" disable="true" mnemonicParsing="false" onAction="#submit" text="OK"/>

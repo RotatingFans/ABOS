@@ -22,11 +22,13 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="pane" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="contentPane" stylesheets="@Main.css"
+            AnchorPane.bottomAnchor="0.0"
             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
             xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.AddCustomerController">
             <top>
-                <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="pane" AnchorPane.bottomAnchor="0.0"
+                <FlowPane maxHeight="Infinity" maxWidth="Infinity" styleClass="informationPane"
+                          AnchorPane.bottomAnchor="0.0"
                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                           BorderPane.alignment="CENTER">
                     <children>
@@ -161,7 +163,8 @@
                 </FlowPane>
             </top>
             <center>
-                <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="pane" AnchorPane.bottomAnchor="0.0"
+                <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="informationPane"
+                            AnchorPane.bottomAnchor="0.0"
                             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                             BorderPane.alignment="CENTER">
                     <content>
@@ -175,7 +178,7 @@
                 </ScrollPane>
             </center>
             <bottom>
-                <ButtonBar BorderPane.alignment="CENTER">
+                <ButtonBar BorderPane.alignment="CENTER" styleClass="informationPane">
                     <buttons>
                         <Label id="AddCustomer-RunningTotalLbl" fx:id="runningTotalLabel"/>
                         <Button fx:id="okButton" defaultButton="true" focusTraversable="false" mnemonicParsing="false"

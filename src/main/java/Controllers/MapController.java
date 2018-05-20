@@ -253,6 +253,8 @@ public class MapController implements Initializable {
                 custOrders.getChildren().add(b);
                 VBox info = new VBox(nameHeader, custName, phoneHeader, custPhone, addrHeader, custAddress, orderHeader, custOrders);
                 info.getStyleClass().add("Map-Info-Box");
+                info.getStyleClass().add("informationPane");
+
                 infoPanel.getChildren().add(info);
             }
 
