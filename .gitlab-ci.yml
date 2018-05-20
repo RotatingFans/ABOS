@@ -113,11 +113,13 @@ deploy2MainSite:
     - cd pages
     - ls ..
     - zip Downloads/V$VERSION.zip ../output/*
+    - '$(sed -i -- "s/latest: true/latest: false/g" _downloads/*)'
     - export DOWNLOAD_LINK=$(echo "/Downloads/V$VERSION.zip")
     - export LATEST=$(echo "true")
-    - rm -f _downloads/V$VERSION.md
-    - envsubst < _downloads/_template.md > _downloads/V$VERSION.md
-    - cat ../Changes.txt >> _downloads/V$VERSION.md
+    - export POST_NAME="_downloads/$(date '+%Y-%m-%d')-V$VERSION.md"
+    - rm -f POST_NAME
+    - envsubst < _downloads/_template.md > POST_NAME
+    - cat ../Changes.txt >> POST_NAME
     - echo $VERSION > version-2.html
     - git add -A && git commit -m  "Update to V$VERSION" >/dev/null 2>&1
     - git push >/dev/null 2>&1

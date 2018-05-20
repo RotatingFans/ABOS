@@ -64,16 +64,17 @@ public class CustomerController {
         fillTable();
 
         //frame.setTitle("ABOS - Utilities.Customer View - " + name + " - " + year);
-
         List<infoValPair> customerInfoStrings = new ArrayList<>();
         customerInfoStrings.add(new infoValPair("Name", name));
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
-        //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
-        //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
+        customerInfoStrings.add(new infoValPair("Donations", customerDbInfo.getDontation().toPlainString()));
+
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid().toPlainString()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered() ? "yes" : "no"));
 
 
         customerInfoStrings.forEach((pair) -> {
@@ -103,10 +104,15 @@ public class CustomerController {
         customerInfoStrings.add(new infoValPair("Address", customerDbInfo.getAddr()));
         customerInfoStrings.add(new infoValPair("Phone #", customerDbInfo.getPhone()));
         customerInfoStrings.add(new infoValPair("Email", customerDbInfo.getEmail()));
+
         //customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid()));
         //customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered()));
         customerInfoStrings.add(new infoValPair("Total Quantity", totQuant));
+        customerInfoStrings.add(new infoValPair("Donations", customerDbInfo.getDontation().toPlainString()));
+
         customerInfoStrings.add(new infoValPair("Total Cost", totCost));
+        customerInfoStrings.add(new infoValPair("Paid", customerDbInfo.getPaid().toPlainString()));
+        customerInfoStrings.add(new infoValPair("Delivered", customerDbInfo.getDelivered() ? "yes" : "no"));
 
 
         customerInfoStrings.forEach((pair) -> {
