@@ -62,14 +62,14 @@ public class Order {
     private final ObservableList<formattedProductProps> orders;
     private final String year;
     private final Integer custID;
-    private final Boolean paid;
+    private final BigDecimal paid;
     private final Boolean delivered;
     private final String uName;
 
     private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
     private final ReadOnlyStringWrapper message = new ReadOnlyStringWrapper(this, "message");
 
-    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, Boolean paid, Boolean delivered, String uName) {
+    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, BigDecimal paid, Boolean delivered, String uName) {
         this.orders = orders;
         this.year = year;
         this.custID = custID;
@@ -78,7 +78,7 @@ public class Order {
         this.uName = uName;
     }
 
-    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, Boolean paid, Boolean delivered) {
+    public Order(ObservableList<formattedProductProps> orders, String year, Integer custID, BigDecimal paid, Boolean delivered) {
         this(orders, year, custID, paid, delivered, DbInt.getUserName());
     }
 
@@ -92,7 +92,7 @@ public class Order {
 
             try (ResultSet rs = prep.executeQuery()) {
                 rs.next();
-                order = new orderDetails(rs.getBigDecimal("Cost"), rs.getInt("Quant"), rs.getInt("paid"), rs.getInt("delivered"));
+                order = new orderDetails(rs.getBigDecimal("Cost"), rs.getInt("Quant"), rs.getBigDecimal("paid"), rs.getInt("delivered"));
             }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -365,7 +365,7 @@ public class Order {
             }
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement writeOrd = con.prepareStatement("UPDATE ordersview SET paid=?, delivered=? WHERE idOrders=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                writeOrd.setInt(1, paid ? 1 : 0);
+                writeOrd.setBigDecimal(1, paid);
                 writeOrd.setInt(2, delivered ? 1 : 0);
                 writeOrd.setInt(3, OrderID);
 
@@ -387,7 +387,7 @@ public class Order {
                  PreparedStatement writeOrd = con.prepareStatement("INSERT INTO ordersview(uName,custId, paid, delivered) VALUES(?,?, ?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 writeOrd.setString(1, uName);
                 writeOrd.setInt(2, custID);
-                writeOrd.setInt(3, paid ? 1 : 0);
+                writeOrd.setBigDecimal(3, paid);
                 writeOrd.setInt(4, delivered ? 1 : 0);
 
                 fail.doAction();
@@ -460,20 +460,20 @@ public class Order {
     public static class orderDetails {
         public final BigDecimal totalCost;
         public final int totalQuantity;
-        public final boolean paid;
+        public final BigDecimal paid;
         public final boolean delivered;
 
-        public orderDetails(BigDecimal totalCost, int totalQuantity, boolean paid, boolean delivered) {
+        public orderDetails(BigDecimal totalCost, int totalQuantity, BigDecimal paid, boolean delivered) {
             this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;
             this.paid = paid;
             this.delivered = delivered;
         }
 
-        public orderDetails(BigDecimal totalCost, int totalQuantity, int paid, int delivered) {
+        public orderDetails(BigDecimal totalCost, int totalQuantity, BigDecimal paid, int delivered) {
             this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;
-            this.paid = paid == 1;
+            this.paid = paid;
             this.delivered = delivered == 1;
         }
     }
