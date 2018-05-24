@@ -32,6 +32,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -62,7 +63,7 @@ public class UsersGroupsAndYearsController {
     @FXML
     VBox disabledUserVbox;
     @FXML
-    TreeView summaryList;
+    TreeView<TreeItemPair<String, Pair<String, Object>>> summaryList;
     @FXML
     Button userMenuBtn;
     @FXML
@@ -90,80 +91,14 @@ public class UsersGroupsAndYearsController {
     @FXML
     private ComboBox<String> categoriesCmbx;
     private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
+
+    private boolean isRightClick;
+
     public UsersGroupsAndYearsController() {
 
     }
 
-    /**
-     * Initialize the contents of the frame.
-     */
-    public void initUsersGroupsAndYears(Window parWindow) throws AccessException {
-        parentWindow = parWindow;
-        fillTreeView();
-    }
-
-    private void fillTreeView() {
-        Iterable<String> ret = DbInt.getUserYears();
-        TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
-        contextTreeItem userRoot = new contextTreeItem("Groups/Users", new Pair<String, String>("RootNode", ""));
-        root.getChildren().add(new contextTreeItem("Reports", "Window"));
-        root.getChildren().add(new contextTreeItem("View Map", "Window"));
-        root.getChildren().add(new contextTreeItem("Settings", "Window"));
-        if (DbInt.isAdmin()) {
-            root.getChildren().add(new contextTreeItem("Users Groups & Years", "Window"));
-        }
-
-
-        ///Select all years
-        //Create a button for each year
-/*        for (String aRet : ret) {
-            JButton b = new JButton(aRet);
-            b.addActionListener(e -> {
-                //On button click open Utilities.Year window
-                new YearWindow(((AbstractButton) e.getSource()).getText());
-
-            });
-            panel_1.add(b);
-        }*/
-        for (String curYear : ret) {
-            contextTreeItem tIYear = new contextTreeItem(curYear, "Year");
-            Year year = new Year(curYear);
-            User curUser = DbInt.getUser(curYear);
-            Iterable<String> uManage = curUser.getuManage();
-            for (String uMan : uManage) {
-                contextTreeItem uManTi = new contextTreeItem(uMan, new Pair<>("UserCustomerView", curYear));
-
-                Iterable<Customer> customers = year.getCustomers(uMan);
-                for (Customer customer : customers) {
-                    uManTi.getChildren().add(new contextTreeItem(customer.getName(), new Pair<String, Customer>("Customer", customer)));
-                }
-                uManTi.getChildren().add(new contextTreeItem("Add Customer", new Pair<String, Pair<String, String>>("Window", new Pair<String, String>(curYear, uMan))));
-                if (Objects.equals(uMan, curUser.getUserName())) {
-                    tIYear.getChildren().addAll(uManTi.getChildren());
-                } else {
-                    tIYear.getChildren().add(uManTi);
-                }
-            }
-            root.getChildren().add(tIYear);
-
-
-        }
-    }
-    @FXML
-    private void displayUserMenu(ActionEvent event) {
-
-    }
-    @FXML
-    private void displayGroupMenu(ActionEvent event) {
-
-    }
-
-
-
-
-
-
-
+    {
   /*  @FXML
     private void deleteYear(ActionEvent event) {
         if (yearsList.getSelectionModel().getSelectedItem() != null) {
@@ -548,7 +483,112 @@ public class UsersGroupsAndYearsController {
         userGroup.getItems().add(newGroup);
 
     }*/
+    }
 
+    /**
+     * Initialize the contents of the frame.
+     */
+    public void initUsersGroupsAndYears(Window parWindow) throws AccessException {
+        parentWindow = parWindow;
+        fillTreeView();
+
+        summaryList.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.isSecondaryButtonDown()) {
+                isRightClick = true;
+
+            }
+            if (event.getClickCount() == 2) {
+
+                Platform.runLater(() -> {
+                    TreeItemPair<String, Pair<String, Object>> newValue = summaryList.getSelectionModel().getSelectedItem().getValue();
+                    if (isRightClick) {
+                        //reset the flag
+                        isRightClick = false;
+                    } else if (newValue != null && !Objects.equals(newValue.getValue().getValue(), "RootNode")) {
+
+                        switch (newValue.getValue().getKey()) {
+                            case "Year":
+                                openYear(newValue.getValue().getValue().toString());
+                                break;
+                            case "Group":
+                                openGroup((Group) newValue.getValue().getValue());
+                                break;
+                            case "User":
+                                openUser((User) newValue.getValue().getValue());
+
+                                break;
+
+
+                        }
+                    }
+                });
+            }
+        });
+
+        summaryList.setCellFactory(p -> new TreeCellImpl());
+    }
+
+    private void openYear(String year) {
+
+    }
+
+    private void openUser(User user) {
+
+    }
+
+    private void openGroup(Group group) {
+
+    }
+
+    @FXML
+    private void displayUserMenu(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void displayGroupMenu(ActionEvent event) {
+
+    }
+
+    private void fillTreeView() {
+        Iterable<String> ret = DbInt.getUserYears();
+        TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
+
+
+        ///Select all years
+        //Create a button for each year
+/*        for (String aRet : ret) {
+            JButton b = new JButton(aRet);
+            b.addActionListener(e -> {
+                //On button click open Utilities.Year window
+                new YearWindow(((AbstractButton) e.getSource()).getText());
+
+            });
+            panel_1.add(b);
+        }*/
+        for (String curYear : ret) {
+            contextTreeItem tIYear = new contextTreeItem(curYear, "Year");
+            Year year = new Year(curYear);
+            User curUser = DbInt.getUser(curYear);
+            Iterable<Group> groups = Group.getGroups(curYear);
+            for (Group group : groups) {
+                contextTreeItem tiGroup = new contextTreeItem(group.getName(), new Pair<>("Group", group));
+
+                Iterable<User> users = group.getUsers();
+
+                for (User user : users) {
+                    contextTreeItem uManTi = new contextTreeItem(user.getFullName() + " (" + user.getUserName() + ")", new Pair<>("User", user));
+                    tiGroup.getChildren().add(uManTi);
+                }
+                tIYear.getChildren().add(tiGroup);
+
+            }
+            root.getChildren().add(tIYear);
+
+
+        }
+        summaryList.setRoot(root);
+    }
     private void initProductsTab() {
         boolean newYear = false;
         Year thisYear = new Year(getCurrentYear());
@@ -1258,12 +1298,16 @@ public class UsersGroupsAndYearsController {
         // String tabTitle = "";
         if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue().getKey(), "RootNode")) {
             switch (cell.getValue().getValue().getKey()) {
-                case "Window": {
-                    switch (cell.getValue().getKey()) {
-
-                    }
+                case "Year":
+                    openYear(cell.getValue().getValue().getValue().toString());
                     break;
-                }
+                case "Group":
+                    openGroup((Group) cell.getValue().getValue().getValue());
+                    break;
+                case "User":
+                    openUser((User) cell.getValue().getValue().getValue());
+
+                    break;
 
 
             }
