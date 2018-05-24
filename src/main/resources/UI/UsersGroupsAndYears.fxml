@@ -38,36 +38,44 @@
         </BorderPane>
     </left>
     <center>
-        <TabPane id="UGY_tabPane" fx:id="tabPane" maxHeight="Infinity" maxWidth="Infinity" styleClass="contentPane"
-                 tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                 AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+        <TabPane id="UGY_tabPane" fx:id="tabPane" maxHeight="Infinity" maxWidth="Infinity"
+                 styleClass="contentPane-Layer4" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
+                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                 BorderPane.alignment="CENTER">
             <tabs>
                 <Tab fx:id="usersTab" disable="true" text="Users">
                     <content>
-                        <BorderPane maxHeight="Infinity" maxWidth="Infinity" styleClass="containerPane"
+                        <BorderPane maxHeight="Infinity" maxWidth="Infinity" styleClass="containerPane-Layer3"
                                     AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                                     BorderPane.alignment="CENTER">
                             <center>
-                                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="Infinity"
-                                            maxWidth="Infinity" styleClass="informationPane"
-                                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <ScrollPane styleClass="contentPane" fitToHeight="true" fitToWidth="true"
+                                            maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                            AnchorPane.topAnchor="0.0">
                                     <content>
                                         <Accordion>
                                             <panes>
                                                 <TitledPane fx:id="enabledUsersPane" animated="false"
-                                                            text="Enabled Users">
+                                                            styleClass="informationPane-Layer2" text="Enabled Users">
                                                     <content>
-                                                        <VBox fx:id="enabledUserVbox" prefHeight="200.0"
-                                                              prefWidth="100.0"/>
+                                                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                                                            <content>
+                                                                <VBox fx:id="enabledUserVbox"
+                                                                      styleClass="containerPane"/>
+                                                            </content>
+                                                        </ScrollPane>
                                                     </content>
                                                 </TitledPane>
                                                 <TitledPane fx:id="disabledUserPane" animated="false"
-                                                            text="Disabled Users">
+                                                            styleClass="informationPane-Layer2" text="Disabled Users">
                                                     <content>
-                                                        <VBox fx:id="disabledUserVbox" prefHeight="200.0"
-                                                              prefWidth="100.0"/>
+                                                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                                                            <content>
+                                                                <VBox fx:id="disabledUserVbox"/>
+                                                            </content>
+                                                        </ScrollPane>
                                                     </content>
                                                 </TitledPane>
                                             </panes>

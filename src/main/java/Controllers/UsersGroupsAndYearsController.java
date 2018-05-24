@@ -29,13 +29,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Pair;
@@ -91,7 +90,10 @@ public class UsersGroupsAndYearsController {
     @FXML
     private ComboBox<String> categoriesCmbx;
     private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
+    private Map<String, ArrayList<String>> checkedUsers = new HashMap();
+    private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
+    private Map<String, Integer> groups = new HashMap<>();
     private boolean isRightClick;
 
     public UsersGroupsAndYearsController() {
@@ -508,7 +510,7 @@ public class UsersGroupsAndYearsController {
 
                         switch (newValue.getValue().getKey()) {
                             case "Year":
-                                openYear(newValue.getValue().getValue().toString());
+                                openYear(newValue.getKey());
                                 break;
                             case "Group":
                                 openGroup((Group) newValue.getValue().getValue());
@@ -528,8 +530,102 @@ public class UsersGroupsAndYearsController {
         summaryList.setCellFactory(p -> new TreeCellImpl());
     }
 
-    private void openYear(String year) {
+    private void showTabs() {
+        productsTab.setDisable(false);
+        usersTab.setDisable(false);
+        groupsTab.setDisable(false);
+    }
 
+    private void hideTabs() {
+
+    }
+    private void openYear(String year) {
+        Year yearObj = new Year(year);
+        ArrayList<User> users = DbInt.getUsers();
+        for (User user : users) {
+            ArrayList<User> users2 = new ArrayList<User>();
+
+            TitledPane userPane = new TitledPane();
+            if (user.getYears().contains(year)) {
+                enabledUserVbox.getChildren().add(userPane);
+                user = new User(user.getUserName(), year, true);
+            } else {
+                disabledUserVbox.getChildren().add(userPane);
+
+            }
+            userPane.setText(user.getFullName() + " (" + user.getUserName() + ")");
+            userPane.setExpanded(false);
+            userPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+            userPane.getStyleClass().add("informationPane");
+            FlowPane pane = new FlowPane();
+
+
+            ComboBox<TreeItemPair<String, Integer>> groupBox = new ComboBox<>();
+            TreeView<TreeItemPair<String, String>> yearTView;
+            CheckBoxTreeItem<TreeItemPair<String, String>> yearItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
+            User currentUser = user;
+            users2.add(currentUser);
+
+            Group.getGroups(year).forEach(group -> {
+                CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
+                group.getUsers().forEach(user2 -> {
+                    CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), year);
+                    if (currentUser.getuManage().contains(user2.getUserName())) {
+                        userItem.setSelected(true);
+/*                        checkedUsers.computeIfPresent(year, (k, v) -> {
+                            v.add(user.getUserName());
+                            return v;
+                        });
+                        checkedUsers.computeIfAbsent(year, k -> {
+                            ArrayList<String> v = new ArrayList();
+                            v.add(user.getUserName());
+                            return v;
+                        });
+                        checkedFullName.compute(year, (k, v) -> {
+                            ArrayList<String> vArray = new ArrayList();
+                            vArray.addAll(v);
+                            vArray.add(user.getFullName());
+                            return vArray;
+                        });*/
+/*                        checkedFullName.computeIfAbsent(year, k -> {
+                            ArrayList<String> v = new ArrayList();
+                            v.add(user.getFullName());
+                            return v;
+                        });*/
+                    }
+                    groupItem.getChildren().add(userItem);
+                });
+                yearItem.getChildren().add(groupItem);
+                try {
+                    groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
+                    if (currentUser.getGroupId() == group.getID()) {
+                        groupBox.getSelectionModel().selectLast();
+                    } else if (currentUser.getGroupId() == 0) {
+                        groupBox.getSelectionModel().selectFirst();
+
+                    }
+
+                } catch (Group.GroupNotFoundException ignored) {
+                }
+            });
+            yearTView = new TreeView(yearItem);
+            yearItem.setExpanded(true);
+
+            yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
+            yearTView.refresh();
+            groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+
+                groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+            });
+            BorderPane contents = new BorderPane(new VBox(10, new Label("Users to manage"), yearTView), new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
+            contents.getStyleClass().add("containerPane");
+            userPane.setContent(contents);
+
+
+            groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+
+        }
+        showTabs();
     }
 
     private void openUser(User user) {
@@ -1289,6 +1385,18 @@ public class UsersGroupsAndYearsController {
         }
     }
 
+    private String arrayToCSV(Collection<String> array) {
+        final String[] ret = {""};
+        array.forEach(value -> {
+            if (!ret[0].isEmpty()) {
+                ret[0] = ret[0] + ", " + value;
+            } else {
+                ret[0] = value;
+            }
+        });
+        return ret[0];
+    }
+
     private ContextMenu createContextMenu(TreeItem<TreeItemPair<String, Pair<String, Object>>> cell) {
         ContextMenu cm = new ContextMenu();
         ContextMenu cmContent = new ContextMenu();
@@ -1299,13 +1407,30 @@ public class UsersGroupsAndYearsController {
         if (cell != null && cell.getValue() != null && !Objects.equals(cell.getValue().getValue().getKey(), "RootNode")) {
             switch (cell.getValue().getValue().getKey()) {
                 case "Year":
-                    openYear(cell.getValue().getValue().getValue().toString());
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                openYear(cell.getValue().getKey());
+
+                            }, null,  //Open In New Window
+                            null, null);
+
                     break;
                 case "Group":
-                    openGroup((Group) cell.getValue().getValue().getValue());
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                openGroup((Group) cell.getValue().getValue().getValue());
+
+                            }, null, null, null); //Open In New W
                     break;
                 case "User":
-                    openUser((User) cell.getValue().getValue().getValue());
+                    cmContent = createContextMenuContent(
+                            //Open
+                            () -> {
+                                openUser((User) cell.getValue().getValue().getValue());
+
+                            }, null, null, null);  //Open In New W
 
                     break;
 
@@ -1322,6 +1447,48 @@ public class UsersGroupsAndYearsController {
         return cm;
     }
 
+    private <T> CheckBoxTreeItem<TreeItemPair<String, String>> createUserTreeItem(TreeItemPair<String, String> value, String year) {
+
+        CheckBoxTreeItem<TreeItemPair<String, String>> item = new CheckBoxTreeItem<TreeItemPair<String, String>>(value);
+        if (!value.getValue().isEmpty()) {
+            item.selectedProperty().addListener((obs, wasChecked, isNowChecked) -> {
+                if (isNowChecked) {
+                    checkedUsers.computeIfPresent(year, (k, v) -> {
+                        v.add(value.getValue());
+                        return v;
+                    });
+                    checkedUsers.computeIfAbsent(year, k -> {
+                        ArrayList<String> v = new ArrayList();
+                        v.add(value.getValue());
+                        return v;
+                    });
+                    checkedFullName.computeIfPresent(year, (k, v) -> {
+                        v.add(value.getKey());
+                        return v;
+                    });
+                    checkedFullName.computeIfAbsent(year, k -> {
+                        ArrayList<String> v = new ArrayList();
+                        v.add(value.getKey());
+                        return v;
+                    });
+
+                } else {
+                    checkedUsers.compute(year, (k, v) -> {
+                        v.remove(value.getValue());
+                        return v;
+                    });
+                    checkedFullName.compute(year, (k, v) -> {
+                        v.remove(value.getKey());
+                        return v;
+                    });
+                }
+
+
+            });
+        }
+
+        return item;
+    }
     private ContextMenu createContextMenuContent(contextActionCallback open, contextActionCallback openInNewTab, contextActionCallback openInNewWindow, contextActionCallback edit) {
         ContextMenu cm = new ContextMenu();
         if (open != null) {
