@@ -50,10 +50,10 @@
                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                                     BorderPane.alignment="CENTER">
                             <center>
-                                <ScrollPane styleClass="contentPane" fitToHeight="true" fitToWidth="true"
-                                            maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
-                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                            AnchorPane.topAnchor="0.0">
+                                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="Infinity"
+                                            maxWidth="Infinity" styleClass="contentPane-Layer4"
+                                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <content>
                                         <Accordion>
                                             <panes>

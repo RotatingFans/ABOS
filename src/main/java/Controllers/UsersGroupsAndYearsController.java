@@ -56,7 +56,8 @@ public class UsersGroupsAndYearsController {
     TitledPane enabledUsersPane;
     @FXML
     TitledPane disabledUserPane;
-
+    @FXML
+    VBox groupVbox;
     @FXML
     VBox enabledUserVbox;
     @FXML
@@ -95,7 +96,7 @@ public class UsersGroupsAndYearsController {
 
     private Map<String, Integer> groups = new HashMap<>();
     private boolean isRightClick;
-
+    private String curYear;
     public UsersGroupsAndYearsController() {
 
     }
@@ -540,12 +541,14 @@ public class UsersGroupsAndYearsController {
 
     }
     private void openYear(String year) {
+        curYear = year;
         Year yearObj = new Year(year);
         ArrayList<User> users = DbInt.getUsers();
         for (User user : users) {
             ArrayList<User> users2 = new ArrayList<User>();
 
             TitledPane userPane = new TitledPane();
+
             if (user.getYears().contains(year)) {
                 enabledUserVbox.getChildren().add(userPane);
                 user = new User(user.getUserName(), year, true);
@@ -567,6 +570,7 @@ public class UsersGroupsAndYearsController {
             users2.add(currentUser);
 
             Group.getGroups(year).forEach(group -> {
+
                 CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
                 group.getUsers().forEach(user2 -> {
                     CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), year);
@@ -607,8 +611,10 @@ public class UsersGroupsAndYearsController {
 
                 } catch (Group.GroupNotFoundException ignored) {
                 }
+
             });
             yearTView = new TreeView(yearItem);
+            yearTView.getStyleClass().add("lightTreeView");
             yearItem.setExpanded(true);
 
             yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
@@ -625,6 +631,34 @@ public class UsersGroupsAndYearsController {
             groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
 
         }
+        TreeItem<TreeItemPair<String, String>> groupRoot = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
+
+        Group.getGroups(year).forEach(group -> {
+            TitledPane groupPane = new TitledPane();
+
+            groupVbox.getChildren().add(groupPane);
+
+            groupPane.setText(group.getName());
+            groupPane.setExpanded(false);
+            groupPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+            groupPane.getStyleClass().add("informationPane");
+            TreeItem<TreeItemPair<String, String>> groupItem = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
+            group.getUsers().forEach(user2 -> {
+                CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), year);
+
+                groupItem.getChildren().add(userItem);
+            });
+            groupRoot.getChildren().add(groupItem);
+
+            TreeView<TreeItemPair<String, String>> groupTvView = new TreeView(groupRoot);
+            groupRoot.setExpanded(true);
+            groupTvView.getStyleClass().add("lightTreeView");
+            groupTvView.setCellFactory(CheckBoxTreeCell.forTreeView());
+            groupTvView.refresh();
+            groupPane.setContent(new ScrollPane(groupTvView));
+        });
+
+        initProductsTab();
         showTabs();
     }
 
@@ -788,7 +822,7 @@ public class UsersGroupsAndYearsController {
 
     private String getCurrentYear() {
         //TODO return selected Year
-        return "";
+        return curYear;
     }
     @FXML
     private void submit(ActionEvent event) {

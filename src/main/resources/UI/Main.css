@@ -55,7 +55,7 @@
 } .contentPane {
      -fx-background-color: #d1dbe0;
 }.contentPane-Layer4 {
-      -fx-background-color: derive(#d1dbe0, -20%);
+      -fx-background-color: #b3c3cb;
  }
 .contentPane:disabled {
     -fx-opacity: 0.4;
@@ -64,7 +64,8 @@
      -fx-background-color: transparent;
           -fx-border-color: transparent transparent transparent transparent;
 -fx-border-width: 0px 0px 0px 0px;
-}.containerPane-Layer3 {
+}
+.containerPane-Layer3 {
      -fx-background-color: transparent;
                -fx-border-color: transparent transparent transparent transparent;
      -fx-border-width: 0px 0px 0px 0px;
@@ -84,7 +85,7 @@
 
 }
 .informationPane-Layer2 {
-     -fx-background-color: derive(#e1e7ea, -20%);
+     -fx-background-color: #d1dbe0;
      -fx-border-color: transparent transparent #c2cfd6 transparent;
      -fx-border-width: 0px 0px 3px 0px;
      -fx-text-fill: -fx-darkText;
@@ -95,7 +96,7 @@
 
 }
 .informationPane-Layer3 {
-     -fx-background-color: derive(#e1e7ea, -40%);
+     -fx-background-color: #c2cfd6;
      -fx-border-color: transparent transparent #c2cfd6 transparent;
      -fx-border-width: 0px 0px 3px 0px;
      -fx-text-fill: -fx-darkText;
@@ -132,9 +133,33 @@
      -fx-background-color: -fx-darkText;
 
 }
+.lightTreeView .tree-cell > .tree-disclosure-node > .arrow {
+     -fx-background-color: black;
+
+}
+.lightTreeView .tree-view {
+     -fx-base: #e1e7ea;
+     -fx-control-inner-background: -fx-lightLayer2;
+     -fx-background-color: -fx-lightLayer2;
+     -fx-table-cell-border-color: -fx-borderColor;
+     -fx-table-header-border-color: -fx-borderColor;
+     -fx-padding: 5;
+}
+
+.lightTreeView .tree-cell {
+-fx-text-fill: -fx-darkText;
+}
+/*.lightTreeView .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+     -fx-background-color: #248222;
+     -fx-border-color: #248222;
+     }*/
+
+
 .tree-cell > .tree-disclosure-node > .arrow {
      -fx-background-color: white;
 }
+
+
  .label-header {
      -fx-font-size: 32pt;
      -fx-font-family: "Segoe UI Light";
