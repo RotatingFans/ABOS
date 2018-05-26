@@ -60,12 +60,17 @@
                                                 <TitledPane fx:id="enabledUsersPane" animated="false"
                                                             styleClass="informationPane-Layer2" text="Enabled Users">
                                                     <content>
-                                                        <ScrollPane fitToHeight="true" fitToWidth="true">
-                                                            <content>
-                                                                <VBox fx:id="enabledUserVbox"
-                                                                      styleClass="containerPane"/>
-                                                            </content>
-                                                        </ScrollPane>
+                                                        <VBox>
+                                                            <children>
+                                                                <ScrollPane fitToHeight="true" fitToWidth="true"
+                                                                            VBox.vgrow="ALWAYS">
+                                                                    <content>
+                                                                        <VBox fx:id="enabledUserVbox"
+                                                                              styleClass="containerPane"/>
+                                                                    </content>
+                                                                </ScrollPane>
+                                                            </children>
+                                                        </VBox>
                                                     </content>
                                                 </TitledPane>
                                                 <TitledPane fx:id="disabledUserPane" animated="false"

@@ -154,7 +154,19 @@
      -fx-border-color: #248222;
      }*/
 
+.titled-pane > .title > .arrow-button
+{
+-fx-background-color: null;
+}
 
+.titled-pane > .title > .arrow-button .arrow
+{
+-fx-background-color: gray, black;
+
+}
+.titled-pane > *.content {
+    -fx-border-color: transparent;
+}
 .tree-cell > .tree-disclosure-node > .arrow {
      -fx-background-color: white;
 }

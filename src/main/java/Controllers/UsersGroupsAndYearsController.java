@@ -556,10 +556,43 @@ public class UsersGroupsAndYearsController {
                 disabledUserVbox.getChildren().add(userPane);
 
             }
+            CheckBox selectedCheckBox = new CheckBox(user.getFullName() + " (" + user.getUserName() + ")");
+            selectedCheckBox.setMinSize(CheckBox.USE_PREF_SIZE, CheckBox.USE_PREF_SIZE);
+            //selectedCheckBox.setStyle("-fx-padding: 0px; -fx-border-color: red; -fx-border-width: 2px");
+            Button editButton = new Button("Edit");
+            editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+
+            Pane spacer = new Pane();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            spacer.setMinSize(10, 1);
+            spacer.setMaxWidth(Double.MAX_VALUE);
+            //BorderPane header = new BorderPane();
+            VBox headerRoot = new VBox();
+            headerRoot.setFillWidth(true);
+            HBox header = new HBox();
+            //header.setStyle("-fx-border-color: orange; -fx-border-width: 2px");
+            //header.setPrefWidth(HBox.USE_PREF_SIZE);
+            header.minWidthProperty().bind(userPane.widthProperty().subtract(75));
+            //userPane.prefWidthProperty().bindBidirectional(header.prefWidthProperty());
+            //userPane.minWidthProperty().bindBidirectional(header.minWidthProperty());
+            //selectedCheckBox.setAlignment(Pos.CENTER_LEFT);
+            //editButton.setAlignment(Pos.);
+            //header.setLeft(selectedCheckBox);
+            //header.setRight(editButton);
+            header.getChildren().setAll(selectedCheckBox, spacer, editButton);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            spacer.setMinSize(10, 1);
             userPane.setText(user.getFullName() + " (" + user.getUserName() + ")");
+            headerRoot.getChildren().setAll(header);
+            userPane.setGraphic(header);
+            userPane.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             userPane.setExpanded(false);
-            userPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+            //userPane.setPrefSize(Region.USE_COMPUTED_SIZE,700);
+            // userPane.setMinSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+
             userPane.getStyleClass().add("informationPane");
+
+            VBox.setVgrow(userPane, Priority.ALWAYS);
             FlowPane pane = new FlowPane();
 
 
@@ -614,17 +647,25 @@ public class UsersGroupsAndYearsController {
 
             });
             yearTView = new TreeView(yearItem);
+            yearTView.setPrefHeight(TreeView.USE_COMPUTED_SIZE);
+            yearTView.setPrefWidth(TreeView.USE_COMPUTED_SIZE);
             yearTView.getStyleClass().add("lightTreeView");
             yearItem.setExpanded(true);
-
             yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
+
             yearTView.refresh();
             groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
 
                 groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
             });
-            BorderPane contents = new BorderPane(new VBox(10, new Label("Users to manage"), yearTView), new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
+            VBox.setVgrow(yearTView, Priority.ALWAYS);
+            VBox center = new VBox(10, new Label("Users to manage"), yearTView);
+            center.setFillWidth(true);
+
+            BorderPane contents = new BorderPane(center, new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
             contents.getStyleClass().add("containerPane");
+            contents.setStyle("-fx-border: 0; -fx-border-insets: 0");
+            contents.autosize();
             userPane.setContent(contents);
 
 
