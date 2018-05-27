@@ -79,7 +79,7 @@ public class Year {
             //DROP USER [ IF EXISTS ] user_name
             try {
                 DbInt.getUsers().forEach(user -> {
-                    user.removeFromYear(year);
+                    user.deleteFromYear(year);
                 });
             } catch (Exception ignored) {
             }

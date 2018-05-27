@@ -74,6 +74,7 @@
                                                         </VBox>
                                                     </content>
                                                 </TitledPane>
+
                                                 <TitledPane fx:id="disabledUserPane" animated="false"
                                                             styleClass="informationPane-Layer2" text="Disabled Users">
                                                     <content>
@@ -85,6 +86,23 @@
                                                         </ScrollPane>
                                                     </content>
                                                 </TitledPane>
+                                                <TitledPane fx:id="archivedUsersPane" animated="false"
+                                                            styleClass="informationPane-Layer2" text="Archived Users">
+                                                    <content>
+                                                        <VBox>
+                                                            <children>
+                                                                <ScrollPane fx:id="archivedUsersScrollPane"
+                                                                            fitToHeight="true" fitToWidth="true"
+                                                                            VBox.vgrow="ALWAYS">
+                                                                    <content>
+                                                                        <VBox fx:id="archivedUserVbox"
+                                                                              styleClass="containerPane"/>
+                                                                    </content>
+                                                                </ScrollPane>
+                                                            </children>
+                                                        </VBox>
+                                                    </content>
+                                                </TitledPane>
                                             </panes>
                                         </Accordion>
                                     </content>
@@ -94,11 +112,33 @@
                                 <ButtonBar prefHeight="40.0" prefWidth="200.0" styleClass="informationPane"
                                            BorderPane.alignment="CENTER">
                                     <buttons>
-                                        <Button fx:id="userMenuBtn" mnemonicParsing="false" onAction="#displayUserMenu"
-                                                text="Menu"/>
+                                        <MenuButton fx:id="userMenuBtn" mnemonicParsing="false" text="Menu">
+                                            <items>
+                                                <MenuItem mnemonicParsing="false" onAction="#addSelectedUsersToGroup"
+                                                          text="Add selected to Group"/>
+                                                <MenuItem mnemonicParsing="false" onAction="#disableSelectedUsers"
+                                                          text="Remove Selected from Year"/>
+                                                <MenuItem mnemonicParsing="false" onAction="#enableSelectedUsers"
+                                                          text="Enable Selected"/>
+                                                <MenuItem mnemonicParsing="false" onAction="#addSelectedUsersToUser"
+                                                          text="Add selected to User"/>
+                                                <MenuItem mnemonicParsing="false" onAction="#archiveSelectedUsers"
+                                                          text="Archive User"/>
+                                            </items>
+                                        </MenuButton>
                                     </buttons>
                                 </ButtonBar>
                             </top>
+                            <bottom>
+                                <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                    <buttons>
+                                        <Button fx:id="saveUserBtn" defaultButton="true" mnemonicParsing="false"
+                                                onAction="#saveUsers" text="Save"/>
+                                        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelUser"
+                                                text="Cancel"/>
+                                    </buttons>
+                                </ButtonBar>
+                            </bottom>
                         </BorderPane>
                     </content>
                 </Tab>
@@ -121,8 +161,13 @@
                                 <ButtonBar prefHeight="40.0" prefWidth="200.0" styleClass="informationPane"
                                            BorderPane.alignment="CENTER">
                                     <buttons>
-                                        <Button fx:id="groupMenuBtn" mnemonicParsing="false"
-                                                onAction="#displayGroupMenu" text="Menu"/>
+                                        <MenuButton fx:id="groupMenuBtn" mnemonicParsing="false"
+                                                    onAction="#displayGroupMenu" text="Menu">
+                                            <items>
+                                                <MenuItem mnemonicParsing="false" text="Action 1"/>
+                                                <MenuItem mnemonicParsing="false" text="Action 2"/>
+                                            </items>
+                                        </MenuButton>
                                     </buttons>
                                 </ButtonBar>
                             </top>
