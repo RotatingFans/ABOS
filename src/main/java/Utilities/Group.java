@@ -97,7 +97,7 @@ public class Group {
 
                     while (rs.next()) {
 
-                        groups.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), rs.getInt("groupID")));
+                        groups.add(new User(rs.getString("userName"), year));
                         ////Utilities.DbInt.pCon.close();
                     }
                 }
@@ -114,7 +114,7 @@ public class Group {
 
                 while (rs.next()) {
 
-                    groups.add(new User(rs.getString("userName"), rs.getString("fullName"), rs.getString("uManage"), rs.getInt("groupID")));
+                    groups.add(new User(rs.getString("userName"), year, true));
                     ////Utilities.DbInt.pCon.close();
                 }
             }

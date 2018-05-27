@@ -62,7 +62,8 @@
                                                     <content>
                                                         <VBox>
                                                             <children>
-                                                                <ScrollPane fitToHeight="true" fitToWidth="true"
+                                                                <ScrollPane fx:id="enabledUsersScrollPane"
+                                                                            fitToHeight="true" fitToWidth="true"
                                                                             VBox.vgrow="ALWAYS">
                                                                     <content>
                                                                         <VBox fx:id="enabledUserVbox"
@@ -76,7 +77,8 @@
                                                 <TitledPane fx:id="disabledUserPane" animated="false"
                                                             styleClass="informationPane-Layer2" text="Disabled Users">
                                                     <content>
-                                                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                                                        <ScrollPane fx:id="disabledUsersScrollPane" fitToHeight="true"
+                                                                    fitToWidth="true">
                                                             <content>
                                                                 <VBox fx:id="disabledUserVbox"/>
                                                             </content>

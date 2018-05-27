@@ -505,5 +505,18 @@ public class User {
         return ret[0];
     }
 
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof User)) {
+            return false;
+        }
+        User other = (User) obj;
+        return this.getUserName().equals(other.getUserName());
+    }
 
+    public int hashCode() {
+        return getUserName().hashCode();
+    }
 }

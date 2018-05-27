@@ -28,6 +28,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -38,7 +39,10 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,6 +55,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+//import org.w3c.dom.*;
+
 public class UsersGroupsAndYearsController {
     @FXML
     TitledPane enabledUsersPane;
@@ -60,6 +66,10 @@ public class UsersGroupsAndYearsController {
     VBox groupVbox;
     @FXML
     VBox enabledUserVbox;
+    @FXML
+    ScrollPane enabledUsersScrollPane;
+    @FXML
+    ScrollPane disabledUsersScrollPane;
     @FXML
     VBox disabledUserVbox;
     @FXML
@@ -92,6 +102,7 @@ public class UsersGroupsAndYearsController {
     private ComboBox<String> categoriesCmbx;
     private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
     private Map<String, ArrayList<String>> checkedUsers = new HashMap();
+    private Map<User, Node> allUsers = new HashMap();
     private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
     private Map<String, Integer> groups = new HashMap<>();
@@ -517,7 +528,14 @@ public class UsersGroupsAndYearsController {
                                 openGroup((Group) newValue.getValue().getValue());
                                 break;
                             case "User":
-                                openUser((User) newValue.getValue().getValue());
+                                String year = "";
+                                if (summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getKey();
+                                } else if (summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getKey();
+
+                                }
+                                openUser((User) newValue.getValue().getValue(), year);
 
                                 break;
 
@@ -544,7 +562,10 @@ public class UsersGroupsAndYearsController {
         curYear = year;
         Year yearObj = new Year(year);
         ArrayList<User> users = DbInt.getUsers();
+        allUsers.clear();
+
         for (User user : users) {
+
             ArrayList<User> users2 = new ArrayList<User>();
 
             TitledPane userPane = new TitledPane();
@@ -670,6 +691,7 @@ public class UsersGroupsAndYearsController {
 
 
             groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+            allUsers.put(user, userPane);
 
         }
         TreeItem<TreeItemPair<String, String>> groupRoot = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
@@ -703,8 +725,25 @@ public class UsersGroupsAndYearsController {
         showTabs();
     }
 
-    private void openUser(User user) {
+    private void openUser(User user, String year) {
+        if (!curYear.equals(year)) {
+            openYear(year);
+        }
+        if (user.getYears().contains(year)) {
+            TitledPane userPane = (TitledPane) allUsers.get(user);
+            userPane.setExpanded(true);
+            enabledUsersPane.setExpanded(true);
+            double vvalue = userPane.getLayoutX() / (userPane.getHeight() - enabledUsersScrollPane.getHeight());
 
+            enabledUsersScrollPane.setVvalue(vvalue);
+        } else {
+            TitledPane userPane = (TitledPane) allUsers.get(user);
+            userPane.setExpanded(true);
+            disabledUserPane.setExpanded(true);
+            double vvalue = userPane.getBoundsInParent().getMinY() / (userPane.getHeight() - disabledUsersScrollPane.getHeight());
+
+            disabledUsersScrollPane.setVvalue(vvalue);
+        }
     }
 
     private void openGroup(Group group) {
@@ -748,6 +787,7 @@ public class UsersGroupsAndYearsController {
                 Iterable<User> users = group.getUsers();
 
                 for (User user : users) {
+
                     contextTreeItem uManTi = new contextTreeItem(user.getFullName() + " (" + user.getUserName() + ")", new Pair<>("User", user));
                     tiGroup.getChildren().add(uManTi);
                 }
@@ -1265,10 +1305,10 @@ public class UsersGroupsAndYearsController {
 
             for (int temp = 0; temp < nListCats.getLength(); temp++) {
 
-                Node nNode = nListCats.item(temp);
+                org.w3c.dom.Node nNode = nListCats.item(temp);
 
 
-                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+                if ((int) nNode.getNodeType() == (int) org.w3c.dom.Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
                     rowsCats.add(new Year.category(eElement.getElementsByTagName("CategoryName").item(0).getTextContent(), eElement.getElementsByTagName("CategoryDate").item(0).getTextContent()));
@@ -1281,10 +1321,10 @@ public class UsersGroupsAndYearsController {
 
             for (int temp = 0; temp < nList.getLength(); temp++) {
 
-                Node nNode = nList.item(temp);
+                org.w3c.dom.Node nNode = nList.item(temp);
 
 
-                if ((int) nNode.getNodeType() == (int) Node.ELEMENT_NODE) {
+                if ((int) nNode.getNodeType() == (int) org.w3c.dom.Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
 
@@ -1503,7 +1543,14 @@ public class UsersGroupsAndYearsController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                openUser((User) cell.getValue().getValue().getValue());
+                                String year = "";
+                                if (cell.getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = cell.getParent().getValue().getKey();
+                                } else if (cell.getParent().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = cell.getParent().getParent().getValue().getKey();
+
+                                }
+                                openUser((User) cell.getValue().getValue().getValue(), year);
 
                             }, null, null, null);  //Open In New W
 
