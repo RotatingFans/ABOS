@@ -128,6 +128,7 @@ public class DbInt {
         }
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
+        System.out.println("Reading from " + Db);
         try {
             if (connectionPools.containsKey(url)) {
                 Connection con = connectionPools.get(url).getConnection(); // fetch a connection

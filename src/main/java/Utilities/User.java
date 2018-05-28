@@ -26,108 +26,40 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class User {
-    private String fullName;
-    private ArrayList<String> uManage = new ArrayList<>();
+    private Utilities.Settable<ArrayList<String>> uManage = new Utilities.Settable(null, null);
+    private Utilities.Settable<Set<String>> years = new Utilities.Settable(null, null);
+    private Utilities.Settable<String> fullName = new Utilities.Settable("", "");
+    private Utilities.Settable<String> userName = new Utilities.Settable("", "");
+    private Utilities.Settable<Integer> groupId = new Utilities.Settable(-1, -1);
+    private Utilities.Settable<Integer> ACL = new Utilities.Settable(-1, -1);
+    private Utilities.Settable<Boolean> Admin = new Utilities.Settable(null, null);
+
+/*    private String fullName;
+    //private ArrayList<String> uManage = new ArrayList<>();
     private int groupId = 1;
     private String userName;
     private Boolean Admin = false;
     private Set<String> years = new HashSet<>();
-    private int ACL = 1;
-
-    public void deleteFromYear(String year) {
-        if (years.remove(year) && !isAdmin()) {
-            String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups FROM '" + userName + "'@'%'",
-                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories FROM '" + userName + "'@'%'"};
-            try (Connection con = DbInt.getConnection();
-                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-
-                prep.addBatch(createAndGrantCommand[0]);
-                prep.addBatch(createAndGrantCommand[1]);
-                prep.addBatch(createAndGrantCommand[2]);
-                prep.addBatch(createAndGrantCommand[3]);
-                prep.addBatch(createAndGrantCommand[4]);
-                prep.addBatch(createAndGrantCommand[5]);
-                prep.addBatch(createAndGrantCommand[6]);
-
-                prep.executeBatch();
-            } catch (SQLException e) {
-                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-            }
-        }
-        try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("UPDATE Users SET Years=? WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, arrayToCSV(years));
-            prep.setString(2, userName);
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        Integer CommonsID = 0;
-        try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("SELECT idUsers FROM Users where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
-            try (ResultSet rs = prep.executeQuery()) {
-                rs.next();
-                CommonsID = rs.getInt("idUsers");
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        String oldUName = userName;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT userName FROM users where commonsID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, CommonsID);
-            try (ResultSet rs = prep.executeQuery()) {
-                if (rs.next()) {
-                    oldUName = rs.getString("userName");
-                }
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
-
-
-            prep.execute();
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-
-    }
-
-    public User(String year) {
-        this(DbInt.getUserName(), year);
-
-    }
-
-    public User(String userName, String year) {
-        this(userName, year, DbInt.isAdmin());
-    }
+    private int ACL = 1;*/
 
     public User(String userName, String year, Boolean admin) {
-        this.userName = userName;
+        this.userName.set(userName);
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("SELECT * FROM " + (admin ? "users" : "usersview") + " where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, userName);
             try (ResultSet rs = prep.executeQuery()) {
                 if (rs.next()) {
-                    this.fullName = rs.getString("fullName");
+                    this.fullName.set(rs.getString("fullName"));
                     List<String> retL = new ArrayList<String>(Arrays.asList(rs.getString("uManage").split("\\s*,\\s*")));
                     retL.forEach(uName -> {
                         if (!uName.isEmpty()) {
-                            this.uManage.add(uName);
+                            ArrayList<String> uMan = this.uManage.orElseGet(() -> {return new ArrayList<String>();});
+                            uMan.add(uName);
+                            this.uManage.set(uMan);
                         }
                     });
-                    this.groupId = rs.getInt("groupId");
-                    this.Admin = rs.getInt("Admin") > 0;
+                    this.groupId.set(rs.getInt("groupId"));
+                    this.Admin.set(rs.getInt("Admin") > 0);
                 }
             }
         } catch (SQLException e) {
@@ -154,12 +86,35 @@ public class User {
         }
 
         List<String> yearsL = new ArrayList<String>(Arrays.asList(csvRet.split("\\s*,\\s*")));
-        yearsL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.years.add(uName);
+        yearsL.forEach(yearIt -> {
+            if (!yearIt.isEmpty()) {
+                HashSet<String> uMan = (HashSet<String>) this.years.orElseGet(() -> {return new HashSet<String>();});
+                uMan.add(yearIt);
+                this.years.set(uMan);
+            } else {
+                this.years.setIfNot(new HashSet<String>());
+
             }
         });
 
+    }
+
+    public User(String year) {
+        this(DbInt.getUserName(), year);
+
+    }
+
+    public User(String userName, String year) {
+        this(userName, year, DbInt.isAdmin());
+    }
+
+    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, Boolean admin, int groupId) {
+        this.userName.set(userName);
+        this.fullName.set(fullName);
+        this.uManage.set(uManage);
+        this.groupId.set(groupId);
+        this.years.set(years);
+        this.Admin.set(admin);
     }
 
     public User(String userName, String fullName, ArrayList<String> uManage, int groupId) {
@@ -170,13 +125,29 @@ public class User {
         this(userName, fullName, uManage, null, false, groupId);
     }
 
-    public User(String userName, String fullName, ArrayList<String> uManage, Set<String> years, Boolean admin, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        this.uManage = uManage;
-        this.groupId = groupId;
-        this.years = years;
-        this.Admin = admin;
+    public User(String userName, String fullName, String uManage, String years, boolean admin, int groupId) {
+        this.userName.set(userName);
+        this.fullName.set(fullName);
+        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
+        retL.forEach(uName -> {
+            if (!uName.isEmpty()) {
+                ArrayList<String> uMan = this.uManage.orElseGet(() -> {return new ArrayList<String>();});
+                uMan.add(uName);
+                this.uManage.set(uMan);
+
+            }
+        });
+        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
+        yearsL.forEach(yearIt -> {
+            if (!yearIt.isEmpty()) {
+                this.years.orElseGet(() -> {return new HashSet<>();}).add(yearIt);
+                HashSet<String> uMan = (HashSet<String>) this.years.orElseGet(() -> {return new HashSet<String>();});
+                uMan.add(yearIt);
+                this.years.set(uMan);
+            }
+        });
+        this.groupId.set(groupId);
+        this.Admin.set(admin);
     }
 
     public User(String userName, String fullName, String uManage, int groupId) {
@@ -193,23 +164,73 @@ public class User {
         this(userName, fullName, uManage, years, false, groupId);
     }
 
-    public User(String userName, String fullName, String uManage, String years, boolean admin, int groupId) {
-        this.userName = userName;
-        this.fullName = fullName;
-        List<String> retL = new ArrayList<String>(Arrays.asList(uManage.split("\\s*,\\s*")));
-        retL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.uManage.add(uName);
+    public void deleteFromYear(String year) {
+        if (years.get().remove(year) && !isAdmin()) {
+            String[] createAndGrantCommand = {"REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.customerview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.orderedproductsview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.ordersview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT, INSERT, UPDATE, DELETE ON `" + DbInt.prefix + year + "`.usersview FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.products FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.groups FROM '" + userName + "'@'%'",
+                    "REVOKE SELECT ON `" + DbInt.prefix + year + "`.categories FROM '" + userName + "'@'%'"};
+            try (Connection con = DbInt.getConnection();
+                 PreparedStatement prep = con.prepareStatement("", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+                prep.addBatch(createAndGrantCommand[0]);
+                prep.addBatch(createAndGrantCommand[1]);
+                prep.addBatch(createAndGrantCommand[2]);
+                prep.addBatch(createAndGrantCommand[3]);
+                prep.addBatch(createAndGrantCommand[4]);
+                prep.addBatch(createAndGrantCommand[5]);
+                prep.addBatch(createAndGrantCommand[6]);
+
+                prep.executeBatch();
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-        });
-        List<String> yearsL = new ArrayList<String>(Arrays.asList(years.split("\\s*,\\s*")));
-        yearsL.forEach(uName -> {
-            if (!uName.isEmpty()) {
-                this.years.add(uName);
+        }
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("UPDATE Users SET Years=? WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, arrayToCSV(getYears()));
+            prep.setString(2, getUserName());
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        Integer CommonsID = 0;
+        try (Connection con = DbInt.getConnection("Commons");
+             PreparedStatement prep = con.prepareStatement("SELECT idUsers FROM Users where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, getUserName());
+            try (ResultSet rs = prep.executeQuery()) {
+                rs.next();
+                CommonsID = rs.getInt("idUsers");
             }
-        });
-        this.groupId = groupId;
-        this.Admin = admin;
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+        String oldUName = getUserName();
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("SELECT userName FROM users where commonsID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setInt(1, CommonsID);
+            try (ResultSet rs = prep.executeQuery()) {
+                if (rs.next()) {
+                    oldUName = rs.getString("userName");
+                }
+            }
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            prep.setString(1, getUserName());
+
+
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+
     }
 
     public static User createUser(String uName, String password, String fullName, Boolean admin) {
@@ -311,7 +332,7 @@ public class User {
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("UPDATE Users SET Years=CONCAT(Years, ',', ?) WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, year);
-            prep.setString(2, userName);
+            prep.setString(2, getUserName());
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -319,7 +340,7 @@ public class User {
         Integer CommonsID = 0;
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("SELECT idUsers FROM Users where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
+            prep.setString(1, getUserName());
             try (ResultSet rs = prep.executeQuery()) {
                 rs.next();
                 CommonsID = rs.getInt("idUsers");
@@ -330,12 +351,12 @@ public class User {
 
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("INSERT INTO users(userName, fullName, uManage, Admin, commonsID, groupId) VALUES(?,?,?,?,?,?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
-            prep.setString(2, fullName);
-            prep.setString(3, arrayToCSV(uManage));
-            prep.setInt(4, Admin ? 1 : 0);
+            prep.setString(1, getUserName());
+            prep.setString(2, getFullName());
+            prep.setString(3, arrayToCSV(getuManage()));
+            prep.setInt(4, isAdmin() ? 1 : 0);
             prep.setInt(5, CommonsID);
-            prep.setInt(6, groupId);
+            prep.setInt(6, getGroupId());
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -367,10 +388,10 @@ public class User {
         }
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("UPDATE Users SET Years=?, fullName=?, Admin=? WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, arrayToCSV(years));
-            prep.setString(2, fullName);
-            prep.setInt(3, Admin ? 1 : 0);
-            prep.setString(4, userName);
+            prep.setString(1, arrayToCSV(getYears()));
+            prep.setString(2, getFullName());
+            prep.setInt(3, isAdmin() ? 1 : 0);
+            prep.setString(4, getUserName());
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -378,7 +399,7 @@ public class User {
         Integer CommonsID = 0;
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("SELECT idUsers FROM Users where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
+            prep.setString(1, getUserName());
             try (ResultSet rs = prep.executeQuery()) {
                 rs.next();
                 CommonsID = rs.getInt("idUsers");
@@ -386,7 +407,7 @@ public class User {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        String oldUName = userName;
+        String oldUName = getUserName();
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("SELECT userName FROM users where commonsID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, CommonsID);
@@ -402,18 +423,18 @@ public class User {
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("INSERT INTO users(userName, fullName, uManage, Admin, commonsID, groupId, ACL) VALUES(?,?,?,?,?,?, 1) " +
                      "ON DUPLICATE KEY UPDATE userName=?, fullName=?, uManage=?, Admin=?, commonsID=?, groupId=?, ACL=1", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, userName);
-            prep.setString(2, fullName);
-            prep.setString(3, arrayToCSV(uManage));
-            prep.setInt(4, Admin ? 1 : 0);
+            prep.setString(1, getUserName());
+            prep.setString(2, getFullName());
+            prep.setString(3, arrayToCSV(getuManage()));
+            prep.setInt(4, isAdmin() ? 1 : 0);
             prep.setInt(5, CommonsID);
-            prep.setInt(6, groupId);
-            prep.setString(7, userName);
-            prep.setString(8, fullName);
-            prep.setString(9, arrayToCSV(uManage));
-            prep.setInt(10, Admin ? 1 : 0);
+            prep.setInt(6, getGroupId());
+            prep.setString(7, getUserName());
+            prep.setString(8, getFullName());
+            prep.setString(9, arrayToCSV(getuManage()));
+            prep.setInt(10, isAdmin() ? 1 : 0);
             prep.setInt(11, CommonsID);
-            prep.setInt(12, groupId);
+            prep.setInt(12, getGroupId());
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -421,7 +442,7 @@ public class User {
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("UPDATE users SET uManage = REPLACE (uManage, ?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, oldUName);
-            prep.setString(2, userName);
+            prep.setString(2, getUserName());
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -431,55 +452,55 @@ public class User {
     public enum STATUS {ENABLED, DISABLED, ARCHIVED}
 
     public String toString() {
-        return fullName + " (" + userName + ")";
+        return getFullName() + " (" + getFullName() + ")";
     }
 
     public boolean isAdmin() {
-        return Admin;
+        return Admin.get();
     }
 
     public void setAdmin(Boolean admin) {
-        Admin = admin;
+        Admin.set(admin);
     }
 
     public String getUserName() {
-        return userName;
+        return userName.get();
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.userName.set(userName);
     }
 
     public String getFullName() {
-        return fullName;
+        return fullName.get();
     }
 
     public void setFullName(String fullName) {
-        this.fullName = fullName;
+        this.fullName.set(fullName);
     }
 
     public ArrayList<String> getuManage() {
-        return uManage;
+        return uManage.get();
     }
 
     public void setuManage(ArrayList<String> uManage) {
-        this.uManage = uManage;
+        this.uManage.set(uManage);
     }
 
     public Set<String> getYears() {
-        return years;
+        return years.get();
     }
 
     public void setYears(Set<String> years) {
-        this.years = years;
+        this.years.set(years);
     }
 
     public int getGroupId() {
-        return groupId;
+        return groupId.get();
     }
 
     public void setGroupId(int groupId) {
-        this.groupId = groupId;
+        this.groupId.set(groupId);
     }
 
     private String arrayToCSV(Collection<String> array) {

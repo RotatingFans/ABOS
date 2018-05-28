@@ -22,6 +22,7 @@ package Controllers;
 import Exceptions.AccessException;
 import Launchers.AddGroup;
 import Utilities.*;
+import Workers.LoadUGYWorker;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -55,6 +56,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -112,6 +114,11 @@ public class UsersGroupsAndYearsController {
     @FXML
     private TextField idTb;
     //private final JDialog parent;
+    //UserName -> year -> UserObject
+    private Map<String, Map<String, User>> cachedUsers = new HashMap<>();
+    //year -> groups
+    private Map<String, ArrayList<Group>> cachedGroups = new HashMap<>();
+
     private Collection<Year.category> rowsCats = new ArrayList<Year.category>();
     private ObservableList<String> categoriesTb = FXCollections.observableArrayList();
     @FXML
@@ -526,7 +533,7 @@ public class UsersGroupsAndYearsController {
      */
     public void initUsersGroupsAndYears(Window parWindow) throws AccessException {
         parentWindow = parWindow;
-        fillTreeView();
+        fillTreeView(null);
 
         summaryList.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             if (event.isSecondaryButtonDown()) {
@@ -554,7 +561,7 @@ public class UsersGroupsAndYearsController {
                                     year = summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getKey();
 
                                 }
-                                openGroup((Group) newValue.getValue().getValue(), year, false);
+                                openGroup((Group) newValue.getValue().getValue(), year);
                                 break;
                             case "User":
                                 year = "";
@@ -564,7 +571,7 @@ public class UsersGroupsAndYearsController {
                                     year = summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getKey();
 
                                 }
-                                openUser((User) newValue.getValue().getValue(), year, false);
+                                openUser((User) newValue.getValue().getValue(), year);
 
                                 break;
 
@@ -576,6 +583,47 @@ public class UsersGroupsAndYearsController {
         });
 
         summaryList.setCellFactory(p -> new TreeCellImpl());
+    }
+
+    private void fillTreeView(actionCallback cb) {
+        //ProgressDialog progDial = new ProgressDialog();
+        ProgressForm progDial = new ProgressForm();
+//Do check if new or not, send -1 as ID
+
+        LoadUGYWorker loadWorker = new LoadUGYWorker(this);
+
+        progDial.activateProgressBar(loadWorker);
+        loadWorker.setOnSucceeded(event -> {
+            summaryList.setRoot(loadWorker.getValue().getLeft());
+            cachedUsers = loadWorker.getValue().getMiddle();
+            cachedGroups = loadWorker.getValue().getRight();
+            progDial.getDialogStage().close();
+            if (cb != null) {
+                cb.doAction();
+            }
+        });
+        loadWorker.setOnFailed(event -> {
+            progDial.getDialogStage().close();
+
+            Throwable e = loadWorker.getException();
+
+            if (e instanceof SQLException) {
+                LogToFile.log((SQLException) e, Severity.SEVERE, CommonErrors.returnSqlMessage(((SQLException) loadWorker.getException())));
+
+            }
+            if (e instanceof InterruptedException) {
+                if (loadWorker.isCancelled()) {
+                    LogToFile.log((InterruptedException) e, Severity.FINE, "Load process canceled.");
+
+                }
+            }
+
+
+        });
+
+
+        progDial.getDialogStage().show();
+        new Thread(loadWorker).start();
     }
 
     private void showTabs() {
@@ -598,34 +646,32 @@ public class UsersGroupsAndYearsController {
 
         curYear = year;
         Year yearObj = new Year(year);
-        ArrayList<User> users = DbInt.getUsers();
+        //ArrayList<User> users = DbInt.getUsers();
         allUsers.clear();
         allGroups.clear();
         selectedUsers.clear();
         userPaneCheckboxes.clear();
         checkedUsers.clear();
         // checkedFullName.clear();
-        for (User user : users) {
+        cachedUsers.forEach((key, value) -> {
+            User user = value.getOrDefault(year, null);
             User.STATUS status;
             ArrayList<User> users2 = new ArrayList<User>();
 
             TitledPane userPane = new TitledPane();
-
-            if (user.getYears().contains(year)) {
-                status = User.STATUS.ENABLED;
-                enabledUserVbox.getChildren().add(userPane);
-                user = new User(user.getUserName(), year, true);
-            } else {
-                if (yearObj.getUsers().contains(user)) {
-                    status = User.STATUS.ARCHIVED;
-
-                    archivedUserVbox.getChildren().add(userPane);
-                    user = new User(user.getUserName(), year, true);
+            if (user != null) {
+                if (user.getYears().contains(year)) {
+                    status = User.STATUS.ENABLED;
+                    enabledUserVbox.getChildren().add(userPane);
                 } else {
-                    status = User.STATUS.DISABLED;
-
-                    disabledUserVbox.getChildren().add(userPane);
+                    status = User.STATUS.ARCHIVED;
+                    archivedUserVbox.getChildren().add(userPane);
                 }
+            } else {
+                status = User.STATUS.DISABLED;
+                user = value.get("DB");
+                disabledUserVbox.getChildren().add(userPane);
+
             }
             CheckBox selectedCheckBox = new CheckBox(user.getFullName() + " (" + user.getUserName() + ")");
             selectedCheckBox.setMinSize(CheckBox.USE_PREF_SIZE, CheckBox.USE_PREF_SIZE);
@@ -696,27 +742,26 @@ public class UsersGroupsAndYearsController {
             CheckBoxTreeItem<TreeItemPair<String, String>> yearItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
             User currentUser = user;
             users2.add(currentUser);
+            if (status != User.STATUS.DISABLED) {
+                cachedGroups.get(year).forEach(group -> {
+                    CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
 
-            Group.getGroups(year).forEach(group -> {
+                    group.getUsers().forEach(user2 -> {
+                        CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), currentUser);
+                        if (currentUser.getuManage().contains(user2.getUserName())) {
+                            userItem.setSelected(true);
+                            checkedUsers.computeIfPresent(currentUser, (k, v) -> {
+                                if (!v.contains(user2.getUserName())) {
 
-                CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = new CheckBoxTreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
-
-                group.getUsers().forEach(user2 -> {
-                    CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createUserTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), currentUser);
-                    if (currentUser.getuManage().contains(user2.getUserName())) {
-                        userItem.setSelected(true);
-                        checkedUsers.computeIfPresent(currentUser, (k, v) -> {
-                            if (!v.contains(user2.getUserName())) {
-
+                                    v.add(user2.getUserName());
+                                }
+                                return v;
+                            });
+                            checkedUsers.computeIfAbsent(currentUser, k -> {
+                                ArrayList<String> v = new ArrayList();
                                 v.add(user2.getUserName());
-                            }
-                            return v;
-                        });
-                        checkedUsers.computeIfAbsent(currentUser, k -> {
-                            ArrayList<String> v = new ArrayList();
-                            v.add(user2.getUserName());
-                            return v;
-                        });
+                                return v;
+                            });
                         /*checkedFullName.compute(year, (k, v) -> {
                             ArrayList<String> vArray = new ArrayList();
                             vArray.addAll(v);
@@ -728,63 +773,66 @@ public class UsersGroupsAndYearsController {
                             v.add(user2.getFullName());
                             return v;
                         });*/
+                        }
+                        groupItem.getChildren().add(userItem);
+                    });
+                    yearItem.getChildren().add(groupItem);
+                    try {
+                        groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
+                        if (currentUser.getGroupId() == group.getID()) {
+                            groupBox.getSelectionModel().selectLast();
+                        } else if (currentUser.getGroupId() == 0) {
+                            groupBox.getSelectionModel().selectFirst();
+
+                        }
+
+                    } catch (Group.GroupNotFoundException ignored) {
                     }
-                    groupItem.getChildren().add(userItem);
-                });
-                yearItem.getChildren().add(groupItem);
-                try {
-                    groupBox.getItems().add(new TreeItemPair<String, Integer>(group.getName(), group.getID()));
-                    if (currentUser.getGroupId() == group.getID()) {
-                        groupBox.getSelectionModel().selectLast();
-                    } else if (currentUser.getGroupId() == 0) {
-                        groupBox.getSelectionModel().selectFirst();
 
-                    }
-
-                } catch (Group.GroupNotFoundException ignored) {
-                }
-
-            });
-            yearTView = new TreeView(yearItem);
-            yearTView.setPrefHeight(TreeView.USE_COMPUTED_SIZE);
-            yearTView.setMinHeight(70);
-            yearTView.setPrefWidth(TreeView.USE_COMPUTED_SIZE);
-            yearTView.getStyleClass().add("lightTreeView");
-            yearItem.setExpanded(true);
-            yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
-            yearTView.setFixedCellSize(35);
-
-            yearTView.expandedItemCountProperty().addListener((ob, oldVal, newVal) -> {
-                Platform.runLater(() -> {
-                    yearTView.setPrefHeight(newVal.doubleValue() * (yearTView.getFixedCellSize()) + 10);
-                    yearTView.setMinHeight(newVal.doubleValue() * (yearTView.getFixedCellSize()) + 10);
-                    //yearTView.scrollTo(yearTView.getSelectionModel().getSelectedIndex());
-                    yearTView.refresh();
                 });
 
-            });
-            yearTView.refresh();
-            groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+                yearTView = new TreeView(yearItem);
+                yearTView.setPrefHeight(TreeView.USE_COMPUTED_SIZE);
+                yearTView.setMinHeight(70);
+                yearTView.setPrefWidth(TreeView.USE_COMPUTED_SIZE);
+                yearTView.getStyleClass().add("lightTreeView");
+                yearItem.setExpanded(true);
+                yearTView.setCellFactory(CheckBoxTreeCell.forTreeView());
+                yearTView.setFixedCellSize(35);
+
+                yearTView.expandedItemCountProperty().addListener((ob, oldVal, newVal) -> {
+                    Platform.runLater(() -> {
+                        yearTView.setPrefHeight(newVal.doubleValue() * (yearTView.getFixedCellSize()) + 10);
+                        yearTView.setMinHeight(newVal.doubleValue() * (yearTView.getFixedCellSize()) + 10);
+                        //yearTView.scrollTo(yearTView.getSelectionModel().getSelectedIndex());
+                        yearTView.refresh();
+                    });
+
+                });
+                yearTView.refresh();
+                groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+
+                    groups.put(currentUser, groupBox.getSelectionModel().getSelectedItem().getValue());
+                });
+                VBox.setVgrow(yearTView, Priority.ALWAYS);
+                VBox center = new VBox(10, new Label("Users to manage"), yearTView);
+                center.setFillWidth(true);
+
+                BorderPane contents = new BorderPane(center, new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
+                contents.getStyleClass().add("containerPane");
+                contents.setStyle("-fx-border: 0; -fx-border-insets: 0");
+                contents.autosize();
+                userPane.setContent(contents);
+
 
                 groups.put(currentUser, groupBox.getSelectionModel().getSelectedItem().getValue());
-            });
-            VBox.setVgrow(yearTView, Priority.ALWAYS);
-            VBox center = new VBox(10, new Label("Users to manage"), yearTView);
-            center.setFillWidth(true);
-
-            BorderPane contents = new BorderPane(center, new HBox(10, new Label("Group to be a part of"), groupBox), null, null, null);
-            contents.getStyleClass().add("containerPane");
-            contents.setStyle("-fx-border: 0; -fx-border-insets: 0");
-            contents.autosize();
-            userPane.setContent(contents);
-
-
-            groups.put(currentUser, groupBox.getSelectionModel().getSelectedItem().getValue());
+            }
             allUsers.put(user, userPane);
 
-        }
+        });
 
-        Group.getGroups(year).forEach(group -> {
+
+        cachedGroups.get(year).forEach(group -> {
             // TreeItem<TreeItemPair<String, String>> groupRoot = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
 
             TitledPane groupPane = new TitledPane();
@@ -827,9 +875,7 @@ public class UsersGroupsAndYearsController {
                         usr.updateYear(year);
                     });
                 });
-                hideTabs();
-                fillTreeView();
-                openYear(curYear);
+                refresh(null);
             });
             editButton.getItems().add(removeAllFromGroup);
             editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
@@ -904,10 +950,9 @@ public class UsersGroupsAndYearsController {
         showTabs();
     }
 
-    private void openUser(User user, String year, boolean refresh) {
-        if (!curYear.equals(year) || refresh) {
+    private void openUser(User user, String year) {
             openYear(year);
-        }
+
 
         if (user.getYears().contains(year)) {
 
@@ -940,10 +985,9 @@ public class UsersGroupsAndYearsController {
         tabPane.getSelectionModel().select(0);
     }
 
-    private void openGroup(Group group, String year, boolean refresh) {
-        if (!curYear.equals(year) || refresh) {
+    private void openGroup(Group group, String year) {
             openYear(year);
-        }
+
 
         TitledPane groupPane = (TitledPane) allGroups.get(group);
         groupPane.setExpanded(true);
@@ -1380,8 +1424,7 @@ public class UsersGroupsAndYearsController {
         result.ifPresent(res -> {
             if (res.equals(randomStr)) {
                 group.removeGroup();
-                hideTabs();
-                openYear(curYear);
+                refresh(null);
             }
         });
     }
@@ -1457,8 +1500,10 @@ public class UsersGroupsAndYearsController {
                 user.getYears().forEach(year -> {
                     user.updateYear(year);
                 });
-                openUser(user, curYear, true);
-                fillTreeView();
+                refresh(() -> {
+                    openUser(user, curYear);
+                });
+
 
                 ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
 
@@ -1472,8 +1517,8 @@ public class UsersGroupsAndYearsController {
 
     private void editGroup(Group group) {
         AddGroup.addGroup(curYear, group.getName(), (grp) -> {
-            fillTreeView();
-            openGroup(grp, curYear, true);
+            refresh(() -> {openGroup(grp, curYear);});
+
         });
 
     }
@@ -1505,14 +1550,19 @@ public class UsersGroupsAndYearsController {
             user.updateYear(curYear);
         });
 
-        refresh();
+        refresh(null);
 
     }
 
-    private void refresh() {
-        fillTreeView();
+    private void refresh(actionCallback cb) {
         hideTabs();
-        openYear(curYear);
+
+        fillTreeView(() -> {
+            openYear(curYear);
+            if (cb != null) {
+                cb.doAction();
+            }
+        });
     }
 
     @FXML
@@ -1591,8 +1641,10 @@ public class UsersGroupsAndYearsController {
                 user.setYears(years);
                 user.setGroupId(1);
                 user.updateYear(curYear);
-                openUser(user, curYear, true);
-                fillTreeView();
+                refresh(() -> {
+                    openUser(user, curYear);
+
+                });
                 //allUsersList.getItems().add(User.createUser(uName, pass, fName, admin));
      /*           } else {
                     Utilities.User.updateUser(uName, pass);
@@ -1620,54 +1672,16 @@ public class UsersGroupsAndYearsController {
     @FXML
     private void addSingleGroup(ActionEvent event) {
         Group newGroup = AddGroup.addGroup(curYear, (grp -> {
-            fillTreeView();
-            openGroup(grp, curYear, true);
+            refresh(() -> {
+                openGroup(grp, curYear);
+
+            });
         }));
 
 
 
     }
 
-    private void fillTreeView() {
-        Iterable<String> ret = DbInt.getUserYears();
-        TreeItem<TreeItemPair<String, Pair<String, Object>>> root = new TreeItem<>(new TreeItemPair("Root Node", new Pair<String, String>("RootNode", "")));
-
-
-        ///Select all years
-        //Create a button for each year
-/*        for (String aRet : ret) {
-            JButton b = new JButton(aRet);
-            b.addActionListener(e -> {
-                //On button click open Utilities.Year window
-                new YearWindow(((AbstractButton) e.getSource()).getText());
-
-            });
-            panel_1.add(b);
-        }*/
-        for (String curYear : ret) {
-            contextTreeItem tIYear = new contextTreeItem(curYear, "Year");
-            Year year = new Year(curYear);
-            User curUser = DbInt.getUser(curYear);
-            Iterable<Group> groups = Group.getGroups(curYear);
-            for (Group group : groups) {
-                contextTreeItem tiGroup = new contextTreeItem(group.getName(), new Pair<>("Group", group));
-
-                Iterable<User> users = group.getUsers();
-
-                for (User user : users) {
-
-                    contextTreeItem uManTi = new contextTreeItem(user.getFullName() + " (" + user.getUserName() + ")", new Pair<>("User", user));
-                    tiGroup.getChildren().add(uManTi);
-                }
-                tIYear.getChildren().add(tiGroup);
-
-            }
-            root.getChildren().add(tIYear);
-
-
-        }
-        summaryList.setRoot(root);
-    }
 
     private String getCurrentYear() {
         return curYear;
@@ -2415,7 +2429,7 @@ public class UsersGroupsAndYearsController {
                                     year = cell.getParent().getParent().getValue().getKey();
 
                                 }
-                                openGroup((Group) cell.getValue().getValue().getValue(), year, false);
+                                openGroup((Group) cell.getValue().getValue().getValue(), year);
 
                             }, null, null, null); //Open In New W
                     break;
@@ -2430,7 +2444,7 @@ public class UsersGroupsAndYearsController {
                                     year = cell.getParent().getParent().getValue().getKey();
 
                                 }
-                                openUser((User) cell.getValue().getValue().getValue(), year, false);
+                                openUser((User) cell.getValue().getValue().getValue(), year);
 
                             }, null, null, null);  //Open In New W
 
@@ -2443,7 +2457,7 @@ public class UsersGroupsAndYearsController {
         }
         cm.getItems().addAll(cmContent.getItems());
         MenuItem refresh = new MenuItem("Refresh");
-        refresh.setOnAction(event -> fillTreeView());
+        refresh.setOnAction(event -> refresh(null));
         cm.getItems().add(refresh);
         // other menu items...
         return cm;
@@ -2538,7 +2552,8 @@ public class UsersGroupsAndYearsController {
 
         return item;
     }
-    private ContextMenu createContextMenuContent(contextActionCallback open, contextActionCallback openInNewTab, contextActionCallback openInNewWindow, contextActionCallback edit) {
+
+    private ContextMenu createContextMenuContent(actionCallback open, actionCallback openInNewTab, actionCallback openInNewWindow, actionCallback edit) {
         ContextMenu cm = new ContextMenu();
         if (open != null) {
             MenuItem openItem = new MenuItem("Open");
@@ -2564,7 +2579,7 @@ public class UsersGroupsAndYearsController {
         return cm;
     }
 
-    interface contextActionCallback {
+    interface actionCallback {
         void doAction();
     }
 

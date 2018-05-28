@@ -92,5 +92,9 @@ public class Settable<T> {
     public T orElseGet(Supplier<? extends T> var1) {
         return (this.set && !Objects.equals(val, inval)) ? this.val : var1.get();
     }
+
+    public String toString() {
+        return val.toString();
+    }
 }
 

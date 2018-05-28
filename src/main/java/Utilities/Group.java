@@ -29,44 +29,142 @@ import java.util.Objects;
 public class Group {
     private String name;
     private String year;
-    private int id;
+
+    //private int id;
+    private Utilities.Settable<Integer> id = new Utilities.Settable(-1, -1);
+    private Utilities.Settable<ArrayList<User>> groupUsers = new Utilities.Settable(null, null);
+
     public Group(String name, String year) {
         this.name = name;
         this.year = year;
     }
 
+    public Group(String name, String year, int id, ArrayList<User> uMan) {
+        this.name = name;
+        this.year = year;
+        this.id.set(id);
+        this.groupUsers.set(uMan);
+    }
+
     public Group(int id, String year) {
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE ID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, name);
-            try (ResultSet rs = prep.executeQuery()) {
+        this.id.orElseGetAndSet(() -> {
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE ID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, name);
+                try (ResultSet rs = prep.executeQuery()) {
 
 
-                while (rs.next()) {
+                    while (rs.next()) {
 
-                    this.name = rs.getString("Name");
+                        this.name = rs.getString("Name");
+                    }
+                }
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            }
+            return id;
+        });
+        groupUsers.orElseGetAndSet(() -> {
+            ArrayList<User> users = new ArrayList<>();
+            if (Objects.equals(name, "Ungrouped")) {
+                try (Connection con = DbInt.getConnection(year);
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId IS NULL", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                    try (ResultSet rs = prep.executeQuery()) {
+
+
+                        while (rs.next()) {
+
+                            users.add(new User(rs.getString("userName"), year));
+                            ////Utilities.DbInt.pCon.close();
+                        }
+                    }
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
                 }
             }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        this.id = id;
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setInt(1, getID());
+
+                try (ResultSet rs = prep.executeQuery()) {
+
+
+                    while (rs.next()) {
+
+                        users.add(new User(rs.getString("userName"), year));
+                        ////Utilities.DbInt.pCon.close();
+                    }
+                }
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            } catch (GroupNotFoundException e) {
+                LogToFile.log(e, Severity.WARNING, "Group not found. Please retry the action.");
+            }
+            return users;
+        });
         this.year = year;
     }
 
     public static Iterable<Group> getGroups(String year) {
         ArrayList<Group> groups = new ArrayList<>();
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-             ResultSet rs = prep.executeQuery()) {
-            while (rs.next()) {
+        String name;
 
-                groups.add(new Group(rs.getString("Name"), year));
-                ////Utilities.DbInt.pCon.close();
+        //private int id;
+        Integer id = -1;
+        ArrayList<User> groupUsers = new ArrayList<>();
+        try (Connection con2 = DbInt.getConnection(year);
+             PreparedStatement prep2 = con2.prepareStatement("SELECT * FROM groups", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (ResultSet rs2 = prep2.executeQuery()) {
+
+
+                while (rs2.next()) {
+
+                    name = rs2.getString("Name");
+                    id = rs2.getInt("ID");
+                    ArrayList<User> users = new ArrayList<>();
+                    if (Objects.equals(name, "Ungrouped")) {
+                        try (Connection con = DbInt.getConnection(year);
+                             PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId IS NULL", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                            try (ResultSet rs = prep.executeQuery()) {
+
+
+                                while (rs.next()) {
+
+                                    users.add(new User(rs.getString("userName"), year));
+                                    ////Utilities.DbInt.pCon.close();
+                                }
+                            }
+                        } catch (SQLException e) {
+                            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                        }
+                    }
+                    try (Connection con = DbInt.getConnection(year);
+                         PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                        prep.setInt(1, id);
+
+                        try (ResultSet rs = prep.executeQuery()) {
+
+
+                            while (rs.next()) {
+
+                                users.add(new User(rs.getString("userName"), year));
+                                ////Utilities.DbInt.pCon.close();
+                            }
+                        }
+                    } catch (SQLException e) {
+                        LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                    } catch (GroupNotFoundException e) {
+                        LogToFile.log(e, Severity.WARNING, "Group not found. Please retry the action.");
+                    }
+
+                    groups.add(new Group(name, year, id, users));
+                }
             }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
+
+
         return groups;
 
     }
@@ -88,42 +186,45 @@ public class Group {
 
     }
     public Iterable<User> getUsers() {
-        ArrayList<User> groups = new ArrayList<>();
-        if (Objects.equals(name, "Ungrouped")) {
+        return groupUsers.orElseGetAndSet(() -> {
+            ArrayList<User> users = new ArrayList<>();
+            if (Objects.equals(name, "Ungrouped")) {
+                try (Connection con = DbInt.getConnection(year);
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId IS NULL", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                    try (ResultSet rs = prep.executeQuery()) {
+
+
+                        while (rs.next()) {
+
+                            users.add(new User(rs.getString("userName"), year));
+                            ////Utilities.DbInt.pCon.close();
+                        }
+                    }
+                } catch (SQLException e) {
+                    LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+                }
+            }
             try (Connection con = DbInt.getConnection(year);
-                 PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId IS NULL", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setInt(1, getID());
+
                 try (ResultSet rs = prep.executeQuery()) {
 
 
                     while (rs.next()) {
 
-                        groups.add(new User(rs.getString("userName"), year));
+                        users.add(new User(rs.getString("userName"), year));
                         ////Utilities.DbInt.pCon.close();
                     }
                 }
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+            } catch (GroupNotFoundException e) {
+                LogToFile.log(e, Severity.WARNING, "Group not found. Please retry the action.");
             }
-        }
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setInt(1, getID());
+            return users;
+        });
 
-            try (ResultSet rs = prep.executeQuery()) {
-
-
-                while (rs.next()) {
-
-                    groups.add(new User(rs.getString("userName"), year, true));
-                    ////Utilities.DbInt.pCon.close();
-                }
-            }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        } catch (GroupNotFoundException e) {
-            LogToFile.log(e, Severity.WARNING, "Group not found. Please retry the action.");
-        }
-        return groups;
     }
 
     public void removeGroup() {
@@ -150,26 +251,30 @@ public class Group {
     }
 
     public int getID() throws GroupNotFoundException {
-        int gID = -1;
-        try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            prep.setString(1, name);
-            try (ResultSet rs = prep.executeQuery()) {
+        return id.orElseGetAndSet(() -> {
+            int gID = -1;
+
+            try (Connection con = DbInt.getConnection(year);
+                 PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE Name=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                prep.setString(1, name);
+                try (ResultSet rs = prep.executeQuery()) {
 
 
-                while (rs.next()) {
+                    while (rs.next()) {
 
-                    gID = rs.getInt("ID");
-                    ////Utilities.DbInt.pCon.close();
+                        gID = rs.getInt("ID");
+                        ////Utilities.DbInt.pCon.close();
+                    }
                 }
+            } catch (SQLException e) {
+                LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
-        } catch (SQLException e) {
-            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        if (gID < 0) {
-            throw new GroupNotFoundException();
-        }
-        return gID;
+            if (gID < 0) {
+                throw new GroupNotFoundException();
+            }
+            return gID;
+        });
+
     }
 
     public boolean equals(Object obj) {
