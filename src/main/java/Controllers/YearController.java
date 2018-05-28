@@ -48,7 +48,6 @@ public class YearController {
     @FXML
     private VBox yearInfo;
     private Boolean columnsFilled = false;
-    private MainController mainController;
     private String uName;
 
 // --Commented out by Inspection START (1/2/2016 12:01 PM):
@@ -73,16 +72,15 @@ public class YearController {
     /**
      * Initialize the contents of the frame.
      */
-    public void initYear(String Years, MainController mainCont) {
-        this.initYear(Years, "", mainCont);
+    public void initYear(String Years) {
+        this.initYear(Years, "");
     }
 
     /**
      * Initialize the contents of the frame.
      */
-    public void initYear(String Years, String userName, MainController mainCont) {
+    public void initYear(String Years, String userName) {
         year = Years;
-        mainController = mainCont;
         uName = userName;
         Year yearDbInfo = new Year(year, userName);
         yearInfo.getChildren().removeAll();

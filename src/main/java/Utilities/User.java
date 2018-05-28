@@ -197,7 +197,7 @@ public class User {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        Integer CommonsID = 0;
+        /*Integer CommonsID = 0;
         try (Connection con = DbInt.getConnection("Commons");
              PreparedStatement prep = con.prepareStatement("SELECT idUsers FROM Users where userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, getUserName());
@@ -207,9 +207,8 @@ public class User {
             }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
-        String oldUName = getUserName();
-        try (Connection con = DbInt.getConnection(year);
+        }*/
+/*        try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("SELECT userName FROM users where commonsID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, CommonsID);
             try (ResultSet rs = prep.executeQuery()) {
@@ -219,7 +218,7 @@ public class User {
             }
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
-        }
+        }*/
 
         try (Connection con = DbInt.getConnection(year);
              PreparedStatement prep = con.prepareStatement("DELETE FROM users WHERE userName=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {

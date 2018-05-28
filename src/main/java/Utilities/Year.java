@@ -743,7 +743,7 @@ public class Year {
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
-        return ProductInfoArray.toArray(new formattedProduct[ProductInfoArray.size()]);
+        return ProductInfoArray.toArray(new formattedProduct[0]);
 
     }
 

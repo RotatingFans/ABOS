@@ -24,8 +24,9 @@ import javafx.scene.control.ButtonType;
 
 import java.io.File;
 import java.sql.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -213,10 +214,10 @@ public class DbInt {
 
         String url = String.format("%s/%s", Config.getDbLoc(), DB);
         File oldName = new File(url);
-        DateFormat df = new SimpleDateFormat("MMDDYYYY-HH:MM:SS");
-        java.util.Date dateobj = new java.util.Date();
+        DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime dateobj = LocalDateTime.now();
         //create destination File object
-        File newName = new File(url + ".bak-" + df.format(dateobj));
+        File newName = new File(url + ".bak-" + dateobj.format(df));
         boolean isFileRenamed = oldName.renameTo(newName);
 
 

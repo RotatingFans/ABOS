@@ -677,7 +677,7 @@ public class AddCustomerController {
 //            updateTots();
             loader = new FXMLLoader(getClass().getResource("/UI/Year.fxml"));
             try {
-                newPane = loader.load();
+                loader.load();
             } catch (IOException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
             }
@@ -685,7 +685,7 @@ public class AddCustomerController {
                 mainCont.addCustomerToTreeView(addCustWork.getValue(), treeParent);
             }
             YearController yearCont = loader.getController();
-            yearCont.initYear(year, mainCont);
+            yearCont.initYear(year);
             if (parentTab == null) {
                 parentStage.close();
             } else {

@@ -25,6 +25,7 @@ import javafx.util.Pair;
 
 import java.util.Map;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class addFlyWay extends Application {
     public static void main(String[] args) { launch(args); }
 

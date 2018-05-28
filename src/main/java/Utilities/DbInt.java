@@ -128,7 +128,6 @@ public class DbInt {
         }
         //String Db = String.format("L&G%3",year);
         String url = String.format("jdbc:mysql://%s/%s?useSSL=%s", Config.getDbLoc(), prefix + Db, Config.getSSL());
-        System.out.println("Reading from " + Db);
         try {
             if (connectionPools.containsKey(url)) {
                 Connection con = connectionPools.get(url).getConnection(); // fetch a connection
@@ -788,7 +787,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         return ret;
     }
 
-    public static Boolean migrateDatabase(String database, String location) throws AccessException {
+    public static void migrateDatabase(String database, String location) throws AccessException {
         if (!isAdmin()) {
             throw new AccessException("Admin Access Required");
         }
@@ -798,10 +797,9 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
         flyway.setLocations(location);
         flyway.setDataSource(url, username, password);
         flyway.migrate();
-        return true;
     }
 
-    public static Boolean baselineDatabse(String database) throws AccessException {
+    public static void baselineDatabse(String database) throws AccessException {
         if (!isAdmin()) {
             throw new AccessException("Admin Access Required");
         }
@@ -816,7 +814,6 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
 
         }
         flyway.baseline();
-        return true;
     }
 
     public static Boolean verifyLoginAndUser(Pair<String, String> userPass) {
