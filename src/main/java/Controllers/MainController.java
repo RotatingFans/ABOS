@@ -249,7 +249,7 @@ public class MainController {
                                         new AddUser(getWindow());
                                         break;
                                     case "Add Group":
-                                        AddGroup.addGroup(newValue.getValue().getValue().toString());
+                                        AddGroup.addGroup(newValue.getValue().getValue().toString(), null);
                                         break;
                                     case "Settings":
                                         new Settings(tabPane2.getScene().getWindow());
@@ -285,7 +285,7 @@ public class MainController {
                                 break;
                             }
                             case "Group": {
-                                AddGroup.addGroup(newValue.getValue().getValue().toString(), newValue.getKey());
+                                AddGroup.addGroup(newValue.getValue().getValue().toString(), newValue.getKey(), null);
 
                                 break;
                             }
@@ -455,7 +455,7 @@ public class MainController {
                         case "Add Group":
                             cmContent = createContextMenuContent(
                                     //Open
-                                    () -> AddGroup.addGroup(cell.getValue().getValue().getValue().toString()), null, null, null);
+                                    () -> AddGroup.addGroup(cell.getValue().getValue().getValue().toString(), null), null, null, null);
                             // new Launchers.AddYear(getWindow());
                             break;
                         case "Settings":
@@ -563,7 +563,7 @@ public class MainController {
                 case "Group": {
                     cmContent = createContextMenuContent(
                             //Open
-                            () -> AddGroup.addGroup(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey()), null, null, null);
+                            () -> AddGroup.addGroup(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey(), null), null, null, null);
                     break;
                 }
                 case "UserCustomerView": {

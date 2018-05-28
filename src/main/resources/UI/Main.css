@@ -309,7 +309,7 @@
     -fx-background-color: -fx-accent;
 }
 /* * Metro style Push Button * Author: Pedro Duque Vieira * http://pixelduke.wordpress.com/2012/10/23/jmetro-windows-8-controls-on-java/ */
-.redBtn {
+.redBtn >.button {
          -fx-background-color: #ff1a1a;
          -fx-text-fill: white;
 

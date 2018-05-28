@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class AddGroup {
-    public static Group addGroup(String year) {
+    public static Group addGroup(String year, callBack successCallback) {
         Optional<Group> returnGroup = Optional.empty();
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Add new group");
@@ -86,12 +86,13 @@ public class AddGroup {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             returnGroup = Optional.of(new Group(result.get(), year));
+            successCallback.doAction(returnGroup.get());
 
         }
         return returnGroup.orElse(null);
     }
 
-    public static Group addGroup(String year, String groupName) {
+    public static Group addGroup(String year, String groupName, callBack successCallback) {
         Optional<Group> returnGroup = Optional.empty();
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Edit group " + groupName);
@@ -145,8 +146,13 @@ public class AddGroup {
                 LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
             }
             returnGroup = Optional.of(new Group(result.get(), year));
-
+            successCallback.doAction(returnGroup.get());
         }
         return returnGroup.orElse(null);
+    }
+
+    public interface callBack {
+
+        void doAction(Group grp);
     }
 }

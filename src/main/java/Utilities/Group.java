@@ -126,6 +126,21 @@ public class Group {
         return groups;
     }
 
+    public void removeGroup() {
+        getUsers().forEach(user -> {
+            user.setGroupId(1);
+            user.updateYear(year);
+        });
+        try (Connection con = DbInt.getConnection(year);
+             PreparedStatement prep = con.prepareStatement("DELETE FROM groups WHERE ID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+
+            prep.setInt(1, getID());
+
+            prep.execute();
+        } catch (SQLException e) {
+            LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
+        }
+    }
     public String getName() {
         return name;
     }

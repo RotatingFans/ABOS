@@ -63,6 +63,8 @@ import java.util.regex.Pattern;
 
 public class UsersGroupsAndYearsController {
     @FXML
+    TabPane tabPane;
+    @FXML
     TitledPane enabledUsersPane;
     @FXML
     TitledPane disabledUserPane;
@@ -125,9 +127,9 @@ public class UsersGroupsAndYearsController {
     private Map<Group, Node> allGroups = new HashMap();
     // private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
-    private Map<String, Integer> groups = new HashMap<>();
+    private Map<User, Integer> groups = new HashMap<>();
     private boolean isRightClick;
-    private String curYear;
+    private String curYear = "";
     public UsersGroupsAndYearsController() {
 
     }
@@ -645,11 +647,14 @@ public class UsersGroupsAndYearsController {
             //selectedCheckBox.setStyle("-fx-padding: 0px; -fx-border-color: red; -fx-border-width: 2px");
             Button editButton = new Button("Edit");
             editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+            editButton.setOnAction(event -> {
+                editUser(finalUser);
+            });
             Button deleteBtn = new Button("Delete");
             deleteBtn.setOnAction(event -> {
-
+                deleteUser(finalUser);
             });
-            deleteBtn.getStyleClass().setAll("redBtn");
+            deleteBtn.getStyleClass().add("redBtn");
             deleteBtn.setStyle("-fx-background-color: #ff4d4d");
 
             Pane spacer = new Pane();
@@ -761,7 +766,7 @@ public class UsersGroupsAndYearsController {
             yearTView.refresh();
             groupBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
 
-                groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+                groups.put(currentUser, groupBox.getSelectionModel().getSelectedItem().getValue());
             });
             VBox.setVgrow(yearTView, Priority.ALWAYS);
             VBox center = new VBox(10, new Label("Users to manage"), yearTView);
@@ -774,7 +779,7 @@ public class UsersGroupsAndYearsController {
             userPane.setContent(contents);
 
 
-            groups.put(year, groupBox.getSelectionModel().getSelectedItem().getValue());
+            groups.put(currentUser, groupBox.getSelectionModel().getSelectedItem().getValue());
             allUsers.put(user, userPane);
 
         }
@@ -803,13 +808,14 @@ public class UsersGroupsAndYearsController {
             SplitMenuButton editButton = new SplitMenuButton();
             editButton.setText("Edit");
             editButton.setOnAction(event -> {
-
+                editGroup(group);
             });
             Button deleteBtn = new Button("Delete");
             deleteBtn.setOnAction(event -> {
+                deleteGroup(group);
 
             });
-            deleteBtn.getStyleClass().setAll("redBtn");
+            deleteBtn.getStyleClass().add("redBtn");
             deleteBtn.setStyle("-fx-background-color: #ff4d4d");
 
             MenuItem removeAllFromGroup = new MenuItem("Remove all From group");
@@ -902,7 +908,9 @@ public class UsersGroupsAndYearsController {
         if (!curYear.equals(year) || refresh) {
             openYear(year);
         }
+
         if (user.getYears().contains(year)) {
+
             TitledPane userPane = (TitledPane) allUsers.get(user);
             userPane.setExpanded(true);
             enabledUsersPane.setExpanded(true);
@@ -910,24 +918,39 @@ public class UsersGroupsAndYearsController {
 
             enabledUsersScrollPane.setVvalue(vvalue);
         } else {
-            TitledPane userPane = (TitledPane) allUsers.get(user);
-            userPane.setExpanded(true);
-            disabledUserPane.setExpanded(true);
-            double vvalue = userPane.getBoundsInParent().getMinY() / (userPane.getHeight() - disabledUsersScrollPane.getHeight());
+            Year yearObj = new Year(year);
+            if (yearObj.getUsers().contains(user)) {
+                TitledPane userPane = (TitledPane) allUsers.get(user);
+                userPane.setExpanded(true);
+                archivedUsersPane.setExpanded(true);
+                double vvalue = userPane.getBoundsInParent().getMinY() / (userPane.getHeight() - archivedUsersScrollPane.getHeight());
 
-            disabledUsersScrollPane.setVvalue(vvalue);
+                archivedUsersScrollPane.setVvalue(vvalue);
+            } else {
+                TitledPane userPane = (TitledPane) allUsers.get(user);
+                userPane.setExpanded(true);
+                disabledUserPane.setExpanded(true);
+                double vvalue = userPane.getBoundsInParent().getMinY() / (userPane.getHeight() - disabledUsersScrollPane.getHeight());
+
+                disabledUsersScrollPane.setVvalue(vvalue);
+            }
+
+
         }
+        tabPane.getSelectionModel().select(0);
     }
 
     private void openGroup(Group group, String year, boolean refresh) {
         if (!curYear.equals(year) || refresh) {
             openYear(year);
         }
+
         TitledPane groupPane = (TitledPane) allGroups.get(group);
         groupPane.setExpanded(true);
         double vvalue = groupPane.getBoundsInParent().getMinY() / (groupPane.getHeight() - disabledUsersScrollPane.getHeight());
 
         groupScrollPane.setVvalue(vvalue);
+        tabPane.getSelectionModel().select(1);
 
     }
 
@@ -1239,10 +1262,225 @@ public class UsersGroupsAndYearsController {
 
     }
 
+    private void deleteUser(User user) {
+        Optional<Group> returnGroup = Optional.empty();
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("REMOVE USER FROM YEAR?");
+        dialog.setHeaderText("This will delete ALL customers and data associated with this user for the selected year.");
+// Set the button types.
+        ButtonType addGrp = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addGrp, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField verifyUNameTF = new TextField();
+        char[] possibleCharacters = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=").toCharArray();
+        String randomStr = RandomStringUtils.random(7, 0, possibleCharacters.length - 1, false, false, possibleCharacters, new SecureRandom());
+        grid.add(new Label("Please enter the verification code for confirmation:"), 0, 0);
+        grid.add(verifyUNameTF, 1, 0);
+        Label verificationCode = new Label(randomStr);
+        verificationCode.setStyle("-fx-font-size: 20px; -fx-font-weight: 600; -fx-color: black");
+        grid.add(new Label("Verification Code: "), 0, 1);
+        grid.add(verificationCode, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node deleteUserButton = dialog.getDialogPane().lookupButton(addGrp);
+        deleteUserButton.setDisable(true);
+        deleteUserButton.setStyle("fx-background-color: Red; fx-color: White");
+// Do some validation (using the Java 8 lambda syntax).
+        verifyUNameTF.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (Objects.equals(newValue, randomStr)) {
+                deleteUserButton.setDisable(false);
+            } else {
+                deleteUserButton.setDisable(true);
+            }
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> verifyUNameTF.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addGrp) {
+                return verifyUNameTF.getText();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(res -> {
+            if (res.equals(randomStr)) {
+                user.deleteFromYear(curYear);
+                hideTabs();
+                openYear(curYear);
+            }
+        });
+    }
+
+    private void deleteGroup(Group group) {
+        Optional<Group> returnGroup = Optional.empty();
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Delete Group");
+        dialog.setHeaderText("This will move all the users to the ungrouped group.");
+// Set the button types.
+        ButtonType addGrp = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addGrp, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField verifyUNameTF = new TextField();
+        char[] possibleCharacters = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=").toCharArray();
+        String randomStr = RandomStringUtils.random(7, 0, possibleCharacters.length - 1, false, false, possibleCharacters, new SecureRandom());
+        grid.add(new Label("Please enter the verification code for confirmation:"), 0, 0);
+        grid.add(verifyUNameTF, 1, 0);
+        Label verificationCode = new Label(randomStr);
+        verificationCode.setStyle("-fx-font-size: 20px; -fx-font-weight: 600; -fx-color: black");
+        grid.add(new Label("Verification Code: "), 0, 1);
+        grid.add(verificationCode, 1, 1);
+
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node deleteUserButton = dialog.getDialogPane().lookupButton(addGrp);
+        deleteUserButton.setDisable(true);
+        deleteUserButton.setStyle("fx-background-color: Red; fx-color: White");
+// Do some validation (using the Java 8 lambda syntax).
+        verifyUNameTF.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (Objects.equals(newValue, randomStr)) {
+                deleteUserButton.setDisable(false);
+            } else {
+                deleteUserButton.setDisable(true);
+            }
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> verifyUNameTF.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addGrp) {
+                return verifyUNameTF.getText();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(res -> {
+            if (res.equals(randomStr)) {
+                group.removeGroup();
+                hideTabs();
+                openYear(curYear);
+            }
+        });
+    }
+
+    private void editUser(User user) {
+        User oldUser = user;
+        Dialog<Pair<Pair<String, Boolean>, Pair<String, String>>> dialog = new Dialog<>();
+        dialog.setTitle("Edit User - " + user.toString());
+
+// Set the button types.
+        ButtonType login = new ButtonType("Edit", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(login, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userNameTextField = new TextField();
+        userNameTextField.setText(user.getUserName());
+        userNameTextField.setEditable(false);
+        TextField fullNameField = new TextField();
+        fullNameField.setText(user.getFullName());
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        CheckBox adminCheckBox = new CheckBox("Admin?");
+        adminCheckBox.setSelected(user.isAdmin());
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(userNameTextField, 1, 0);
+        grid.add(new Label("Full Name:"), 0, 1);
+        grid.add(fullNameField, 1, 1);
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+        grid.add(adminCheckBox, 1, 3);
+
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> userNameTextField.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == login) {
+                return new Pair<Pair<String, Boolean>, Pair<String, String>>(new Pair<>(fullNameField.getText(), adminCheckBox.isSelected()), new Pair<>(userNameTextField.getText(), passwordField.getText()));
+            }
+            return null;
+        });
+
+        Optional<Pair<Pair<String, Boolean>, Pair<String, String>>> result = dialog.showAndWait();
+
+        result.ifPresent(userInfo -> {
+            Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+            String uName = userInfo.getValue().getKey();
+            String pass = userInfo.getValue().getValue();
+            String fName = userInfo.getKey().getKey();
+            Boolean admin = userInfo.getKey().getValue();
+            boolean hasSpecialChar = p.matcher(userInfo.getValue().getKey()).find();
+            if (hasSpecialChar) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("");
+                alert.setHeaderText("You have entered an invalid character in the username");
+                alert.setContentText("Only Alphanumeric characters are aloud.");
+                alert.show();
+            } else {
+                Set<String> years = new HashSet<>();
+                //Utilities.User.createUser(uName, pass, fullNameField.getText(), admin);
+                User.updateUser(uName, pass, fName, admin);
+                user.setFullName(fName);
+                user.setAdmin(admin);
+                user.getYears().forEach(year -> {
+                    user.updateYear(year);
+                });
+                openUser(user, curYear, true);
+                fillTreeView();
+
+                ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
+
+
+            }
+
+        });
+
+
+    }
+
+    private void editGroup(Group group) {
+        AddGroup.addGroup(curYear, group.getName(), (grp) -> {
+            fillTreeView();
+            openGroup(grp, curYear, true);
+        });
+
+    }
+
     @FXML
     private void saveUsers(ActionEvent event) {
-        //TODO Finish
-        //TODO Remove duplicates from checkedUsers
+
         ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
         checkedUsers.forEach((user, userManage) -> {
             ArrayList<String> usersManage = new ArrayList<>();
@@ -1262,8 +1500,20 @@ public class UsersGroupsAndYearsController {
 
             }
         });
+        groups.forEach((user, groupId) -> {
+            user.setGroupId(groupId);
+            user.updateYear(curYear);
+        });
+
+        refresh();
+
     }
 
+    private void refresh() {
+        fillTreeView();
+        hideTabs();
+        openYear(curYear);
+    }
 
     @FXML
     private void addSingleUser(ActionEvent event) {
@@ -1369,9 +1619,11 @@ public class UsersGroupsAndYearsController {
 
     @FXML
     private void addSingleGroup(ActionEvent event) {
-        Group newGroup = AddGroup.addGroup(curYear);
-        fillTreeView();
-        openGroup(newGroup, curYear, true);
+        Group newGroup = AddGroup.addGroup(curYear, (grp -> {
+            fillTreeView();
+            openGroup(grp, curYear, true);
+        }));
+
 
 
     }
