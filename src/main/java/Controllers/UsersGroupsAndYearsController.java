@@ -20,6 +20,7 @@
 package Controllers;
 
 import Exceptions.AccessException;
+import Launchers.AddGroup;
 import Utilities.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -56,6 +57,7 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Pattern;
 
 //import org.w3c.dom.*;
 
@@ -78,6 +80,8 @@ public class UsersGroupsAndYearsController {
     ScrollPane archivedUsersScrollPane;
     @FXML
     ScrollPane disabledUsersScrollPane;
+    @FXML
+    ScrollPane groupScrollPane;
     @FXML
     VBox disabledUserVbox;
     @FXML
@@ -118,6 +122,7 @@ public class UsersGroupsAndYearsController {
     private ArrayList<CheckBox> userPaneCheckboxes = new ArrayList<>();
     private ArrayList<CheckBox> groupPaneCheckboxes = new ArrayList<>();
     private Map<User, Node> allUsers = new HashMap();
+    private Map<Group, Node> allGroups = new HashMap();
     // private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
     private Map<String, Integer> groups = new HashMap<>();
@@ -540,9 +545,6 @@ public class UsersGroupsAndYearsController {
                                 openYear(newValue.getKey());
                                 break;
                             case "Group":
-                                openGroup((Group) newValue.getValue().getValue());
-                                break;
-                            case "User":
                                 String year = "";
                                 if (summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getValue().getKey().equals("Year")) {
                                     year = summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getKey();
@@ -550,7 +552,17 @@ public class UsersGroupsAndYearsController {
                                     year = summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getKey();
 
                                 }
-                                openUser((User) newValue.getValue().getValue(), year);
+                                openGroup((Group) newValue.getValue().getValue(), year, false);
+                                break;
+                            case "User":
+                                year = "";
+                                if (summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = summaryList.getSelectionModel().getSelectedItem().getParent().getValue().getKey();
+                                } else if (summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = summaryList.getSelectionModel().getSelectedItem().getParent().getParent().getValue().getKey();
+
+                                }
+                                openUser((User) newValue.getValue().getValue(), year, false);
 
                                 break;
 
@@ -586,6 +598,7 @@ public class UsersGroupsAndYearsController {
         Year yearObj = new Year(year);
         ArrayList<User> users = DbInt.getUsers();
         allUsers.clear();
+        allGroups.clear();
         selectedUsers.clear();
         userPaneCheckboxes.clear();
         checkedUsers.clear();
@@ -636,7 +649,7 @@ public class UsersGroupsAndYearsController {
             deleteBtn.setOnAction(event -> {
 
             });
-            deleteBtn.getStyleClass().add("redBtn");
+            deleteBtn.getStyleClass().setAll("redBtn");
             deleteBtn.setStyle("-fx-background-color: #ff4d4d");
 
             Pane spacer = new Pane();
@@ -796,18 +809,21 @@ public class UsersGroupsAndYearsController {
             deleteBtn.setOnAction(event -> {
 
             });
-            deleteBtn.getStyleClass().add("redBtn");
+            deleteBtn.getStyleClass().setAll("redBtn");
             deleteBtn.setStyle("-fx-background-color: #ff4d4d");
 
             MenuItem removeAllFromGroup = new MenuItem("Remove all From group");
             removeAllFromGroup.setOnAction(event -> {
                 checkedGroups.forEach((grp, Users) -> {
                     Users.forEach(usrString -> {
-                        User usr = new User(usrString, year);
+                        User usr = new User(usrString, year, true);
                         usr.setGroupId(1);
                         usr.updateYear(year);
                     });
                 });
+                hideTabs();
+                fillTreeView();
+                openYear(curYear);
             });
             editButton.getItems().add(removeAllFromGroup);
             editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
@@ -874,14 +890,16 @@ public class UsersGroupsAndYearsController {
             groupTvView.refresh();
 
             groupPane.setContent(new ScrollPane(groupTvView));
+            allGroups.put(group, groupPane);
+
         });
 
         initProductsTab();
         showTabs();
     }
 
-    private void openUser(User user, String year) {
-        if (!curYear.equals(year)) {
+    private void openUser(User user, String year, boolean refresh) {
+        if (!curYear.equals(year) || refresh) {
             openYear(year);
         }
         if (user.getYears().contains(year)) {
@@ -901,7 +919,15 @@ public class UsersGroupsAndYearsController {
         }
     }
 
-    private void openGroup(Group group) {
+    private void openGroup(Group group, String year, boolean refresh) {
+        if (!curYear.equals(year) || refresh) {
+            openYear(year);
+        }
+        TitledPane groupPane = (TitledPane) allGroups.get(group);
+        groupPane.setExpanded(true);
+        double vvalue = groupPane.getBoundsInParent().getMinY() / (groupPane.getHeight() - disabledUsersScrollPane.getHeight());
+
+        groupScrollPane.setVvalue(vvalue);
 
     }
 
@@ -982,7 +1008,7 @@ public class UsersGroupsAndYearsController {
         });
     }
 
-    private void unselectAllGroupPanes() {
+    private void unselectAllGroupUsers() {
 
     }
 
@@ -1237,28 +1263,116 @@ public class UsersGroupsAndYearsController {
             }
         });
     }
-    @FXML
-    private void displayGroupMenu(ActionEvent event) {
 
-    }
 
     @FXML
     private void addSingleUser(ActionEvent event) {
+        Dialog<Pair<Pair<String, Boolean>, Pair<String, String>>> dialog = new Dialog<>();
+        dialog.setTitle("Add User");
+
+// Set the button types.
+        ButtonType login = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(login, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userNameTextField = new TextField();
+        userNameTextField.setPromptText("Username");
+        TextField fullNameField = new TextField();
+        fullNameField.setPromptText("Full Name");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        CheckBox adminCheckBox = new CheckBox("Admin?");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(userNameTextField, 1, 0);
+        grid.add(new Label("Full Name:"), 0, 1);
+        grid.add(fullNameField, 1, 1);
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+        grid.add(adminCheckBox, 1, 3);
+
+// Enable/Disable login button depending on whether a username was entered.
+        javafx.scene.Node loginButton = dialog.getDialogPane().lookupButton(login);
+        loginButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the username field by default.
+        Platform.runLater(() -> userNameTextField.requestFocus());
+
+// Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == login) {
+                return new Pair<Pair<String, Boolean>, Pair<String, String>>(new Pair<>(fullNameField.getText(), adminCheckBox.isSelected()), new Pair<>(userNameTextField.getText(), passwordField.getText()));
+            }
+            return null;
+        });
+
+        Optional<Pair<Pair<String, Boolean>, Pair<String, String>>> result = dialog.showAndWait();
+
+        result.ifPresent(userInfo -> {
+            Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+            String uName = userInfo.getValue().getKey();
+            String pass = userInfo.getValue().getValue();
+            String fName = userInfo.getKey().getKey();
+            Boolean admin = userInfo.getKey().getValue();
+            boolean hasSpecialChar = p.matcher(userInfo.getValue().getKey()).find();
+            if (hasSpecialChar) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("");
+                alert.setHeaderText("You have entered an invalid character in the username");
+                alert.setContentText("Only Alphanumeric characters are aloud.");
+                alert.show();
+            } else {
+                Set<String> years = new HashSet<>();
+                User user = User.createUser(uName, pass, fName, admin);
+                ArrayList<String> uMan = new ArrayList<>();
+                uMan.add(uName);
+                years.add(curYear);
+                user.setuManage(uMan);
+                user.setYears(years);
+                user.setGroupId(1);
+                user.updateYear(curYear);
+                openUser(user, curYear, true);
+                fillTreeView();
+                //allUsersList.getItems().add(User.createUser(uName, pass, fName, admin));
+     /*           } else {
+                    Utilities.User.updateUser(uName, pass);
+
+                }*/
+                ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
+
+
+            }
+
+        });
 
     }
 
     @FXML
     private void addBulkUsers(ActionEvent event) {
-
+//TODO Implement
     }
 
     @FXML
     private void addBulkGroups(ActionEvent event) {
-
+        //TODO Implement
     }
 
     @FXML
     private void addSingleGroup(ActionEvent event) {
+        Group newGroup = AddGroup.addGroup(curYear);
+        fillTreeView();
+        openGroup(newGroup, curYear, true);
+
 
     }
 
@@ -1302,6 +1416,14 @@ public class UsersGroupsAndYearsController {
         }
         summaryList.setRoot(root);
     }
+
+    private String getCurrentYear() {
+        return curYear;
+    }
+
+    /*
+     * PRODUCT TAB
+     */
     private void initProductsTab() {
         boolean newYear = false;
         Year thisYear = new Year(getCurrentYear());
@@ -1403,10 +1525,7 @@ public class UsersGroupsAndYearsController {
         productsTab.setDisable(false);
     }
 
-    private String getCurrentYear() {
-        //TODO return selected Year
-        return curYear;
-    }
+
     @FXML
     private void submit(ActionEvent event) {
 
@@ -2037,7 +2156,14 @@ public class UsersGroupsAndYearsController {
                     cmContent = createContextMenuContent(
                             //Open
                             () -> {
-                                openGroup((Group) cell.getValue().getValue().getValue());
+                                String year = "";
+                                if (cell.getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = cell.getParent().getValue().getKey();
+                                } else if (cell.getParent().getParent().getValue().getValue().getKey().equals("Year")) {
+                                    year = cell.getParent().getParent().getValue().getKey();
+
+                                }
+                                openGroup((Group) cell.getValue().getValue().getValue(), year, false);
 
                             }, null, null, null); //Open In New W
                     break;
@@ -2052,7 +2178,7 @@ public class UsersGroupsAndYearsController {
                                     year = cell.getParent().getParent().getValue().getKey();
 
                                 }
-                                openUser((User) cell.getValue().getValue().getValue(), year);
+                                openUser((User) cell.getValue().getValue().getValue(), year, false);
 
                             }, null, null, null);  //Open In New W
 

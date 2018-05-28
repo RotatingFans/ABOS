@@ -157,13 +157,26 @@ public class Group {
         return gID;
     }
 
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Group)) {
+            return false;
+        }
+        Group other = (Group) obj;
+        return (this.getID() == (other.getID())) && (this.getName().equals(other.getName()));
+    }
 
+    public int hashCode() {
+        return getName().hashCode();
+    }
 
     public String toString() {
         return name;
     }
 
-    public class GroupNotFoundException extends Exception {
+    public class GroupNotFoundException extends RuntimeException {
         public GroupNotFoundException() {
             super();
         }

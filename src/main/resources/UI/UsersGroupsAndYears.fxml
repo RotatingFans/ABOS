@@ -185,8 +185,8 @@
                                 </ButtonBar>
                             </top>
                             <center>
-                                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="Infinity"
-                                            maxWidth="Infinity" styleClass="informationPane"
+                                <ScrollPane fx:id="groupScrollPane" fitToHeight="true" fitToWidth="true"
+                                            maxHeight="Infinity" maxWidth="Infinity" styleClass="informationPane"
                                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <VBox fx:id="groupVbox" prefHeight="200.0" prefWidth="100.0"

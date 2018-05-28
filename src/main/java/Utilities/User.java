@@ -109,7 +109,7 @@ public class User {
     }
 
     public User(String userName, String year) {
-        this(userName, year, false);
+        this(userName, year, DbInt.isAdmin());
     }
 
     public User(String userName, String year, Boolean admin) {
