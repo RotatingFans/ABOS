@@ -85,6 +85,8 @@ public class UsersGroupsAndYearsController {
     @FXML
     MenuButton userMenuBtn;
     @FXML
+    SplitMenuButton addUserSplitBtn;
+    @FXML
     MenuButton groupMenuBtn;
     @FXML
     Tab productsTab;
@@ -110,8 +112,11 @@ public class UsersGroupsAndYearsController {
     private ComboBox<String> categoriesCmbx;
     private ObservableList<formattedProductProps> data = FXCollections.observableArrayList();
     private Map<User, ArrayList<String>> checkedUsers = new HashMap();
+    private Map<Group, ArrayList<String>> checkedGroups = new HashMap();
     private Map<User, User.STATUS> selectedUsers = new HashMap<User, User.STATUS>();
+    private ArrayList<Group> selectedGroups = new ArrayList<>();
     private ArrayList<CheckBox> userPaneCheckboxes = new ArrayList<>();
+    private ArrayList<CheckBox> groupPaneCheckboxes = new ArrayList<>();
     private Map<User, Node> allUsers = new HashMap();
     // private Map<String, ArrayList<String>> checkedFullName = new HashMap();
 
@@ -627,6 +632,12 @@ public class UsersGroupsAndYearsController {
             //selectedCheckBox.setStyle("-fx-padding: 0px; -fx-border-color: red; -fx-border-width: 2px");
             Button editButton = new Button("Edit");
             editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+            Button deleteBtn = new Button("Delete");
+            deleteBtn.setOnAction(event -> {
+
+            });
+            deleteBtn.getStyleClass().add("redBtn");
+            deleteBtn.setStyle("-fx-background-color: #ff4d4d");
 
             Pane spacer = new Pane();
             HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -645,7 +656,7 @@ public class UsersGroupsAndYearsController {
             //editButton.setAlignment(Pos.);
             //header.setLeft(selectedCheckBox);
             //header.setRight(editButton);
-            header.getChildren().setAll(selectedCheckBox, spacer, editButton);
+            header.getChildren().setAll(selectedCheckBox, spacer, deleteBtn, editButton);
             HBox.setHgrow(spacer, Priority.ALWAYS);
             spacer.setMinSize(10, 1);
             userPane.setText(user.getFullName() + " (" + user.getUserName() + ")");
@@ -677,7 +688,10 @@ public class UsersGroupsAndYearsController {
                     if (currentUser.getuManage().contains(user2.getUserName())) {
                         userItem.setSelected(true);
                         checkedUsers.computeIfPresent(currentUser, (k, v) -> {
-                            v.add(user2.getUserName());
+                            if (!v.contains(user2.getUserName())) {
+
+                                v.add(user2.getUserName());
+                            }
                             return v;
                         });
                         checkedUsers.computeIfAbsent(currentUser, k -> {
@@ -751,30 +765,114 @@ public class UsersGroupsAndYearsController {
             allUsers.put(user, userPane);
 
         }
-        TreeItem<TreeItemPair<String, String>> groupRoot = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
 
         Group.getGroups(year).forEach(group -> {
+            // TreeItem<TreeItemPair<String, String>> groupRoot = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(year, ""));
+
             TitledPane groupPane = new TitledPane();
+
+            Label titleLabel = new Label(group.getName());
+            titleLabel.setMinSize(CheckBox.USE_PREF_SIZE, CheckBox.USE_PREF_SIZE);
+            //groupPaneCheckboxes.add(titleLabel);
+            /*titleLabel.selectedProperty().addListener((ob, oldVal, newVal) -> {
+                if (newVal) {
+                    if (!selectedGroups.contains(group)) {
+                        selectedGroups.add(group);
+
+                    }
+                } else {
+                    if (selectedGroups.contains(group)) {
+                        selectedGroups.remove(group);
+
+                    }
+                }
+            });*/
+            SplitMenuButton editButton = new SplitMenuButton();
+            editButton.setText("Edit");
+            editButton.setOnAction(event -> {
+
+            });
+            Button deleteBtn = new Button("Delete");
+            deleteBtn.setOnAction(event -> {
+
+            });
+            deleteBtn.getStyleClass().add("redBtn");
+            deleteBtn.setStyle("-fx-background-color: #ff4d4d");
+
+            MenuItem removeAllFromGroup = new MenuItem("Remove all From group");
+            removeAllFromGroup.setOnAction(event -> {
+                checkedGroups.forEach((grp, Users) -> {
+                    Users.forEach(usrString -> {
+                        User usr = new User(usrString, year);
+                        usr.setGroupId(1);
+                        usr.updateYear(year);
+                    });
+                });
+            });
+            editButton.getItems().add(removeAllFromGroup);
+            editButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+
+            Pane spacer = new Pane();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            spacer.setMinSize(10, 1);
+            spacer.setMaxWidth(Double.MAX_VALUE);
+            //BorderPane header = new BorderPane();
+            VBox headerRoot = new VBox();
+            headerRoot.setFillWidth(true);
+            HBox header = new HBox();
+            //header.setStyle("-fx-border-color: orange; -fx-border-width: 2px");
+            //header.setPrefWidth(HBox.USE_PREF_SIZE);
+            header.minWidthProperty().bind(groupPane.widthProperty().subtract(75));
+            //userPane.prefWidthProperty().bindBidirectional(header.prefWidthProperty());
+            //userPane.minWidthProperty().bindBidirectional(header.minWidthProperty());
+            //selectedCheckBox.setAlignment(Pos.CENTER_LEFT);
+            //editButton.setAlignment(Pos.);
+            //header.setLeft(selectedCheckBox);
+            //header.setRight(editButton);
+            header.getChildren().setAll(titleLabel, spacer, deleteBtn, editButton);
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            spacer.setMinSize(10, 1);
+            headerRoot.getChildren().setAll(header);
+            groupPane.setGraphic(header);
+            groupPane.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            groupPane.setExpanded(false);
+            //userPane.setPrefSize(Region.USE_COMPUTED_SIZE,700);
+            // userPane.setMinSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+
+            groupPane.getStyleClass().add("informationPane");
 
             groupVbox.getChildren().add(groupPane);
 
-            groupPane.setText(group.getName());
-            groupPane.setExpanded(false);
-            groupPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-            groupPane.getStyleClass().add("informationPane");
-            TreeItem<TreeItemPair<String, String>> groupItem = new TreeItem<TreeItemPair<String, String>>(new TreeItemPair<>(group.getName(), ""));
+
+            CheckBoxTreeItem<TreeItemPair<String, String>> groupItem = createGroupTreeItem(new TreeItemPair<>(group.getName(), ""), group);
             group.getUsers().forEach(user2 -> {
-                TreeItem<TreeItemPair<String, String>> userItem = new TreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()));
+                CheckBoxTreeItem<TreeItemPair<String, String>> userItem = createGroupTreeItem(new TreeItemPair<>(user2.getFullName(), user2.getUserName()), group);
 
                 groupItem.getChildren().add(userItem);
             });
-            groupRoot.getChildren().add(groupItem);
+            // groupRoot.getChildren().add(groupItem);
 
-            TreeView<TreeItemPair<String, String>> groupTvView = new TreeView(groupRoot);
-            groupRoot.setExpanded(true);
+            TreeView<TreeItemPair<String, String>> groupTvView = new TreeView(groupItem);
+            groupTvView.setShowRoot(false);
+            groupTvView.setPrefHeight(TreeView.USE_COMPUTED_SIZE);
+            groupTvView.setMinHeight(70);
+            groupTvView.setPrefWidth(TreeView.USE_COMPUTED_SIZE);
             groupTvView.getStyleClass().add("lightTreeView");
+            groupItem.setExpanded(true);
             groupTvView.setCellFactory(CheckBoxTreeCell.forTreeView());
+            groupTvView.setFixedCellSize(35);
+
+            groupTvView.expandedItemCountProperty().addListener((ob, oldVal, newVal) -> {
+                Platform.runLater(() -> {
+                    groupTvView.setPrefHeight(newVal.doubleValue() * (groupTvView.getFixedCellSize()) + 10);
+                    groupTvView.setMinHeight(newVal.doubleValue() * (groupTvView.getFixedCellSize()) + 10);
+                    //yearTView.scrollTo(yearTView.getSelectionModel().getSelectedIndex());
+                    groupTvView.refresh();
+                });
+
+            });
             groupTvView.refresh();
+
             groupPane.setContent(new ScrollPane(groupTvView));
         });
 
@@ -1120,32 +1218,47 @@ public class UsersGroupsAndYearsController {
         //TODO Finish
         //TODO Remove duplicates from checkedUsers
         ArrayList<ArrayList<String>> yearUsers = new ArrayList<>();
-        checkedUsers.forEach((year, users) -> {
+        checkedUsers.forEach((user, userManage) -> {
             ArrayList<String> usersManage = new ArrayList<>();
 
-            users.forEach((user) -> {
-                if (Objects.equals(user, "user@self")) {
-                    // user = userNameField.getText();
-                }
-                if (!user.isEmpty()) {
-                    usersManage.add(user);
+            userManage.forEach((uMan) -> {
+                if (!uMan.isEmpty()) {
+                    usersManage.add(uMan);
 
                 }
             });
 
             if (!usersManage.isEmpty()) {
-                //     years.add(year);
-                //     User yearUser = new User(userNameField.getText(), fullNameField.getText(), usersManage, years, adminCheckbox.isSelected(), groups.getOrDefault(year, 0));
-                //     if (newUser) {
-                //          yearUser.addToYear(year);
-                //      } else {
-                //            yearUser.updateYear(year);
-                //       }
+                //years.add(year);
+                //if (newUser) {
+                user.setuManage(usersManage);
+                user.updateYear(curYear);
+
             }
         });
     }
     @FXML
     private void displayGroupMenu(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void addSingleUser(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void addBulkUsers(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void addBulkGroups(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void addSingleGroup(ActionEvent event) {
 
     }
 
@@ -1965,7 +2078,9 @@ public class UsersGroupsAndYearsController {
             item.selectedProperty().addListener((obs, wasChecked, isNowChecked) -> {
                 if (isNowChecked) {
                     checkedUsers.computeIfPresent(user, (k, v) -> {
-                        v.add(value.getValue());
+                        if (!v.contains(value.getValue())) {
+                            v.add(value.getValue());
+                        }
                         return v;
                     });
                     checkedUsers.computeIfAbsent(user, k -> {
@@ -1985,6 +2100,51 @@ public class UsersGroupsAndYearsController {
 
                 } else {
                     checkedUsers.compute(user, (k, v) -> {
+                        v.remove(value.getValue());
+                        return v;
+                    });
+  /*                checkedFullName.compute(year, (k, v) -> {
+                        v.remove(value.getKey());
+                        return v;
+                    });*/
+                }
+
+
+            });
+        }
+
+        return item;
+    }
+
+    private <T> CheckBoxTreeItem<TreeItemPair<String, String>> createGroupTreeItem(TreeItemPair<String, String> value, Group group) {
+
+        CheckBoxTreeItem<TreeItemPair<String, String>> item = new CheckBoxTreeItem<TreeItemPair<String, String>>(value);
+        if (!value.getValue().isEmpty()) {
+            item.selectedProperty().addListener((obs, wasChecked, isNowChecked) -> {
+                if (isNowChecked) {
+                    checkedGroups.computeIfPresent(group, (k, v) -> {
+                        if (!v.contains(value.getValue())) {
+                            v.add(value.getValue());
+                        }
+                        return v;
+                    });
+                    checkedGroups.computeIfAbsent(group, k -> {
+                        ArrayList<String> v = new ArrayList();
+                        v.add(value.getValue());
+                        return v;
+                    });
+                   /* checkedFullName.computeIfPresent(year, (k, v) -> {
+                        v.add(value.getKey());
+                        return v;
+                    });
+                    checkedFullName.computeIfAbsent(year, k -> {
+                        ArrayList<String> v = new ArrayList();
+                        v.add(value.getKey());
+                        return v;
+                    });*/
+
+                } else {
+                    checkedGroups.compute(group, (k, v) -> {
                         v.remove(value.getValue());
                         return v;
                     });

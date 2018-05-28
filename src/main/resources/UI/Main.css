@@ -262,7 +262,7 @@
      -fx-background-color: #4f5b62;
 }
  .context-menu {
-     -fx-background-color: #4f5b62;
+     -fx-background-color: -fx-lightContent;
 }
  .menu-bar .label {
      -fx-font-size: 14pt;
@@ -302,8 +302,24 @@
      -fx-background-color: #5ab250;
 
 }
+.menu-item:focused, .menu-item:hover {
+    -fx-background-color: -fx-accent;
+}
+#addUserSplitBtn {
+    -fx-background-color: -fx-accent;
+}
 /* * Metro style Push Button * Author: Pedro Duque Vieira * http://pixelduke.wordpress.com/2012/10/23/jmetro-windows-8-controls-on-java/ */
- .button {
+.redBtn {
+         -fx-background-color: #ff1a1a;
+         -fx-text-fill: white;
+
+}
+.redBtn > .button:hover {
+         -fx-background-color: #ff4d4d;
+         -fx-text-fill: white;
+
+}
+ .button, .menu-button, .split-menu-button {
      -fx-padding: 5 22 5 22;
      -fx-border-color: #e2e2e2;
      -fx-border-width: 2;
@@ -312,8 +328,54 @@
      -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
      -fx-font-size: 11pt;
      -fx-text-fill: #d8d8d8;
+     -fx-color: #d8d8d8;
      -fx-background-insets: 0 0 0 0, 0, 1, 2;
 }
+.menu-button, .split-menu-button {
+     -fx-padding: 3 11 3 11;
+
+}
+.menu-button > .arrow-button > .arrow,
+.split-menu-button > .arrow-button > .arrow {
+    -fx-background-color: white, #d8d8d8;
+
+}
+#addUserSplitBtn > .arrow-button > .arrow {
+    -fx-background-color: white, -fx-accent;
+
+}
+
+#addUserSplitBtn > .label, .menu-button > .label {
+    -fx-background-color: -fx-accent;
+
+}
+#addUserSplitBtn > .arrow-button {
+    -fx-background-color: -fx-accent;
+
+}
+.split-menu-button > .label, .menu-button > .label {
+    -fx-text-fill: #d8d8d8;
+    -fx-background-color: #263238;
+
+}
+.split-menu-button > .arrow-button {
+    -fx-background-color: #263238;
+
+}
+/*.split-menu-button:focused {
+    -fx-background-color: #3a3a3a;
+
+}
+.split-menu-button:focused > .label {
+    -fx-background-color: #3a3a3a;
+
+}
+.split-menu-button:focused > .arrow-button {
+    -fx-background-color: white, #d8d8d8;
+
+}*/
+
+
  .check-box .box{
      -fx-border-color: -fx-borderColor;
      -fx-border-width: 2;
