@@ -266,7 +266,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader.getController();
-                                yearCont.initYear(newValue.getKey(), this);
+                                yearCont.initYear(newValue.getKey());
                                 tabTitle = ("Year View - " + newValue.getKey());
                                 addTab(newPane, tabTitle);
                                 break;
@@ -297,7 +297,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader.getController();
-                                yearCont.initYear(newValue.getValue().getValue().toString(), newValue.getKey(), this);
+                                yearCont.initYear(newValue.getValue().getValue().toString(), newValue.getKey());
                                 tabTitle = ("Year View - " + newValue.getValue().getValue() + " - " + newValue.getKey());
                                 addTab(newPane, tabTitle);
                                 break;
@@ -480,7 +480,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getKey());
                                 openTabInCurrentWindow(NewPane2, tabTitle);
                             }, () -> { //Open In New Tab
@@ -493,7 +493,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getKey());
                                 addTab(NewPane2, tabTitle);
                             }, () -> { //Open In New Window
@@ -506,7 +506,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getKey());
                                 openInNewWindow(NewPane2, tabTitle);
                             }, () -> new AddYear(cell.getValue().getKey(), this.getWindow()));
@@ -579,7 +579,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getValue().getValue() + " - " + cell.getValue().getKey());
 
                                 openTabInCurrentWindow(NewPane2, tabTitle);
@@ -594,7 +594,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getValue().getValue() + " - " + cell.getValue().getKey());
 
                                 addTab(NewPane2, tabTitle);
@@ -609,7 +609,7 @@ public class MainController {
                                     LogToFile.log(e, Severity.SEVERE, "Error loading window. Please retry then reinstall application. If error persists, contact the developers.");
                                 }
                                 YearController yearCont = loader2.getController();
-                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey(), this);
+                                yearCont.initYear(cell.getValue().getValue().getValue().toString(), cell.getValue().getKey());
                                 String tabTitle = ("Year View - " + cell.getValue().getValue().getValue() + " - " + cell.getValue().getKey());
 
                                 openInNewWindow(NewPane2, tabTitle);

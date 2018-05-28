@@ -110,7 +110,7 @@ public class Group {
         String name;
 
         //private int id;
-        Integer id = -1;
+        Integer id;
         ArrayList<User> groupUsers = new ArrayList<>();
         try (Connection con2 = DbInt.getConnection(year);
              PreparedStatement prep2 = con2.prepareStatement("SELECT * FROM groups", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {

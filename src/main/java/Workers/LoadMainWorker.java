@@ -86,7 +86,7 @@ public class LoadMainWorker extends Task<TreeItem<TreeItemPair<String, Pair<Stri
     }*/
 
     @Override
-    protected TreeItem<TreeItemPair<String, Pair<String, Object>>> call() throws Exception {
+    protected TreeItem<TreeItemPair<String, Pair<String, Object>>> call() {
         long startTime = System.nanoTime();
 
         updateMessage("Loading Data");

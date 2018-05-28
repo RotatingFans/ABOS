@@ -84,9 +84,7 @@ public class Config {
                 }
 
             }
-            if (input == null) {
-                loc = false;
-            }
+
         }
 
 

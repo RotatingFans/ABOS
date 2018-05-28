@@ -35,8 +35,8 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class Customer {
     private final String name;
-    private String nameEdited = "";
-    private String year = "";
+    private String nameEdited;
+    private String year;
     private String address = "";
     private String town = "";
     private String state = "";

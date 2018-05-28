@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public class Settable<T> {
     private T val;
     private T inval;
-    private Boolean set = false;
+    private Boolean set;
 
     public Settable(T val, T inval) {
 
