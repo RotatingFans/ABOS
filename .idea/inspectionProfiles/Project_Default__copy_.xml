@@ -22,6 +22,7 @@
     <inspection_tool class="FieldRepeatedlyAccessed" enabled="false" level="INFO" enabled_by_default="false">
       <option name="m_ignoreFinalFields" value="false" />
     </inspection_tool>
+    <inspection_tool class="GroovyAssignabilityCheck" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GuavaFluentIterable" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="JavaFxDefaultTag" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JavaFxRedundantPropertyValue" enabled="false" level="WARNING" enabled_by_default="false" />
