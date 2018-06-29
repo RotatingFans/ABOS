@@ -4,6 +4,9 @@ grails:
     codegen:
         defaultPackage: abos.server
     gorm:
+        multiTenancy:
+            mode: DISCRIMINATOR
+            tenantResolverClass: abos.server.CurrentUserTenantResolver
         reactor:
             # Whether to translate GORM events into Reactor events
             # Disabled by default for performance reasons
@@ -132,3 +135,4 @@ environments:
             url: "jdbc:mysql://1:3306/my_database"
             username: "username"
             password: "password"
+

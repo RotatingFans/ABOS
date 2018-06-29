@@ -65,7 +65,7 @@ public class Settings extends Window {
             SettingsController settingsController = loader.getController();
             settingsController.initUI(this);
             stage.setScene(root);
-            stage.setTitle("Settings");
+            stage.setTitle("Preferences");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(owner);
             stage.setMinWidth(800);
@@ -88,7 +88,7 @@ public class Settings extends Window {
             SettingsController settingsController = loader.getController();
             settingsController.initUI(this);
             stage.setScene(root);
-            stage.setTitle("Settings");
+            stage.setTitle("Preferences");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setMinWidth(800);
             stage.setMinHeight(674);

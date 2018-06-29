@@ -3,7 +3,7 @@ package abos.server
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
 
-class SettingsSpec extends Specification implements DomainUnitTest<Settings> {
+class PreferencesSpec extends Specification implements DomainUnitTest<Preferences> {
 
     def setup() {
     }

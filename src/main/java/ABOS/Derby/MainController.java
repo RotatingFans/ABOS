@@ -100,7 +100,7 @@ public class MainController {
                     case "Add Year":
                         new AddYear(getWindow());
                         break;
-                    case "Settings":
+                    case "Preferences":
                         new Settings(tabPane2.getScene().getWindow());
                         break;
                     default:
@@ -264,11 +264,11 @@ public class MainController {
                             () -> new AddYear(getWindow()), null, null, null);
                     // new Launchers.AddYear(getWindow());
                     break;
-                case "Settings":
+                case "Preferences":
                     cmContent = createContextMenuContent(
                             //Open
                             () -> new Settings(tabPane2.getScene().getWindow()), null, null, null);
-                    // new Launchers.Settings(tabPane2.getScene().getWindow());
+                    // new Launchers.Preferences(tabPane2.getScene().getWindow());
                     break;
                 default:
 
@@ -509,7 +509,7 @@ public class MainController {
         TreeItem<String> root = new TreeItem<>("Root Node");
         root.getChildren().add(new contextTreeItem("Reports"));
         root.getChildren().add(new contextTreeItem("View Map"));
-        root.getChildren().add(new contextTreeItem("Settings"));
+        root.getChildren().add(new contextTreeItem("Preferences"));
 
 
         ///Select all years

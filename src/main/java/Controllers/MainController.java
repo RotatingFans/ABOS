@@ -251,7 +251,7 @@ public class MainController {
                                     case "Add Group":
                                         AddGroup.addGroup(newValue.getValue().getValue().toString(), null);
                                         break;
-                                    case "Settings":
+                                    case "Preferences":
                                         new Settings(tabPane2.getScene().getWindow());
                                         break;
                                 }
@@ -458,11 +458,11 @@ public class MainController {
                                     () -> AddGroup.addGroup(cell.getValue().getValue().getValue().toString(), null), null, null, null);
                             // new Launchers.AddYear(getWindow());
                             break;
-                        case "Settings":
+                        case "Preferences":
                             cmContent = createContextMenuContent(
                                     //Open
                                     () -> new Settings(tabPane2.getScene().getWindow()), null, null, null);
-                            // new Launchers.Settings(tabPane2.getScene().getWindow());
+                            // new Launchers.Preferences(tabPane2.getScene().getWindow());
                             break;
                     }
                     break;

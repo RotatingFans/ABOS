@@ -3,7 +3,7 @@ package abos.server
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
 
-class GroupsSpec extends Specification implements DomainUnitTest<Groups> {
+class YearSpec extends Specification implements DomainUnitTest<Year> {
 
     def setup() {
     }

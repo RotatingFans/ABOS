@@ -1,6 +1,8 @@
 package abos.server
 
-class Customers {
+import grails.gorm.MultiTenant
+
+class Customers implements MultiTenant<abos.server.Customers> {
     String customerName
     String streetAddress
     String city
@@ -14,7 +16,9 @@ class Customers {
     boolean home
     boolean interested
     BigDecimal donation
-    static belongsTo = [user: User]
+    Year year
+
+    String userName
     static hasOne = [order: Orders]
     static constraints = {
         customerName size: 1..255
@@ -31,6 +35,9 @@ class Customers {
         interested nullable: true
         donation scale: 2, nullable: true
         order unique: true
+    }
+    static mapping = {
+        tenantId name: 'userName'
     }
 
 }

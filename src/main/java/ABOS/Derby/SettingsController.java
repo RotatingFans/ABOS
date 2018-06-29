@@ -106,7 +106,7 @@ public class SettingsController {
 
     public static void main(String... args) {
         try {
-            new Launchers.Settings();
+            new Launchers.Preferences();
 
         } catch (RuntimeException e) {
             e.printStackTrace();

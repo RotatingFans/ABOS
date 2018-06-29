@@ -96,7 +96,7 @@ public class LoadMainWorker extends Task<TreeItem<TreeItemPair<String, Pair<Stri
         MainController.contextTreeItem userRoot = mainController.new contextTreeItem("Groups/Users", new Pair<String, String>("RootNode", ""));
         root.getChildren().add(mainController.new contextTreeItem("Reports", "Window"));
         root.getChildren().add(mainController.new contextTreeItem("View Map", "Window"));
-        root.getChildren().add(mainController.new contextTreeItem("Settings", "Window"));
+        root.getChildren().add(mainController.new contextTreeItem("Preferences", "Window"));
         if (DbInt.isAdmin()) {
             root.getChildren().add(mainController.new contextTreeItem("Users Groups & Years", "Window"));
         }

@@ -456,7 +456,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("CREATE TABLE `Settings` (\n" +
+             PreparedStatement prep = con.prepareStatement("CREATE TABLE `Preferences` (\n" +
                      "  `key` VARCHAR(45) NOT NULL,\n" +
                      "  `Value` VARCHAR(255) NULL,\n" +
                      "  PRIMARY KEY (`key`));\n", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -505,7 +505,7 @@ CREATE TABLE `ABOS-Test-Commons`.`Years` (
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
         }
         try (Connection con = DbInt.getConnection("Commons");
-             PreparedStatement prep = con.prepareStatement("INSERT INTO Settings(key, Value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("INSERT INTO Preferences(key, Value) Values (?, ?)", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, "Version");
             prep.setString(2, Config.getProgramVersion().toString());
 
