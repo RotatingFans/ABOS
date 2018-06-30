@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server.iml" filepath="$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_integrationTest.iml" group="ABOS-Debug-Server" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_main.iml" group="ABOS-Debug-Server" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ABOS-Debug-Server_test.iml" group="ABOS-Debug-Server" />
       <module fileurl="file://$PROJECT_DIR$/LG.iml" filepath="$PROJECT_DIR$/LG.iml" />
     </modules>
   </component>

@@ -29,3 +29,6 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**',             filters: 'JOINED_FILTERS']
 ]
 
+
+grails.plugin.springsecurity.roleHierarchyEntryClassName = 'abos.server.RoleHierarchyEntry'
+
