@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) Patrick Magauran 2018.
+  ~   Licensed under the AGPLv3. All conditions of said license apply.
+  ~       This file is part of ABOS.
+  ~
+  ~       ABOS is free software: you can redistribute it and/or modify
+  ~       it under the terms of the GNU Affero General Public License as published by
+  ~       the Free Software Foundation, either version 3 of the License, or
+  ~       (at your option) any later version.
+  ~
+  ~       ABOS is distributed in the hope that it will be useful,
+  ~       but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~       GNU Affero General Public License for more details.
+  ~
+  ~       You should have received a copy of the GNU Affero General Public License
+  ~       along with ABOS.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" styleClass="contentPane" stylesheets="@Main.css"
+            AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.YearController">
+    <center>
+
+        <SplitPane dividerPositions="0.29797979797979796" styleClass="containerPane" AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                   BorderPane.alignment="CENTER">
+            <items>
+                <VBox fx:id="yearInfo" styleClass="containerPane"/>
+                <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="informationPane"
+                            AnchorPane.bottomAnchor="0.0"
+                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+
+                        <TableView prefHeight="1" prefWidth="1" fx:id="yearOrders">
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+                        </TableView>
+
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+    <bottom>
+        <HBox BorderPane.alignment="CENTER" styleClass="informationPane">
+            <children>
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#refresh" text="Refresh"
+                        HBox.hgrow="ALWAYS">
+                    <HBox.margin>
+                        <Insets right="5.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

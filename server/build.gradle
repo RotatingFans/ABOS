@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath "com.moowork.gradle:gradle-node-plugin:0.13"
+        classpath "org.grails.plugins:hibernate5:${gormVersion-".RELEASE"}"
+        classpath "org.grails.plugins:views-gradle:1.1.6"
+    }
+}
+
+group 'rotatingFans.ABOS'
+version '2.2.4'
+
+description "ABOS"
+
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"war"
+apply plugin: 'java'
+apply plugin:"org.grails.grails-web"
+apply plugin:"com.moowork.node"
+apply plugin:"org.grails.plugins.views-json"
+
+repositories {
+    mavenLocal()
+    maven { url "https://repo.grails.org/grails/core" }
+    maven { url "file:///mnt/2ECB041354C3421E/Development/Java/ABOS-Server/repo" }
+    maven { url "https://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile 'org.grails.plugins:spring-security-core:3.2.2'
+    compile "org.grails.plugins:spring-security-rest:2.0.0.M2"
+
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile "org.grails:grails-core"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-plugin-url-mappings"
+    compile "org.grails:grails-plugin-rest"
+    compile "org.grails:grails-plugin-codecs"
+    compile "org.grails:grails-plugin-interceptors"
+    compile "org.grails:grails-plugin-services"
+    compile "org.grails:grails-plugin-datasource"
+    compile "org.grails:grails-plugin-databinding"
+    compile "org.grails:grails-web-boot"
+    compile "org.grails:grails-logging"
+    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:async"
+    compile "org.grails.plugins:hibernate5"
+    compile "org.hibernate:hibernate-core:5.1.5.Final"
+    compile "org.grails.plugins:views-json"
+    compile "org.grails.plugins:views-json-templates"
+    console "org.grails:grails-console"
+    profile "org.grails.profiles:react"
+    runtime "org.glassfish.web:el-impl:2.1.2-b03"
+    runtime "com.h2database:h2"
+    runtime "org.apache.tomcat:tomcat-jdbc"
+    testCompile "org.grails:grails-gorm-testing-support"
+    testCompile "org.grails:grails-datastore-rest-client"
+    testCompile "org.grails:grails-web-testing-support"
+
+
+    compile group: 'com.zaxxer', name: 'HikariCP', version:'2.7.8'
+    compile group: 'org.apache.maven', name: 'maven-model', version:'3.3.9'
+    compile group: 'com.mchange', name: 'c3p0', version:'0.9.5.2'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.7'
+    compile group: 'com.lynden', name: 'GMapsFX', version:'2.12.0'
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.44'
+    compile group: 'org.flywaydb', name: 'flyway-core', version:'5.0.7'
+    compile group: 'com.itextpdf', name: 'itextpdf', version:'5.5.10'
+    compile group: 'com.itextpdf.tool', name: 'xmlworker', version:'5.5.10'
+    compile group: 'org.w3c.tidy', name: 'jtidy', version:'938'
+    compile group: 'net.sf.saxon', name: 'saxon', version:'9'
+    compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.0.1'
+}
+
+bootRun {
+    jvmArgs('-Dspring.output.ansi.enabled=always')
+    addResources = true
+    String springProfilesActive = 'spring.profiles.active'
+    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
