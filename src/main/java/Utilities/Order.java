@@ -83,9 +83,10 @@ public class Order {
     }
 
     public static orderDetails getOrder(String year, Integer id) {
+        System.out.println(year + "," + id);
         orderDetails order = null;
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Cost, Quant, paid, delivered FROM ordersview WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT Cost, Quant, paid, delivered FROM " + (DbInt.isAdmin() ? "orders" : "ordersview") + " WHERE custId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             //prep.setString(1, Integer.toString(i));
             prep.setInt(1, id);
 
@@ -170,9 +171,10 @@ public class Order {
 
 
             int quant;
+            String table = (DbInt.isAdmin() ? "ordered_products" : "orderedproductsview");
             if (!Objects.equals(Category, "*")) {
                 try (Connection con = DbInt.getConnection(year);
-                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products WHERE Category=?) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM " + table + " WHERE orderID=? GROUP BY ProductId) " + table + " ON " + table + ".ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                     //prep.setString(1, Integer.toString(i));
                     prep.setString(1, Category);
 
@@ -197,7 +199,7 @@ public class Order {
                 }
             } else {
                 try (Connection con = DbInt.getConnection(year);
-                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM orderedproductsview WHERE orderID=? GROUP BY ProductId) orderedproductsview ON orderedproductsview.ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                     PreparedStatement prep = con.prepareStatement("SELECT * FROM (SELECT * FROM products) products LEFT JOIN (SELECT SUM(Quantity),ProductId FROM " + table + " WHERE orderID=? GROUP BY ProductId) " + table + " ON " + table + ".ProductId=products.idproducts ORDER BY products.idproducts", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                     //prep.setString(1, Integer.toString(i));
                     prep.setInt(1, OrderID);
 

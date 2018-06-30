@@ -821,7 +821,7 @@ public class Year {
                      "    `nH`,\n" +
                      "    `nI`,\n" +
                      "    `orderID`,\n" +
-                     "    `Donation` FROM customerview  WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                     "    `Donation` FROM " + (DbInt.isAdmin() ? "customers" : "customerview") + " WHERE " + (Objects.equals(user, "") ? "''=?" : "uName=?"), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setString(1, user);
 
             try (ResultSet rs = prep.executeQuery()) {

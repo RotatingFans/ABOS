@@ -17,24 +17,25 @@ class Customers implements MultiTenant<abos.server.Customers> {
     boolean interested
     BigDecimal donation
     Year year
-
+    static belongsTo = [user: User]
     String userName
     static hasOne = [order: Orders]
+    static hasMany = [orderedProducts: Ordered_products]
     static constraints = {
         customerName size: 1..255
-        streetAddress size: 1.255
-        city size: 1..255
-        state size: 1..255
-        zipCode size: 5
-        phone size: 1..255, blank: true, nulllable: true
-        custEmail email: true, size: 1..255, blank: true, nulllable: true
+        streetAddress size: 1..255
+        city size: 1..255, nullable: true
+        state size: 1..255, nullable: true
+        zipCode size: 1..5, nullable: true
+        phone nullable: true
+        custEmail nullable: true
         latitude scale: 11
         longitude scale: 11
         ordered nullable: true
         home nullable: true
         interested nullable: true
         donation scale: 2, nullable: true
-        order unique: true
+        order unique: true, nullable: true
     }
     static mapping = {
         tenantId name: 'userName'

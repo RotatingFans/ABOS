@@ -4,6 +4,7 @@ import grails.gorm.MultiTenant
 
 class Orders implements MultiTenant<abos.server.Orders> {
     static belongsTo = [user: User, customer: Customers]
+    static hasMany = [orderedProducts: Ordered_products]
     BigDecimal cost
     int quantity
     BigDecimal amountPaid

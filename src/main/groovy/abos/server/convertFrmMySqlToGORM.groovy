@@ -51,40 +51,85 @@ class convertFrmMySqlToGORM {
         if (DbInt.verifyLoginAndUser(userPass) && DbInt.testConnection() && DbInt.isAdmin()) {
             Role adminRole = new Role(authority: 'ROLE_ADMIN').save()
             Role userRole = new Role(authority: 'ROLE_USER').save()
-
+            System.out.print("converting...")
             DbInt.getUsers().each { user ->
-                User usr = new User(username: user.getUserName(), password: "test").save()
-                UserRole.create usr, user.isAdmin() ? adminRole : userRole
-                UserRole.withSession {
-                    it.flush()
-                    it.clear()
+                //System.out.print("Users")
+
+                User usr = new User(username: user.getUserName(), password: 'test')
+                if (!usr.save()) {
+                    usr.errors.allErrors.each {
+                        println it
+                    }
                 }
+                UserRole.create usr, user.isAdmin() ? adminRole : userRole, true
+
             }
             DbInt.getYears().each { yr ->
                 Utilities.Year yearObj = new Utilities.Year(yr)
-                Year year = new Year(year: yr).save()
+                Year year = Year.findOrCreateWhere(year: yr)
+                if (!year.save()) {
+                    year.errors.allErrors.each {
+                        println it
+                    }
+                }
                 yearObj.getCategories().each { cat ->
                     DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
                     Date date = format.parse(cat.catDate)
                     new Categories(categoryName: cat.catName, deliveryDate: date, year: year).save()
                 }
                 yearObj.getAllProducts().each { prod ->
-                    new Products(humanProductId: prod.productID, productName: prod.productName, unitSize: prod.productSize, unitCost: prod.productUnitPrice, category: Categories.findByCategoryName(prod.productCategory), year: year).save()
+                    Products prds = new Products(humanProductId: prod.productID, productName: prod.productName, unitSize: prod.productSize, unitCost: prod.productUnitPrice, category: Categories.findByCategoryName(prod.productCategory), year: year)
+                    if (!prds.save()) {
+                        prds.errors.allErrors.each {
+                            println it
+                        }
+                    }
                 }
                 yearObj.getUsers().each { usr ->
+
                     User user = User.findByUsername(usr.getUserName())
+                    //System.out.print(user.toString())
+
                     yearObj.getCustomers(usr.getUserName()).each { cust ->
-                        Customers customers = new Customers(customerName: cust.getName(), streetAddress: cust.getAddr(), city: cust.getTown(), state: cust.getState(), zipCode: cust.getZip(), phone: cust.getPhone(), custEmail: cust.getEmail(), latitude: cust.getLat(), longitude: cust.getLon(), ordered: false, home: false, interested: false, donation: cust.getDontation(), year: year).save()
-                        if (cust.getOrderId > 0) {
-                            customers.ordered = true
-                            customers.save()
+                        //System.out.print("Customer")
+
+                        Customers customers = new Customers(customerName: cust.getName(), streetAddress: cust.getAddr(), city: cust.getTown(), state: cust.getState(), zipCode: cust.getZip(), phone: cust.getPhone(), custEmail: cust.getEmail(), latitude: cust.getLat(), longitude: cust.getLon(), ordered: false, home: false, interested: false, donation: cust.getDontation(), year: year, user: user, userName: user.username)
+                        //println year
+                        if (!customers.save()) {
+                            customers.errors.allErrors.each {
+                                println it
+                            }
+                        }
+                        println cust.getOrderId()
+                        if (cust.getOrderId() > 0) {
+                            System.out.print("Order")
+
+                            //customers.ordered = true
+                            //customers.save()
                             int id = cust.getOrderId()
-                            Order.orderDetails dets = Order.getOrder(yr, id)
-                            Order.orderArray ordArr = cust.getOrderArray()
+                            def dets = Order.getOrder(yr, cust.getId())
+                            def ordArr = cust.getOrderArray()
                             //User user, Customers customers, BigDecimal cost, int quantity, BigDecimal amountPaid, Boolean delivered, Year year, String userName
-                            Orders orders = new Orders(user: user, customer: customers, cost: dets.totalCost, quantity: dets.totalQuantity, amountPaid: dets.paid, delivered: dets.delivered, year: year, userName: user.username).save()
+                            Orders orders = new Orders(user: user, customer: customers, cost: dets.totalCost, quantity: dets.totalQuantity, amountPaid: dets.paid, delivered: dets.delivered, year: year, userName: user.username)
+                            if (!orders.save(flush: true)) {
+                                orders.errors.allErrors.each {
+                                    println it
+                                }
+                            }
+                            println orders
                             ordArr.orderData.each { data ->
-                                new Ordered_products(user: user, customer: customers, order: orders, products: products.findByHumanProductId(data.productID), quantity: data.orderedQuantity, extendedCost: data.extendedCost, year: year, userName: user.username).save()
+                                /* println data.productID
+                                 println Products.findByHumanProductIdAndYear(data.productID, year)
+                                 println data.orderedQuantity
+                                 println data.extendedCost.toString()
+                                 //println customers
+                                 println year*/
+                                Ordered_products ops = new Ordered_products(user: user, customer: customers, order: orders, products: Products.findByHumanProductIdAndYear(data.productID, year), quantity: data.orderedQuantity, extendedCost: data.extendedCost, year: year, userName: user.username)
+                                if (!ops.save()) {
+                                    ops.errors.allErrors.each {
+                                        println it
+                                    }
+                                }
                             }
                         }
 

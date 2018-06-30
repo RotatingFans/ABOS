@@ -123,6 +123,8 @@ environments:
             url: "jdbc:mysql://172.17.0.2:3306/GORM-testing"
             username: "admin"
             password: "dev123"
+            #logSql: true
+
     test:
         dataSource:
             dbCreate: "update"

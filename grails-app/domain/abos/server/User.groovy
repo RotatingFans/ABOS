@@ -1,8 +1,8 @@
 package abos.server
 
+import grails.compiler.GrailsCompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import grails.compiler.GrailsCompileStatic
 
 @GrailsCompileStatic
 @EqualsAndHashCode(includes='username')
@@ -14,6 +14,8 @@ class User implements Serializable {
     String username
     String password
     boolean enabled = true
+    static hasMany = [orderedProducts: Ordered_products, customers: Customers, orders: Orders]
+
     boolean accountExpired
     boolean accountLocked
     boolean passwordExpired

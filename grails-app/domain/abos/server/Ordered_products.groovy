@@ -11,8 +11,8 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     String userName
 
     static constraints = {
-        quantity min: 0
-        extendedCost min: 0.0, scale: 2
+        //quantity min: 0
+        //extendedCost min: 0.0, scale: 2
     }
     static mapping = {
         tenantId name: 'userName'

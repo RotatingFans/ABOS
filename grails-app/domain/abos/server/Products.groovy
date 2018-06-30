@@ -9,9 +9,10 @@ class Products {
     Year year
 
     static constraints = {
-        humanProductId unique: true, size: 1..255
+        humanProductId unique: false, size: 1..255
         productName size: 1..255
         unitSize size: 1..255
         unitCost min: 0.0, scale: 2
+        category nullable: true
     }
 }

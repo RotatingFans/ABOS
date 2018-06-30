@@ -154,7 +154,7 @@ public class Customer {
     public Customer(int ID, String year) throws CustomerNotFoundException {
         String ret = "";
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT Name, uName FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT Name, uName FROM " + (DbInt.isAdmin() ? "customers" : "customerview") + " WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
@@ -193,7 +193,7 @@ public class Customer {
         this.year.set(year);
         this.nameEdited.set(name);
         try (Connection con = DbInt.getConnection(year);
-             PreparedStatement prep = con.prepareStatement("SELECT uName FROM customerview WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+             PreparedStatement prep = con.prepareStatement("SELECT uName FROM " + (DbInt.isAdmin() ? "customers" : "customerview") + " WHERE idcustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             prep.setInt(1, ID);
             try (ResultSet rs = prep.executeQuery()) {
 
@@ -338,6 +338,7 @@ public class Customer {
     }
 
     public Order.orderArray getOrderArray() {
+        System.out.println(year.get() + "," + ID.get());
         return this.orders.orElseGetAndSet(() -> Order.createOrderArray(year.get(), ID.get(), true));
     }
     /**
@@ -614,7 +615,7 @@ public class Customer {
         return this.orderID.orElseGetAndSet(() -> {
             int ret = 0;
             try (Connection con = DbInt.getConnection(year.get());
-                 PreparedStatement prep = con.prepareStatement("SELECT orderID FROM customerview WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+                 PreparedStatement prep = con.prepareStatement("SELECT orderID FROM " + (DbInt.isAdmin() ? "customers" : "customerview") + " WHERE idCustomers=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 prep.setInt(1, ID.get());
                 try (ResultSet rs = prep.executeQuery()) {
 
