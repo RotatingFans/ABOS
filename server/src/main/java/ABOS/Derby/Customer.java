@@ -225,7 +225,7 @@ public class Customer {
 
         } else {
             //edit mode
-            try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE Customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
+            try (PreparedStatement updateCust = DbInt.getPrep("Set", "UPDATE customers SET ADDRESS=?, Town=?, STATE=?, ZIPCODE=?, Lat=?, Lon=?, ORDERED='True', NI='False', NH='False' WHERE ADDRESS=?")) {
 
                 updateCust.setString(1, this.address);
                 updateCust.setString(2, this.town);
@@ -309,7 +309,7 @@ public class Customer {
             } catch (SQLException e) {
                 LogToFile.log(e, Severity.SEVERE, "Error deleting customer. Try again or contact support.");
             }
-            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM Customers WHERE NAME=?")) {
+            try (PreparedStatement prep = DbInt.getPrep(year, "DELETE FROM customers WHERE NAME=?")) {
 
                 prep.setString(1, name);
                 prep.execute();

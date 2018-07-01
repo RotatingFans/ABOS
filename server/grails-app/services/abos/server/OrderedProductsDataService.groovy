@@ -4,7 +4,7 @@ import grails.gorm.services.Service
 
 @Service(Ordered_products)
 /*
-    static belongsTo = [user: User, customer: Customers, order: Orders]
+    static belongsTo = [user: User, customer: customers, order: Orders]
     Products products
     int quantity
     BigDecimal extendedCost

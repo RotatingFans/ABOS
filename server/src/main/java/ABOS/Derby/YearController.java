@@ -76,7 +76,7 @@ public class YearController {
 
         VBox East = new VBox();
         List<infoValPair> yearInfoStrings = new ArrayList<>();
-        yearInfoStrings.add(new infoValPair("Customers", Integer.toString(yearDbInfo.getNoCustomers())));
+        yearInfoStrings.add(new infoValPair("customers", Integer.toString(yearDbInfo.getNoCustomers())));
         yearDbInfo.getCategories().forEach(category -> yearInfoStrings.add(new infoValPair(category.catName + " Products", Integer.toString(yearDbInfo.getLG()))));
         /*yearInfoStrings.add(new infoValPair("Lawn and Garden Products", Integer.toString(yearDbInfo.getLG())));
         yearInfoStrings.add(new infoValPair("Live Plant Products", Integer.toString(yearDbInfo.getLP())));

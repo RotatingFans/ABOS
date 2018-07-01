@@ -47,7 +47,7 @@ public class Year {
     public Iterable<String> getCustomerNames() {
         Collection<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM customers");
              ResultSet rs = prep.executeQuery()) {
 
 
@@ -205,7 +205,7 @@ public class Year {
     /**
      * Gets the Total Utilities.Customer Using getTots Function
      *
-     * @return The total amount of Customers
+     * @return The total amount of customers
      */
     public int getNoCustomers() {
         return (int) getTots("CUSTOMERS", retInteger);
@@ -264,7 +264,7 @@ public class Year {
 
     public boolean addressExists(String address, String zipCode) {
         Boolean exists = false;
-        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers WHERE ADDRESS=? AND ZIPCODE=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM customers WHERE ADDRESS=? AND ZIPCODE=?")) {
             prep.setString(1, address);
             prep.setString(2, zipCode);
             ResultSet rs = prep.executeQuery();
@@ -289,7 +289,7 @@ public class Year {
         DbInt.deleteDb(year);
         if (DbInt.createDb(year)) {
             //Create Tables
-            //Create Customers Table
+            //Create customers Table
             try (PreparedStatement prep = DbInt.getPrep(year, "CREATE TABLE CUSTOMERS(ID int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),NAME varchar(255),ADDRESS varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), PHONE varchar(255), ORDERID varchar(255), PAID varchar(255),DELIVERED varchar(255), EMAIL varchar(255), DONATION VARCHAR(255))")) {
                 prep.execute();
             } catch (SQLException e) {

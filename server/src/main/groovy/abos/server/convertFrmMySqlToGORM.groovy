@@ -43,7 +43,7 @@ class convertFrmMySqlToGORM {
             - Add preferences
             - Add categories
             - Add products
-            - Add Customers
+            - Add customers
             - Add Orders
             - Add ordered_products
          */
@@ -109,7 +109,7 @@ class convertFrmMySqlToGORM {
                             int id = cust.getOrderId()
                             def dets = Order.getOrder(yr, cust.getId())
                             def ordArr = cust.getOrderArray()
-                            //User user, Customers customers, BigDecimal cost, int quantity, BigDecimal amountPaid, Boolean delivered, Year year, String userName
+                            //User user, customers customers, BigDecimal cost, int quantity, BigDecimal amountPaid, Boolean delivered, Year year, String userName
                             Orders orders = new Orders(user: user, customer: customers, cost: dets.totalCost, quantity: dets.totalQuantity, amountPaid: dets.paid, delivered: dets.delivered, year: year, userName: user.username)
                             if (!orders.save(flush: true)) {
                                 orders.errors.allErrors.each {

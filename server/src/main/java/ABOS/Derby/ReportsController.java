@@ -159,7 +159,7 @@ public class ReportsController {
         Iterable<String> years = getYears();
         for (String year : years) {
 
-            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, "SELECT NAME FROM Customers");
+            try (PreparedStatement prep = Utilities.DbInt.getPrep(year, "SELECT NAME FROM customers");
                  ResultSet rs = prep.executeQuery()
             ) {
 

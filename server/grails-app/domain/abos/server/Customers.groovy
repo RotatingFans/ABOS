@@ -1,6 +1,11 @@
 package abos.server
 
 import grails.gorm.MultiTenant
+import grails.plugin.springsecurity.annotation.Secured
+import grails.rest.Resource
+
+@Secured(['ROLE_USER'])
+@Resource(uri = '/api/customers')
 
 class Customers implements MultiTenant<abos.server.Customers> {
     String customerName

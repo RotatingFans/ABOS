@@ -3,6 +3,7 @@ import React from 'react';
 import {Admin, fetchUtils, Resource} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
+import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
 
@@ -20,6 +21,8 @@ const dataProvider = restClient(httpClient);
 const App = () => (
     <Admin dataProvider={dataProvider} authProvider={authProvider}>
         <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
+        <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>
+        <Resource name="Years"/>
     </Admin>
 );
 

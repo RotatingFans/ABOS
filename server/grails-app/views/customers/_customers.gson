@@ -1,0 +1,43 @@
+import abos.server.Customers
+
+model {
+    Customers customers
+}
+json {
+
+    id customers.id
+
+    phone customers.phone
+
+    home customers.home
+
+    interested customers.interested
+
+    ordered customers.ordered
+
+    donation customers.donation
+
+    userName customers.userName
+
+    order id: customers.order.id,
+            cost: customers.order.cost,
+            delivered: customers.order.delivered,
+            paid: customers.order.amountPaid
+
+    zipCode customers.zipCode
+
+    customerName customers.customerName
+
+    streetAddress customers.streetAddress
+
+    city customers.city
+
+    state customers.state
+
+    latitude customers.latitude
+
+    longitude customers.longitude
+
+    year year: customers.year.year
+
+}

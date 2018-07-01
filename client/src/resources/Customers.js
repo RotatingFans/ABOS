@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+    BooleanField,
+    CheckboxGroupInput,
     Create,
     Datagrid,
     DateField,
@@ -7,44 +9,95 @@ import {
     DisabledInput,
     Edit,
     EditButton,
+    Filter,
     List,
+    NumberField,
+    ReferenceArrayInput,
+    SelectArrayInput,
     SimpleForm,
     TextField,
-    TextInput,
+    TextInput
 } from 'react-admin';
+
 //import ErrorBoundary from '../ErrorBoundary';
-import CategoryIcon from 'material-ui/svg-icons/social/person';
+/*import CustomerIcon from '';
+export { CustomerIcon };*/
+/*
+[
 
-export {CategoryIcon};
+  {
+    "id": 92,
+    "phone": "",
+    "home": false,
+    "interested": false,
+    "ordered": false,
+    "donation": 0,
+    "userName": "me",
+    "order": {
+      "id": 92,
+      "cost": 46,
+      "delivered": false,
+      "paid": 0
+    },
+    "zipCode": null,
+    "customerName": "",
+    "streetAddress": "",
+    "state": null,
+    "latitude": ,
+    "longitude": ,
+    "year": {
+      "year": "2018"
+    }
+  }
+]
 
-export const CategoryList = props => (
-    <List {...props}>
+ */
+const CustomerFilter = (props) => (
+    <Filter {...props}>
+        <TextInput label="Search" source="q" alwaysOn/>
+        <ReferenceArrayInput
+            source="year"
+            reference="Years"
+            sort={{field: 'id', order: 'ASC'}}
+        >
+            <SelectArrayInput optionText="year" source="yea.year" label="Year"/>
+        </ReferenceArrayInput>
+    </Filter>
+);
+
+export const CustomerList = (props) => (
+    <List {...props} filters={<CustomerFilter/>}>
         <Datagrid>
-            <TextField source="categoryName"/>
-            <DateField source="deliveryDate"/>
-            <EditButton basePath="/categories"/>
+            <TextField label="Customer Name" source="customerName"/>
+            <TextField source="streetAddress"/>
+            <TextField source="city"/>
+            <TextField source="state"/>
+            <NumberField label="Order Cost" source="order.cost" options={{style: 'currency', currency: 'USD'}}/>
+            <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
+            <BooleanField label="Delivered?" source="order.delivered"/>
+            <EditButton basePath="/customers"/>
         </Datagrid>
     </List>
 );
 
-const CategoryTitle = ({record}) => {
-    return <span>Category {record ? `"${record.name}"` : ''}</span>;
+const CustomerTitle = ({record}) => {
+    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
 };
 
-export const CategoryEdit = props => (
-    <Edit title={<CategoryTitle/>} {...props}>
+export const CustomerEdit = props => (
+    <Edit {...props}>
         <SimpleForm>
-            <DisabledInput source="categoryName"/>
-            <DateInput source="deliveryDate"/>
+            {/*<DisabledInput source="CustomerName"/>
+            <DateInput source="deliveryDate"/>*/}
         </SimpleForm>
     </Edit>
 );
 
-export const CategoryCreate = props => (
-    <Create title="Create a Category" {...props}>
+export const CustomerCreate = props => (
+    <Create title="Create a Customer" {...props}>
         <SimpleForm>
-            <TextInput source="name"/>
-            <DateInput source="deliveryDate"/>
+            {/*            <TextInput source="CustomerName"/>
+            <DateInput source="deliveryDate"/>*/}
         </SimpleForm>
     </Create>
 );

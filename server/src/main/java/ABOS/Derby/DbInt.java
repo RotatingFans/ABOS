@@ -196,7 +196,7 @@ public class DbInt {
     public static void createSetAndTables() {
         DbInt.createDb("Set");
 
-        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE Customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
+        try (PreparedStatement prep = DbInt.getPrep("Set", "CREATE TABLE customers(CustomerID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), Address varchar(255), Town VARCHAR(255), STATE VARCHAR(255), ZIPCODE VARCHAR(6), Lat float(15), Lon float(15), Ordered VARChAR(255), NI VARChAR(255), NH VARChAR(255))")) {
             prep.execute();
         } catch (SQLException e) {
             LogToFile.log(e, Severity.SEVERE, CommonErrors.returnSqlMessage(e));
@@ -227,7 +227,7 @@ public class DbInt {
         Iterable<String> years = getYears();
         for (String year : years) {
 
-            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM Customers");
+            try (PreparedStatement prep = DbInt.getPrep(year, "SELECT NAME FROM customers");
                  ResultSet rs = prep.executeQuery()
             ) {
 

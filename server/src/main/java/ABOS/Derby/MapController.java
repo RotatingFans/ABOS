@@ -246,7 +246,7 @@ public class MapController implements Initializable {
     private List<String> getAllCustomersInfo(String info) {
         List<String> ret = new ArrayList<>();
 
-        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM Customers");
+        try (PreparedStatement prep = DbInt.getPrep("Set", "SELECT * FROM customers");
              ResultSet rs = prep.executeQuery()
         ) {
 
@@ -268,7 +268,7 @@ public class MapController implements Initializable {
         List<String> ret = new ArrayList<>();
 
 
-        try (PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM Customers WHERE ADDRESS=?")) {
+        try (PreparedStatement prep = DbInt.getPrep(Db, "SELECT * FROM customers WHERE ADDRESS=?")) {
 
 
             prep.setString(1, Address);

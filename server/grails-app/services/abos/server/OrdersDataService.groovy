@@ -3,7 +3,7 @@ package abos.server
 import grails.gorm.services.Service
 
 @Service(Orders)
-/*    static belongsTo = [user: User, customer: Customers]
+/*    static belongsTo = [user: User, customer: customers]
     BigDecimal cost
     int quanity
     BigDecimal amountPaid
