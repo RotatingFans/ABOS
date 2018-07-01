@@ -5786,6 +5786,13 @@ ra-data-json-server@^2.0.4:
     query-string "~5.1.1"
     react-admin "^2.0.4"
 
+ra-data-simple-rest@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-2.0.4.tgz#f6e842c55a9cf94d8ce3923ee7734f75e81ab145"
+  dependencies:
+    query-string "~5.1.1"
+    react-admin "^2.0.4"
+
 ra-language-english@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.0.2.tgz#121bd8c358af7f74dc7a8bff4f4860aaec150a3b"

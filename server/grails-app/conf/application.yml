@@ -122,6 +122,7 @@ environments:
 grails:
     plugin:
         springsecurity:
+            roleHierarchyEntryClassName: abos.server.RoleHierarchyEntry
             userLookup:
                 userDomainClassName: abos.server.User
                 authorityJoinClassName: abos.server.UserRole

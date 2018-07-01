@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "ra-data-json-server": "^2.0.4",
+    "ra-data-simple-rest": "^2.0.4",
     "react": "^16.4.1",
     "react-admin": "^2.0.4",
     "react-dom": "^16.4.1",
