@@ -1,0 +1,7 @@
+import abos.server.Categories
+
+model {
+    Categories categories
+}
+
+json tmpl.categories(categories)

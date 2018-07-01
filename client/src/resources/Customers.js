@@ -53,14 +53,15 @@ export { CustomerIcon };*/
 
  */
 const CustomerFilter = (props) => (
-    <Filter {...props}>
-        <TextInput label="Search" source="q" alwaysOn/>
+    <Filter className="form" {...props}>
+        <TextInput label="Search" source="customerName" alwaysOn/>
         <ReferenceArrayInput
             source="year"
             reference="Years"
             sort={{field: 'id', order: 'ASC'}}
+            label="Year"
         >
-            <SelectArrayInput optionText="year" source="yea.year" label="Year"/>
+            <SelectArrayInput optionText="year" source="year" label="Year"/>
         </ReferenceArrayInput>
     </Filter>
 );

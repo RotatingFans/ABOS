@@ -2,10 +2,9 @@ package abos.server
 
 import grails.gorm.MultiTenant
 import grails.plugin.springsecurity.annotation.Secured
-import grails.rest.Resource
 
 @Secured(['ROLE_USER'])
-@Resource(uri = '/api/customers')
+//@Resource(uri = '/api/customers')
 
 class Customers implements MultiTenant<abos.server.Customers> {
     String customerName
@@ -45,5 +44,12 @@ class Customers implements MultiTenant<abos.server.Customers> {
     static mapping = {
         tenantId name: 'userName'
     }
+    static restsearch = [
+            customerName: [field: 'customerName', formula: { val -> "*${val}*" }],
+
+            id          : true,
+            'year'      : [field: 'year.id'],
+            'year.id'   : true
+    ]
 
 }

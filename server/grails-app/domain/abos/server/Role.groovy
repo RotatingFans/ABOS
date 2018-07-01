@@ -1,9 +1,11 @@
 package abos.server
 
 import grails.compiler.GrailsCompileStatic
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
+@Secured(['ROLE_USER'])
 @GrailsCompileStatic
 @EqualsAndHashCode(includes = 'authority')
 @ToString(includes = 'authority', includeNames = true, includePackage = false)

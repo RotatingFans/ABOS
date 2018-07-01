@@ -2,9 +2,11 @@ package abos.server
 
 import grails.compiler.GrailsCompileStatic
 import grails.gorm.DetachedCriteria
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.transform.ToString
 import org.codehaus.groovy.util.HashCodeHelper
 
+@Secured(['ROLE_USER'])
 @GrailsCompileStatic
 @ToString(cache = true, includeNames = true, includePackage = false)
 class UserRole implements Serializable {

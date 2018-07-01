@@ -30,11 +30,14 @@ repositories {
     maven { url "https://repo.grails.org/grails/core" }
     maven { url "file:///mnt/2ECB041354C3421E/Development/Java/ABOS-Server/repo" }
     maven { url "https://repo.maven.apache.org/maven2" }
+    maven { url "http://jcenter.bintray.com" }
+
 }
 
 dependencies {
     compile 'org.grails.plugins:spring-security-core:3.2.2'
     compile "org.grails.plugins:spring-security-rest:2.0.0.M2"
+    compile "org.grails.plugins:restsearch:1.0"
 
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"

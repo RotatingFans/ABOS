@@ -1,7 +1,9 @@
 package abos.server
 
 import grails.gorm.MultiTenant
+import grails.plugin.springsecurity.annotation.Secured
 
+@Secured(['ROLE_USER'])
 class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     static belongsTo = [user: User, customer: Customers, order: Orders]
     Products products

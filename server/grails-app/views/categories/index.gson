@@ -1,0 +1,8 @@
+import abos.server.Categories
+
+model {
+    Iterable<Categories> categoriesList
+}
+
+json tmpl.categories(categoriesList ?: [])
+

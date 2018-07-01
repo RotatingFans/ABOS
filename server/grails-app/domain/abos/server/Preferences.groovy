@@ -1,5 +1,8 @@
 package abos.server
 
+import grails.plugin.springsecurity.annotation.Secured
+
+@Secured(['ROLE_USER'])
 class Preferences {
     String prefKey
     String prefValue
