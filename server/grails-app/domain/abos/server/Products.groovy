@@ -18,4 +18,15 @@ class Products {
         unitCost min: 0.0, scale: 2
         category nullable: true
     }
+
+    static restsearch = [
+            humanProductId: true,
+            id            : true,
+            'year'        : [field: 'year.id'],
+            'year.id'     : true,
+            productName   : true,
+            unitSize      : true,
+            unitCost      : true,
+            category      : true
+    ]
 }

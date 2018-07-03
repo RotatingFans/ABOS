@@ -18,7 +18,7 @@ import {
     TextField,
     TextInput
 } from 'react-admin';
-
+import ProductsGrid from './ProductsGrid'
 //import ErrorBoundary from '../ErrorBoundary';
 /*import CustomerIcon from '';
 export { CustomerIcon };*/
@@ -67,8 +67,21 @@ const CustomerFilter = (props) => (
 );
 
 export const CustomerList = (props) => (
-    <List {...props} filters={<CustomerFilter/>}>
-        <Datagrid>
+    //<List {...props}>
+    <ProductsGrid {...props}>
+
+    </ProductsGrid>
+    //</List>
+
+);
+
+const CustomerTitle = ({record}) => {
+    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
+};
+
+export const CustomerEdit = props => (
+    <Edit {...props} filters={<CustomerFilter/>}>
+        <ProductsGrid>
             <TextField label="Customer Name" source="customerName"/>
             <TextField source="streetAddress"/>
             <TextField source="city"/>
@@ -77,20 +90,7 @@ export const CustomerList = (props) => (
             <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
             <BooleanField label="Delivered?" source="order.delivered"/>
             <EditButton basePath="/customers"/>
-        </Datagrid>
-    </List>
-);
-
-const CustomerTitle = ({record}) => {
-    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
-};
-
-export const CustomerEdit = props => (
-    <Edit {...props}>
-        <SimpleForm>
-            {/*<DisabledInput source="CustomerName"/>
-            <DateInput source="deliveryDate"/>*/}
-        </SimpleForm>
+        </ProductsGrid>
     </Edit>
 );
 
