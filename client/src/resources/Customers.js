@@ -19,6 +19,14 @@ import {
     TextInput
 } from 'react-admin';
 import ProductsGrid from './ProductsGrid'
+
+const styles = {
+    flex: {display: 'flex'},
+    flexColumn: {display: 'flex', flexDirection: 'column'},
+    leftCol: {flex: 1, marginRight: '1em'},
+    rightCol: {flex: 1, marginLeft: '1em'},
+    singleCol: {marginTop: '2em', marginBottom: '2em'},
+};
 //import ErrorBoundary from '../ErrorBoundary';
 /*import CustomerIcon from '';
 export { CustomerIcon };*/
@@ -67,21 +75,9 @@ const CustomerFilter = (props) => (
 );
 
 export const CustomerList = (props) => (
-    //<List {...props}>
-    <ProductsGrid {...props}>
+    <List {...props}>
+        <Datagrid>
 
-    </ProductsGrid>
-    //</List>
-
-);
-
-const CustomerTitle = ({record}) => {
-    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
-};
-
-export const CustomerEdit = props => (
-    <Edit {...props} filters={<CustomerFilter/>}>
-        <ProductsGrid>
             <TextField label="Customer Name" source="customerName"/>
             <TextField source="streetAddress"/>
             <TextField source="city"/>
@@ -90,8 +86,38 @@ export const CustomerEdit = props => (
             <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
             <BooleanField label="Delivered?" source="order.delivered"/>
             <EditButton basePath="/customers"/>
-        </ProductsGrid>
+        </Datagrid>
+
+    </List>
+
+);
+
+const CustomerTitle = ({record}) => {
+    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
+};
+
+export const CustomerEdit = props => (
+    <Edit {...props}>
+
+        <SimpleForm>
+
+            <ProductsGrid>
+
+            </ProductsGrid>
+        </SimpleForm>
     </Edit>
+    /*<Edit {...props} filters={<CustomerFilter/>}>
+    <ProductsGrid>
+        <TextField label="Customer Name" source="customerName"/>
+        <TextField source="streetAddress"/>
+        <TextField source="city"/>
+        <TextField source="state"/>
+        <NumberField label="Order Cost" source="order.cost" options={{style: 'currency', currency: 'USD'}}/>
+        <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
+        <BooleanField label="Delivered?" source="order.delivered"/>
+        <EditButton basePath="/customers"/>
+    </ProductsGrid>
+</Edit>*/
 );
 
 export const CustomerCreate = props => (

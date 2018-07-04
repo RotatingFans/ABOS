@@ -1,5 +1,5 @@
 // in src/authProvider.js
-import {AUTH_ERROR, AUTH_LOGIN} from 'react-admin';
+import {AUTH_ERROR, AUTH_LOGIN, AUTH_LOGOUT} from 'react-admin';
 
 export default (type, params) => {
     if (type === AUTH_LOGIN) {
@@ -19,6 +19,9 @@ export default (type, params) => {
             .then(({access_token}) => {
                 localStorage.setItem('access_token', access_token);
             });
+    }
+    if (type === AUTH_LOGOUT) {
+        localStorage.removeItem('access_token');
     }
     if (type === AUTH_ERROR) {
         const status = params.status;

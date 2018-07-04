@@ -23,4 +23,16 @@ class Orders implements MultiTenant<abos.server.Orders> {
     static mapping = {
         tenantId name: 'userName'
     }
+
+    static restsearch = [
+            id             : true,
+            orderedProducts: true,
+            cost           : true,
+            quantity       : true,
+            amountPaid     : true,
+            delivered      : true,
+            'year'         : [field: 'year.id'],
+            'year.id'      : true,
+            userName       : true,
+    ]
 }

@@ -1,0 +1,16 @@
+import abos.server.Products
+
+model {
+    Products products
+}
+
+json {
+    humanProductId products.humanProductId
+    productName products.productName
+    unitSize products.unitSize
+    unitCost products.unitCost
+    category products.category
+    year year: products.year.year
+    id products.id
+    year id: products.year.id
+}

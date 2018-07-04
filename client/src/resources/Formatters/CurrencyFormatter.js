@@ -8,7 +8,7 @@ const CurrencyFormatter = ({value = 0}) => {
 };
 
 CurrencyFormatter.propTypes = {
-    value: PropTypes.Number
+    value: PropTypes.number
 };
 
 export default CurrencyFormatter;

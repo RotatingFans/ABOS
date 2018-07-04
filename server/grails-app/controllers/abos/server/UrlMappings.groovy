@@ -12,7 +12,7 @@ class UrlMappings {
         "/api/Categories"(resources: 'Categories')
         "/api/customers"(resources: 'Customers')
         "/api/Ordered_products"(resources: 'Ordered_products')
-        "/api/orders"(resources: 'Orders')
+        "/api/Orders"(resources: 'Orders')
         "/api/Preferences"(resources: 'Preferences')
         "/api/Products"(resources: 'Products')
         "/api/Role"(resources: 'Role')

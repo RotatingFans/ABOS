@@ -40,4 +40,6 @@ json {
 
     year year: customers.year.year
 
+    year id: customers.year.id
+
 }

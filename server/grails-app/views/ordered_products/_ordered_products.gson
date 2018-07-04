@@ -1,0 +1,16 @@
+import abos.server.Ordered_products
+
+model {
+    Ordered_products ordered_products
+}
+
+json {
+    products tmpl.'/products/products'(ordered_products.products)
+    quantity ordered_products.quantity
+    extendedCost ordered_products.extendedCost
+    year year: ordered_products.year.year
+
+    year id: ordered_products.year.id
+    userName ordered_products.userName
+
+}

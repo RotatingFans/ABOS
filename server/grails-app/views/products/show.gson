@@ -1,0 +1,7 @@
+import abos.server.Products
+
+model {
+    Products products
+}
+
+json tmpl.products(products)
