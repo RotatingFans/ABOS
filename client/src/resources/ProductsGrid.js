@@ -3,6 +3,7 @@ import ReactDataGrid from 'react-data-grid';
 import {withStyles} from '@material-ui/core/styles';
 import compose from 'recompose/compose';
 import {connect} from 'react-redux';
+import PropTypes from 'prop-types';
 
 import {
     changeListParams,
@@ -12,7 +13,7 @@ import {
     crudUpdate,
     startUndoable
 } from 'ra-core';
-import {fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
+import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
 import restClient from '../grailsRestClient';
 import NumberEditor from "./Editors/NumberEditor";
 import CurrencyFormatter from "./Formatters/CurrencyFormatter";
@@ -54,20 +55,16 @@ const styles = theme => ({
 
 const emptyRow = {};
 
+
 class ProductsGrid extends Component {
-    static defaultProps = {
-        columns: [],
-        data: {},
-        hasBulkActions: false,
-        ids: [],
-        selectedIds: [],
-        pageSize: 25,
-    };
-    state = {rows: []};
+
+    state = {rows: [], order: {}, year: 0, userName: ""};
     rowGetter = (i) => {
         return this.state.rows[i];
     };
+
     handleGridRowsUpdated = ({cellKey, fromRow, toRow, updated}) => {
+        const {input: {onChange}} = this.props;
         let rows = this.state.rows.slice();
         if (cellKey === "quantity") {
 
@@ -79,8 +76,42 @@ class ProductsGrid extends Component {
             //let updatedRow = update(rowToUpdate, {$merge: updated});
             rows[i] = rowToUpdate;
         }
-
+        onChange(this.convertToOrder(rows));
         this.setState({rows});
+    };
+    convertToOrder = (rows) => {
+        let {order, year, userName} = this.state;
+        let newOrderedProducts = [];
+        let newOrder = {};
+        let quantity = 0;
+        let cost = 0;
+        rows.forEach(row => {
+            if (row.quantity > 0) {
+                newOrderedProducts.push({
+                    products: {
+
+                        id: row.id
+                    },
+                    quantity: row.quantity,
+                    extendedCost: row.extendedCost,
+                    year: year,
+                    userName: userName
+                });
+                quantity += row.quantity;
+                cost += row.extended_cost || 0;
+            }
+        });
+        newOrder = {
+
+            orderedProducts: newOrderedProducts,
+            cost: cost,
+            quantity: quantity,
+            amountPaid: order.amountPaid,
+            delivered: order.delivered,
+            year: order.year,
+            userName: userName
+        };
+        return newOrder;
     };
     handleGridSort = (sortColumn, sortDirection) => {
         this.props.setSort(sortColumn, sortDirection);
@@ -156,69 +187,142 @@ class ProductsGrid extends Component {
         let filter = {};
         if (record.year) {
             filter = {year: record.year.id};
+
         }
         if (record.order) {
-            dataProvider(GET_ONE, 'Orders', {
-                id: record.order.id
-            })
-                .then(orderResponse => {
-                    dataProvider(GET_LIST, 'Products', {
-                        filter: filter,
-                        pagination: {page: 1, perPage: 100},
-                        sort: {field: 'id', order: 'DESC'}
-                    })
-                        .then(response =>
-                            response.data.reduce((stats, product) => {
-                                    let match = orderResponse.data.orderedProducts.filter(order => {
-                                        return order.products.id == product.id;
-                                    });
-                                    if (match.length > 0) {
-                                        stats.products.push({
-                                            humanProductId: product.humanProductId,
-                                            id: product.id,
-                                            year: {id: product.year.id},
-                                            productName: product.productName,
-                                            unitSize: product.unitSize,
-                                            unitCost: product.unitCost,
-                                            quantity: match[0].quantity,
-                                            extended_cost: match[0].extendedCost
-                                        });
-                                    }
-                                    else {
-                                        stats.products.push({
-                                            humanProductId: product.humanProductId,
-                                            id: product.id,
-                                            year: {id: product.year.id},
-                                            productName: product.productName,
-                                            unitSize: product.unitSize,
-                                            unitCost: product.unitCost,
-                                            quantity: 0,
-                                            extended_cost: 0.0
-                                        });
-                                    }
 
-                                    return stats;
-                                },
-                                {
-                                    products: []
-                                    /*
-                                                                humanProductId: '0',
-                                                                id: 0,
-                                                                year: {id: 0},
-                                                                productName: '',
-                                                                unitSize: '',
-                                                                unitCost: 0.0,
-                                                                quantity: 0,
-                                                                extended_cost: 0.0,
-                                     */
-                                }
-                            )
-                        ).then(({products}) => {
-                            this.setState({rows: products});
-                            window.dispatchEvent(new Event('resize'));
-                        }
-                    );
+            if (!record.order.orderedProducts) {
+
+                dataProvider(GET_ONE, 'Orders', {
+                    id: record.order.id
                 })
+                    .then(orderResponse => {
+                        dataProvider(GET_LIST, 'Products', {
+                            filter: filter,
+                            pagination: {page: 1, perPage: 100},
+                            sort: {field: 'id', order: 'DESC'}
+                        })
+                            .then(response =>
+                                response.data.reduce((stats, product) => {
+                                        let match = orderResponse.data.orderedProducts.filter(order => {
+                                            return order.products.id == product.id;
+                                        });
+                                        if (match.length > 0) {
+                                            stats.products.push({
+                                                humanProductId: product.humanProductId,
+                                                id: product.id,
+                                                year: {id: product.year.id},
+                                                productName: product.productName,
+                                                unitSize: product.unitSize,
+                                                unitCost: product.unitCost,
+                                                quantity: match[0].quantity,
+                                                extended_cost: match[0].extendedCost
+                                            });
+                                        }
+                                        else {
+                                            stats.products.push({
+                                                humanProductId: product.humanProductId,
+                                                id: product.id,
+                                                year: {id: product.year.id},
+                                                productName: product.productName,
+                                                unitSize: product.unitSize,
+                                                unitCost: product.unitCost,
+                                                quantity: 0,
+                                                extended_cost: 0.0
+                                            });
+                                        }
+
+                                        return stats;
+                                    },
+                                    {
+                                        products: []
+                                        /*
+                                                                    humanProductId: '0',
+                                                                    id: 0,
+                                                                    year: {id: 0},
+                                                                    productName: '',
+                                                                    unitSize: '',
+                                                                    unitCost: 0.0,
+                                                                    quantity: 0,
+                                                                    extended_cost: 0.0,
+                                         */
+                                    }
+                                )
+                            ).then(({products}) => {
+                                this.setState({
+                                    rows: products,
+                                    order: orderResponse.data,
+                                    year: orderResponse.year,
+                                    userName: orderResponse.userName
+                                });
+                                window.dispatchEvent(new Event('resize'));
+                            }
+                        );
+                    })
+            } else {
+                dataProvider(GET_LIST, 'Products', {
+                    filter: filter,
+                    pagination: {page: 1, perPage: 100},
+                    sort: {field: 'id', order: 'DESC'}
+                })
+                    .then(response =>
+                        response.data.reduce((stats, product) => {
+                                let match = record.order.orderedProducts.filter(order => {
+                                    return order.products.id == product.id;
+                                });
+                                if (match.length > 0) {
+                                    stats.products.push({
+                                        humanProductId: product.humanProductId,
+                                        id: product.id,
+                                        year: {id: product.year.id},
+                                        productName: product.productName,
+                                        unitSize: product.unitSize,
+                                        unitCost: product.unitCost,
+                                        quantity: match[0].quantity,
+                                        extended_cost: match[0].extendedCost
+                                    });
+                                }
+                                else {
+                                    stats.products.push({
+                                        humanProductId: product.humanProductId,
+                                        id: product.id,
+                                        year: {id: product.year.id},
+                                        productName: product.productName,
+                                        unitSize: product.unitSize,
+                                        unitCost: product.unitCost,
+                                        quantity: 0,
+                                        extended_cost: 0.0
+                                    });
+                                }
+
+                                return stats;
+                            },
+                            {
+                                products: []
+                                /*
+                                                            humanProductId: '0',
+                                                            id: 0,
+                                                            year: {id: 0},
+                                                            productName: '',
+                                                            unitSize: '',
+                                                            unitCost: 0.0,
+                                                            quantity: 0,
+                                                            extended_cost: 0.0,
+                                 */
+                            }
+                        )
+                    ).then(({products}) => {
+                        this.setState({
+                            rows: products,
+                            order: record.order,
+                            year: record.order.year,
+                            userName: record.order.userName
+                        });
+                        window.dispatchEvent(new Event('resize'));
+                    }
+                );
+
+            }
         } else {
             dataProvider(GET_LIST, 'Products', {
                 filter: filter,
@@ -254,7 +358,17 @@ class ProductsGrid extends Component {
                         }
                     )
                 ).then(({products}) => {
-                    this.setState({rows: products});
+                this.setState({
+                    rows: products, order: {
+                        orderedProducts: [],
+                        cost: 0.0,
+                        quantity: 0,
+                        amountPaid: 0.0,
+                        delivered: false,
+                        year: {},
+                        userName: ""
+                    }
+                });
                     window.dispatchEvent(new Event('resize'));
                 }
             );
@@ -298,40 +412,7 @@ class ProductsGrid extends Component {
 
     }
 
-    /*    handleGridRowsUpdated = ({ fromRow, toRow, updated }) => {
-            const {
-                ids,
-                data,
-                startUndoable,
-                dispatchCrudUpdate,
-                undoable = true,
-            } = this.props;
-            for (let i = fromRow; i <= toRow; i++) {
-                const id = ids[i];
-                let rowToUpdate = data[id];
-                if (undoable) {
-                    startUndoable(
-                        crudUpdate(
-                            this.props.resource,
-                            id,
-                            updated,
-                            rowToUpdate,
-                            '',
-                            false
-                        )
-                    );
-                } else {
-                    dispatchCrudUpdate(
-                        this.props.resource,
-                        id,
-                        updated,
-                        rowToUpdate,
-                        '',
-                        false
-                    );
-                }
-            }
-        };*/
+
 
     render() {
         const {classes, columns, currentSort, total} = this.props;
@@ -365,16 +446,38 @@ class ProductsGrid extends Component {
     }
 }
 
+ProductsGrid.propTypes = {
+    label: PropTypes.string,
+    options: PropTypes.object,
+    source: PropTypes.string,
+    input: PropTypes.object,
+    className: PropTypes.string,
+    columns: PropTypes.object,
+    data: PropTypes.object,
+    hasBulkActions: PropTypes.bool,
+    ids: PropTypes.array,
+    selectedIds: PropTypes.array,
+    pageSize: PropTypes.number,
+};
+
+ProductsGrid.defaultProps = {
+    columns: [],
+    data: {},
+    hasBulkActions: false,
+    ids: [],
+    selectedIds: [],
+    pageSize: 25,
+};
 const mapStateToProps = (state, props) => ({
     params: state.admin.resources[props.resource].list.params,
 });
-export default compose(
+const ProductsGridRaw = compose(
     withStyles(styles),
     connect(mapStateToProps, {
         changeListParams,
         dispatchCrudUpdate: crudUpdate,
         crudGetList: crudGetListAction,
-
         startUndoable,
     })
 )(ProductsGrid);
+export default addField(ProductsGridRaw); // decorate with redux-form's <Field>

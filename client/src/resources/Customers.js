@@ -9,6 +9,7 @@ import {
     DisabledInput,
     Edit,
     EditButton,
+    Field,
     Filter,
     List,
     NumberField,
@@ -100,10 +101,7 @@ export const CustomerEdit = props => (
     <Edit {...props}>
 
         <SimpleForm>
-
-            <ProductsGrid>
-
-            </ProductsGrid>
+            <ProductsGrid source="order" {...props}/>
         </SimpleForm>
     </Edit>
     /*<Edit {...props} filters={<CustomerFilter/>}>

@@ -9,7 +9,7 @@ json {
     productName products.productName
     unitSize products.unitSize
     unitCost products.unitCost
-    category products.category
+    //category products.category
     year year: products.year.year
     id products.id
     year id: products.year.id

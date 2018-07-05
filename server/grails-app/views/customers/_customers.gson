@@ -19,10 +19,7 @@ json {
 
     userName customers.userName
 
-    order id: customers.order.id,
-            cost: customers.order.cost,
-            delivered: customers.order.delivered,
-            paid: customers.order.amountPaid
+    order tmpl.'/orders/orders'(customers.order)
 
     zipCode customers.zipCode
 
