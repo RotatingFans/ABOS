@@ -85,7 +85,7 @@ dataSource:
        minIdle: 5
        maxIdle: 25
        maxWait: 10000
-       maxAge: 10 * 60000
+       maxAge: 600000
        timeBetweenEvictionRunsMillis: 5000
        minEvictableIdleTimeMillis: 60000
        validationQuery: "SELECT 1"
@@ -95,7 +95,7 @@ dataSource:
        testWhileIdle: true
        testOnReturn: false
        jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
-       defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+      # defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
 environments:
     development:
@@ -104,7 +104,7 @@ environments:
             url: "jdbc:mysql://172.17.0.2:3306/GORM-testing"
             username: "admin"
             password: "dev123"
-            #logSql: true
+            logSql: true
 
     test:
         dataSource:

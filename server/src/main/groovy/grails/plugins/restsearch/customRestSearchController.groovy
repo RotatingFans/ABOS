@@ -1,12 +1,12 @@
 package grails.plugins.restsearch
 
-import grails.rest.RestfulController
+abstract class customRestSearchController<T> extends RestSearchController<T> {
 
-abstract class customRestSearchController<T> extends RestfulController<T> {
-
+/*
     def responseFormats = ['json', 'xml', 'hal']
 
     def restSearchService
+*/
 
     customRestSearchController(Class<T> resource) {
         this(resource, false)
@@ -16,7 +16,7 @@ abstract class customRestSearchController<T> extends RestfulController<T> {
         super(resource, readOnly)
     }
 
-    def index() {
+    /*def index() {
         def result = search(params)
 
         // headers for response
@@ -98,5 +98,5 @@ abstract class customRestSearchController<T> extends RestfulController<T> {
         resource.log.trace "getting fields to include from params.fields=${params.fields}"
         params.fields?.tokenize(',')*.trim()
     }
-
+*/
 }
