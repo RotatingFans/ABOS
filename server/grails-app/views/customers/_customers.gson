@@ -39,4 +39,7 @@ json {
 
     year id: customers.year.id
 
+    user g.render(customers.user)
+
+
 }

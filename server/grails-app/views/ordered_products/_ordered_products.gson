@@ -6,6 +6,7 @@ model {
 
 json {
     products tmpl.'/products/products'(ordered_products.products)
+    id ordered_products.id
     quantity ordered_products.quantity
     extendedCost ordered_products.extendedCost
     year year: ordered_products.year.year

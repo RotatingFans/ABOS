@@ -58,7 +58,7 @@ const emptyRow = {};
 
 class ProductsGrid extends Component {
 
-    state = {rows: [], order: {}, year: 0, userName: ""};
+    state = {rows: [], order: {}, year: 0, userName: "", customer: {}};
     rowGetter = (i) => {
         return this.state.rows[i];
     };
@@ -80,29 +80,45 @@ class ProductsGrid extends Component {
         this.setState({rows});
     };
     convertToOrder = (rows) => {
-        let {order, year, userName} = this.state;
+        let {order, year, userName, customer} = this.state;
         let newOrderedProducts = [];
         let newOrder = {};
         let quantity = 0;
         let cost = 0;
-        rows.forEach(row => {
-            if (row.quantity > 0) {
-                newOrderedProducts.push({
-                    products: {
 
-                        id: row.id
-                    },
-                    quantity: row.quantity,
-                    extendedCost: row.extendedCost,
-                    year: year,
-                    userName: userName
-                });
+        rows.forEach(row => {
+            let match = order.orderedProducts.filter(order => {
+                return order.products.id === row.id;
+            });
+            if (match.length > 0) {
+
+
+                match[0].quantity = row.quantity;
+                match[0].extendedCost = row.extended_cost;
                 quantity += row.quantity;
-                cost += row.extended_cost || 0;
+                cost += row.extended_cost;
+                newOrderedProducts.push(match[0]);
+            } else {
+                if (row.quantity > 0) {
+                    newOrderedProducts.push({
+                        products: {
+
+                            id: row.id
+                        },
+                        quantity: row.quantity,
+                        extendedCost: row.extended_cost,
+                        year: year,
+                        userName: userName,
+                        customer: customer,
+                        user: customer.user
+                    });
+                    quantity += row.quantity;
+                    cost += row.extended_cost || 0;
+                }
             }
         });
         newOrder = {
-
+            id: order.id,
             orderedProducts: newOrderedProducts,
             cost: cost,
             quantity: quantity,
@@ -189,6 +205,7 @@ class ProductsGrid extends Component {
             filter = {year: record.year.id};
 
         }
+        this.setState({customer: record});
         if (record.order) {
 
             if (!record.order.orderedProducts) {
