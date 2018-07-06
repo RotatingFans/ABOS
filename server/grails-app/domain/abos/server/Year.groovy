@@ -11,4 +11,10 @@ class Year {
     static constraints = {
         year size: 4..4, unique: true, blank: false
     }
+    static restsearch = [
+            id  : true,
+            year: true
+    ]
+
+
 }

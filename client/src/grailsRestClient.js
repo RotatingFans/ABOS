@@ -91,16 +91,12 @@ export default (httpClient = fetchUtils.fetchJson) => {
                 */
                 return {
                     data: json,
-                    total: 100 /*parseInt(
-            headers
-              .get('content-range')
-              .split('/')
-              .pop(),
-            10
-          )*/,
+                    total: parseInt(headers.get('X-Search-Hit-Count'), 10),
                 };
             case CREATE:
-                return {data: {...params.data, id: json.id}};
+                return {data: {json, id: json.id}};
+            case DELETE:
+                return {data: {...params.data}};
             default:
                 return {data: json};
         }

@@ -27,6 +27,8 @@ json {
 
     streetAddress customers.streetAddress
 
+    custEmail customers.custEmail
+
     city customers.city
 
     state customers.state

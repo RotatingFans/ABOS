@@ -16,6 +16,25 @@ abstract class customRestSearchController<T> extends RestSearchController<T> {
         super(resource, readOnly)
     }
 
+    def index() {
+        def result = search(params)
+
+        // headers for response
+        header 'X-Search-Hit-Count', result.totalCount ?: 0
+        header 'X-Current-Offset', params.offset ?: 0
+        header 'X-Search-Sort', params.'sort'
+        header 'X-Search-Order', params.'order'
+        header 'X-Search-Q', params.'q'
+        header 'X-Search-Fields', params.'fields'
+        header 'Access-Control-Expose-Headers', 'X-Search-Hit-Count, X-Current-Offset, X-Search-Sort, X-Search-Order, X-Search-Q, X-Search-Fields'
+
+        if (params.headerOnly || request.method == 'HEAD') {
+            render ''
+        } else {
+            respond result, [includes: includeFields]
+        }
+        return
+    }
     /*def index() {
         def result = search(params)
 

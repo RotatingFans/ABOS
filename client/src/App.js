@@ -23,6 +23,7 @@ const App = () => (
         <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
         <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>
         <Resource name="Years"/>
+        <Resource name="User"/>
     </Admin>
 );
 

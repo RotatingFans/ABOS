@@ -51,6 +51,7 @@ const styles = theme => ({
     },
 
 
+
 });
 
 const emptyRow = {};
@@ -85,49 +86,96 @@ class ProductsGrid extends Component {
         let newOrder = {};
         let quantity = 0;
         let cost = 0;
+        if (order.id) {
+            rows.forEach(row => {
+                let match = order.orderedProducts.filter(order => {
+                    return order.products.id === row.id;
+                });
+                if (match.length > 0) {
 
-        rows.forEach(row => {
-            let match = order.orderedProducts.filter(order => {
-                return order.products.id === row.id;
-            });
-            if (match.length > 0) {
 
-
-                match[0].quantity = row.quantity;
-                match[0].extendedCost = row.extended_cost;
-                quantity += row.quantity;
-                cost += row.extended_cost;
-                newOrderedProducts.push(match[0]);
-            } else {
-                if (row.quantity > 0) {
-                    newOrderedProducts.push({
-                        products: {
-
-                            id: row.id
-                        },
-                        quantity: row.quantity,
-                        extendedCost: row.extended_cost,
-                        year: year,
-                        userName: userName,
-                        customer: customer,
-                        user: customer.user
-                    });
+                    match[0].quantity = row.quantity;
+                    match[0].extendedCost = row.extended_cost;
                     quantity += row.quantity;
-                    cost += row.extended_cost || 0;
+                    cost += row.extended_cost;
+                    newOrderedProducts.push(match[0]);
+                } else {
+                    if (row.quantity > 0) {
+                        newOrderedProducts.push({
+                            products: {
+
+                                id: row.id
+                            },
+                            quantity: row.quantity,
+                            extendedCost: row.extended_cost,
+                            year: year,
+                            userName: userName,
+
+                            customer: customer,
+                            user: customer.user
+                        });
+                        quantity += row.quantity;
+                        cost += row.extended_cost || 0;
+                    }
                 }
-            }
-        });
-        newOrder = {
-            id: order.id,
-            orderedProducts: newOrderedProducts,
-            cost: cost,
-            quantity: quantity,
-            amountPaid: order.amountPaid,
-            delivered: order.delivered,
-            year: order.year,
-            userName: userName
-        };
-        return newOrder;
+            });
+            newOrder = {
+                id: order.id,
+                orderedProducts: newOrderedProducts,
+                cost: cost,
+                quantity: quantity,
+                amountPaid: order.amountPaid,
+                delivered: order.delivered,
+                //  year: order.year,
+                // userName: userName
+            };
+            return newOrder;
+        } else {
+            rows.forEach(row => {
+                let match = order.orderedProducts.filter(order => {
+                    return order.products.id === row.id;
+                });
+                if (match.length > 0) {
+
+
+                    match[0].quantity = row.quantity;
+                    match[0].extendedCost = row.extended_cost;
+                    quantity += row.quantity;
+                    cost += row.extended_cost;
+                    newOrderedProducts.push(match[0]);
+                } else {
+                    if (row.quantity > 0) {
+                        newOrderedProducts.push({
+                            products: {
+
+                                id: row.id
+                            },
+                            quantity: row.quantity,
+                            extendedCost: row.extended_cost,
+                            //   year: year,
+                            userName: userName,
+
+                            // customer: customer,
+                            //  user: customer.user
+                        });
+                        quantity += row.quantity;
+                        cost += row.extended_cost || 0;
+                    }
+                }
+            });
+            newOrder = {
+                //  id: order.id,
+                orderedProducts: newOrderedProducts,
+                cost: cost,
+                quantity: quantity,
+                amountPaid: order.amountPaid,
+                delivered: order.delivered,
+                //  year: order.year,
+                // userName: userName
+            };
+            return newOrder;
+        }
+
     };
     handleGridSort = (sortColumn, sortDirection) => {
         this.props.setSort(sortColumn, sortDirection);
@@ -432,7 +480,7 @@ class ProductsGrid extends Component {
 
 
     render() {
-        const {classes, columns, currentSort, total} = this.props;
+        const {classes, columns, currentSort, total, visible} = this.props;
         const {orders} = this.state;
 
         return (/*<div className="list-page List-root-156">
@@ -449,6 +497,7 @@ class ProductsGrid extends Component {
                             onGridRowsUpdated={this.handleGridRowsUpdated}
                             minColumnWidth="30"
                             minHeight="600px"
+                            disabled={true}
                         />
                     </div>
                 </div>
