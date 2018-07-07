@@ -52,7 +52,6 @@ class RestSearchService {
                     def c = resource.createCriteria()
 
                     if (results) {
-                        tCount += results.totalCount
                         //			log.debug(c)
 
                         def result = c.list([max: max, offset: offset]) {
@@ -205,6 +204,8 @@ class RestSearchService {
                                 order(sortField, orderField)
                             }
                         }
+                        tCount += results.totalCount
+
                     }
                 })
 

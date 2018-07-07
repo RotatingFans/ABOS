@@ -22,7 +22,7 @@ class Orders implements MultiTenant<abos.server.Orders> {
     }
     static mapping = {
         tenantId name: 'userName'
-        children cascade: 'all-delete-orphan', lazy: false
+        orderedProducts cascade: 'all-delete-orphan', lazy: false
 
     }
 

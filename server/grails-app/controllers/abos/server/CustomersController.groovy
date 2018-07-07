@@ -17,6 +17,24 @@ class CustomersController extends customRestSearchController<Customers> {
         super(Customers, readOnly)
     }
 
+    def delete() {
+        try {
+
+            def customer = Customers.get(params.get("id"))
+            def user = customer.getUser()
+            withId(user.getUsername(), { sessions ->
+                customer.orderedProducts.removeAll()
+                customer.order = null
+
+                customer.delete(flush: true)
+            })
+            render('')
+        } catch (Exception ex) {
+            ex.printStackTrace()
+        }
+    }
+
+
     def save() {
         try {
 

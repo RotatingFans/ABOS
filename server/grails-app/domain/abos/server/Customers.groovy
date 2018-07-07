@@ -43,7 +43,8 @@ class Customers implements MultiTenant<abos.server.Customers> {
     }
     static mapping = {
         tenantId name: 'userName'
-        children cascade: 'all-delete-orphan', lazy: false
+        order cascade: 'all-delete-orphan'
+        orderedProducts cascade: 'refresh'
 
     }
 
@@ -53,7 +54,9 @@ class Customers implements MultiTenant<abos.server.Customers> {
 
     def beforeUpdate() {
         userName = user.username
+
     }
+
     static restsearch = [
             customerName: [field: 'customerName', formula: { val -> "*${val}*" }],
 
