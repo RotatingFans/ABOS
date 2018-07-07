@@ -241,6 +241,12 @@ class ProductsGrid extends Component {
         const aMonthAgo = new Date();
         aMonthAgo.setDate(aMonthAgo.getDate() - 30);
         window.addEventListener("resize", this.updateDimensions);
+        this.loadProducts();
+
+
+    }
+
+    loadProducts(year) {
         const {record} = this.props;
         this.props.crudGetList(
             this.props.resource,
@@ -249,6 +255,10 @@ class ProductsGrid extends Component {
             {}
         );
         let filter = {};
+        if (year) {
+            filter = {year: year};
+
+        }
         if (record.year) {
             filter = {year: record.year.id};
 
@@ -423,27 +433,29 @@ class ProductsGrid extends Component {
                         }
                     )
                 ).then(({products}) => {
-                this.setState({
-                    rows: products, order: {
-                        orderedProducts: [],
-                        cost: 0.0,
-                        quantity: 0,
-                        amountPaid: 0.0,
-                        delivered: false,
-                        year: {},
-                        userName: ""
-                    }
-                });
+                    this.setState({
+                        rows: products, order: {
+                            orderedProducts: [],
+                            cost: 0.0,
+                            quantity: 0,
+                            amountPaid: 0.0,
+                            delivered: false,
+                            year: {},
+                            userName: ""
+                        }
+                    });
                     window.dispatchEvent(new Event('resize'));
                 }
             );
 
         }
-
-
     }
 
     componentWillReceiveProps(nextProps) {
+        if (nextProps.year !== this.props.year) {
+            this.loadProducts(nextProps.year);
+
+        }
         if (nextProps.ids.length !== this.props.ids.length) {
             this.loading = false;
         }
@@ -524,6 +536,7 @@ ProductsGrid.propTypes = {
     ids: PropTypes.array,
     selectedIds: PropTypes.array,
     pageSize: PropTypes.number,
+    year: PropTypes.number
 };
 
 ProductsGrid.defaultProps = {

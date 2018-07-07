@@ -265,8 +265,12 @@ export const CustomerCreate = withStyles(styles)(({classes, ...props}) => (
             <ReferenceInput label="User to add to" source="user" reference="User" formClassName={classes.inlineBlock}>
                 <SelectInput optionText="username"/>
             </ReferenceInput>
+            <FormDataConsumer>
+                {({formData, ...rest}) => formData.year &&
+                    <ProductsGrid source="order"  {...props} year={formData.year} {...rest}/>
+                }
+            </FormDataConsumer>
 
-            <ProductsGrid source="order"  {...props}/>
 
 
         </SimpleForm>
