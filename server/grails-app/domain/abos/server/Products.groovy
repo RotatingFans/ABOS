@@ -11,6 +11,12 @@ class Products {
     Categories category
     Year year
 
+    static mapping = {
+        year fetch: 'join'
+        category fetch: 'join'
+
+    }
+
     static constraints = {
         humanProductId unique: false, size: 1..255
         productName size: 1..255

@@ -1,19 +1,28 @@
 package abos.server
 
 import grails.core.GrailsApplication
+import grails.gorm.DetachedCriteria
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.userdetails.GrailsUser
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.grails.datastore.mapping.multitenancy.AllTenantsResolver
 import org.grails.datastore.mapping.multitenancy.TenantResolver
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 
 @CompileStatic
-class CurrentUserTenantResolver implements TenantResolver {
+class CurrentUserTenantResolver implements TenantResolver, AllTenantsResolver {
 
     @Autowired
     GrailsApplication grailsApplication
+
+    @CompileDynamic
+    Iterable<Serializable> resolveTenantIds() {
+        new DetachedCriteria(User)
+                .distinct('userName')
+                .list()
+    }
 
     @Override
     Serializable resolveTenantIdentifier() throws TenantNotFoundException {

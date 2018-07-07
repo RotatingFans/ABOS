@@ -13,6 +13,9 @@ class Categories {
         categoryName size: 1..255, unique: true
 
     }
+    static mapping = {
+        year lazy: false
+    }
     static restsearch = [
             categoryName: true,
             id          : true,

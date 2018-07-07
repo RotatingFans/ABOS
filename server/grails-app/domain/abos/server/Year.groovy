@@ -16,5 +16,9 @@ class Year {
             year: true
     ]
 
+    static mapping = {
+
+    }
+
 
 }

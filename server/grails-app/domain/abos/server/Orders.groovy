@@ -22,8 +22,17 @@ class Orders implements MultiTenant<abos.server.Orders> {
     }
     static mapping = {
         tenantId name: 'userName'
+        children cascade: 'all-delete-orphan', lazy: false
+
     }
 
+    def beforeInsert() {
+        userName = user.username
+    }
+
+    def beforeUpdate() {
+        userName = user.username
+    }
     static restsearch = [
             id             : true,
             orderedProducts: true,

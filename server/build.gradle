@@ -30,7 +30,7 @@ repositories {
     maven { url "https://repo.grails.org/grails/core" }
     maven { url "file:///mnt/2ECB041354C3421E/Development/Java/ABOS-Server/repo" }
     maven { url "https://repo.maven.apache.org/maven2" }
-    maven { url "http://jcenter.bintray.com" }
+    //maven { url "http://jcenter.bintray.com" }
 
 }
 
@@ -66,7 +66,7 @@ dependencies {
     testCompile "org.grails:grails-datastore-rest-client"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    compile "org.grails.plugins:restsearch:1.0"
+    //compile "org.grails.plugins:restsearch:1.0"
 
 /*    compile 'org.grails.plugins:spring-security-core:3.1.2'
     compile "org.grails.plugins:spring-security-rest:2.0.0.M2"

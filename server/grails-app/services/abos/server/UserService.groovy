@@ -1,6 +1,8 @@
 package abos.server
 
 import grails.gorm.transactions.Transactional
+import grails.plugin.springsecurity.SpringSecurityService
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -11,6 +13,8 @@ class UserService {
 
     UserDataService userDataService
 
+    SpringSecurityService springSecurityService
+
     @Transactional
     User save(String username, String password, String authority) {
         Role role = roleDataService.findByAuthority(authority)
@@ -19,7 +23,20 @@ class UserService {
         }
         User user = userDataService.save(username, password)
         userRoleDataService.save(user, role)
+        UserManager userManager = new UserManager(manager: user, user: user)
+        userManager.save()
         user
+    }
+
+    @CompileDynamic
+    List<User> listAllManaged() {
+        User currentUser = springSecurityService.isLoggedIn() ?
+                springSecurityService.loadCurrentUser() as User :
+                null as User
+        UserManager.where {
+            manage == currentUser
+        }.list().user
+
     }
 }
 

@@ -72,6 +72,12 @@ hibernate:
         queries: false
         use_second_level_cache: false
         use_query_cache: false
+
+grails:
+    gorm:
+        multiTenancy:
+            mode: DISCRIMINATOR
+            tenantResolverClass: abos.server.CurrentUserTenantResolver
 dataSource:
     pooled: true
 

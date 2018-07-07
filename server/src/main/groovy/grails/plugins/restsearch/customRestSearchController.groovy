@@ -1,12 +1,9 @@
 package grails.plugins.restsearch
 
-abstract class customRestSearchController<T> extends RestSearchController<T> {
+abstract class customRestSearchController<T> extends RestSearchController {
 
-/*
-    def responseFormats = ['json', 'xml', 'hal']
 
-    def restSearchService
-*/
+
 
     customRestSearchController(Class<T> resource) {
         this(resource, false)
@@ -16,25 +13,6 @@ abstract class customRestSearchController<T> extends RestSearchController<T> {
         super(resource, readOnly)
     }
 
-    def index() {
-        def result = search(params)
-
-        // headers for response
-        header 'X-Search-Hit-Count', result.totalCount ?: 0
-        header 'X-Current-Offset', params.offset ?: 0
-        header 'X-Search-Sort', params.'sort'
-        header 'X-Search-Order', params.'order'
-        header 'X-Search-Q', params.'q'
-        header 'X-Search-Fields', params.'fields'
-        header 'Access-Control-Expose-Headers', 'X-Search-Hit-Count, X-Current-Offset, X-Search-Sort, X-Search-Order, X-Search-Q, X-Search-Fields'
-
-        if (params.headerOnly || request.method == 'HEAD') {
-            render ''
-        } else {
-            respond result, [includes: includeFields]
-        }
-        return
-    }
     /*def index() {
         def result = search(params)
 
@@ -59,7 +37,7 @@ abstract class customRestSearchController<T> extends RestSearchController<T> {
 
     protected def search(Map params) {
         resource.log.trace "search($params)"
-        this.restSearchService.search(resource, getSearchParams(params), getPaginationParams(params))
+        this.CustomRestSearchService.search(resource, getSearchParams(params), getPaginationParams(params))
     }
 
     protected def getPaginationParams(Map params) {

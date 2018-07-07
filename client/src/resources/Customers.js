@@ -110,7 +110,7 @@ export const CustomerList = (props) => (
             <TextField source="city"/>
             <TextField source="state"/>
             <NumberField label="Order Cost" source="order.cost" options={{style: 'currency', currency: 'USD'}}/>
-            <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
+            <NumberField label="Amount Paid" source="order.amountPaid" options={{style: 'currency', currency: 'USD'}}/>
             <BooleanField label="Delivered?" source="order.delivered"/>
             <EditButton basePath="/customers"/>
         </Datagrid>
