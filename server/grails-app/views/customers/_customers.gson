@@ -41,7 +41,7 @@ json {
 
     year id: customers.year.id
 
-    user g.render(customers.user)
+    user tmpl.'/user/user'(customers.user)
 
 
 }

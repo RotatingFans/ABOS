@@ -1,0 +1,13 @@
+import abos.server.User
+
+model {
+    User user
+}
+
+json {
+
+    id user.id
+
+    userName user.username
+
+}
