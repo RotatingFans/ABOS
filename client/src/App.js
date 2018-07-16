@@ -6,7 +6,7 @@ import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
-import Dashboard from './Dashboard';
+import {Dashboard} from './dashboard';
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {

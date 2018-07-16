@@ -3,7 +3,7 @@ package abos.server
 import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(['ROLE_USER'])
-class Products {
+class Products implements Comparable<Products> {
     String humanProductId
     String productName
     String unitSize
@@ -35,4 +35,9 @@ class Products {
             unitCost      : true,
             category      : true
     ]
+
+    @Override
+    int compareTo(Products products) {
+        return products.id <=> this.id
+    }
 }

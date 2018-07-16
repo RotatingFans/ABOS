@@ -4,6 +4,7 @@ import abos.server.UserService
 import grails.orm.PagedResultList
 import grails.transaction.Transactional
 import org.apache.commons.lang.time.DateUtils
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
 import static grails.gorm.multitenancy.Tenants.currentId
 import static grails.gorm.multitenancy.Tenants.withId
@@ -209,6 +210,35 @@ class RestSearchService {
                     }
                 })
 
+            }
+            try {
+
+                results = results.sort { a, b ->
+                    def orderField, SortField
+                    sortFields.eachWithIndex { sortField, idx ->
+                        if (orderFields?.size() > idx)
+                            orderField = orderFields[idx]
+                        else
+                            orderField = 'asc'
+                        // log.trace(a.toString())
+                        //log.trace(b.toString())
+                        SortField = sortField
+                    }
+                    if (SortField) {
+                        if (orderField == 'asc') {
+                            a.properties.get(SortField) <=> b.properties.get(SortField)
+
+                        } else {
+
+                            b.properties.get(SortField) <=> a.properties.get(SortField)
+
+                        }
+                    }
+
+
+                }
+            } catch (GroovyCastException e) {
+                e.printStackTrace()
             }
             results.setTotalCount(tCount)
         } else {

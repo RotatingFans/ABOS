@@ -23,4 +23,6 @@ json {
 
     userName orders.userName
 
+    donation orders.customer.donation
+
 }

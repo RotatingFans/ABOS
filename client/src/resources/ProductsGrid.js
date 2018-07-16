@@ -274,7 +274,7 @@ class ProductsGrid extends Component {
                     .then(orderResponse => {
                         dataProvider(GET_LIST, 'Products', {
                             filter: filter,
-                            pagination: {page: 1, perPage: 100},
+                            pagination: {page: 1, perPage: 1000},
                             sort: {field: 'id', order: 'DESC'}
                         })
                             .then(response =>

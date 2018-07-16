@@ -18,7 +18,6 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     }
     static mapping = {
         tenantId name: 'userName'
-
     }
 
     def beforeInsert() {
@@ -28,4 +27,14 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     def beforeUpdate() {
         userName = user.username
     }
+
+    static restsearch = [
+            id          : true,
+            extendedCost: true,
+            quantity    : true,
+            'year'      : [field: 'year.id'],
+            'year.id'   : true,
+            userName    : true,
+
+    ]
 }
