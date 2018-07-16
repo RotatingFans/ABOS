@@ -6,6 +6,7 @@ import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
+import Dashboard from './Dashboard';
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -19,11 +20,20 @@ const dataProvider = restClient(httpClient);
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
 
 const App = () => (
-    <Admin dataProvider={dataProvider} authProvider={authProvider}>
-        <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
-        <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>
-        <Resource name="Years"/>
-        <Resource name="User"/>
+    <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider}>
+        {permissions => [
+            <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
+            //Reports
+            <Resource name="Years"/>,
+            <Resource name="User"/>,
+            permissions === 'manager'
+                ? <Resource name="User"/>
+                : null,
+            permissions === 'ROLE_ADMIN'
+                ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/> //UGY
+                : null,
+        ]}
+
     </Admin>
 );
 
