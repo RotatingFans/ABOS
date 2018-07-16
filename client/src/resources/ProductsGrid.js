@@ -454,6 +454,9 @@ class ProductsGrid extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.year !== this.props.year) {
             this.loadProducts(nextProps.year);
+            const {input: {onChange}} = this.props;
+            let rows = this.state.rows.slice();
+            onChange(this.convertToOrder(rows));
 
         }
         if (nextProps.ids.length !== this.props.ids.length) {

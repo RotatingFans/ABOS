@@ -59,10 +59,26 @@ abstract class RestSearchController<T> extends RestfulController<T> {
     def show() {
         def result = queryForResource(params.id)
         log.trace "show.result=${result}"
-        if (result)
-            respond result, [includes: includeFields]
-        else
+        def results
+        if (result) {
+//				log.trace(it.properties)
+            if (result.hasProperty("userName")) {
+                withId(result.userName, { session ->
+
+                    results = (resource.read(result.id))
+                })
+            } else {
+                withCurrent({ session ->
+
+                    results = (resource.read(result.id))
+                })
+            }
+
+            respond results, [includes: includeFields]
+
+        } else {
             notFound()
+        }
     }
 
 

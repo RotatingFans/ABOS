@@ -1,6 +1,6 @@
 import {CREATE, DELETE, fetchUtils, GET_LIST, GET_MANY, GET_MANY_REFERENCE, GET_ONE, UPDATE,} from 'react-admin';
 
-const apiUrl = 'http://192.168.1.3:8080/api';
+const apiUrl = 'http://localhost:8080/api';
 
 export default (httpClient = fetchUtils.fetchJson) => {
     const makeFilters = filters => {
