@@ -1,12 +1,14 @@
 // in src/App.js
 import React from 'react';
-import {Admin, fetchUtils, Resource} from 'react-admin';
+import {Admin, fetchUtils, Layout, Resource} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
 import {Dashboard} from './dashboard';
+import {Reports} from "./Reports/Reports";
+import Menu from "./resources/Menu";
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -18,11 +20,12 @@ const httpClient = (url, options = {}) => {
 };
 const dataProvider = restClient(httpClient);
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
-
+const layout = (props) => <Layout {...props} menu={Menu}/>;
 const App = () => (
     <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider}>
         {permissions => [
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
+            <Resource name="reports" list={Reports}/>,
             //Reports
             <Resource name="Years"/>,
             <Resource name="User"/>,
