@@ -1,18 +1,14 @@
 import React from 'react';
 
 import Wizard from './Wizard'
-import Tab from '@material-ui/core/Tab';
 
-const tabs = () => [
-    <Tab label={"World"}>
-        <div>Hello World</div>
-    </Tab>,
-    <Tab label={"Wor2ld"}>
-        <div>Hello World2</div>
-    </Tab>
+const steps = () => [
+    "World", "World2"
 ];
-
+const stepsContent = () => [
+    <div>Hello World</div>, <div>Hello World2</div>
+];
 export const Reports = (props) => (
-    <Wizard {...props} tabs={tabs()}/>
+    <Wizard {...props} steps={steps()} stepContents={stepsContent()}/>
 );
 

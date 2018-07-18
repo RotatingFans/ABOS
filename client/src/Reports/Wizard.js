@@ -3,10 +3,13 @@ import {withStyles} from '@material-ui/core/styles';
 import compose from 'recompose/compose';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import Tabs from '@material-ui/core/Tabs';
 import {addField} from 'react-admin';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
 
 
 const styles = theme => ({
@@ -27,84 +30,180 @@ const styles = theme => ({
         },
 
     },
+    root: {
+        flexGrow: 1,
+    },
+    flex: {
+        flexGrow: 1,
+    },
+    menuButton: {
+        marginLeft: -12,
+        marginRight: 20,
+    },
+    button: {
+        marginRight: theme.spacing.unit,
+    },
+    instructions: {
+        padding: 8 * 3,
+    },
 
 
 });
 
-function TabContainer(props) {
-    return (
-        <Typography component="div" style={{padding: 8 * 3}}>
-            {props.children}
-        </Typography>
-    );
+class HorizontalLinearStepper extends React.Component {
+    state = {
+        activeStep: 0,
+        skipped: new Set(),
+    };
+    isStepOptional = step => {
+        return step === 1;
+    };
+    handleNext = () => {
+        const {activeStep} = this.state;
+        let {skipped} = this.state;
+        if (this.isStepSkipped(activeStep)) {
+            skipped = new Set(skipped.values());
+            skipped.delete(activeStep);
+        }
+        this.setState({
+            activeStep: activeStep + 1,
+            skipped,
+        });
+    };
+    handleBack = () => {
+        const {activeStep} = this.state;
+        this.setState({
+            activeStep: activeStep - 1,
+        });
+    };
+    handleSkip = () => {
+        const {activeStep} = this.state;
+        if (!this.isStepOptional(activeStep)) {
+            // You probably want to guard against something like this,
+            // it should never occur unless someone's actively trying to break something.
+            throw new Error("You can't skip a step that isn't optional.");
+        }
+
+        this.setState(state => {
+            const skipped = new Set(state.skipped.values());
+            skipped.add(activeStep);
+            return {
+                activeStep: state.activeStep + 1,
+                skipped,
+            };
+        });
+    };
+    handleReset = () => {
+        this.setState({
+            activeStep: 0,
+        });
+    };
+
+    getSteps() {
+        return this.props.steps;
+    }
+
+    getStepContent(step) {
+        return (this.props.stepContents[step]);
+
+
+    }
+
+    isStepSkipped(step) {
+        return this.state.skipped.has(step);
+    }
+
+    render() {
+        const {classes} = this.props;
+        const steps = this.getSteps();
+        const {activeStep} = this.state;
+
+        return (
+            <div className={classes.root}>
+                <Stepper activeStep={activeStep}>
+                    {steps.map((label, index) => {
+                        const props = {};
+                        const labelProps = {};
+                        if (this.isStepOptional(index)) {
+                            labelProps.optional = <Typography variant="caption">Optional</Typography>;
+                        }
+                        if (this.isStepSkipped(index)) {
+                            props.completed = false;
+                        }
+                        return (
+                            <Step key={label} {...props}>
+                                <StepLabel {...labelProps}>{label}</StepLabel>
+                            </Step>
+                        );
+                    })}
+                </Stepper>
+                <div>
+                    {activeStep === steps.length ? (
+                        <div>
+                            <Typography className={classes.instructions}>
+                                All steps completed - you&quot;re finished
+                            </Typography>
+                            <Button onClick={this.handleReset} className={classes.button}>
+                                Reset
+                            </Button>
+                        </div>
+                    ) : (
+                        <div>
+                            <Typography component="div"
+                                        className={classes.instructions}>{this.getStepContent(activeStep)}</Typography>
+                            <div>
+                                <Button
+                                    disabled={activeStep === 0}
+                                    onClick={this.handleBack}
+                                    className={classes.button}
+                                >
+                                    Back
+                                </Button>
+                                {this.isStepOptional(activeStep) && (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={this.handleSkip}
+                                        className={classes.button}
+                                    >
+                                        Skip
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.handleNext}
+                                    className={classes.button}
+                                >
+                                    {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 }
 
-TabContainer.propTypes = {
-    children: PropTypes.node.isRequired,
+HorizontalLinearStepper.propTypes = {
+    classes: PropTypes.object,
+    steps: PropTypes.arrayOf(PropTypes.string),
+    stepContents: PropTypes.arrayOf(PropTypes.node)
 };
 
 class Wizard extends Component {
-    state = {
-        value: 0,
-    };
-
-    handleChange = (event, value) => {
-        this.setState({value});
-    };
-
-    updateDimensions = () => {
-
-    };
-
-    constructor(props) {
-        super(props);
-        this.loading = false;
-
-    }
-
-    componentDidMount() {
-
-
-    }
-
-
-    componentWillReceiveProps(nextProps) {
-
-
-    }
-
-
-    componentWillUnmount() {
-        /*        this.props.changeListParams(this.props.resource, {
-                    ...this.props.params,
-
-                });
-                window.removeEventListener("resize", this.updateDimensions);*/
-
-    }
 
 
     render() {
-        const {classes, tabs} = this.props;
-        const {value} = this.state;
+        const {classes} = this.props;
         //Tab Pane
         //Next Button/Prev Button
         //Loop through tabs supplied as children
         return (
             <Card>
                 <div className={classes.main}>
-                    <Tabs
-                        children={tabs}
-                        value={value} onChange={this.handleChange}
-                    >
-                    </Tabs>
-                    {
-                        tabs.map(function (tab, idx) {
-                            if (value === idx) {
-                                return (<TabContainer>{tab.props.children}</TabContainer>);
-                            }
-                        })}
-
+                    <HorizontalLinearStepper {...this.props}/>
 
                 </div>
 
@@ -121,7 +220,8 @@ Wizard.propTypes = {
     source: PropTypes.string,
     input: PropTypes.object,
     className: PropTypes.string,
-    tabs: PropTypes.node,
+    steps: PropTypes.arrayOf(PropTypes.string),
+    stepContents: PropTypes.arrayOf(PropTypes.node)
 
 };
 
