@@ -56,7 +56,7 @@ class HorizontalLinearStepper extends React.Component {
         skipped: new Set(),
     };
     isStepOptional = step => {
-        return step === 1;
+        return false;
     };
     handleNext = () => {
         const {activeStep} = this.state;
