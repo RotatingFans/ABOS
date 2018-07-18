@@ -98,7 +98,14 @@ class Wizard extends Component {
                         value={value} onChange={this.handleChange}
                     >
                     </Tabs>
-                    {value === 0 && <TabContainer>Item One</TabContainer>}
+                    {
+                        tabs.map(function (tab, idx) {
+                            if (value === idx) {
+                                return (<TabContainer>{tab.props.children}</TabContainer>);
+                            }
+                        })}
+
+
                 </div>
 
             </Card>
