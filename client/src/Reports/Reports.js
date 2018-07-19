@@ -6,19 +6,18 @@ const steps = () => [
     "World", "World2"
 ];
 
-function handleSubmit(record) {
 
-}
-
-function save(record) {
+function save(record, redirect) {
+    console.log(record)
 
 }
 
 const stepsContent = () => [
-    <SimpleForm record={{}} handleSubmit={handleSubmit} save={save} saving={false} form={"report-form"}><TextInput
-        source="Name"/></SimpleForm>, <div>Hello World2</div>
+    <TextInput
+        source="Name"/>, <TextInput
+        source="Name2"/>
 ];
 export const Reports = (props) => (
-    <Wizard {...props} steps={steps()} stepContents={stepsContent()}/>
+    <Wizard {...props} steps={steps()} stepContents={stepsContent()} save={save} formName={"Record-form"}/>
 );
 

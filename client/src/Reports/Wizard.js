@@ -3,14 +3,14 @@ import {withStyles} from '@material-ui/core/styles';
 import compose from 'recompose/compose';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import {addField} from 'react-admin';
+import {addField, SimpleForm, Toolbar} from 'react-admin';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-
+import SaveButton from './SaveButton'
 
 const styles = theme => ({
     main: {
@@ -41,7 +41,11 @@ const styles = theme => ({
         marginRight: 20,
     },
     button: {
-        marginRight: theme.spacing.unit,
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: 24,
+        marginRight: 24,
+        position: 'relative',
     },
     instructions: {
         padding: 8 * 3,
@@ -49,6 +53,11 @@ const styles = theme => ({
 
 
 });
+
+const PostCreateToolbar = props => (
+    <Toolbar {...props} >
+    </Toolbar>
+);
 
 class HorizontalLinearStepper extends React.Component {
     state = {
@@ -58,9 +67,15 @@ class HorizontalLinearStepper extends React.Component {
     isStepOptional = step => {
         return false;
     };
+
+
     handleNext = () => {
         const {activeStep} = this.state;
         let {skipped} = this.state;
+        const {steps, save} = this.props;
+        /*if (activeStep === steps.length - 1) {
+            save();
+        }*/
         if (this.isStepSkipped(activeStep)) {
             skipped = new Set(skipped.values());
             skipped.delete(activeStep);
@@ -69,6 +84,7 @@ class HorizontalLinearStepper extends React.Component {
             activeStep: activeStep + 1,
             skipped,
         });
+
     };
     handleBack = () => {
         const {activeStep} = this.state;
@@ -114,7 +130,7 @@ class HorizontalLinearStepper extends React.Component {
     }
 
     render() {
-        const {classes} = this.props;
+        const {classes, handleSubmit, save, formName} = this.props;
         const steps = this.getSteps();
         const {activeStep} = this.state;
 
@@ -150,34 +166,48 @@ class HorizontalLinearStepper extends React.Component {
                     ) : (
                         <div>
                             <Typography component="div"
-                                        className={classes.instructions}>{this.getStepContent(activeStep)}</Typography>
-                            <div>
-                                <Button
-                                    disabled={activeStep === 0}
-                                    onClick={this.handleBack}
-                                    className={classes.button}
+                                        className={classes.instructions}>
+                                <SimpleForm record={{}} save={save} saving={"false"} form={formName} redirect={""}
+                                            toolbar={<PostCreateToolbar>
+                                                <Button
+                                                    disabled={activeStep === 0}
+                                                    onClick={this.handleBack}
+                                                    className={this.props.classes.button}
+                                                >
+                                                    Back
+                                                </Button>
+                                                {this.isStepOptional(activeStep) && (
+                                                    <Button
+                                                        color="primary"
+                                                        onClick={this.handleSkip}
+                                                        className={this.props.classes.button}
+                                                    >
+                                                        Skip
+                                                    </Button>
+                                                )}
+                                                {activeStep === this.props.steps.length - 1 ?
+                                                    <SaveButton
+                                                        label="Finish"
+                                                        redirect={false}
+                                                        submitOnEnter={false}
+                                                        variant="raised"
+                                                        color={"primary"}
+                                                    /> :
+                                                    <Button
+                                                        variant={"raised"}
+                                                        color="primary"
+                                                        onClick={this.handleNext}
+                                                        className={this.props.classes.button}
+                                                    > Next
+
+                                                    </Button>
+                                                }
+                                            </PostCreateToolbar>}
                                 >
-                                    Back
-                                </Button>
-                                {this.isStepOptional(activeStep) && (
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={this.handleSkip}
-                                        className={classes.button}
-                                    >
-                                        Skip
-                                    </Button>
-                                )}
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={this.handleNext}
-                                    className={classes.button}
-                                >
-                                    {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                                </Button>
-                            </div>
+                                    {this.getStepContent(activeStep)}
+                                </SimpleForm>
+                            </Typography>
+
                         </div>
                     )}
                 </div>
@@ -189,7 +219,8 @@ class HorizontalLinearStepper extends React.Component {
 HorizontalLinearStepper.propTypes = {
     classes: PropTypes.object,
     steps: PropTypes.arrayOf(PropTypes.string),
-    stepContents: PropTypes.arrayOf(PropTypes.node)
+    stepContents: PropTypes.arrayOf(PropTypes.node),
+    save: PropTypes.func
 };
 
 class Wizard extends Component {
@@ -221,11 +252,15 @@ Wizard.propTypes = {
     input: PropTypes.object,
     className: PropTypes.string,
     steps: PropTypes.arrayOf(PropTypes.string),
-    stepContents: PropTypes.arrayOf(PropTypes.node)
-
+    stepContents: PropTypes.arrayOf(PropTypes.node),
+    handleSubmit: PropTypes.func,
+    save: PropTypes.func,
+    formName: PropTypes.string
 };
 
-Wizard.defaultProps = {};
+Wizard.defaultProps = {
+    formName: "Wizard-form"
+};
 
 const WizardRaw = compose(
     withStyles(styles),
