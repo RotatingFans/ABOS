@@ -21,6 +21,7 @@ class UrlMappings {
         "/api/UserRole"(resources: 'UserRole')
         "/api/Years"(resources: 'Year')
 
+        "/api/Reports"(controller: "Reports", action: "index")
 
         "/"(controller: 'application', action: 'index')
         "500"(view: '/error')
