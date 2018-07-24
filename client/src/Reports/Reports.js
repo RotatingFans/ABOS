@@ -60,13 +60,13 @@ const stepsContent = () => [
             <ImageField source="src" title="title"/>
         </ImageInput>,
         <SelectInput
-            source="Year" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
+            source="Year" choices={[{id: '5', name: '2018'}]}/>,
         <SelectInput
-            source="User" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
+            source="User" choices={[{id: '', name: ''}]}/>,
         <SelectInput
             source="Customer" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
         <SelectInput
-            source="Category" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
+            source="Category" choices={[{id: 'All', name: 'All'}]}/>,
         <BooleanInput
             source="Print_Due_Header"/>,
 

@@ -1,8 +1,9 @@
 package abos.server
 
-import Utilities.*
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.tool.xml.XMLWorker
+
+//import Utilities.*
 import com.itextpdf.tool.xml.XMLWorkerHelper
 import com.itextpdf.tool.xml.css.CssFile
 import com.itextpdf.tool.xml.html.Tags
@@ -25,6 +26,8 @@ import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 import java.text.SimpleDateFormat
 
+import static grails.gorm.multitenancy.Tenants.withId
+
 class ReportGenerator {
     private final String reportType
     private final String selectedYear
@@ -36,7 +39,7 @@ class ReportGenerator {
     private final String logoLoc
     private final String category
     private final String user
-    private final ArrayList<Customer> customers
+    private final ArrayList<Customers> customers
     private final String repTitle
     private final String Splitting
     private final Boolean includeHeader
@@ -66,7 +69,8 @@ class ReportGenerator {
      * @param includeHeader Include a header?
      * @param pdfLoc1 Location to save the pdf
      */
-    ReportGenerator(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, ArrayList<Customer> customers, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
+    //              java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, ,mjbnjava.util.ArrayList, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.String
+    ReportGenerator(String reportType, String selectedYear, String scoutName, String scoutStAddr, String addrFormat, String scoutRank, String scoutPhone, String logoLoc, String category, String user, ArrayList<Customers> customers, String repTitle, String splitting, Boolean includeHeader, String pdfLoc1) {
 
         this.reportType = reportType
         this.selectedYear = selectedYear
@@ -93,18 +97,13 @@ class ReportGenerator {
 //    }
 // --Commented out by Inspection STOP (7/27/16 3:02 PM)
 
-    Integer generate() throws Exception {
+    String generate() throws Exception {
         updateMessage("Generating Report")
-        if (Objects.equals(reportType, "Year Totals Spilt by Customer")) {
-            Utilities.Year year
-            if (user == null) {
-                year = new Utilities.Year(selectedYear)
-            } else {
-                year = new Utilities.Year(selectedYear, user)
+        if (Objects.equals(reportType, "customers_split")) {
+            withId(user, {
+                def customers = Customers.findAllByYear(Year.get(selectedYear))
 
-            }
-            Iterable<Customer> customers = year.getCustomers()
-            // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance()
             DocumentBuilder domBuilder
             domBuilder = domFactory.newDocumentBuilder()
@@ -158,7 +157,7 @@ class ReportGenerator {
                 l:
                 {
                     Element logo = doc.createElement("logo")
-                    logo.appendChild(doc.createTextNode("file:///" + logoLoc.replace("\\", "/")))
+                    logo.appendChild(doc.createTextNode(logoLoc))
                     info.appendChild(logo)
                 }
 
@@ -186,18 +185,20 @@ class ReportGenerator {
             int custProgressIncValue = 90 / ((customers instanceof Collection<?> && !((Collection) customers).isEmpty()) ? ((Collection<?>) customers).size() : 1)
 
             customers.forEach { cust ->
-                BigDecimal paid = cust.getPaid()
+                BigDecimal paid = cust.order.getAmountPaid()
                 int custId = cust.getId()
-                String customer = cust.getName()
+                String customer = cust.getCustomerName()
                 // Root element
-                Order.orderArray orderArray
+                Set<Ordered_products> orderArray
                 if (Objects.equals(category, "All")) {
-                    orderArray = Order.createOrderArray(selectedYear, custId, true)
+                    orderArray = cust.orderedProducts
 
                 } else {
-                    orderArray = Order.createOrderArray(selectedYear, custId, true, category)
+                    orderArray = Ordered_products.where {
+                        customer == cust && year == cust.year && products.category == Categories.findBycategoryNameAndYear(category, cust.year)
+                    }.list()
                 }
-                if (orderArray.totalQuantity > 0) {
+                if (orderArray.quantity.sum() > 0) {
                     //Set Items
                     l:
                     {
@@ -221,14 +222,14 @@ class ReportGenerator {
                         l:
                         {
                             Element StreetAddress = doc.createElement("streetAddress")
-                            StreetAddress.appendChild(doc.createTextNode(cust.getAddr()))
+                            StreetAddress.appendChild(doc.createTextNode(cust.getStreetAddress()))
                             products.appendChild(StreetAddress)
                         }
                         // City elements
                         l:
                         {
                             Element city = doc.createElement("city")
-                            String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip()
+                            String addr = cust.getCity() + ' ' + cust.getState() + ", " + cust.getZipCode()
                             city.appendChild(doc.createTextNode(addr))
                             products.appendChild(city)
                         }
@@ -259,7 +260,7 @@ class ReportGenerator {
                                 l:
                                 {
                                     Element text = doc.createElement("text")
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ('. Total paid to date: $' + paid.toPlainString())
+                                    String notice = "*Notice: These products will be delivered to your house on " + Categories.findBycategoryNameAndYear(category, cust.year).deliveryDate.toString() + ('. Total paid to date: $' + paid.toPlainString())
                                     text.appendChild(doc.createTextNode(notice))
                                     title.appendChild(text)
                                 }
@@ -269,14 +270,14 @@ class ReportGenerator {
                         setProgress(getProg() + (custProgressIncValue / 10))
                         BigDecimal tCost = BigDecimal.ZERO
 
-                        if (orderArray.totalQuantity > 0) {
+                        if (orderArray.quantity.sum() > 0) {
                             Element prodTable = doc.createElement("prodTable")
                             prodTable.appendChild(doc.createTextNode("true"))
                             products.appendChild(prodTable)
-                            int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.orderData.length
+                            int productProgressIncValue = ((custProgressIncValue / 10) * 9) / orderArray.size()
                             //For each product ordered, enter info
-                            for (formattedProduct aRowDataF : orderArray.orderData) {
-                                if (Objects.equals(aRowDataF.productCategory, category) || (Objects.equals(category, "All"))) {
+                            for (Ordered_products aRowDataF : orderArray) {
+                                if (Objects.equals(aRowDataF.products.category ? aRowDataF.products.category.categoryName : "", category) || (Objects.equals(category, "All"))) {
 
                                     l:
                                     {
@@ -286,35 +287,35 @@ class ReportGenerator {
                                         l:
                                         {
                                             Element ID = doc.createElement("ID")
-                                            ID.appendChild(doc.createTextNode(aRowDataF.productID))
+                                            ID.appendChild(doc.createTextNode(aRowDataF.products.humanProductId))
                                             Product.appendChild(ID)
                                         }
                                         //Name
                                         l:
                                         {
                                             Element Name = doc.createElement("Name")
-                                            Name.appendChild(doc.createTextNode(aRowDataF.productName))
+                                            Name.appendChild(doc.createTextNode(aRowDataF.products.productName))
                                             Product.appendChild(Name)
                                         }
                                         //Size
                                         l:
                                         {
                                             Element Size = doc.createElement("Size")
-                                            Size.appendChild(doc.createTextNode(aRowDataF.productSize))
+                                            Size.appendChild(doc.createTextNode(aRowDataF.products.unitSize))
                                             Product.appendChild(Size)
                                         }
                                         //UnitCost
                                         l:
                                         {
                                             Element UnitCost = doc.createElement("UnitCost")
-                                            UnitCost.appendChild(doc.createTextNode(aRowDataF.productUnitPrice.toPlainString()))
+                                            UnitCost.appendChild(doc.createTextNode(aRowDataF.products.unitCost.toPlainString()))
                                             Product.appendChild(UnitCost)
                                         }
                                         //Quantity
                                         l:
                                         {
                                             Element Quantity = doc.createElement("Quantity")
-                                            Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.orderedQuantity)))
+                                            Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.quantity)))
                                             Product.appendChild(Quantity)
                                         }
                                         //TotalCost
@@ -340,7 +341,7 @@ class ReportGenerator {
 
 
                         }
-                        Utilities.Year cYear
+                        /*Utilities.Year cYear
                         if (user == null) {
                             cYear = new Utilities.Year(selectedYear)
                         } else {
@@ -360,8 +361,8 @@ class ReportGenerator {
                             Element TotalQuantity = doc.createElement("totalQuantity")
                             TotalQuantity.appendChild(doc.createTextNode(Integer.toString(cYear.getQuant())))
                             info.appendChild(TotalQuantity)
-                        }
-                        BigDecimal donationBD = cust.getDontation()
+                        }*/
+                        BigDecimal donationBD = cust.getDonation() ?: BigDecimal.ZERO
 
                         String donation = donationBD.toPlainString()
                         if (!(donationBD.compareTo(BigDecimal.ZERO) <= 0)) {
@@ -401,7 +402,8 @@ class ReportGenerator {
                 }
 
             }
-        } else {
+            })
+        } /*else {
 
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance()
             DocumentBuilder domBuilder
@@ -528,7 +530,7 @@ class ReportGenerator {
                             products.appendChild(prodTable)
                         }
 
-                        /*{
+                        *//*{
                             if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo")
                                 {
@@ -541,7 +543,7 @@ class ReportGenerator {
                                 info.appendChild(title)
                             }
 
-                        }*/
+                        }*//*
                         setProgress(10)
                         BigDecimal tCost = BigDecimal.ZERO
                         orderArray.totalCost = BigDecimal.ZERO
@@ -632,7 +634,7 @@ class ReportGenerator {
                     break
                 case "Customer Year Totals":
                     Order.orderArray orderArray = Order.createOrderArray(selectedYear, customers.get(0).getId(), true)
-                    Customer cust = new Customer(customers.get(0).getId(), selectedYear)
+                    Customers cust = new Customers(customers.get(0).getId(), selectedYear)
                     //Set Items
                     l:
                     {
@@ -679,11 +681,11 @@ class ReportGenerator {
                             header.appendChild(doc.createTextNode("true"))
                             products.appendChild(header)
                         }
-                        /*{
+                        *//*{
                             Element title = doc.createElement("title")
                             title.appendChild(doc.createTextNode(cust.getName() + ' ' + selectedYear + " Utilities.Order"))
                             products.appendChild(title)
-                        }*/
+                        }*//*
                         l:
                         {
                             if (includeHeader && !Objects.equals(category, "All")) {
@@ -953,7 +955,7 @@ class ReportGenerator {
 
                     break
             }
-        }
+        }*/
         OutputStreamWriter osw = null
         try {
             new ByteArrayOutputStream().withStream { baos ->
@@ -997,18 +999,21 @@ class ReportGenerator {
                     osw.close()
                 }
             } catch (IOException | RuntimeException e) {
-                LogToFile.log(e, Severity.FINE, "Error closing temporary XML file.")
+                updateMessage("Error closing temporary XML file.")
+
+                //LogToFile.log(e, Severity.FINE, "Error closing temporary XML file.")
             }
 
         }
-        convertXSLToPDF()
+        String ret = convertXSLToPDF()
         updateMessage("Done")
 
         // Return the number of matches found
-        return 1
+        return ret
     }
 
-    private void convertXSLToPDF() throws Exception {
+    private String convertXSLToPDF() throws Exception {
+        String fileLoc = ""
         OutputStream os = new ByteArrayOutputStream()
 
         Processor proc = new Processor(false)
@@ -1049,6 +1054,8 @@ class ReportGenerator {
                 String tmpDirectoryOp = System.getProperty("java.io.tmpdir")
                 File tmpDirectory = new File(tmpDirectoryOp)
                 xhtml = File.createTempFile("LGReportXhtml" + timeStamp, ".xhtml", tmpDirectory)
+                File pdfF = File.createTempFile("LGReportPDF" + timeStamp, ".pdf", tmpDirectory)
+                fileLoc = pdfF.absolutePath
                 xhtml.deleteOnExit()
                 try {
                     new FileOutputStream(xhtml).withStream {
@@ -1059,7 +1066,7 @@ class ReportGenerator {
                         baosT.writeTo(it)
                     }
 
-                    new FileOutputStream(pdfLoc).withStream { fos ->
+                    new FileOutputStream(pdfF).withStream { fos ->
                         String cssText = "* {\n" +
                                 "                margin-top: 0px\n" +
                                 "                margin-bottom: 0px\n" +
@@ -1179,6 +1186,7 @@ class ReportGenerator {
             updateMessage("Error writing PDF file. Please try again.")
             throw e
         }
+        return fileLoc
     }
 
     private double getProg() {
