@@ -18,7 +18,7 @@ function save(record, redirect) {
     const token = localStorage.getItem('access_token');
     options.headers.set('Authorization', `Bearer ${token}`);
     fetch(url, {
-        method: "GET",
+        method: "POST",
         mode: "cors",
         cache: "no-cache",
         credentials: "same-origin", // include, same-origin, *omit
@@ -29,6 +29,7 @@ function save(record, redirect) {
         },
         redirect: "follow", // manual, *follow, error
         referrer: "no-referrer", // no-referrer, *client
+        body: JSON.stringify(record),
     }).then(response => response.blob())
         .then(blob => download(blob, "report.pdf", "application/pdf"))
 
