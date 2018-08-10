@@ -171,23 +171,23 @@
                                     </xsl:for-each>
                                 </tr>
                                 <xsl:for-each select="Product">
-                                    <tr class="">
-                                        <td style="border-bottom:1px solid black;" width="5%">
+                                    <tr class="Bordered" style="border-bottom:1px solid black;">
+                                        <td width="5%" style="border-bottom:1px solid black;">
                                             <xsl:value-of select="ID"/>
                                         </td>
-                                        <td class="LBordered" width="45%">
+                                        <td class="LBordered" style="border-bottom:1px solid black;" width="45%">
                                             <xsl:value-of select="Name"/>
                                         </td>
-                                        <td class="LBordered" width="10%">
+                                        <td class="LBordered" style="border-bottom:1px solid black;" width="10%">
                                             <xsl:value-of select="Size"/>
                                         </td>
-                                        <td class="LBordered" width="8%">
+                                        <td class="LBordered" style="border-bottom:1px solid black;" width="8%">
                                             <xsl:value-of select="UnitCost"/>
                                         </td>
-                                        <td class="LBordered" width="8%">
+                                        <td class="LBordered" style="border-bottom:1px solid black;" width="8%">
                                             <xsl:value-of select="Quantity"/>
                                         </td>
-                                        <td class="LBordered" width="8%">
+                                        <td class="LBordered" style="border-bottom:1px solid black;" width="8%">
                                             <xsl:value-of select="TotalCost"/>
                                         </td>
                                     </tr>
