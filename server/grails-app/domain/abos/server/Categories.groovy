@@ -20,7 +20,8 @@ class Categories {
             categoryName: true,
             id          : true,
             deliveryDate: true,
-            year        : true
+            'year'      : [field: 'year.id'],
+            'year.id'   : true
     ]
 
 }

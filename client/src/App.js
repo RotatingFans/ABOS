@@ -7,7 +7,7 @@ import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
 import {Dashboard} from './dashboard';
-import {Reports} from "./Reports/Reports";
+import {Reports} from "./Reports";
 import Menu from "./resources/Menu";
 
 const httpClient = (url, options = {}) => {
@@ -25,7 +25,7 @@ const App = () => (
     <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider}>
         {permissions => [
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
-            <Resource name="reports" list={Reports}/>,
+            <Resource name="Reports" list={Reports}/>,
             //Reports
             <Resource name="customers"/>,
             <Resource name="Years"/>,
