@@ -6,7 +6,13 @@ import download from 'downloadjs';
 const steps = () => [
     "Pick Report Template", "Fill In Details"
 ];
+const convertFileToBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file.rawFile);
 
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+});
 
 function save(record, redirect) {
     console.log(record);
@@ -17,21 +23,44 @@ function save(record, redirect) {
     }
     const token = localStorage.getItem('access_token');
     options.headers.set('Authorization', `Bearer ${token}`);
-    fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin", // include, same-origin, *omit
-        headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            'Authorization': `Bearer ${token}`
-            // "Content-Type": "application/x-www-form-urlencoded",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrer: "no-referrer", // no-referrer, *client
-        body: JSON.stringify(record),
-    }).then(response => response.blob())
-        .then(blob => download(blob, "report.pdf", "application/pdf"))
+    if (record.LogoLocation) {
+        convertFileToBase64(record.LogoLocation).then(b64 => {
+                record.LogoLocation.base64 = b64;
+                fetch(url, {
+                    method: "POST",
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin", // include, same-origin, *omit
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        'Authorization': `Bearer ${token}`
+                        // "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrer: "no-referrer", // no-referrer, *client
+                    body: JSON.stringify(record),
+                }).then(response => response.blob())
+                    .then(blob => download(blob, "report.pdf", "application/pdf"))
+            }
+        )
+    } else {
+        fetch(url, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin", // include, same-origin, *omit
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Authorization': `Bearer ${token}`
+                // "Content-Type": "application/x-www-form-urlencoded",
+            },
+            redirect: "follow", // manual, *follow, error
+            referrer: "no-referrer", // no-referrer, *client
+            body: JSON.stringify(record),
+        }).then(response => response.blob())
+            .then(blob => download(blob, "report.pdf", "application/pdf"))
+    }
+
 
     //console.log(fetchUtils.fetchJson(url, options));
 

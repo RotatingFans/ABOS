@@ -1,16 +1,20 @@
 package abos.server
 
+import com.itextpdf.text.BadElementException
+import com.itextpdf.text.Image
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.tool.xml.XMLWorker
+import com.itextpdf.tool.xml.XMLWorkerHelper
 
 //import Utilities.*
-import com.itextpdf.tool.xml.XMLWorkerHelper
+
 import com.itextpdf.tool.xml.css.CssFile
 import com.itextpdf.tool.xml.html.Tags
 import com.itextpdf.tool.xml.parser.XMLParser
 import com.itextpdf.tool.xml.pipeline.css.CSSResolver
 import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline
+import com.itextpdf.tool.xml.pipeline.html.AbstractImageProvider
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext
 import net.sf.saxon.s9api.*
@@ -1142,6 +1146,7 @@ class ReportGenerator {
                         HtmlPipelineContext htmlContext = new HtmlPipelineContext(null)
                         htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory())
                         htmlContext.autoBookmark(false)
+                        htmlContext.setImageProvider(new Base64ImageProvider())
 
                         // Pipelines
                         PdfWriterPipeline pdf = new PdfWriterPipeline(document, writer)
@@ -1200,5 +1205,30 @@ class ReportGenerator {
 
     private static void updateMessage(String message) {
         println message
+    }
+
+    class Base64ImageProvider extends AbstractImageProvider {
+
+        @Override
+        Image retrieve(String src) {
+            int pos = src.indexOf("base64,")
+            try {
+                if (src.startsWith("data") && pos > 0) {
+                    byte[] img = (src.substring(pos + 7)).decodeBase64()
+                    return Image.getInstance(img)
+                } else {
+                    return Image.getInstance(src)
+                }
+            } catch (BadElementException ex) {
+                return null
+            } catch (IOException ex) {
+                return null
+            }
+        }
+
+        @Override
+        String getImageRootPath() {
+            return null
+        }
     }
 }
