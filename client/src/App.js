@@ -27,8 +27,10 @@ const App = () => (
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
             <Resource name="reports" list={Reports}/>,
             //Reports
+            <Resource name="customers"/>,
             <Resource name="Years"/>,
             <Resource name="User"/>,
+            <Resource name="Categories"/>,
             permissions === 'manager'
                 ? <Resource name="User"/>
                 : null,

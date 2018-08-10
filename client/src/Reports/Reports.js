@@ -1,5 +1,16 @@
 import React from 'react';
-import {BooleanInput, fetchUtils, ImageField, ImageInput, SelectInput, SimpleForm, TextInput} from 'react-admin';
+import {
+    BooleanInput,
+    fetchUtils,
+    ImageField,
+    ImageInput,
+    ReferenceArrayInput,
+    ReferenceInput,
+    SelectArrayInput,
+    SelectInput,
+    SimpleForm,
+    TextInput
+} from 'react-admin';
 import Wizard from './Wizard'
 import download from 'downloadjs';
 
@@ -88,14 +99,22 @@ const stepsContent = () => [
             source="LogoLocation" accept="image/*">
             <ImageField source="src" title="title"/>
         </ImageInput>,
-        <SelectInput
-            source="Year" choices={[{id: '5', name: '2018'}]}/>,
-        <SelectInput
-            source="User" choices={[{id: '', name: ''}]}/>,
-        <SelectInput
-            source="Customer" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
-        <SelectInput
-            source="Category" choices={[{id: 'All', name: 'All'}]}/>,
+        <ReferenceInput label="Year" source="Year" reference="Years">
+            <SelectInput optionText="year" optionValue="id"/>
+        </ReferenceInput>,
+
+        <ReferenceInput label="User" source="User" reference="User">
+            <SelectInput optionText="userName" optionValue="userName"/>
+        </ReferenceInput>,
+
+        <ReferenceArrayInput label="Customers" source="Customer" reference="customers">
+            <SelectArrayInput optionText="customerName" optionValue="id" allowEmpty/>
+        </ReferenceArrayInput>,
+
+        <ReferenceInput label="Category" source="Category" reference="Categories" allowEmpty>
+            <SelectInput optionText="categoryName" optionValue="categoryName" allowEmpty/>
+        </ReferenceInput>,
+
         <BooleanInput
             source="Print_Due_Header"/>,
 
