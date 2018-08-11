@@ -59,7 +59,7 @@ class Customers implements MultiTenant<abos.server.Customers> {
 
     static restsearch = [
             customerName: [field: 'customerName', formula: { val -> "*${val}*" }],
-
+            user        : [field: 'user.id'],
             id          : true,
             'year'      : [field: 'year.id'],
             'year.id'   : true

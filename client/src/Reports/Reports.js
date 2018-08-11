@@ -47,71 +47,74 @@ const convertFileToBase64 = file => new Promise((resolve, reject) => {
     reader.onerror = reject;
 });
 
-const save = (record, redirect) => {
-    console.log(record);
-    let options = {};
-    let url = 'http://localhost:8080/api/Reports';
-    if (!options.headers) {
-        options.headers = new Headers({Accept: 'application/pdf'});
-    }
-    const token = localStorage.getItem('access_token');
-    options.headers.set('Authorization', `Bearer ${token}`);
-    if (record.LogoLocation) {
-        convertFileToBase64(record.LogoLocation).then(b64 => {
-                record.LogoLocation.base64 = b64;
-                fetch(url, {
-                    method: "POST",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin", // include, same-origin, *omit
-                    headers: {
-                        "Content-Type": "application/json; charset=utf-8",
-                        'Authorization': `Bearer ${token}`
-                        // "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    redirect: "follow", // manual, *follow, error
-                    referrer: "no-referrer", // no-referrer, *client
-                    body: JSON.stringify(record),
-                }).then(response => response.blob())
-                    .then(blob => download(blob, "report.pdf", "application/pdf"))
-            }
-        )
-    } else {
-        fetch(url, {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin", // include, same-origin, *omit
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                'Authorization': `Bearer ${token}`
-                // "Content-Type": "application/x-www-form-urlencoded",
-            },
-            redirect: "follow", // manual, *follow, error
-            referrer: "no-referrer", // no-referrer, *client
-            body: JSON.stringify(record),
-        }).then(response => response.blob())
-            .then(blob => download(blob, "report.pdf", "application/pdf"))
-    }
 
-
-    //console.log(fetchUtils.fetchJson(url, options));
-
-};
 
 class reportsWizard extends React.Component {
     //users: {}, years: {}, customers: {}
-    state = {users: [{id: 'test', userName: 'test'}]};
+    state = {update: false};
 
     constructor(props) {
         super(props);
 
     }
 
+
+    save = (record, redirect) => {
+        console.log(record);
+        let options = {};
+        let url = 'http://localhost:8080/api/Reports';
+        if (!options.headers) {
+            options.headers = new Headers({Accept: 'application/pdf'});
+        }
+        const token = localStorage.getItem('access_token');
+        options.headers.set('Authorization', `Bearer ${token}`);
+        if (record.LogoLocation) {
+            convertFileToBase64(record.LogoLocation).then(b64 => {
+                    record.LogoLocation.base64 = b64;
+                    fetch(url, {
+                        method: "POST",
+                        mode: "cors",
+                        cache: "no-cache",
+                        credentials: "same-origin", // include, same-origin, *omit
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8",
+                            'Authorization': `Bearer ${token}`
+                            // "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        redirect: "follow", // manual, *follow, error
+                        referrer: "no-referrer", // no-referrer, *client
+                        body: JSON.stringify(record),
+                    }).then(response => response.blob())
+                        .then(blob => download(blob, "report.pdf", "application/pdf"))
+                }
+            )
+        } else {
+            fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    'Authorization': `Bearer ${token}`
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: JSON.stringify(record),
+            }).then(response => response.blob())
+                .then(blob => download(blob, "report.pdf", "application/pdf"))
+        }
+
+
+        //console.log(fetchUtils.fetchJson(url, options));
+
+    };
+
     getCustomersWithYearAndUser(Year, User) {
 
         dataProvider(GET_LIST, 'customers', {
-            filter: {year: Year, User: User},
+            filter: {year: Year, user: User},
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
@@ -147,25 +150,29 @@ class reportsWizard extends React.Component {
     }
 
     updateYear(year) {
-        this.setState({year: year});
-        this.updateChoices();
+        this.setState({year: year, update: true});
+        // this.updateChoices();
 
     }
 
     updateUser(user) {
-        this.setState({user: user});
-        this.updateChoices();
+        this.setState({user: user, update: true});
+        // this.updateChoices();
     }
 
     updateChoices() {
-        const year = this.state.year;
-        const user = this.state.user;
-        if (year && user) {
-            this.getCustomersWithYearAndUser(year, user);
+        if (this.state.update) {
+            const year = this.state.year;
+            const user = this.state.user;
+            if ((year && user) > -1) {
+                this.getCustomersWithYearAndUser(year, user);
 
-        }
-        if (year) {
-            this.getCategoriesForYear(year);
+            }
+            if (year) {
+                this.getCategoriesForYear(year);
+
+            }
+            this.setState({update: false})
 
         }
     }
@@ -198,10 +205,17 @@ class reportsWizard extends React.Component {
                                         onChange={(event, key, val) => this.updateYear(key)}>
                             <SelectInput optionText="year" optionValue="id"/>
                         </ReferenceInput>,
+                        <FormDataConsumer>
+                            {({formData, ...rest}) => {
+                                return <CustomSelectInput label="User" source="User" optionText={"userName"}
+                                                          optionValue={"id"}
+                                                          choices={this.state.users}
+                                                          onChangeCustomHandler={(key) => this.updateUser(key)}/>
 
-                        <CustomSelectInput label="User" source="User" optionText={"userName"} optionValue={"userName"}
-                                           choices={this.state.users}
-                                           onChangeCustomHandler={(key) => this.updateUser(key)}/>,
+                            }
+                            }
+                        </FormDataConsumer>,
+
 
 
                         <FormDataConsumer>
@@ -216,12 +230,7 @@ class reportsWizard extends React.Component {
 
 
                                 }
-                                if (this.state.year && this.state.user) {
-                                    return <SelectArrayInput source="Customer" choices={
-                                        this.state.customers} {...rest} allowEmpty/>
 
-
-                                }
                             }
                             }
                         </FormDataConsumer>,
@@ -229,7 +238,13 @@ class reportsWizard extends React.Component {
                         <FormDataConsumer>
                             {({formData, ...rest}) => {
 
+                                if (this.state.year && this.state.user) {
+                                    return <SelectArrayInput source="Customer" optionText={"customerName"}
+                                                             optionValue={"id"} choices={
+                                        this.state.customers} {...rest} allowEmpty/>
 
+
+                                }
                             }
                             }
                         </FormDataConsumer>,
@@ -252,8 +267,10 @@ class reportsWizard extends React.Component {
     }
 
     render() {
+
+        this.updateChoices();
         return (
-            <Wizard {...this.props} steps={steps()} stepContents={this.state.stepsContent} save={save}
+            <Wizard {...this.props} steps={steps()} stepContents={this.state.stepsContent} save={this.save}
                     formName={"record-form"}/>
         )
     }

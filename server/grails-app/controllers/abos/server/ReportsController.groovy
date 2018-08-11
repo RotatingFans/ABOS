@@ -17,7 +17,9 @@ class ReportsController {
         if (jsonParams.Customer instanceof String) {
             //   customers.add(Customers.findById(jsonParams.Customer))
         }
-        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year, jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation.base64, jsonParams.Category, jsonParams.User, customers, "Test", "Test1", jsonParams.Print_Due_Header, "")
+        def user = User.findById(jsonParams.User).getUsername()
+        def Category = jsonParams.Category ?: "All"
+        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year.toString(), jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation.base64, Category, user, customers, "Test", "Test1", jsonParams.Print_Due_Header, "")
         String fileLoc = rg.generate()
         println fileLoc
         InputStream pdf = new FileInputStream(fileLoc)
