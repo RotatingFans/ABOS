@@ -7,11 +7,11 @@ import com.itextpdf.tool.xml.XMLWorker
 import com.itextpdf.tool.xml.XMLWorkerHelper
 import com.itextpdf.tool.xml.css.CssFile
 import com.itextpdf.tool.xml.html.Tags
+import com.itextpdf.tool.xml.parser.XMLParser
+import com.itextpdf.tool.xml.pipeline.css.CSSResolver
 
 //import Utilities.*
 
-import com.itextpdf.tool.xml.parser.XMLParser
-import com.itextpdf.tool.xml.pipeline.css.CSSResolver
 import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline
 import com.itextpdf.tool.xml.pipeline.html.AbstractImageProvider
@@ -195,12 +195,12 @@ class ReportGenerator {
                     // Root element
                     Set<Ordered_products> orderArray
                     if (Objects.equals(category, "All")) {
-                        orderArray = cust.orderedProducts
+                        orderArray = cust.orderedProducts.sort { it.products.id }
 
                     } else {
                         orderArray = Ordered_products.where {
                             customer == cust && year == cust.year && products.category == Categories.findBycategoryNameAndYear(category, cust.year)
-                        }.list()
+                        }.list().sort { it.products.id }
                     }
                     if (orderArray.quantity.sum() > 0) {
                         //Set Items
@@ -647,7 +647,7 @@ class ReportGenerator {
                         // Root element
                         Set<Ordered_products> orderArray
                         //if (Objects.equals(category, "All")) {
-                        orderArray = cust.orderedProducts
+                        orderArray = cust.orderedProducts.sort { it.products.id }
 
                         /* } else {
                         Categories cat = Categories.findByCategoryNameAndYear(category, cust.year)
@@ -821,10 +821,10 @@ class ReportGenerator {
 
                     case "Customer All-Time Totals":
                         // Collection<String> customerYears = new ArrayList<>()
-                        final String[] headerS = { "true" }
-                        final BigDecimal[] overallTotalCost = { BigDecimal.ZERO }
-                        final int[] overallTotalQuantity = { 0 }
-                        int yearProgressInc = 95 / (years.size())
+                        final String[] headerS = ["true"]
+                        final BigDecimal[] overallTotalCost = [BigDecimal.ZERO]
+                        final int[] overallTotalQuantity = [0]
+                        int yearProgressInc = 1
                         //For Each Utilities.Year
                         Customers.findAllByCustomerName(customers.get(0).customerName).forEach { cust ->
 
@@ -855,21 +855,21 @@ class ReportGenerator {
                             l:
                             {
                                 Element custName = doc.createElement("name")
-                                custName.appendChild(doc.createTextNode(cust.getName()))
+                                custName.appendChild(doc.createTextNode(cust.getCustomerName()))
                                 products.appendChild(custName)
                             }
                             // StreetAddress elements
                             l:
                             {
                                 Element StreetAddress = doc.createElement("streetAddress")
-                                StreetAddress.appendChild(doc.createTextNode(cust.getAddr()))
+                                StreetAddress.appendChild(doc.createTextNode(cust.getStreetAddress()))
                                 products.appendChild(StreetAddress)
                             }
                             // City elements
                             l:
                             {
                                 Element city = doc.createElement("city")
-                                String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip()
+                                String addr = cust.getCity() + ' ' + cust.getState() + ", " + cust.getZipCode()
                                 city.appendChild(doc.createTextNode(addr))
                                 products.appendChild(city)
                             }
@@ -886,14 +886,14 @@ class ReportGenerator {
                             l:
                             {
                                 Element title = doc.createElement("title")
-                                title.appendChild(doc.createTextNode(cust.getYear()))
+                                title.appendChild(doc.createTextNode(cust.getYear().year))
                                 products.appendChild(title)
                             }
 
-                            Set<Ordered_products> orderArray = cust.orderedProducts
+                            Set<Ordered_products> orderArray = cust.orderedProducts.sort { it.products.id }
                             BigDecimal tCost = BigDecimal.ZERO
                             //For each product in the table set the data
-                            int productIncValue = 90 / orderArray.size()
+                            int productIncValue = 1
                             for (Ordered_products aRowDataF : orderArray) {
 
                                 l:
