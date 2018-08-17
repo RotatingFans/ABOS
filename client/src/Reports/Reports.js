@@ -8,6 +8,7 @@ import {
     ImageInput,
     ReferenceArrayInput,
     ReferenceInput,
+    required,
     SelectArrayInput,
     SelectInput,
     SimpleForm,
@@ -47,7 +48,9 @@ const convertFileToBase64 = file => new Promise((resolve, reject) => {
     reader.onerror = reject;
 });
 
+const requiredValidate = required();
 
+const formValidate = required();
 
 class reportsWizard extends React.Component {
     //users: {}, years: {}, customers: {}
@@ -84,8 +87,20 @@ class reportsWizard extends React.Component {
                         redirect: "follow", // manual, *follow, error
                         referrer: "no-referrer", // no-referrer, *client
                         body: JSON.stringify(record),
-                    }).then(response => response.blob())
-                        .then(blob => download(blob, "report.pdf", "application/pdf"))
+                    }).then(response => {
+                        let filename = "report.pdf";
+                        const disposition = response.headers.get("content-disposition");
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            let matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '');
+                            }
+                        }
+                        response.blob().then(blob => {
+                            download(blob, filename, "application/pdf")
+                        })
+                    })
                 }
             )
         } else {
@@ -102,8 +117,20 @@ class reportsWizard extends React.Component {
                 redirect: "follow", // manual, *follow, error
                 referrer: "no-referrer", // no-referrer, *client
                 body: JSON.stringify(record),
-            }).then(response => response.blob())
-                .then(blob => download(blob, "report.pdf", "application/pdf"))
+            }).then(response => {
+                let filename = "report.pdf";
+                const disposition = response.headers.get("content-disposition");
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    let matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                response.blob().then(blob => {
+                    download(blob, filename, "application/pdf")
+                })
+            })
         }
 
 
@@ -123,6 +150,24 @@ class reportsWizard extends React.Component {
 
     }
 
+    getCustomersWithUser(User) {
+
+        dataProvider(GET_LIST, 'customers', {
+            filter: {user: User},
+            sort: {field: 'id', order: 'DESC'},
+            pagination: {page: 1, perPage: 1000},
+        }).then(response => {
+            response.data.reduceRight((acc, obj, i) => {
+                acc[obj.customerName] ? response.data.splice(i, 1) : acc[obj.customerName] = true;
+                return acc;
+            }, Object.create(null));
+
+            //response.data.sort((a, b) => b.customerName - a.customerName);
+            this.setState({customers: response.data})
+        })
+    }
+
+
     getCategoriesForYear(Year) {
         // this.setState({year: Year});
 
@@ -131,6 +176,7 @@ class reportsWizard extends React.Component {
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
+            response.data.unshift({id: 'All', categoryName: 'All'});
             this.setState({categories: response.data})
         })
 
@@ -149,6 +195,18 @@ class reportsWizard extends React.Component {
 
     }
 
+    getYears() {
+        dataProvider(GET_LIST, 'Years', {
+            filter: {},
+            sort: {field: 'id', order: 'DESC'},
+            pagination: {page: 1, perPage: 1000},
+        }).then(response => {
+            this.setState({years: response.data})
+        })
+
+
+    }
+
     updateYear(year) {
         this.setState({year: year, update: true});
         // this.updateChoices();
@@ -157,6 +215,57 @@ class reportsWizard extends React.Component {
 
     updateUser(user) {
         this.setState({user: user, update: true});
+        // this.updateChoices();
+    }
+
+    updateReportType(ReportType) {
+        switch (ReportType) {
+            case 'customers_split':
+                this.setState({
+                    reportType: ReportType,
+                    yearReq: true,
+                    userReq: true,
+                    custReq: false,
+                    catReq: true,
+                    dueReq: true
+                });
+
+                break;
+            case 'Year Totals':
+                this.setState({
+                    reportType: ReportType,
+                    yearReq: true,
+                    userReq: true,
+                    custReq: false,
+                    catReq: true,
+                    dueReq: true
+                });
+
+                break;
+            case 'Customer Year Totals':
+                this.setState({
+                    reportType: ReportType,
+                    yearReq: true,
+                    userReq: true,
+                    custReq: true,
+                    catReq: true,
+                    dueReq: true
+                });
+
+                break;
+            case 'Customer All-Time Totals':
+                this.setState({
+                    reportType: ReportType,
+                    yearReq: false,
+                    userReq: true,
+                    custReq: true,
+                    catReq: false,
+                    dueReq: false
+                });
+
+                break;
+        }
+
         // this.updateChoices();
     }
 
@@ -172,6 +281,10 @@ class reportsWizard extends React.Component {
                 this.getCategoriesForYear(year);
 
             }
+            if (user && this.state.reportType === 'Customer All-Time Totals') {
+                this.getCustomersWithUser(user);
+
+            }
             this.setState({update: false})
 
         }
@@ -179,44 +292,56 @@ class reportsWizard extends React.Component {
     stepsContent() {
 
         this.setState({
-                stepsContent: [<SelectInput
-                    source="template" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}, {
+            stepsContent: [<CustomSelectInput
+                source="template" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}, {
                     id: 'Year Totals',
                     name: 'Year Totals'
                 }, {id: 'Customer Year Totals', name: 'Customer Year Totals'}, {
                     id: 'Customer All-Time Totals',
                     name: 'Customer All-Time Totals'
-                }]}/>,
+            }]} validate={requiredValidate} onChangeCustomHandler={(key) => this.updateReportType(key)}/>,
                     [
                         <TextInput
-                            source="Scout_name"/>,
+                            source="Scout_name" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_address"/>,
+                            source="Scout_address" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_Zip"/>,
+                            source="Scout_Zip" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_Town"/>,
+                            source="Scout_Town" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_State"/>,
+                            source="Scout_State" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_Phone"/>,
+                            source="Scout_Phone" validate={requiredValidate}/>,
                         <TextInput
-                            source="Scout_Rank"/>,
+                            source="Scout_Rank" validate={requiredValidate}/>,
                         <ImageInput
                             source="LogoLocation" accept="image/*">
                             <ImageField source="src" title="title"/>
                         </ImageInput>,
-                        <ReferenceInput label="Year" source="Year" reference="Years"
-                                        onChange={(event, key, val) => this.updateYear(key)}>
-                            <SelectInput optionText="year" optionValue="id"/>
-                        </ReferenceInput>,
+
                         <FormDataConsumer>
                             {({formData, ...rest}) => {
-                                return <CustomSelectInput label="User" source="User" optionText={"userName"}
-                                                          optionValue={"id"}
-                                                          choices={this.state.users}
-                                                          onChangeCustomHandler={(key) => this.updateUser(key)}/>
+                                if (this.state.yearReq) {
+                                    return (
+                                        <CustomSelectInput source={"Year"} label="Year" optionText="year"
+                                                           optionValue="id" choices={this.state.years}
+                                                           onChangeCustomHandler={(key) => this.updateYear(key)}
+                                                           validate={requiredValidate}  {...rest}/>
+                                    )
+                                }
+                            }}
+                        </FormDataConsumer>,
+                        <FormDataConsumer>
+                            {({formData, ...rest}) => {
+                                if (this.state.userReq) {
 
+                                    return <CustomSelectInput label="User" source="User" optionText={"userName"}
+                                                              optionValue={"id"}
+                                                              choices={this.state.users}  {...rest}
+                                                              onChangeCustomHandler={(key) => this.updateUser(key)}
+                                                              validate={requiredValidate}/>
+                                }
                             }
                             }
                         </FormDataConsumer>,
@@ -225,13 +350,13 @@ class reportsWizard extends React.Component {
 
                         <FormDataConsumer>
                             {({formData, ...rest}) => {
-                                if (this.state.year) {
+                                if (this.state.year && this.state.catReq) {
                                     //console.log(this.state.year);
 
                                     return <SelectInput source="Category" optionText={"categoryName"}
                                                         optionValue={"categoryName"}
                                                         choices={this.state.categories} {...rest}
-                                                        allowEmpty/>
+                                                        validate={requiredValidate}/>
 
 
                                 }
@@ -243,10 +368,10 @@ class reportsWizard extends React.Component {
                         <FormDataConsumer>
                             {({formData, ...rest}) => {
 
-                                if (this.state.year && this.state.user) {
+                                if ((this.state.year && this.state.user && this.state.custReq) || (this.state.reportType === 'Customer All-Time Totals' && this.state.user && this.state.custReq)) {
                                     return <SelectArrayInput source="Customer" optionText={"customerName"}
                                                              optionValue={"id"} choices={
-                                        this.state.customers} {...rest} allowEmpty/>
+                                        this.state.customers} {...rest} validate={requiredValidate}/>
 
 
                                 }
@@ -254,9 +379,14 @@ class reportsWizard extends React.Component {
                             }
                         </FormDataConsumer>,
 
-
-                        <BooleanInput
-                            source="Print_Due_Header"/>,
+                        <FormDataConsumer>
+                            {({formData, ...rest}) => {
+                                if (this.state.dueReq) {
+                                    return <BooleanInput
+                                        source="Print_Due_Header"/>
+                                }
+                            }}
+                        </FormDataConsumer>
 
                     ]]
             }
@@ -265,10 +395,13 @@ class reportsWizard extends React.Component {
 
     componentWillReceiveProps() {
         this.getUsers();
+        this.getYears();
+
     }
 
     componentWillMount() {
         this.stepsContent();
+
     }
 
     render() {

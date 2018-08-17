@@ -27,11 +27,44 @@ class ReportsController {
             })
         }
         def Category = jsonParams.Category ?: "All"
-        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year.toString(), jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation.base64, Category, user, customers, "Test", "Test1", jsonParams.Print_Due_Header, "")
+        def repTitle = ""
+        def Splitting = ""
+        def fileName = "report.pdf"
+
+        switch (jsonParams.template) {
+            case "customers_split":
+                repTitle = "Year of " + Year.findById(jsonParams.Year).year
+                Splitting = ""
+                fileName = Year.findById(jsonParams.Year).year + "_customer_orders_" + Category + ".pdf"
+                break
+
+            case "Year Totals":
+                repTitle = "Year of " + Year.findById(jsonParams.Year).year
+                Splitting = ""
+                fileName = Year.findById(jsonParams.Year).year + "_Total_Orders_" + Category + ".pdf"
+
+                break
+
+            case "Customer Year Totals":
+                repTitle = customers.get(0).customerName + " " + Year.findById(jsonParams.Year).year + " Order"
+                Splitting = ""
+                fileName = customers.get(0).customerName + "_" + Year.findById(jsonParams.Year).year + "_Order_" + Category + ".pdf"
+
+                break
+
+            case "Customer All-Time Totals":
+                repTitle = "All orders of " + customers.get(0).customerName
+                Splitting = "Year:"
+                fileName = customers.get(0).customerName + "_historical_orders.pdf"
+
+                break
+        }
+        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year.toString(), jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation.base64, Category, user, customers, repTitle, Splitting, jsonParams.Print_Due_Header, "")
         String fileLoc = rg.generate()
         println fileLoc
         InputStream pdf = new FileInputStream(fileLoc)
-        render(file: pdf, fileName: 'report.pdf', contentType: "application/pdf")
+        header 'Access-Control-Expose-Headers', 'Content-Disposition'
+        render(file: pdf, fileName: fileName, contentType: "application/pdf")
     }
 }
 

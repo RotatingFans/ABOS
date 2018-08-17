@@ -9,10 +9,10 @@ import com.itextpdf.tool.xml.css.CssFile
 import com.itextpdf.tool.xml.html.Tags
 import com.itextpdf.tool.xml.parser.XMLParser
 import com.itextpdf.tool.xml.pipeline.css.CSSResolver
+import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
 
 //import Utilities.*
 
-import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline
 import com.itextpdf.tool.xml.pipeline.html.AbstractImageProvider
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline
@@ -194,14 +194,14 @@ class ReportGenerator {
                     String customer = cust.getCustomerName()
                     // Root element
                     Set<Ordered_products> orderArray
-                    if (Objects.equals(category, "All")) {
+                    // if (Objects.equals(category, "All")) {
                         orderArray = cust.orderedProducts.sort { it.products.id }
 
-                    } else {
-                        orderArray = Ordered_products.where {
-                            customer == cust && year == cust.year && products.category == Categories.findBycategoryNameAndYear(category, cust.year)
-                        }.list().sort { it.products.id }
-                    }
+                    /* } else {
+                         orderArray = Ordered_products.where {
+                             customer == cust && year == cust.year && products.category == Categories.findBycategoryNameAndYear(category, cust.year)
+                         }.list().sort { it.products.id }
+                     }*/
                     if (orderArray.quantity.sum() > 0) {
                         //Set Items
                         l:
@@ -254,7 +254,7 @@ class ReportGenerator {
                             l:
                             {
                                 Element title = doc.createElement("title")
-                                title.appendChild(doc.createTextNode(customer + ' ' + selectedYear + " Order"))
+                                title.appendChild(doc.createTextNode(customer + ' ' + cust.year.year + " Order"))
                                 products.appendChild(title)
                             }
                             l:
@@ -264,7 +264,7 @@ class ReportGenerator {
                                     l:
                                     {
                                         Element text = doc.createElement("text")
-                                        String notice = "*Notice: These products will be delivered to your house on " + Categories.findBycategoryNameAndYear(category, cust.year).deliveryDate.toString() + ('. Total paid to date: $' + paid.toPlainString())
+                                        String notice = "*Notice: These products will be delivered to your house on " + Categories.findByCategoryNameAndYear(category, cust.year).deliveryDate.getDateString() + ('. Total paid to date: $' + paid.toPlainString())
                                         text.appendChild(doc.createTextNode(notice))
                                         title.appendChild(text)
                                     }
@@ -543,17 +543,20 @@ class ReportGenerator {
                                 products.appendChild(prodTable)
                             }
 
-                            /*            if (includeHeader && !Objects.equals(category, "All")) {
-                                        Element title = doc.createElement("specialInfo")
-                                                {
-                                                    Element text = doc.createElement("text")
-
-                                                    String notice = "*Notice: These products will be delivered to your house on " + Utilities.DbInt.getCategoryDate(category, selectedYear) + (paid ? "Please be available for delivery. Thank you for your advance payment." : ". Please Have the total payment listed below ready and be present on that date.")
-                                                    text.appendChild(doc.createTextNode(notice))
-                                                    title.appendChild(text)
-                                                }
-                                        info.appendChild(title)
-                                    }*/
+                            l:
+                            {
+                                if (includeHeader && !Objects.equals(category, "All")) {
+                                    Element title = doc.createElement("specialInfo")
+                                    l:
+                                    {
+                                        Element text = doc.createElement("text")
+                                        String notice = "*Notice: These products will be delivered to your house on " + Categories.findByCategoryNameAndYear(category, Year.findById(selectedYear)).deliveryDate.getDateString() + ('.*')
+                                        text.appendChild(doc.createTextNode(notice))
+                                        title.appendChild(text)
+                                    }
+                                    products.appendChild(title)
+                                }
+                            }
 
 
                             setProgress(10)
@@ -708,23 +711,23 @@ class ReportGenerator {
                             l:
                             {
                                 Element title = doc.createElement("title")
-                                title.appendChild(doc.createTextNode(cust.getCustomerName() + ' ' + selectedYear + " Order"))
+                                title.appendChild(doc.createTextNode(cust.getCustomerName() + ' ' + cust.year.year + " Order"))
                                 products.appendChild(title)
                             }
-                            /* l:
-                        {
-                            if (includeHeader && !Objects.equals(category, "All")) {
-                                Element title = doc.createElement("specialInfo")
-                                l:
-                                {
-                                    Element text = doc.createElement("text")
-                                    String notice = "*Notice: These products will be delivered to your house on " + DbInt.getCategoryDate(category, selectedYear) + ('. Total paid to date: $' + cust.getPaid().toPlainString())
-                                    text.appendChild(doc.createTextNode(notice))
-                                    title.appendChild(text)
+                            l:
+                            {
+                                if (includeHeader && !Objects.equals(category, "All")) {
+                                    Element title = doc.createElement("specialInfo")
+                                    l:
+                                    {
+                                        Element text = doc.createElement("text")
+                                        String notice = "*Notice: These products will be delivered to your house on " + Categories.findByCategoryNameAndYear(category, cust.year).deliveryDate.getDateString() + ('. Total paid to date: $' + paid.toPlainString())
+                                        text.appendChild(doc.createTextNode(notice))
+                                        title.appendChild(text)
+                                    }
+                                    products.appendChild(title)
                                 }
-                                products.appendChild(title)
                             }
-                        }*/
 
                             //Product Elements
                             rootElement.appendChild(products)
