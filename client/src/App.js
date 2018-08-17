@@ -27,7 +27,7 @@ const App = () => (
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
             <Resource name="Reports" list={Reports}/>,
             //Reports
-            <Resource name="customers"/>,
+            // <Resource name="customers"/>,
             <Resource name="Years"/>,
             <Resource name="User"/>,
             <Resource name="Categories"/>,
@@ -35,7 +35,8 @@ const App = () => (
                 ? <Resource name="User"/>
                 : null,
             permissions === 'ROLE_ADMIN'
-                ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/> //UGY
+                ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
+                //UGY
                 : null,
         ]}
 
