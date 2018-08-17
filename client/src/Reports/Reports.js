@@ -176,12 +176,17 @@ class reportsWizard extends React.Component {
 
         }
     }
-
     stepsContent() {
 
         this.setState({
                 stepsContent: [<SelectInput
-                    source="template" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}]}/>,
+                    source="template" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}, {
+                    id: 'Year Totals',
+                    name: 'Year Totals'
+                }, {id: 'Customer Year Totals', name: 'Customer Year Totals'}, {
+                    id: 'Customer All-Time Totals',
+                    name: 'Customer All-Time Totals'
+                }]}/>,
                     [
                         <TextInput
                             source="Scout_name"/>,
