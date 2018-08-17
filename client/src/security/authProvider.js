@@ -39,7 +39,29 @@ export default (type, params) => {
         return Promise.resolve();
     }
     if (type === AUTH_CHECK) {
-        return localStorage.getItem('access_token') ? Promise.resolve() : Promise.reject();
+        const token = localStorage.getItem('access_token');
+
+        return localStorage.getItem('access_token') && fetch(
+            `http://localhost:8080/api/AuthCheck`,
+
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                let status = response.status;
+                if (status === 401 || status === 403) {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('role');
+
+                    return false;
+                } else {
+                    return true;
+                }
+            })
+            ? Promise.resolve() : Promise.reject();
     }
     if (type === AUTH_GET_PERMISSIONS) {
         const role = localStorage.getItem('role');

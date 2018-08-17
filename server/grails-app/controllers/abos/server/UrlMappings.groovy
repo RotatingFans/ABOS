@@ -22,7 +22,7 @@ class UrlMappings {
         "/api/Years"(resources: 'Year')
 
         "/api/Reports"(controller: "Reports", action: "index")
-
+        "/api/AuthCheck"(controller: "AuthCheck", action: "index")
         "/"(controller: 'application', action: 'index')
         "500"(view: '/error')
         "404"(view: '/notFound')
