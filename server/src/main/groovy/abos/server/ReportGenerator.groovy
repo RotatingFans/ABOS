@@ -6,10 +6,10 @@ import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.tool.xml.XMLWorker
 import com.itextpdf.tool.xml.XMLWorkerHelper
 import com.itextpdf.tool.xml.css.CssFile
+import com.itextpdf.tool.xml.html.Tags
 
 //import Utilities.*
 
-import com.itextpdf.tool.xml.html.Tags
 import com.itextpdf.tool.xml.parser.XMLParser
 import com.itextpdf.tool.xml.pipeline.css.CSSResolver
 import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
@@ -408,141 +408,142 @@ class ReportGenerator {
                 }
             })
         } else {
+            withId(user, {
 
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance()
-            DocumentBuilder domBuilder
-            domBuilder = domFactory.newDocumentBuilder()
-
-
-            doc = domBuilder.newDocument()
-            // Root element
-            Element rootElement = doc.createElement("LawnGardenReports")
-            doc.appendChild(rootElement)
-            //Info Elements
-            Element info = doc.createElement("info")
-            rootElement.appendChild(info)
-
-            l:
-            {
-                // Scoutname elements
-                l:
-                {
-                    Element ScoutName = doc.createElement("name")
-                    ScoutName.appendChild(doc.createTextNode(scoutName))
-                    info.appendChild(ScoutName)
-                }
-                // StreetAddress elements
-                l:
-                {
-                    Element StreetAddress = doc.createElement("streetAddress")
-                    StreetAddress.appendChild(doc.createTextNode(scoutStAddr))
-                    info.appendChild(StreetAddress)
-                }
-                // City elements
-                l:
-                {
-                    Element city = doc.createElement("city")
-                    city.appendChild(doc.createTextNode(addrFormat))
-                    info.appendChild(city)
-                }
-                // Rank elements
-                l:
-                {
-                    Element rank = doc.createElement("rank")
-                    rank.appendChild(doc.createTextNode(scoutRank))
-                    info.appendChild(rank)
-                }
-                // phone elements
-                l:
-                {
-                    Element rank = doc.createElement("PhoneNumber")
-                    rank.appendChild(doc.createTextNode(scoutPhone))
-                    info.appendChild(rank)
-                }
-                // Logo elements
-                // Logo elements
-                l:
-                {
-                    Element logo = doc.createElement("logo")
-                    logo.appendChild(doc.createTextNode(logoLoc))
-                    info.appendChild(logo)
-                }
-                // ReportTitle elements
-                l:
-                {
-                    Element reportTitle = doc.createElement("reportTitle")
-                    reportTitle.appendChild(doc.createTextNode(repTitle))
-                    info.appendChild(reportTitle)
-                }
-                // Splitter elements
-                l:
-                {
-                    if (!Splitting.isEmpty()) {
-                        Element splitting = doc.createElement("splitting")
-
-                        splitting.appendChild(doc.createTextNode(Splitting))
-                        info.appendChild(splitting)
-                    }
-                }
+                DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance()
+                DocumentBuilder domBuilder
+                domBuilder = domFactory.newDocumentBuilder()
 
 
-            }
-            //Column Elements
-            l:
-            {
-                Element columns = doc.createElement("columns")
-                rootElement.appendChild(columns)
-                String[] Columns = ["ID", "Name", "Unit Size", "Unit Cost", "Quantity", "Extended Price"]
-                for (String Column : Columns) {
-                    //Column
+                doc = domBuilder.newDocument()
+                // Root element
+                Element rootElement = doc.createElement("LawnGardenReports")
+                doc.appendChild(rootElement)
+                //Info Elements
+                Element info = doc.createElement("info")
+                rootElement.appendChild(info)
+
+                l:
+                {
+                    // Scoutname elements
                     l:
                     {
-                        Element columnName = doc.createElement("column")
-                        Element cName = doc.createElement("name")
-                        cName.appendChild(doc.createTextNode(Column))
-                        columnName.appendChild(cName)
-                        columns.appendChild(columnName)
+                        Element ScoutName = doc.createElement("name")
+                        ScoutName.appendChild(doc.createTextNode(scoutName))
+                        info.appendChild(ScoutName)
                     }
-                }
-            }
-            setProgress(5)
-            switch (reportType) {
-
-                case "Year Totals":
-                    Set<Ordered_products> orderArray
-                    if (user == null) {
-                        orderArray = Year.findByYear(selectedYear).orderedProducts.groupBy { it.products }.collect {
-                            [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
-                        }.sort { it.products.id }
-                    } else {
-                        orderArray = User.findByUsername(user).orderedProducts.findAll {
-                            it.getYearId() == Integer.decode(selectedYear)
-                        }.groupBy { it.products }.collect {
-                            [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
-                        }.sort { it.products.id }
-
-                    }
-                    //Products for year
+                    // StreetAddress elements
                     l:
                     {
-                        //Product Elements
-                        Element products = doc.createElement("customerYear")
+                        Element StreetAddress = doc.createElement("streetAddress")
+                        StreetAddress.appendChild(doc.createTextNode(scoutStAddr))
+                        info.appendChild(StreetAddress)
+                    }
+                    // City elements
+                    l:
+                    {
+                        Element city = doc.createElement("city")
+                        city.appendChild(doc.createTextNode(addrFormat))
+                        info.appendChild(city)
+                    }
+                    // Rank elements
+                    l:
+                    {
+                        Element rank = doc.createElement("rank")
+                        rank.appendChild(doc.createTextNode(scoutRank))
+                        info.appendChild(rank)
+                    }
+                    // phone elements
+                    l:
+                    {
+                        Element rank = doc.createElement("PhoneNumber")
+                        rank.appendChild(doc.createTextNode(scoutPhone))
+                        info.appendChild(rank)
+                    }
+                    // Logo elements
+                    // Logo elements
+                    l:
+                    {
+                        Element logo = doc.createElement("logo")
+                        logo.appendChild(doc.createTextNode(logoLoc))
+                        info.appendChild(logo)
+                    }
+                    // ReportTitle elements
+                    l:
+                    {
+                        Element reportTitle = doc.createElement("reportTitle")
+                        reportTitle.appendChild(doc.createTextNode(repTitle))
+                        info.appendChild(reportTitle)
+                    }
+                    // Splitter elements
+                    l:
+                    {
+                        if (!Splitting.isEmpty()) {
+                            Element splitting = doc.createElement("splitting")
 
-                        rootElement.appendChild(products)
+                            splitting.appendChild(doc.createTextNode(Splitting))
+                            info.appendChild(splitting)
+                        }
+                    }
+
+
+                }
+                //Column Elements
+                l:
+                {
+                    Element columns = doc.createElement("columns")
+                    rootElement.appendChild(columns)
+                    String[] Columns = ["ID", "Name", "Unit Size", "Unit Cost", "Quantity", "Extended Price"]
+                    for (String Column : Columns) {
+                        //Column
                         l:
                         {
-                            Element header = doc.createElement("header")
-                            header.appendChild(doc.createTextNode("true"))
-                            products.appendChild(header)
+                            Element columnName = doc.createElement("column")
+                            Element cName = doc.createElement("name")
+                            cName.appendChild(doc.createTextNode(Column))
+                            columnName.appendChild(cName)
+                            columns.appendChild(columnName)
                         }
+                    }
+                }
+                setProgress(5)
+                switch (reportType) {
+
+                    case "Year Totals":
+                        Set<Ordered_products> orderArray
+                        if (user == null) {
+                            orderArray = Year.findByYear(selectedYear).orderedProducts.groupBy { it.products }.collect {
+                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
+                            }.sort { it.products.id }
+                        } else {
+                            orderArray = User.findByUsername(user).orderedProducts.findAll {
+                                it.getYearId() == Integer.decode(selectedYear)
+                            }.groupBy { it.products }.collect {
+                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
+                            }.sort { it.products.id }
+
+                        }
+                        //Products for year
                         l:
                         {
-                            Element prodTable = doc.createElement("prodTable")
-                            prodTable.appendChild(doc.createTextNode("true"))
-                            products.appendChild(prodTable)
-                        }
+                            //Product Elements
+                            Element products = doc.createElement("customerYear")
 
-                        /*            if (includeHeader && !Objects.equals(category, "All")) {
+                            rootElement.appendChild(products)
+                            l:
+                            {
+                                Element header = doc.createElement("header")
+                                header.appendChild(doc.createTextNode("true"))
+                                products.appendChild(header)
+                            }
+                            l:
+                            {
+                                Element prodTable = doc.createElement("prodTable")
+                                prodTable.appendChild(doc.createTextNode("true"))
+                                products.appendChild(prodTable)
+                            }
+
+                            /*            if (includeHeader && !Objects.equals(category, "All")) {
                                         Element title = doc.createElement("specialInfo")
                                                 {
                                                     Element text = doc.createElement("text")
@@ -555,158 +556,162 @@ class ReportGenerator {
                                     }*/
 
 
-                        setProgress(10)
-                        BigDecimal tCost = BigDecimal.ZERO
-                        int productIncValue = 1
-                        for (Ordered_products aRowDataF : orderArray) {
-                            if (Objects.equals(aRowDataF.products.category ? aRowDataF.products.category.categoryName : "", category) || (Objects.equals(category, "All"))) {
+                            setProgress(10)
+                            BigDecimal tCost = BigDecimal.ZERO
+                            int productIncValue = 1
+                            for (Ordered_products aRowDataF : orderArray) {
+                                if (Objects.equals(aRowDataF.products.category ? aRowDataF.products.category.categoryName : "", category) || (Objects.equals(category, "All"))) {
 
-                                l:
-                                {
-                                    Element Product = doc.createElement("Product")
-                                    products.appendChild(Product)
-                                    //ID
                                     l:
                                     {
-                                        Element ID = doc.createElement("ID")
-                                        ID.appendChild(doc.createTextNode(aRowDataF.products.humanProductId))
-                                        Product.appendChild(ID)
-                                    }
-                                    //Name
-                                    l:
-                                    {
-                                        Element Name = doc.createElement("Name")
-                                        Name.appendChild(doc.createTextNode(aRowDataF.products.productName))
-                                        Product.appendChild(Name)
-                                    }
-                                    //Size
-                                    l:
-                                    {
-                                        Element Size = doc.createElement("Size")
-                                        Size.appendChild(doc.createTextNode(aRowDataF.products.unitSize))
-                                        Product.appendChild(Size)
-                                    }
-                                    //UnitCost
-                                    l:
-                                    {
-                                        Element UnitCost = doc.createElement("UnitCost")
-                                        UnitCost.appendChild(doc.createTextNode(aRowDataF.products.unitCost.toPlainString()))
-                                        Product.appendChild(UnitCost)
-                                    }
-                                    //Quantity
-                                    l:
-                                    {
-                                        Element Quantity = doc.createElement("Quantity")
-                                        Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.quantity)))
-                                        Product.appendChild(Quantity)
-                                    }
-                                    //TotalCost
-                                    l:
-                                    {
-                                        Element TotalCost = doc.createElement("TotalCost")
-                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                        tCost = tCost.add(aRowDataF.extendedCost)
-                                        Product.appendChild(TotalCost)
+                                        Element Product = doc.createElement("Product")
+                                        products.appendChild(Product)
+                                        //ID
+                                        l:
+                                        {
+                                            Element ID = doc.createElement("ID")
+                                            ID.appendChild(doc.createTextNode(aRowDataF.products.humanProductId))
+                                            Product.appendChild(ID)
+                                        }
+                                        //Name
+                                        l:
+                                        {
+                                            Element Name = doc.createElement("Name")
+                                            Name.appendChild(doc.createTextNode(aRowDataF.products.productName))
+                                            Product.appendChild(Name)
+                                        }
+                                        //Size
+                                        l:
+                                        {
+                                            Element Size = doc.createElement("Size")
+                                            Size.appendChild(doc.createTextNode(aRowDataF.products.unitSize))
+                                            Product.appendChild(Size)
+                                        }
+                                        //UnitCost
+                                        l:
+                                        {
+                                            Element UnitCost = doc.createElement("UnitCost")
+                                            UnitCost.appendChild(doc.createTextNode(aRowDataF.products.unitCost.toPlainString()))
+                                            Product.appendChild(UnitCost)
+                                        }
+                                        //Quantity
+                                        l:
+                                        {
+                                            Element Quantity = doc.createElement("Quantity")
+                                            Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.quantity)))
+                                            Product.appendChild(Quantity)
+                                        }
+                                        //TotalCost
+                                        l:
+                                        {
+                                            Element TotalCost = doc.createElement("TotalCost")
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
+                                            tCost = tCost.add(aRowDataF.extendedCost)
+                                            Product.appendChild(TotalCost)
+                                        }
                                     }
                                 }
+                                setProgress(getProg() + productIncValue)
                             }
-                            setProgress(getProg() + productIncValue)
-                        }
-                        //Total Cost for list
-                        l:
-                        {
-                            Element tCostE = doc.createElement("totalCost")
-                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
-                            products.appendChild(tCostE)
-                        }
-                        // OverallTotalCost elements
-                        l:
-                        {
-                            Element TotalCost = doc.createElement("TotalCost")
-                            TotalCost.appendChild(doc.createTextNode((orderArray.extendedCost.sum().toString())))
-                            info.appendChild(TotalCost)
-                        }
-                        // OverallTotalQuantity elements
-                        l:
-                        {
-                            Element TotalQuantity = doc.createElement("totalQuantity")
-                            TotalQuantity.appendChild(doc.createTextNode(orderArray.quantity.sum().toString()))
-                            info.appendChild(TotalQuantity)
-                        }
+                            //Total Cost for list
+                            l:
+                            {
+                                Element tCostE = doc.createElement("totalCost")
+                                tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
+                                products.appendChild(tCostE)
+                            }
+                            // OverallTotalCost elements
+                            l:
+                            {
+                                Element TotalCost = doc.createElement("TotalCost")
+                                TotalCost.appendChild(doc.createTextNode((orderArray.extendedCost.sum().toString())))
+                                info.appendChild(TotalCost)
+                            }
+                            // OverallTotalQuantity elements
+                            l:
+                            {
+                                Element TotalQuantity = doc.createElement("totalQuantity")
+                                TotalQuantity.appendChild(doc.createTextNode(orderArray.quantity.sum().toString()))
+                                info.appendChild(TotalQuantity)
+                            }
 
-                    }
-                    setProgress(100)
+                        }
+                        setProgress(100)
 
-                    break
-                case "Customer Year Totals":
-                    Customers cust = customers.get(0)
-                    BigDecimal paid = cust.order.getAmountPaid()
-                    int custId = customers.get(0).getId()
-                    String customer = cust.getCustomerName()
-                    // Root element
-                    Set<Ordered_products> orderArray
-                    if (Objects.equals(category, "All")) {
+                        break
+                    case "Customer Year Totals":
+                        Customers cust = customers.get(0)
+                        BigDecimal paid = cust.order.getAmountPaid()
+                        int custId = customers.get(0).getId()
+                        String customer = cust.getCustomerName()
+                        // Root element
+                        Set<Ordered_products> orderArray
+                        //if (Objects.equals(category, "All")) {
                         orderArray = cust.orderedProducts
 
-                    } else {
+                        /* } else {
+                        Categories cat = Categories.findByCategoryNameAndYear(category, cust.year)
+                        *//*orderArray = cust.orderedProducts.findAll{
+                            it.getProducts().getCategoryId() == cat.getId()}*//*
+
                         orderArray = Ordered_products.where {
-                            customer == cust && year == cust.year && products.category == Categories.findBycategoryNameAndYear(category, cust.year)
+                            customer == cust && year == cust.year && products.category.id == cat.getId()
                         }.list()
-                    }
+                    }*/
 
-                    //Set Items
-                    l:
-                    {
-                        Element products = doc.createElement("customerYear")
+                        //Set Items
+                        l:
+                        {
+                            Element products = doc.createElement("customerYear")
 
-                        l:
-                        {
-                            Element custAddr = doc.createElement("custAddr")
-                            custAddr.appendChild(doc.createTextNode("true"))
-                            products.appendChild(custAddr)
-                        }
-                        // customername elements
-                        l:
-                        {
-                            Element custName = doc.createElement("name")
-                            custName.appendChild(doc.createTextNode(cust.getName()))
-                            products.appendChild(custName)
-                        }
-                        l: // StreetAddress elements
-                        {
-                            Element StreetAddress = doc.createElement("streetAddress")
-                            StreetAddress.appendChild(doc.createTextNode(cust.getAddr()))
-                            products.appendChild(StreetAddress)
-                        }
-                        // City elements
-                        l:
-                        {
-                            Element city = doc.createElement("city")
-                            String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip()
-                            city.appendChild(doc.createTextNode(addr))
-                            products.appendChild(city)
-                        }
+                            l:
+                            {
+                                Element custAddr = doc.createElement("custAddr")
+                                custAddr.appendChild(doc.createTextNode("true"))
+                                products.appendChild(custAddr)
+                            }
+                            // customername elements
+                            l:
+                            {
+                                Element custName = doc.createElement("name")
+                                custName.appendChild(doc.createTextNode(cust.getCustomerName()))
+                                products.appendChild(custName)
+                            }
+                            l: // StreetAddress elements
+                            {
+                                Element StreetAddress = doc.createElement("streetAddress")
+                                StreetAddress.appendChild(doc.createTextNode(cust.getStreetAddress()))
+                                products.appendChild(StreetAddress)
+                            }
+                            // City elements
+                            l:
+                            {
+                                Element city = doc.createElement("city")
+                                String addr = cust.getCity() + ' ' + cust.getState() + ", " + cust.getZipCode()
+                                city.appendChild(doc.createTextNode(addr))
+                                products.appendChild(city)
+                            }
 
-                        // phone elements
-                        l:
-                        {
-                            Element phone = doc.createElement("PhoneNumber")
-                            phone.appendChild(doc.createTextNode(cust.getPhone()))
-                            products.appendChild(phone)
-                        }
-                        l:
-                        {
-                            Element header = doc.createElement("header")
-                            header.appendChild(doc.createTextNode("true"))
-                            products.appendChild(header)
-                        }
-                        l:
-                        {
-                            Element title = doc.createElement("title")
-                            title.appendChild(doc.createTextNode(cust.getName() + ' ' + selectedYear + " Utilities.Order"))
-                            products.appendChild(title)
-                        }
-                        l:
+                            // phone elements
+                            l:
+                            {
+                                Element phone = doc.createElement("PhoneNumber")
+                                phone.appendChild(doc.createTextNode(cust.getPhone()))
+                                products.appendChild(phone)
+                            }
+                            l:
+                            {
+                                Element header = doc.createElement("header")
+                                header.appendChild(doc.createTextNode("true"))
+                                products.appendChild(header)
+                            }
+                            l:
+                            {
+                                Element title = doc.createElement("title")
+                                title.appendChild(doc.createTextNode(cust.getCustomerName() + ' ' + selectedYear + " Order"))
+                                products.appendChild(title)
+                            }
+                            /* l:
                         {
                             if (includeHeader && !Objects.equals(category, "All")) {
                                 Element title = doc.createElement("specialInfo")
@@ -719,23 +724,177 @@ class ReportGenerator {
                                 }
                                 products.appendChild(title)
                             }
+                        }*/
+
+                            //Product Elements
+                            rootElement.appendChild(products)
+
+                            l:
+                            {
+                                Element prodTable = doc.createElement("prodTable")
+                                prodTable.appendChild(doc.createTextNode("true"))
+                                products.appendChild(prodTable)
+                            }
+
+                            setProgress(5)
+                            BigDecimal tCost = BigDecimal.ZERO
+                            int productIncValue = 1
+                            for (Ordered_products aRowDataF : orderArray) {
+                                if (Objects.equals(aRowDataF.products.category ? aRowDataF.products.category.categoryName : "", category) || (Objects.equals(category, "All"))) {
+
+                                    l:
+                                    {
+                                        Element Product = doc.createElement("Product")
+                                        products.appendChild(Product)
+                                        //ID
+                                        l:
+                                        {
+                                            Element ID = doc.createElement("ID")
+                                            ID.appendChild(doc.createTextNode(aRowDataF.products.humanProductId))
+                                            Product.appendChild(ID)
+                                        }
+                                        //Name
+                                        l:
+                                        {
+                                            Element Name = doc.createElement("Name")
+                                            Name.appendChild(doc.createTextNode(aRowDataF.products.productName))
+                                            Product.appendChild(Name)
+                                        }
+                                        //Size
+                                        l:
+                                        {
+                                            Element Size = doc.createElement("Size")
+                                            Size.appendChild(doc.createTextNode(aRowDataF.products.unitSize))
+                                            Product.appendChild(Size)
+                                        }
+                                        //UnitCost
+                                        l:
+                                        {
+                                            Element UnitCost = doc.createElement("UnitCost")
+                                            UnitCost.appendChild(doc.createTextNode(aRowDataF.products.unitCost.toPlainString()))
+                                            Product.appendChild(UnitCost)
+                                        }
+                                        //Quantity
+                                        l:
+                                        {
+                                            Element Quantity = doc.createElement("Quantity")
+                                            Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.quantity)))
+                                            Product.appendChild(Quantity)
+                                        }
+                                        //TotalCost
+                                        l:
+                                        {
+                                            Element TotalCost = doc.createElement("TotalCost")
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
+                                            tCost = tCost.add(aRowDataF.extendedCost)
+                                            Product.appendChild(TotalCost)
+                                        }
+                                    }
+                                }
+                                setProgress(getProg() + productIncValue)
+                            }
+                            //Total Cost for this Utilities.Year
+                            l:
+                            {
+                                Element tCostE = doc.createElement("totalCost")
+                                tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
+                                products.appendChild(tCostE)
+                            }
+                            // OverallTotalCost elements
+                            l:
+                            {
+                                Element TotalCost = doc.createElement("TotalCost")
+                                TotalCost.appendChild(doc.createTextNode((orderArray.extendedCost.sum().toString())))
+                                info.appendChild(TotalCost)
+                            }
+                            // OverallTotalQuantity elements
+                            l:
+                            {
+                                Element TotalQuantity = doc.createElement("totalQuantity")
+                                TotalQuantity.appendChild(doc.createTextNode(orderArray.quantity.sum().toString()))
+                                info.appendChild(TotalQuantity)
+                            }
                         }
+                        setProgress(100)
 
-                        //Product Elements
-                        rootElement.appendChild(products)
+                        break
 
-                        l:
-                        {
-                            Element prodTable = doc.createElement("prodTable")
-                            prodTable.appendChild(doc.createTextNode("true"))
-                            products.appendChild(prodTable)
-                        }
+                    case "Customer All-Time Totals":
+                        // Collection<String> customerYears = new ArrayList<>()
+                        final String[] headerS = { "true" }
+                        final BigDecimal[] overallTotalCost = { BigDecimal.ZERO }
+                        final int[] overallTotalQuantity = { 0 }
+                        int yearProgressInc = 95 / (years.size())
+                        //For Each Utilities.Year
+                        Customers.findAllByCustomerName(customers.get(0).customerName).forEach { cust ->
 
-                        setProgress(5)
-                        BigDecimal tCost = BigDecimal.ZERO
-                        int productIncValue = 90 / orderArray.size()
-                        for (Ordered_products aRowDataF : orderArray) {
-                            if (Objects.equals(aRowDataF.products.category ? aRowDataF.products.category.categoryName : "", category) || (Objects.equals(category, "All"))) {
+                            //    customerYears.add(year)
+                            //Product Elements
+                            Element products = doc.createElement("customerYear")
+                            rootElement.appendChild(products)
+                            l:
+                            {
+                                Element header = doc.createElement("header")
+                                header.appendChild(doc.createTextNode(headerS[0]))
+                                headerS[0] = "false"
+                                products.appendChild(header)
+                            }
+                            l:
+                            {
+                                Element prodTable = doc.createElement("prodTable")
+                                prodTable.appendChild(doc.createTextNode("true"))
+                                products.appendChild(prodTable)
+                            }
+                            l:
+                            {
+                                Element custAddr = doc.createElement("custAddr")
+                                custAddr.appendChild(doc.createTextNode("true"))
+                                products.appendChild(custAddr)
+                            }
+                            // customername elements
+                            l:
+                            {
+                                Element custName = doc.createElement("name")
+                                custName.appendChild(doc.createTextNode(cust.getName()))
+                                products.appendChild(custName)
+                            }
+                            // StreetAddress elements
+                            l:
+                            {
+                                Element StreetAddress = doc.createElement("streetAddress")
+                                StreetAddress.appendChild(doc.createTextNode(cust.getAddr()))
+                                products.appendChild(StreetAddress)
+                            }
+                            // City elements
+                            l:
+                            {
+                                Element city = doc.createElement("city")
+                                String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip()
+                                city.appendChild(doc.createTextNode(addr))
+                                products.appendChild(city)
+                            }
+
+                            // phone elements
+                            l:
+                            {
+                                Element phone = doc.createElement("PhoneNumber")
+                                phone.appendChild(doc.createTextNode(cust.getPhone()))
+                                products.appendChild(phone)
+                            }
+
+                            //YearTitle
+                            l:
+                            {
+                                Element title = doc.createElement("title")
+                                title.appendChild(doc.createTextNode(cust.getYear()))
+                                products.appendChild(title)
+                            }
+
+                            Set<Ordered_products> orderArray = cust.orderedProducts
+                            BigDecimal tCost = BigDecimal.ZERO
+                            //For each product in the table set the data
+                            int productIncValue = 90 / orderArray.size()
+                            for (Ordered_products aRowDataF : orderArray) {
 
                                 l:
                                 {
@@ -786,194 +945,41 @@ class ReportGenerator {
                                     }
                                 }
                             }
-                            setProgress(getProg() + productIncValue)
+                            //Total for current customers
+                            l:
+                            {
+                                Element tCostE = doc.createElement("totalCost")
+                                tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
+                                products.appendChild(tCostE)
+                            }
+
+                            ////Utilities.DbInt.pCon.close()
+
+
+                            setProgress(getProg() + yearProgressInc)
                         }
-                        //Total Cost for this Utilities.Year
-                        l:
-                        {
-                            Element tCostE = doc.createElement("totalCost")
-                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
-                            products.appendChild(tCostE)
-                        }
+
                         // OverallTotalCost elements
                         l:
                         {
                             Element TotalCost = doc.createElement("TotalCost")
-                            TotalCost.appendChild(doc.createTextNode((orderArray.extendedCost.sum().toString())))
+                            TotalCost.appendChild(doc.createTextNode((overallTotalCost[0].toPlainString())))
                             info.appendChild(TotalCost)
                         }
                         // OverallTotalQuantity elements
                         l:
                         {
                             Element TotalQuantity = doc.createElement("totalQuantity")
-                            TotalQuantity.appendChild(doc.createTextNode(orderArray.quantity.sum().toString()))
+                            TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity[0])))
                             info.appendChild(TotalQuantity)
                         }
-                    }
-                    setProgress(100)
 
-                    break
-
-                case "Customer All-Time Totals":
-                    // Collection<String> customerYears = new ArrayList<>()
-                    final String[] headerS = { "true" }
-                    final BigDecimal[] overallTotalCost = { BigDecimal.ZERO }
-                    final int[] overallTotalQuantity = { 0 }
-                    int yearProgressInc = 95 / (years.size())
-                    //For Each Utilities.Year
-                    Customers.findAllByCustomerName(customers.get(0).customerName).forEach { cust ->
-
-                        //    customerYears.add(year)
-                        //Product Elements
-                        Element products = doc.createElement("customerYear")
-                        rootElement.appendChild(products)
-                        l:
-                        {
-                            Element header = doc.createElement("header")
-                            header.appendChild(doc.createTextNode(headerS[0]))
-                            headerS[0] = "false"
-                            products.appendChild(header)
-                        }
-                        l:
-                        {
-                            Element prodTable = doc.createElement("prodTable")
-                            prodTable.appendChild(doc.createTextNode("true"))
-                            products.appendChild(prodTable)
-                        }
-                        l:
-                        {
-                            Element custAddr = doc.createElement("custAddr")
-                            custAddr.appendChild(doc.createTextNode("true"))
-                            products.appendChild(custAddr)
-                        }
-                        // customername elements
-                        l:
-                        {
-                            Element custName = doc.createElement("name")
-                            custName.appendChild(doc.createTextNode(cust.getName()))
-                            products.appendChild(custName)
-                        }
-                        // StreetAddress elements
-                        l:
-                        {
-                            Element StreetAddress = doc.createElement("streetAddress")
-                            StreetAddress.appendChild(doc.createTextNode(cust.getAddr()))
-                            products.appendChild(StreetAddress)
-                        }
-                        // City elements
-                        l:
-                        {
-                            Element city = doc.createElement("city")
-                            String addr = cust.getTown() + ' ' + cust.getState() + ", " + cust.getZip()
-                            city.appendChild(doc.createTextNode(addr))
-                            products.appendChild(city)
-                        }
-
-                        // phone elements
-                        l:
-                        {
-                            Element phone = doc.createElement("PhoneNumber")
-                            phone.appendChild(doc.createTextNode(cust.getPhone()))
-                            products.appendChild(phone)
-                        }
-
-                        //YearTitle
-                        l:
-                        {
-                            Element title = doc.createElement("title")
-                            title.appendChild(doc.createTextNode(cust.getYear()))
-                            products.appendChild(title)
-                        }
-
-                        Set<Ordered_products> orderArray = cust.orderedProducts
-                        BigDecimal tCost = BigDecimal.ZERO
-                        //For each product in the table set the data
-                        int productIncValue = 90 / orderArray.size()
-                        for (Ordered_products aRowDataF : orderArray) {
-
-                            l:
-                            {
-                                Element Product = doc.createElement("Product")
-                                products.appendChild(Product)
-                                //ID
-                                l:
-                                {
-                                    Element ID = doc.createElement("ID")
-                                    ID.appendChild(doc.createTextNode(aRowDataF.products.humanProductId))
-                                    Product.appendChild(ID)
-                                }
-                                //Name
-                                l:
-                                {
-                                    Element Name = doc.createElement("Name")
-                                    Name.appendChild(doc.createTextNode(aRowDataF.products.productName))
-                                    Product.appendChild(Name)
-                                }
-                                //Size
-                                l:
-                                {
-                                    Element Size = doc.createElement("Size")
-                                    Size.appendChild(doc.createTextNode(aRowDataF.products.unitSize))
-                                    Product.appendChild(Size)
-                                }
-                                //UnitCost
-                                l:
-                                {
-                                    Element UnitCost = doc.createElement("UnitCost")
-                                    UnitCost.appendChild(doc.createTextNode(aRowDataF.products.unitCost.toPlainString()))
-                                    Product.appendChild(UnitCost)
-                                }
-                                //Quantity
-                                l:
-                                {
-                                    Element Quantity = doc.createElement("Quantity")
-                                    Quantity.appendChild(doc.createTextNode(String.valueOf(aRowDataF.quantity)))
-                                    Product.appendChild(Quantity)
-                                }
-                                //TotalCost
-                                l:
-                                {
-                                    Element TotalCost = doc.createElement("TotalCost")
-                                    TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                    tCost = tCost.add(aRowDataF.extendedCost)
-                                    Product.appendChild(TotalCost)
-                                }
-                            }
-                        }
-                        //Total for current customers
-                        l:
-                        {
-                            Element tCostE = doc.createElement("totalCost")
-                            tCostE.appendChild(doc.createTextNode(String.valueOf(tCost)))
-                            products.appendChild(tCostE)
-                        }
-
-                        ////Utilities.DbInt.pCon.close()
+                        setProgress(100)
 
 
-                        setProgress(getProg() + yearProgressInc)
-                    }
-
-                    // OverallTotalCost elements
-                    l:
-                    {
-                        Element TotalCost = doc.createElement("TotalCost")
-                        TotalCost.appendChild(doc.createTextNode((overallTotalCost[0].toPlainString())))
-                        info.appendChild(TotalCost)
-                    }
-                    // OverallTotalQuantity elements
-                    l:
-                    {
-                        Element TotalQuantity = doc.createElement("totalQuantity")
-                        TotalQuantity.appendChild(doc.createTextNode(Integer.toString(overallTotalQuantity[0])))
-                        info.appendChild(TotalQuantity)
-                    }
-
-                    setProgress(100)
-
-
-                    break
-            }
+                        break
+                }
+            })
         }
         OutputStreamWriter osw = null
         try {
