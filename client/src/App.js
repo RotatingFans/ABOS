@@ -9,6 +9,7 @@ import authProvider from './security/authProvider';
 import {Dashboard} from './dashboard';
 import {Reports} from "./Reports";
 import Menu from "./resources/Menu";
+import {UGY} from "./UGY";
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -36,6 +37,10 @@ const App = () => (
                 : null,
             permissions === 'ROLE_ADMIN'
                 ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
+                //UGY
+                : null,
+            permissions === 'ROLE_ADMIN'
+                ? <Resource name="UGY" list={UGY}/>
                 //UGY
                 : null,
         ]}
