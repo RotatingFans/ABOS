@@ -43,7 +43,7 @@ import {
     TextInput
 } from 'react-admin';
 
-import restClient from "../grailsRestClient";
+import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
 
 
@@ -169,7 +169,9 @@ class UGYEditor extends React.Component {
         userAddMenuAnchor: null,
         ready: false,
         users: [],
-        years: []
+        years: [],
+        groups: []
+
 
     };
 
@@ -235,7 +237,7 @@ class UGYEditor extends React.Component {
     handleManageCheckBoxChange = (parent, name) => event => {
 
         let parentState = update(this.state.userChecks, {
-            [parent]: {subUsers: {[name]: {$set: event.target.checked}}}
+            [parent]: {subUsers: {[name]: {checked: {$set: event.target.checked}}}}
         });
 
         this.setState({userChecks: parentState, update: true});
@@ -254,62 +256,19 @@ class UGYEditor extends React.Component {
 
 
     }
-
-    updateYear(year) {
-        this.setState({year: year, update: true});
-        // this.updateChoices();
-
-    }
-
-    updateUser(user) {
-        this.setState({user: user, update: true});
-        // this.updateChoices();
-    }
-
-    getUserValue = userName => {
-
-    };
-
-    componentWillMount() {
-
-    }
-
-    handleChangeAnchor = event => {
-        this.setState({
-            anchor: event.target.value,
-        });
-    };
-    handleUserBulkMenu = event => {
-        this.setState({userBulkMenuAnchor: event.currentTarget});
-    };
-
-    handleUserBulkMenuClose = () => {
-        this.setState({userBulkMenuAnchor: null});
-    };
-    handleUserAddMenu = event => {
-        this.setState({userAddMenuAnchor: event.currentTarget});
-    };
-
-    handleUserAddMenuClose = () => {
-        this.setState({userAddMenuAnchor: null});
-    };
-    handleChange = (event, value) => {
-        this.setState({value});
-    };
-
-
     renderEnabledUsers = () => {
         const {classes, theme} = this.props;
         let users = ['me', 'test1'];
         let userPanels = [];
-        this.state.users.forEach(user => {
-            let userName = user.userName;
+        Object.keys(this.state.userChecks).forEach(user => {
+            let userName = user;
             userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
                                        handleManageCheckBoxChange={this.handleManageCheckBoxChange}
                                        handleCheckBoxChange={this.handleCheckBoxChange}
                                        checked={this.state.userChecks[userName].checked}
                                        handleGroupChange={this.handleGroupChange}
-                                       group={this.state.userChecks[userName].group}/>)
+                                       group={this.state.userChecks[userName].group}
+                                       groups={this.state.groups}/>)
         });
         return (
             <ExpansionPanel className={classes.topLevelExpansionPanel}>
@@ -329,26 +288,85 @@ class UGYEditor extends React.Component {
             </ExpansionPanel>
         )
     };
+    getUserValue = userName => {
 
-    getUsers() {
-        dataProvider(GET_LIST, 'User', {
+    };
+    handleChangeAnchor = event => {
+        this.setState({
+            anchor: event.target.value,
+        });
+    };
+    handleUserBulkMenu = event => {
+        this.setState({userBulkMenuAnchor: event.currentTarget});
+    };
+    handleUserBulkMenuClose = () => {
+        this.setState({userBulkMenuAnchor: null});
+    };
+    handleUserAddMenu = event => {
+        this.setState({userAddMenuAnchor: event.currentTarget});
+    };
+    handleUserAddMenuClose = () => {
+        this.setState({userAddMenuAnchor: null});
+    };
+    handleChange = (event, value) => {
+        this.setState({value});
+    };
+
+    updateYear(year) {
+        this.setState({year: year, update: true});
+        // this.updateChoices();
+
+    }
+
+    updateUser(user) {
+        this.setState({user: user, update: true});
+        // this.updateChoices();
+    }
+
+    componentWillMount() {
+
+    }
+
+    getGroups() {
+        dataProvider(GET_LIST, 'Group', {
             filter: {},
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
+            this.setState({groups: response.data})
+        })
+
+
+    }
+
+    getUsers() {
+        /*     dataProvider(GET_LIST, 'User', {
+                 filter: {},
+                 sort: {field: 'id', order: 'DESC'},
+                 pagination: {page: 1, perPage: 1000},
+             }).then(response => {
+                 let users = response.data;
+                 let userChecks = {};
+                 users.forEach(user => {
+                     let userName = user.userName;
+                     let userState = {};
+                     users.forEach(subUser => {
+                         userState[subUser.userName] = false;
+                     });
+
+                     userChecks[userName] = {checked: false, groups: -1, subUsers: userState};
+                 });
+                 this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+             });*/
+        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {}).then(response => {
             let users = response.data;
             let userChecks = {};
-            users.forEach(user => {
-                let userName = user.userName;
-                let userState = {};
-                users.forEach(subUser => {
-                    userState[subUser.userName] = false;
-                });
+            Object.keys(users).forEach(user => {
 
-                userChecks[userName] = {checked: false, group: -1, subUsers: userState};
+                userChecks[user] = {checked: false, group: users[user].group, subUsers: users[user].subUsers};
             });
             this.setState({'users': users, 'update': true, 'userChecks': userChecks})
-        })
+        });
 
 
     }
@@ -356,6 +374,7 @@ class UGYEditor extends React.Component {
     componentWillReceiveProps() {
         this.getUsers();
         this.getYears();
+        this.getGroups();
         this.setState({ready: true})
     }
 
@@ -483,7 +502,7 @@ class UGYEditor extends React.Component {
             *                         |
             *      Nested List        |     G Menu Bar - Add Element (Dropdown for bulk or simple) Multi Action Menu
             * See List on Material UI |     R   Expansion Panels with Delete/Edit buttons on end E
-            *                         |     O     Edit Button Has option to remove all selected group members from group
+            *                         |     O     Edit Button Has option to remove all selected groups members from groups
             *                         |     U   List of Group Members(Selectable)
             *                         |     P
             *                         |

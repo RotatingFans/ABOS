@@ -1,0 +1,7 @@
+import abos.server.Groups
+
+model {
+    Groups group
+}
+
+json g.render(group, [resolveTemplate: false])

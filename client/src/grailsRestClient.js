@@ -1,5 +1,6 @@
 import {CREATE, DELETE, fetchUtils, GET_LIST, GET_MANY, GET_MANY_REFERENCE, GET_ONE, UPDATE,} from 'react-admin';
 
+export const GET_PLAIN_MANY = "GET_PLAIN_MANY";
 const apiUrl = 'http://localhost:8080/api';
 
 export default (httpClient = fetchUtils.fetchJson) => {
@@ -44,6 +45,10 @@ export default (httpClient = fetchUtils.fetchJson) => {
                 break;
             case GET_MANY: {
                 url = `${apiUrl}/${resource}.json`;
+                break;
+            }
+            case GET_PLAIN_MANY: {
+                url = `${apiUrl}/${resource}`;
                 break;
             }
             case GET_MANY_REFERENCE: {

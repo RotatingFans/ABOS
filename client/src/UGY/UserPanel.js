@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -16,7 +17,8 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
 import {
     BooleanInput,
     fetchUtils,
@@ -32,6 +34,7 @@ import {
     SimpleForm,
     TextInput
 } from 'react-admin';
+import update from "immutability-helper";
 
 const drawerWidth = 240;
 
@@ -138,6 +141,10 @@ const styles = theme => ({
         backgroundColor: 'red',
 
     },
+    nested: {
+        paddingLeft: theme.spacing.unit * 4,
+
+    }
 
 });
 
@@ -145,12 +152,17 @@ class UserListItem extends React.PureComponent {
     state = {
         checked: false
     };
-    setChecked = event => {
-        const {userName, user, handleManageCheckBoxChange} = this.props;
-        this.setState({checked: event.target.checked});
-
-        handleManageCheckBoxChange(userName, user)(event);
+    static defaultProps = {
+        onClick: (event) => {
+        }
     };
+
+    /*    setChecked = event => {
+            const {userName, user, handleManageCheckBoxChange} = this.props;
+            this.setState({checked: event.target.checked});
+
+            handleManageCheckBoxChange(userName, user)(event);
+        };*/
 
     constructor(props) {
         super(props);
@@ -162,15 +174,18 @@ class UserListItem extends React.PureComponent {
     }
 
     render() {
-        const {user} = this.props;
+        const {user, children, onClick, checked, handleManageCheckBoxChange, userName} = this.props;
         return (
-            <ListItem button>
+            <ListItem button onClick={onClick}>
+                <InputWrapper>
                 <Checkbox
-                    checked={this.state.checked}
-                    onChange={this.setChecked}
+                    checked={checked}
+                    onChange={handleManageCheckBoxChange(userName, user)}
                     value={user}
                 />
+                </InputWrapper>
                 <ListItemText primary={user}/>
+                {children}
             </ListItem>
         );
     }
@@ -181,33 +196,104 @@ UserListItem.propTypes = {
     userName: PropTypes.string.isRequired,
     handleManageCheckBoxChange: PropTypes.func.isRequired,
     checked: PropTypes.bool.isRequired,
+    onClick: PropTypes.func,
+    children: PropTypes.node
 };
 const stopPropagation = (e) => e.stopPropagation();
 const InputWrapper = ({children}) =>
     <div onClick={stopPropagation} style={{display: 'inline-flex'}}>
         {children}
     </div>;
-class UserPanel extends React.PureComponent {
+
+class UserPanel extends React.Component {
     state = {
         checked: false,
         expanded: false,
         checkboxClicked: false,
-        group: -1
+        group: -1,
+        groups: [],
+        userChecks: []
     };
-    renderUserManagementList = userName => {
-        const {userChecks, handleManageCheckBoxChange} = this.props;
-        let listItems = [];
-        Object.keys(userChecks[userName].subUsers).forEach((keyVal) => {
-            let user = keyVal;
-            let checked = userChecks[userName].subUsers[user];
-            listItems.push(<UserListItem key={userName + "-sub-" + user} userName={userName}
-                                         handleManageCheckBoxChange={handleManageCheckBoxChange} user={user}
-                                         checked={checked}/>)
-
-
+    handleClick = group => event => {
+        let parentState = update(this.state.groups, {
+            [group]: {$toggle: ["open"]}
         });
+
+        this.setState({groups: parentState});
+
+    };
+
+    handleGroupCheckbox = groupId => (parentUser, group) => event => {
+        const {userName, handleManageCheckBoxChange, userChecks} = this.props;
+        let parentState = update(this.state.groups, {
+            [group]: {checked: {$set: event.target.checked}}
+        });
+
+        this.setState({groups: parentState});
+        let userChecksState = this.state.userChecks;
+        Object.keys(userChecks[userName].subUsers).filter(grp => userChecks[userName].subUsers[grp].group === groupId).forEach(user => {
+            userChecksState = update(userChecksState, {
+                [user]: {$set: event.target.checked}
+            });
+
+
+            handleManageCheckBoxChange(userName, user)(event);
+        });
+        this.setState({userChecks: userChecksState});
+
+    };
+    handleUserCheckbox = (parentUser, user) => event => {
+        const {handleManageCheckBoxChange} = this.props;
+        let parentState = update(this.state.userChecks, {
+            [user]: {$set: event.target.checked}
+        });
+
+        this.setState({userChecks: parentState});
+
+        handleManageCheckBoxChange(parentUser, user)(event);
+
+    };
+
+    renderUserManagementList = userName => {
+        const {userChecks, handleManageCheckBoxChange, groups, classes} = this.props;
+        let groupItems = [];
+        if (Object.keys(this.state.groups).length > 0) {
+            groups.forEach(group => {
+                let listItems = [];
+
+                Object.keys(userChecks[userName].subUsers).filter(grp => userChecks[userName].subUsers[grp].group === group.id).forEach(user => {
+                    //let userName = user;
+                    //let checked = userChecks[userName].subUsers[user].checked;
+                    listItems.push(<UserListItem key={userName + "-sub-" + user} userName={userName}
+                                                 handleManageCheckBoxChange={this.handleUserCheckbox} user={user}
+                                                 checked={this.state.userChecks[user]}/>)
+                });
+
+                groupItems.push(
+                    <UserListItem key={userName + "-sub-" + group.groupName} userName={userName}
+                                  handleManageCheckBoxChange={this.handleGroupCheckbox(group.id)} user={group.groupName}
+                                  checked={this.state.groups[group.groupName].checked}
+                                  onClick={this.handleClick(group.groupName)}>
+                        {this.state.groups[group.groupName].open ? <ExpandLess/> : <ExpandMore/>}
+
+                    </UserListItem>,
+                    <Collapse key={userName + "-sub-" + group.groupName + "-collapse"}
+                              in={this.state.groups[group.groupName].open} timeout="auto" unmountOnExit
+                              className={classes.nested}>
+                        <List component="div" disablePadding>
+                            {listItems}
+                        </List>
+                    </Collapse>)
+            });
+        }
+        /*.forEach((keyVal) => {
+             let user = keyVal;
+
+
+
+         });*/
         return (<List>
-            {listItems}
+            {groupItems}
 
 
         </List>)
@@ -230,9 +316,19 @@ class UserPanel extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.setState({checked: this.props.checked});
+        let groupsList = [];
+        const {userName, userChecks} = this.props;
+        let userCheckList = [];
+        Object.keys(userChecks[userName].subUsers).forEach(subUser => {
+            userCheckList[subUser] = userChecks[userName].subUsers[subUser].checked;
+        });
+        this.props.groups.forEach(group => {
+            groupsList[group.groupName] = {open: false, checked: false}
+        });
+        this.setState({checked: this.props.checked, groups: groupsList, userChecks: userCheckList});
 
     }
+
 
     handleGroupChange = event => {
 
@@ -313,6 +409,7 @@ UserPanel.propTypes = {
     theme: PropTypes.object.isRequired,
     userName: PropTypes.string.isRequired,
     userChecks: PropTypes.object.isRequired,
+    groups: PropTypes.array.isRequired,
     handleManageCheckBoxChange: PropTypes.func.isRequired,
     handleGroupChange: PropTypes.func.isRequired,
     handleCheckBoxChange: PropTypes.func.isRequired,
