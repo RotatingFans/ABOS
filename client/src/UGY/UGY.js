@@ -26,6 +26,10 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import update from 'immutability-helper';
+import SaveIcon from '@material-ui/icons/Save';
+import Button from '@material-ui/core/Button';
+import {push} from 'react-router-redux';
+import {connect} from 'react-redux';
 
 import {
     BooleanInput,
@@ -115,6 +119,8 @@ const styles = theme => ({
         },
     },
     content: {
+        display: 'flex',
+        flexDirection: 'column',
         flexGrow: 1,
         backgroundColor: theme.palette.background.default,
         padding: theme.spacing.unit,
@@ -154,96 +160,58 @@ const styles = theme => ({
     fullHeight: {
         height: '100%',
     },
+
+    leftIcon: {
+        marginRight: theme.spacing.unit,
+    },
+    rightIcon: {
+        marginLeft: theme.spacing.unit,
+    },
+    iconSmall: {
+        fontSize: 20,
+    },
+    button: {
+        margin: theme.spacing.unit,
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 10,
+        right: 10
+    }
 });
 
 
 
 class UGYEditor extends React.Component {
     //users: {}, years: {}, customers: {}
+    //users: {}, years: {}, customers: {}
     state = {
-        value: 0,
+        tab: 0,
         yearNavOpen: true,
         anchor: 'left',
         update: false,
         userBulkMenuAnchor: null,
         userAddMenuAnchor: null,
         ready: false,
-        users: [],
+        userChecks: [],
         years: [],
-        groups: []
+        groups: [],
+        open: true,
+        selectedGroup: 0,
+        addUsersToGroupOpen: false,
 
 
     };
 
-    handleDrawerToggle = () => {
-        this.setState(state => ({yearNavOpen: !state.yearNavOpen}));
-    };
-
-    save = (record, redirect) => {
-        console.log(record);
-        let options = {};
-        let url = 'http://localhost:8080/api/Reports';
-        if (!options.headers) {
-            options.headers = new Headers({Accept: 'application/pdf'});
-        }
-        const token = localStorage.getItem('access_token');
-        options.headers.set('Authorization', `Bearer ${token}`);
-
-        fetch(url, {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin", // include, same-origin, *omit
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                'Authorization': `Bearer ${token}`
-                // "Content-Type": "application/x-www-form-urlencoded",
-            },
-            redirect: "follow", // manual, *follow, error
-            referrer: "no-referrer", // no-referrer, *client
-            body: JSON.stringify(record),
-        }).then(response => {
-
-        })
 
 
-        //console.log(fetchUtils.fetchJson(url, options));
-
-    };
 
     constructor(props) {
         super(props);
 
     }
 
-    handleCheckBoxChange = name => event => {
-        let parentState = update(this.state.userChecks, {
-            [name]: {checked: {$set: event.target.checked}}
-        });
 
-        this.setState({userChecks: parentState, update: true});
-        //this.setState({[name]: event.target.checked});
-    };
-
-    handleGroupChange = name => event => {
-        let parentState = update(this.state.userChecks, {
-            [name]: {group: {$set: event.target.value}}
-        });
-
-        this.setState({userChecks: parentState, update: true});
-        //this.setState({[name]: event.target.checked});
-    };
-
-    handleManageCheckBoxChange = (parent, name) => event => {
-
-        let parentState = update(this.state.userChecks, {
-            [parent]: {subUsers: {[name]: {checked: {$set: event.target.checked}}}}
-        });
-
-        this.setState({userChecks: parentState, update: true});
-
-
-    };
 
     getYears() {
         dataProvider(GET_LIST, 'Years', {
@@ -254,76 +222,6 @@ class UGYEditor extends React.Component {
             this.setState({years: response.data})
         })
 
-
-    }
-    renderEnabledUsers = () => {
-        const {classes, theme} = this.props;
-        let users = ['me', 'test1'];
-        let userPanels = [];
-        Object.keys(this.state.userChecks).forEach(user => {
-            let userName = user;
-            userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
-                                       handleManageCheckBoxChange={this.handleManageCheckBoxChange}
-                                       handleCheckBoxChange={this.handleCheckBoxChange}
-                                       checked={this.state.userChecks[userName].checked}
-                                       handleGroupChange={this.handleGroupChange}
-                                       group={this.state.userChecks[userName].group}
-                                       groups={this.state.groups}/>)
-        });
-        return (
-            <ExpansionPanel className={classes.topLevelExpansionPanel}>
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                    <div className={classes.flex}>
-
-                        <Typography className={classes.heading}>Enabled Users</Typography>
-                    </div>
-
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.topLevelExpansionPanel}>
-                    {
-                        userPanels
-                    }
-
-                </ExpansionPanelDetails>
-            </ExpansionPanel>
-        )
-    };
-    getUserValue = userName => {
-
-    };
-    handleChangeAnchor = event => {
-        this.setState({
-            anchor: event.target.value,
-        });
-    };
-    handleUserBulkMenu = event => {
-        this.setState({userBulkMenuAnchor: event.currentTarget});
-    };
-    handleUserBulkMenuClose = () => {
-        this.setState({userBulkMenuAnchor: null});
-    };
-    handleUserAddMenu = event => {
-        this.setState({userAddMenuAnchor: event.currentTarget});
-    };
-    handleUserAddMenuClose = () => {
-        this.setState({userAddMenuAnchor: null});
-    };
-    handleChange = (event, value) => {
-        this.setState({value});
-    };
-
-    updateYear(year) {
-        this.setState({year: year, update: true});
-        // this.updateChoices();
-
-    }
-
-    updateUser(user) {
-        this.setState({user: user, update: true});
-        // this.updateChoices();
-    }
-
-    componentWillMount() {
 
     }
 
@@ -371,31 +269,260 @@ class UGYEditor extends React.Component {
 
     }
 
-    componentWillReceiveProps() {
-        this.getUsers();
-        this.getYears();
-        this.getGroups();
-        this.setState({ready: true})
-    }
 
-    shouldComponentUpdate() {
-        if (this.state.update === true) {
-            this.setState({'update': false});
-            return true
-        }
-        return false
-    }
+    handleDrawerToggle = () => {
+        this.setState(state => ({yearNavOpen: !state.yearNavOpen}));
+    };
+
+    handleCheckBoxChange = name => event => {
+        let parentState = update(this.state.userChecks, {
+            [name]: {checked: {$set: event.target.checked}}
+        });
+
+        this.setState({userChecks: parentState, update: true});
+        //this.setState({[name]: event.target.checked});
+    };
+
+    handleGroupChange = name => event => {
+        let parentState = update(this.state.userChecks, {
+            [name]: {group: {$set: event.target.value}}
+        });
+
+        this.setState({userChecks: parentState, update: true});
+        //this.setState({[name]: event.target.checked});
+    };
+
+    handleManageCheckBoxChange = (parent, name) => event => {
+
+        let parentState = update(this.state.userChecks, {
+            [parent]: {subUsers: {[name]: {checked: {$set: event.target.checked}}}}
+        });
+
+        this.setState({userChecks: parentState, update: true});
 
 
+    };
 
+    handleChangeAnchor = event => {
+        this.setState({
+            anchor: event.target.value,
+        });
+    };
+
+    handleUserBulkMenu = event => {
+        this.setState({userBulkMenuAnchor: event.currentTarget});
+    };
+
+    handleUserBulkMenuClose = () => {
+        this.setState({userBulkMenuAnchor: null});
+    };
+
+    handleUserAddMenu = event => {
+        this.setState({userAddMenuAnchor: event.currentTarget});
+    };
+
+    handleUserAddMenuClose = () => {
+        this.setState({userAddMenuAnchor: null});
+    };
+
+    handleChange = (event, value) => {
+        this.setState({value});
+    };
+    handleTabChange = (event, value) => {
+        this.setState({tab: value});
+    };
+
+
+    save = event => {
+        /*        console.log(record);
+                let options = {};
+                let url = 'http://localhost:8080/api/Reports';
+                if (!options.headers) {
+                    options.headers = new Headers({Accept: 'application/pdf'});
+                }
+                const token = localStorage.getItem('access_token');
+                options.headers.set('Authorization', `Bearer ${token}`);
+
+                fetch(url, {
+                    method: "POST",
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin", // include, same-origin, *omit
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        'Authorization': `Bearer ${token}`
+                        // "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrer: "no-referrer", // no-referrer, *client
+                    body: JSON.stringify(record),
+                }).then(response => {
+
+                })*/
+
+
+        //console.log(fetchUtils.fetchJson(url, options));
+        this.setState({open: false});
+        this.props.push('/');
+
+    };
+
+    cancel = event => {
+        this.setState({open: false});
+        this.props.push('/');
+
+
+    };
+
+    addSelectedUsersToGroup = event => {
+        let parentState = this.state.userChecks;
+
+
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+            parentState = update(this.state.userChecks, {
+                [userName]: {group: {$set: event.target.value}}
+            });
+        });
+        this.setState({userChecks: parentState});
+
+    };
+
+    addSelectedUsersToGroupClicked = event => {
+
+        this.setState({addUsersToGroupOpen: true});
+        this.handleUserBulkMenuClose(event);
+    };
+
+    removeSelectedUsersFromYear = event => {
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+
+        });
+        this.handleUserBulkMenuClose(event);
+    };
+
+    addSelectedUsersToUser = event => {
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+
+        });
+    };
+    addSelectedUsersToUserClicked = event => {
+
+        this.handleUserBulkMenuClose(event);
+    };
+
+    enableSelectedUsers = event => {
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+
+        });
+        this.handleUserBulkMenuClose(event);
+    };
+
+    archiveSelectedUsers = event => {
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+
+        });
+        this.handleUserBulkMenuClose(event);
+    };
+
+    addSingleUser = event => {
+
+        this.handleUserAddMenuClose(event);
+    };
+
+    addBulkUser = event => {
+
+        this.handleUserAddMenuClose(event);
+    };
+
+
+    renderEnabledUsers = () => {
+        const {classes, theme} = this.props;
+        let users = ['me', 'test1'];
+        let userPanels = [];
+        Object.keys(this.state.userChecks).forEach(user => {
+            let userName = user;
+            userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                                       handleManageCheckBoxChange={this.handleManageCheckBoxChange}
+                                       handleCheckBoxChange={this.handleCheckBoxChange}
+                                       checked={this.state.userChecks[userName].checked}
+                                       handleGroupChange={this.handleGroupChange}
+                                       group={this.state.userChecks[userName].group}
+                                       groups={this.state.groups}/>)
+        });
+        return (
+            <ExpansionPanel className={classes.topLevelExpansionPanel}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                    <div className={classes.flex}>
+
+                        <Typography className={classes.heading}>Enabled Users</Typography>
+                    </div>
+
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={classes.topLevelExpansionPanel}>
+                    {
+                        userPanels
+                    }
+
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+        )
+    };
+
+    renderGroupItems = () => {
+        let groupList = [];
+        this.state.groups.forEach(group => {
+            groupList.push(<MenuItem value={group.id}>{group.groupName}</MenuItem>);
+
+        });
+        return groupList;
+    };
 
     render() {
         const {classes, theme} = this.props;
         if (this.state.ready) {
 
-            const {value, anchor, yearNavOpen, userBulkMenuAnchor, userAddMenuAnchor} = this.state;
+            const {tab, anchor, yearNavOpen, userBulkMenuAnchor, userAddMenuAnchor} = this.state;
             const userBulkMenuOpen = Boolean(userBulkMenuAnchor);
             const userAddMenuOpen = Boolean(userAddMenuAnchor);
+            const dialogs = (
+                <Dialog
+                    open={this.state.addUsersToGroupOpen}
+                    onClose={event => this.setState({addUsersToGroupOpen: false})}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add Selected Users to Group</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Please select the group to add the users to
+                        </DialogContentText>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="addUsersToGroup-GroupSelection">Group</InputLabel>
+                            <Select
+                                value={this.state.selectedGroup}
+                                onChange={event => {
+                                    this.setState({selectedGroup: event.target.value})
+                                }}
+                                inputProps={{
+                                    name: 'GroupSelection',
+                                    id: 'addUsersToGroup-GroupSelection',
+                                }}
+                            >
+                                {this.renderGroupItems()
+
+                                }
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={event => this.setState({addUsersToGroupOpen: false})} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={this.addSelectedUsersToGroup()} color="primary">
+                            Apply
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            );
             const drawer = (
                 <div>
                     <div className={classes.toolbar}/>
@@ -438,8 +565,8 @@ class UGYEditor extends React.Component {
                                 open={userAddMenuOpen}
                                 onClose={this.handleUserAddMenuClose}
                             >
-                                <MenuItem onClick={this.handleUserAddMenuClose}>Add Single User</MenuItem>
-                                <MenuItem onClick={this.handleUserAddMenuClose}>Add Bulk Users</MenuItem>
+                                <MenuItem onClick={this.addSingleUser}>Add Single User</MenuItem>
+                                <MenuItem onClick={this.addBulkUser}>Add Bulk Users</MenuItem>
                             </Menu>
                             <IconButton
                                 aria-owns={userBulkMenuOpen ? 'user-Bulk-Menu' : null}
@@ -463,11 +590,12 @@ class UGYEditor extends React.Component {
                                 open={userBulkMenuOpen}
                                 onClose={this.handleUserBulkMenuClose}
                             >
-                                <MenuItem onClick={this.handleUserBulkMenuClose}>Add Selected to Group</MenuItem>
-                                <MenuItem onClick={this.handleUserBulkMenuClose}>Remove Selected from year</MenuItem>
-                                <MenuItem onClick={this.handleUserBulkMenuClose}>Enable Selected</MenuItem>
-                                <MenuItem onClick={this.handleUserBulkMenuClose}>Add selected to User</MenuItem>
-                                <MenuItem onClick={this.handleUserBulkMenuClose}>Archive selected users</MenuItem>
+                                <MenuItem onClick={this.addSelectedUsersToGroupClicked}>Add Selected to Group</MenuItem>
+                                <MenuItem onClick={this.removeSelectedUsersFromYear}>Remove Selected from
+                                    year</MenuItem>
+                                <MenuItem onClick={this.enableSelectedUsers}>Enable Selected</MenuItem>
+                                <MenuItem onClick={this.addSelectedUsersToUserClicked}>Add selected to User</MenuItem>
+                                <MenuItem onClick={this.archiveSelectedUsers}>Archive selected users</MenuItem>
                             </Menu>
 
                         </div>
@@ -521,7 +649,7 @@ class UGYEditor extends React.Component {
 
                 <Modal
 
-                    open={true}
+                    open={this.state.open}
                     disableBackdropClick={true}
                 >
                     <div className={classes.modal}>
@@ -574,7 +702,7 @@ class UGYEditor extends React.Component {
                             })}>
                                 <div className={classes.toolbar}/>
 
-                                <Tabs value={value} onChange={this.handleChange}>
+                                <Tabs value={tab} onChange={this.handleTabChange}>
                                     <Tab label="Users"/>
                                     <Tab label="Groups"/>
                                     <Tab label="Products"/>
@@ -582,22 +710,60 @@ class UGYEditor extends React.Component {
                                 {value === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
                                 {value === 1 && <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
                                 {value === 2 && <TabContainer className={classes.tabScroll}>{prodsTab}</TabContainer>}
+                                <Toolbar>
+                                    <div className={classes.bottomBar}>
+                                        <Button variant="contained" color="secondary" className={classes.button}
+                                                onClick={this.cancel}>
+                                            Cancel
+                                        </Button>
+                                        <Button variant="contained" color="primary" className={classes.button}
+                                                onClick={this.save}>
+                                            <SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)}/>
+                                            Save
+                                        </Button>
+                                    </div>
+                                </Toolbar>
                             </main>
                         </div>
                     </div>
-                </Modal>
-
+                </Modal>,
+                    {dialogs}
             )
         } else {
             return (<h2>Loading...</h2>)
         }
     }
+
+
+    componentWillMount() {
+
+    }
+
+    componentWillReceiveProps() {
+        this.getUsers();
+        this.getYears();
+        this.getGroups();
+        this.setState({ready: true})
+    }
+
+    shouldComponentUpdate() {
+        if (this.state.groups.length > 0 && Object.keys(this.state.userChecks).length > 0) {
+            return true
+        }
+        /*        if (this.state.update === true) {
+                    this.setState({'update': false});
+                    return true
+                }*/
+        return false
+    }
 }
 
 UGYEditor.propTypes = {
+    push: PropTypes.func,
     classes: PropTypes.object.isRequired,
     theme: PropTypes.object.isRequired,
 };
-
-export default withStyles(styles, {withTheme: true})(UGYEditor);
+export default connect(null, {
+    push,
+})(withStyles(styles, {withTheme: true})(UGYEditor));
 
