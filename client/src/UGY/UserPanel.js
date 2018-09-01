@@ -103,6 +103,13 @@ const styles = theme => ({
     flex: {
         flexGrow: 1,
     },
+    flexCenter: {
+        flexGrow: 1,
+
+        display: 'flex',
+
+        alignItems: 'center',
+    },
     topLevelExpansionPanel: {
         display: 'block',
     },
@@ -153,9 +160,17 @@ UserListItem.propTypes = {
     handleManageCheckBoxChange: PropTypes.func.isRequired,
     checked: PropTypes.bool.isRequired,
 };
-
+const stopPropagation = (e) => e.stopPropagation();
+const InputWrapper = ({children}) =>
+    <div onClick={stopPropagation} style={{display: 'inline-flex'}}>
+        {children}
+    </div>;
 class UserPanel extends React.PureComponent {
-    state = {};
+    state = {
+        checked: false,
+        expanded: false,
+        checkboxClicked: false,
+    };
     renderUserManagementList = userName => {
         const {userChecks, handleManageCheckBoxChange} = this.props;
         let listItems = [];
@@ -175,30 +190,61 @@ class UserPanel extends React.PureComponent {
         </List>)
     };
 
+    setChecked = event => {
+        const {userName, handleCheckBoxChange} = this.props;
+        this.setState({checked: event.target.checked, checkboxClicked: true});
+
+        handleCheckBoxChange(userName)(event);
+    };
+    handleUserPanelExpanded = (event, expanded) => {
+        // if (!this.state.checkboxClicked) {
+        this.setState({'expanded': expanded, checkboxClicked: false})
+        //}
+    };
+
     constructor(props) {
         super(props);
     }
 
+    componentDidMount() {
+        this.setState({checked: this.props.checked});
+
+    }
+
+
+    // usage:
+
     render() {
-        const {userName, classes, userChecks, handleCheckBoxChange} = this.props;
-        return (<ExpansionPanel className={classes.userPanel}>
+        const {userName, classes} = this.props;
+        return (<ExpansionPanel className={classes.userPanel} expanded={this.state.expanded}
+                                onChange={this.handleUserPanelExpanded}>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                    <Checkbox
-                        checked={userChecks[userName].checked}
-                        onChange={handleCheckBoxChange(userName)}
-                        value={userName}
-                    />
-                    <div className={classes.flex}>
+                    <InputWrapper>
+                        <Checkbox
+                            checked={this.state.checked}
+                            onChange={this.setChecked}
+                            value={userName}
+                        />
+                    </InputWrapper>
+
+                    <div className={classes.flexCenter}>
 
                         <Typography className={classes.heading}>{userName}</Typography>
                     </div>
                     <div>
-                        <Button variant="contained" className={classes.button}>
-                            Edit
-                        </Button>
-                        <Button variant="contained" color={'red'} className={classes.button}>
-                            Delete
-                        </Button>
+                        <InputWrapper>
+
+                            <Button variant="contained" className={classes.button}>
+                                Edit
+                            </Button>
+                        </InputWrapper>
+                        <InputWrapper>
+
+                            <Button variant="contained" color={'red'} className={classes.button}>
+                                Delete
+                            </Button>
+                        </InputWrapper>
+
                     </div>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
@@ -219,5 +265,6 @@ UserPanel.propTypes = {
     userChecks: PropTypes.object.isRequired,
     handleManageCheckBoxChange: PropTypes.func.isRequired,
     handleCheckBoxChange: PropTypes.func.isRequired,
+    checked: PropTypes.bool.isRequired,
 };
 export default withStyles(styles, {withTheme: true})(UserPanel);

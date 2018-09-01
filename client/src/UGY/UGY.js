@@ -211,22 +211,22 @@ class UGYEditor extends React.Component {
 
     }
 
-    handleManageCheckBoxChange = (parent, name) => event => {
-        /*
+    handleCheckBoxChange = name => event => {
+        let parentState = update(this.state.userChecks, {
+            [name]: {checked: {$set: event.target.checked}}
+        });
 
-        this.state[userName].subUsers.forEach((keyVal) => {
-            let user = keyVal.name;
-            let checked = keyVal.checked;
-         */
-        const subs = this.state.userChecks[parent].subUsers;
-        //console.log(subs);
+        this.setState({userChecks: parentState, update: true});
+        //this.setState({[name]: event.target.checked});
+    };
+
+    handleManageCheckBoxChange = (parent, name) => event => {
+
         let parentState = update(this.state.userChecks, {
             [parent]: {subUsers: {[name]: {$set: event.target.checked}}}
         });
 
         this.setState({userChecks: parentState, update: true});
-        console.log(parentState);
-        //this.setState({ update: true});
 
 
     };
@@ -284,9 +284,8 @@ class UGYEditor extends React.Component {
     handleChange = (event, value) => {
         this.setState({value});
     };
-    handleCheckBoxChange = name => event => {
-        this.setState({[name]: event.target.checked});
-    };
+
+
     renderEnabledUsers = () => {
         const {classes, theme} = this.props;
         let users = ['me', 'test1'];
@@ -295,7 +294,8 @@ class UGYEditor extends React.Component {
             let userName = user.userName;
             userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
                                        handleManageCheckBoxChange={this.handleManageCheckBoxChange}
-                                       handleCheckBoxChange={this.handleCheckBoxChange}/>)
+                                       handleCheckBoxChange={this.handleCheckBoxChange}
+                                       checked={this.state.userChecks[userName].checked}/>)
         });
         return (
             <ExpansionPanel className={classes.topLevelExpansionPanel}>
