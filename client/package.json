@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "downloadjs": "^1.4.7",
+    "immutability-helper": "^2.7.1",
     "jwt-decode": "^2.2.0",
     "ra-data-json-server": "^2.0.4",
     "ra-data-simple-rest": "^2.0.4",

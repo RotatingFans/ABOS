@@ -25,8 +25,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
+import update from 'immutability-helper';
 
 import {
     BooleanInput,
@@ -45,6 +44,7 @@ import {
 } from 'react-admin';
 
 import restClient from "../grailsRestClient";
+import UserPanel from "./UserPanel";
 
 
 const drawerWidth = 240;
@@ -62,7 +62,7 @@ const dataProvider = restClient(httpClient);
 
 function TabContainer(props) {
     return (
-        <Typography component="div">
+        <Typography component="div" {...props}>
             {props.children}
         </Typography>
     );
@@ -144,6 +144,13 @@ const styles = theme => ({
     flex: {
         flexGrow: 1,
     },
+    topLevelExpansionPanel: {
+        display: 'block',
+    },
+    'tabScroll': {
+        height: '85%',
+        overflow: 'scroll',
+    },
 });
 
 
@@ -157,7 +164,10 @@ class UGYEditor extends React.Component {
         update: false,
         userBulkMenuAnchor: null,
         userAddMenuAnchor: null,
-        user1: false,
+        ready: false,
+        users: [],
+        years: []
+
     };
 
     handleDrawerToggle = () => {
@@ -201,17 +211,25 @@ class UGYEditor extends React.Component {
 
     }
 
-    getUsers() {
-        dataProvider(GET_LIST, 'User', {
-            filter: {},
-            sort: {field: 'id', order: 'DESC'},
-            pagination: {page: 1, perPage: 1000},
-        }).then(response => {
-            this.setState({users: response.data})
-        })
+    handleManageCheckBoxChange = (parent, name) => event => {
+        /*
+
+        this.state[userName].subUsers.forEach((keyVal) => {
+            let user = keyVal.name;
+            let checked = keyVal.checked;
+         */
+        const subs = this.state.userChecks[parent].subUsers;
+        //console.log(subs);
+        let parentState = update(this.state.userChecks, {
+            [parent]: {subUsers: {[name]: {$set: event.target.checked}}}
+        });
+
+        this.setState({userChecks: parentState, update: true});
+        console.log(parentState);
+        //this.setState({ update: true});
 
 
-    }
+    };
 
     getYears() {
         dataProvider(GET_LIST, 'Years', {
@@ -236,12 +254,9 @@ class UGYEditor extends React.Component {
         // this.updateChoices();
     }
 
+    getUserValue = userName => {
 
-    componentWillReceiveProps() {
-        this.getUsers();
-        this.getYears();
-
-    }
+    };
 
     componentWillMount() {
 
@@ -272,209 +287,228 @@ class UGYEditor extends React.Component {
     handleCheckBoxChange = name => event => {
         this.setState({[name]: event.target.checked});
     };
+    renderEnabledUsers = () => {
+        const {classes, theme} = this.props;
+        let users = ['me', 'test1'];
+        let userPanels = [];
+        this.state.users.forEach(user => {
+            let userName = user.userName;
+            userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                                       handleManageCheckBoxChange={this.handleManageCheckBoxChange}
+                                       handleCheckBoxChange={this.handleCheckBoxChange}/>)
+        });
+        return (
+            <ExpansionPanel className={classes.topLevelExpansionPanel}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                    <div className={classes.flex}>
+
+                        <Typography className={classes.heading}>Enabled Users</Typography>
+                    </div>
+
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={classes.topLevelExpansionPanel}>
+                    {
+                        userPanels
+                    }
+
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+        )
+    };
+
+    getUsers() {
+        dataProvider(GET_LIST, 'User', {
+            filter: {},
+            sort: {field: 'id', order: 'DESC'},
+            pagination: {page: 1, perPage: 1000},
+        }).then(response => {
+            let users = response.data;
+            let userChecks = {};
+            users.forEach(user => {
+                let userName = user.userName;
+                let userState = {};
+                users.forEach(subUser => {
+                    userState[subUser.userName] = false;
+                });
+
+                userChecks[userName] = {checked: false, subUsers: userState};
+            });
+            this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+        })
+
+
+    }
+
+    componentWillReceiveProps() {
+        this.getUsers();
+        this.getYears();
+        this.setState({ready: true})
+    }
+
+    shouldComponentUpdate() {
+        if (this.state.update === true) {
+            this.setState({'update': false});
+            return true
+        }
+        return false
+    }
+
+
+
 
     render() {
         const {classes, theme} = this.props;
-        const {value, anchor, yearNavOpen, userBulkMenuAnchor, userAddMenuAnchor} = this.state;
-        const userBulkMenuOpen = Boolean(userBulkMenuAnchor);
-        const userAddMenuOpen = Boolean(userAddMenuAnchor);
-        const drawer = (
-            <div>
-                <div className={classes.toolbar}/>
-                <Divider/>
-                <List>
-                    <ListItem button>
-                        <ListItemText primary="Trash"/>
-                    </ListItem>
-                </List>
+        if (this.state.ready) {
 
-            </div>
-        );
-        const usersTab = (
-            <div>
-
-                <Toolbar>
-                    <Typography variant="title" color="inherit" className={classes.flex}>
-
-                    </Typography>
-                    <div>
-                        <IconButton
-                            aria-owns={userAddMenuOpen ? 'user-add-menu' : null}
-                            aria-haspopup="true"
-                            onClick={this.handleUserAddMenu}
-                            color="inherit"
-                        >
-                            <AddIcon/>
-                        </IconButton>
-                        <Menu
-                            id="user-add-menu"
-                            anchorEl={userAddMenuAnchor}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={userAddMenuOpen}
-                            onClose={this.handleUserAddMenuClose}
-                        >
-                            <MenuItem onClick={this.handleUserAddMenuClose}>Add Single User</MenuItem>
-                            <MenuItem onClick={this.handleUserAddMenuClose}>Add Bulk Users</MenuItem>
-                        </Menu>
-                        <IconButton
-                            aria-owns={userBulkMenuOpen ? 'user-Bulk-Menu' : null}
-                            aria-haspopup="true"
-                            onClick={this.handleUserBulkMenu}
-                            color="inherit"
-                        >
-                            <MoreVert/>
-                        </IconButton>
-                        <Menu
-                            id="user-Bulk-Menu"
-                            anchorEl={userBulkMenuAnchor}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={userBulkMenuOpen}
-                            onClose={this.handleUserBulkMenuClose}
-                        >
-                            <MenuItem onClick={this.handleUserBulkMenuClose}>Add Selected to Group</MenuItem>
-                            <MenuItem onClick={this.handleUserBulkMenuClose}>Remove Selected from year</MenuItem>
-                            <MenuItem onClick={this.handleUserBulkMenuClose}>Enable Selected</MenuItem>
-                            <MenuItem onClick={this.handleUserBulkMenuClose}>Add selected to User</MenuItem>
-                            <MenuItem onClick={this.handleUserBulkMenuClose}>Archive selected users</MenuItem>
-                        </Menu>
-
-                    </div>
-
-                </Toolbar>
+            const {value, anchor, yearNavOpen, userBulkMenuAnchor, userAddMenuAnchor} = this.state;
+            const userBulkMenuOpen = Boolean(userBulkMenuAnchor);
+            const userAddMenuOpen = Boolean(userAddMenuAnchor);
+            const drawer = (
                 <div>
-                    <ExpansionPanel>
-                        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                            <div className={classes.flex}>
+                    <div className={classes.toolbar}/>
+                    <Divider/>
+                    <List>
+                        <ListItem button>
+                            <ListItemText primary="Trash"/>
+                        </ListItem>
+                    </List>
 
-                                <Typography className={classes.heading}>Enabled Users</Typography>
-                            </div>
-
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                            <ExpansionPanel className={classes.userPanel}>
-                                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                                    <Checkbox
-                                        checked={this.state.user1}
-                                        onChange={this.handleCheckBoxChange('user1')}
-                                        value="user1"
-                                    />
-                                    <div className={classes.flex}>
-
-                                        <Typography className={classes.heading}>User 1</Typography>
-                                    </div>
-                                    <div>
-                                        <Button variant="contained" className={classes.button}>
-                                            Edit
-                                        </Button>
-                                        <Button variant="contained" color={'red'} className={classes.button}>
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </ExpansionPanelSummary>
-                                <ExpansionPanelDetails>
-                                    <List>
-                                        <ListItem button>
-                                            <Checkbox
-                                                checked={this.state.user1}
-                                                onChange={this.handleCheckBoxChange('user1')}
-                                                value="user1"
-                                            />
-                                            <ListItemText primary="Trash"/>
-                                        </ListItem>
-                                        <ListItem button>
-                                            <Checkbox
-                                                checked={this.state.user1}
-                                                onChange={this.handleCheckBoxChange('user1')}
-                                                value="user1"
-                                            />
-                                            <ListItemText primary="Trash"/>
-                                        </ListItem>
-                                    </List>
-                                </ExpansionPanelDetails>
-                            </ExpansionPanel>
-
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
                 </div>
-            </div>
-        );
-        const groupsTab = (
-            <div>
-                Groups
+            );
+            const usersTab = (
+                <div>
 
-            </div>
-        );
-        const prodsTab = (
-            <div>
-                Products
+                    <Toolbar>
+                        <Typography variant="title" color="inherit" className={classes.flex}>
 
-            </div>
-        );
-        /*
-        *                         | Tab Pane
-        *                         |    Users | Groups | Products
-        *                         |
-        *                         |     U Menu Bar - Add Element (Dropdown for bulk or simple) Multi Action Menu
-        *                         |     S   Expansion Panels( Enabled, Disabled, Archived)
-        *                         |     E     Selectable Expansion Panels with Delete/Edit buttons on end
-        *                         |     R       Group Selection
-        *                         |     S       Management Selection - Use Selectable Nested List
-        *                         |
-        *      Nested List        |     G Menu Bar - Add Element (Dropdown for bulk or simple) Multi Action Menu
-        * See List on Material UI |     R   Expansion Panels with Delete/Edit buttons on end E
-        *                         |     O     Edit Button Has option to remove all selected group members from group
-        *                         |     U   List of Group Members(Selectable)
-        *                         |     P
-        *                         |
-        *                         |     P Mimic Add Customer, but Some Changes
-        *                         |     R   Top Pane
-        *                         |     O     Different Import/Export function buttons
-        *                         |     D   Add Product inputs/Button
-        *                         |     U   Table
-        *                         |     C   No Quantity/Extended Cost
-        *                         |     T   Add Category Selection
-        *                         |     S     Include Add Category Button - Should open a modal dialog
-        *                         |
-        *                         |------------------------------------------------------------------- Save | Cancel ---
-         */
-        return (
-            <Modal
+                        </Typography>
+                        <div>
+                            <IconButton
+                                aria-owns={userAddMenuOpen ? 'user-add-menu' : null}
+                                aria-haspopup="true"
+                                onClick={this.handleUserAddMenu}
+                                color="inherit"
+                            >
+                                <AddIcon/>
+                            </IconButton>
+                            <Menu
+                                id="user-add-menu"
+                                anchorEl={userAddMenuAnchor}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={userAddMenuOpen}
+                                onClose={this.handleUserAddMenuClose}
+                            >
+                                <MenuItem onClick={this.handleUserAddMenuClose}>Add Single User</MenuItem>
+                                <MenuItem onClick={this.handleUserAddMenuClose}>Add Bulk Users</MenuItem>
+                            </Menu>
+                            <IconButton
+                                aria-owns={userBulkMenuOpen ? 'user-Bulk-Menu' : null}
+                                aria-haspopup="true"
+                                onClick={this.handleUserBulkMenu}
+                                color="inherit"
+                            >
+                                <MoreVert/>
+                            </IconButton>
+                            <Menu
+                                id="user-Bulk-Menu"
+                                anchorEl={userBulkMenuAnchor}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={userBulkMenuOpen}
+                                onClose={this.handleUserBulkMenuClose}
+                            >
+                                <MenuItem onClick={this.handleUserBulkMenuClose}>Add Selected to Group</MenuItem>
+                                <MenuItem onClick={this.handleUserBulkMenuClose}>Remove Selected from year</MenuItem>
+                                <MenuItem onClick={this.handleUserBulkMenuClose}>Enable Selected</MenuItem>
+                                <MenuItem onClick={this.handleUserBulkMenuClose}>Add selected to User</MenuItem>
+                                <MenuItem onClick={this.handleUserBulkMenuClose}>Archive selected users</MenuItem>
+                            </Menu>
 
-                open={true}
-                disableBackdropClick={true}
-            >
-                <div className={classes.modal}>
-                    <div className={classes.root}>
-                        <AppBar className={classes.appBar}>
-                            <Toolbar>
-                                <IconButton
-                                    color="inherit"
-                                    aria-label="Open drawer"
-                                    onClick={this.handleDrawerToggle}
-                                >
-                                    <MenuIcon/>
-                                </IconButton>
-                                <Typography variant="title" color="inherit" noWrap>
-                                    Users, Groups, and Years
-                                </Typography>
-                            </Toolbar>
-                        </AppBar>
-                        <Hidden mdUp>
-                            {/*<Drawer
+                        </div>
+
+                    </Toolbar>
+                    <div>
+                        {this.renderEnabledUsers()}
+                    </div>
+                </div>
+            );
+            const groupsTab = (
+                <div>
+                    Groups
+
+                </div>
+            );
+            const prodsTab = (
+                <div>
+                    Products
+
+                </div>
+            );
+            /*
+            *                         | Tab Pane
+            *                         |    Users | Groups | Products
+            *                         |
+            *                         |     U Menu Bar - Add Element (Dropdown for bulk or simple) Multi Action Menu
+            *                         |     S   Expansion Panels( Enabled, Disabled, Archived)
+            *                         |     E     Selectable Expansion Panels with Delete/Edit buttons on end
+            *                         |     R       Group Selection
+            *                         |     S       Management Selection - Use Selectable Nested List
+            *                         |
+            *      Nested List        |     G Menu Bar - Add Element (Dropdown for bulk or simple) Multi Action Menu
+            * See List on Material UI |     R   Expansion Panels with Delete/Edit buttons on end E
+            *                         |     O     Edit Button Has option to remove all selected group members from group
+            *                         |     U   List of Group Members(Selectable)
+            *                         |     P
+            *                         |
+            *                         |     P Mimic Add Customer, but Some Changes
+            *                         |     R   Top Pane
+            *                         |     O     Different Import/Export function buttons
+            *                         |     D   Add Product inputs/Button
+            *                         |     U   Table
+            *                         |     C   No Quantity/Extended Cost
+            *                         |     T   Add Category Selection
+            *                         |     S     Include Add Category Button - Should open a modal dialog
+            *                         |
+            *                         |------------------------------------------------------------------- Save | Cancel ---
+             */
+            return (
+
+                <Modal
+
+                    open={true}
+                    disableBackdropClick={true}
+                >
+                    <div className={classes.modal}>
+                        <div className={classes.root}>
+                            <AppBar className={classes.appBar}>
+                                <Toolbar>
+                                    <IconButton
+                                        color="inherit"
+                                        aria-label="Open drawer"
+                                        onClick={this.handleDrawerToggle}
+                                    >
+                                        <MenuIcon/>
+                                    </IconButton>
+                                    <Typography variant="title" color="inherit" noWrap>
+                                        Users, Groups, and Years
+                                    </Typography>
+                                </Toolbar>
+                            </AppBar>
+                            <Hidden mdUp>
+                                {/*<Drawer
                                 variant="temporary"
                                 anchor={theme.direction === 'rtl' ? 'right' : 'left'}
                                 open={this.state.mobileOpen}
@@ -488,51 +522,54 @@ class UGYEditor extends React.Component {
                             >
                                 {drawer}
                             </Drawer>*/},
-                            <Drawer
-                                variant="permanent"
-                                open={this.state.yearNavOpen}
-                                onClose={this.handleDrawerToggle}
-                                classes={{
-                                    paper: classes.drawerPaper,
-                                }}
-                            >
-                                {drawer}
-                            </Drawer>
-                        </Hidden>
-                        <Hidden smDown implementation="css">
-                            <Drawer
-                                variant="persistent"
-                                anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+                                <Drawer
+                                    variant="permanent"
+                                    open={this.state.yearNavOpen}
+                                    onClose={this.handleDrawerToggle}
+                                    classes={{
+                                        paper: classes.drawerPaper,
+                                    }}
+                                >
+                                    {drawer}
+                                </Drawer>
+                            </Hidden>
+                            <Hidden smDown implementation="css">
+                                <Drawer
+                                    variant="persistent"
+                                    anchor={theme.direction === 'rtl' ? 'right' : 'left'}
 
-                                open={this.state.yearNavOpen}
-                                onClose={this.handleDrawerToggle}
-                                classes={{
-                                    paper: classes.drawerPaper,
-                                }}
-                            >
-                                {drawer}
-                            </Drawer>
-                        </Hidden>
-                        <main className={classNames(classes.content, classes[`content-${anchor}`], {
-                            [classes.contentShift]: yearNavOpen,
-                            [classes[`contentShift-${anchor}`]]: yearNavOpen,
-                        })}>
-                            <div className={classes.toolbar}/>
+                                    open={this.state.yearNavOpen}
+                                    onClose={this.handleDrawerToggle}
+                                    classes={{
+                                        paper: classes.drawerPaper,
+                                    }}
+                                >
+                                    {drawer}
+                                </Drawer>
+                            </Hidden>
+                            <main className={classNames(classes.content, classes[`content-${anchor}`], {
+                                [classes.contentShift]: yearNavOpen,
+                                [classes[`contentShift-${anchor}`]]: yearNavOpen,
+                            })}>
+                                <div className={classes.toolbar}/>
 
-                            <Tabs value={value} onChange={this.handleChange}>
-                                <Tab label="Users"/>
-                                <Tab label="Groups"/>
-                                <Tab label="Products"/>
-                            </Tabs>
-                            {value === 0 && <TabContainer>{usersTab}</TabContainer>}
-                            {value === 1 && <TabContainer>{groupsTab}</TabContainer>}
-                            {value === 2 && <TabContainer>{prodsTab}</TabContainer>}
-                        </main>
+                                <Tabs value={value} onChange={this.handleChange}>
+                                    <Tab label="Users"/>
+                                    <Tab label="Groups"/>
+                                    <Tab label="Products"/>
+                                </Tabs>
+                                {value === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
+                                {value === 1 && <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
+                                {value === 2 && <TabContainer className={classes.tabScroll}>{prodsTab}</TabContainer>}
+                            </main>
+                        </div>
                     </div>
-                </div>
-            </Modal>
+                </Modal>
 
-        )
+            )
+        } else {
+            return (<h2>Loading...</h2>)
+        }
     }
 }
 
