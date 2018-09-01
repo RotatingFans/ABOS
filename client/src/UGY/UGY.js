@@ -151,6 +151,9 @@ const styles = theme => ({
         height: '85%',
         overflow: 'scroll',
     },
+    fullHeight: {
+        height: '100%',
+    },
 });
 
 
@@ -214,6 +217,15 @@ class UGYEditor extends React.Component {
     handleCheckBoxChange = name => event => {
         let parentState = update(this.state.userChecks, {
             [name]: {checked: {$set: event.target.checked}}
+        });
+
+        this.setState({userChecks: parentState, update: true});
+        //this.setState({[name]: event.target.checked});
+    };
+
+    handleGroupChange = name => event => {
+        let parentState = update(this.state.userChecks, {
+            [name]: {group: {$set: event.target.value}}
         });
 
         this.setState({userChecks: parentState, update: true});
@@ -295,7 +307,9 @@ class UGYEditor extends React.Component {
             userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
                                        handleManageCheckBoxChange={this.handleManageCheckBoxChange}
                                        handleCheckBoxChange={this.handleCheckBoxChange}
-                                       checked={this.state.userChecks[userName].checked}/>)
+                                       checked={this.state.userChecks[userName].checked}
+                                       handleGroupChange={this.handleGroupChange}
+                                       group={this.state.userChecks[userName].group}/>)
         });
         return (
             <ExpansionPanel className={classes.topLevelExpansionPanel}>
@@ -331,7 +345,7 @@ class UGYEditor extends React.Component {
                     userState[subUser.userName] = false;
                 });
 
-                userChecks[userName] = {checked: false, subUsers: userState};
+                userChecks[userName] = {checked: false, group: -1, subUsers: userState};
             });
             this.setState({'users': users, 'update': true, 'userChecks': userChecks})
         })
@@ -508,20 +522,7 @@ class UGYEditor extends React.Component {
                                 </Toolbar>
                             </AppBar>
                             <Hidden mdUp>
-                                {/*<Drawer
-                                variant="temporary"
-                                anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                                open={this.state.mobileOpen}
-                                onClose={this.handleDrawerToggle}
-                                classes={{
-                                    paper: classes.drawerPaper,
-                                }}
-                                ModalProps={{
-                                    keepMounted: true, // Better open performance on mobile.
-                                }}
-                            >
-                                {drawer}
-                            </Drawer>*/},
+
                                 <Drawer
                                     variant="permanent"
                                     open={this.state.yearNavOpen}
@@ -533,7 +534,7 @@ class UGYEditor extends React.Component {
                                     {drawer}
                                 </Drawer>
                             </Hidden>
-                            <Hidden smDown implementation="css">
+                            <Hidden smDown implementation="css" className={classes.fullHeight}>
                                 <Drawer
                                     variant="persistent"
                                     anchor={theme.direction === 'rtl' ? 'right' : 'left'}
@@ -543,6 +544,7 @@ class UGYEditor extends React.Component {
                                     classes={{
                                         paper: classes.drawerPaper,
                                     }}
+                                    className={classes.fullHeight}
                                 >
                                     {drawer}
                                 </Drawer>

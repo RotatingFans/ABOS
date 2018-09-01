@@ -12,6 +12,10 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 
 import {
     BooleanInput,
@@ -117,6 +121,24 @@ const styles = theme => ({
         height: '85%',
         overflow: 'scroll',
     },
+    formControl: {
+        margin: theme.spacing.unit,
+        minWidth: 120,
+    },
+    flexColumn: {
+        flexDirection: 'column'
+    },
+    button: {
+        margin: theme.spacing.unit,
+
+    },
+    deleteButton: {
+        margin: theme.spacing.unit,
+        color: 'white',
+        backgroundColor: 'red',
+
+    },
+
 });
 
 class UserListItem extends React.PureComponent {
@@ -170,6 +192,7 @@ class UserPanel extends React.PureComponent {
         checked: false,
         expanded: false,
         checkboxClicked: false,
+        group: -1
     };
     renderUserManagementList = userName => {
         const {userChecks, handleManageCheckBoxChange} = this.props;
@@ -211,6 +234,11 @@ class UserPanel extends React.PureComponent {
 
     }
 
+    handleGroupChange = event => {
+
+        this.setState({group: event.target.value});
+        this.props.handleGroupChange(this.props.userName)(event)
+    };
 
     // usage:
 
@@ -234,13 +262,13 @@ class UserPanel extends React.PureComponent {
                     <div>
                         <InputWrapper>
 
-                            <Button variant="contained" className={classes.button}>
+                            <Button variant="contained" color={'primary'} className={classes.button}>
                                 Edit
                             </Button>
                         </InputWrapper>
                         <InputWrapper>
 
-                            <Button variant="contained" color={'red'} className={classes.button}>
+                            <Button variant="contained" className={classes.deleteButton}>
                                 Delete
                             </Button>
                         </InputWrapper>
@@ -248,7 +276,29 @@ class UserPanel extends React.PureComponent {
                     </div>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
-                    {this.renderUserManagementList(userName)}
+                    <div className={classes.flexColumn}>
+                        <div className={classes.flex}>
+                            <FormControl className={classes.formControl} fullWidth={false}>
+
+                                <InputLabel htmlFor={userName + "-group-select"}>Group</InputLabel>
+                                <Select
+                                    value={this.state.group}
+                                    onChange={this.handleGroupChange}
+                                    inputProps={{
+                                        name: userName + "-group-select",
+                                        id: userName + "-group-select",
+                                    }}
+                                >
+                                    <MenuItem value={-1}>Ungrouped</MenuItem>
+
+                                    <MenuItem value={1}>Group 1</MenuItem>
+                                    <MenuItem value={2}>Group 2</MenuItem>
+                                    <MenuItem value={3}>Group 3</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </div>
+                        {this.renderUserManagementList(userName)}
+                    </div>
                 </ExpansionPanelDetails>
             </ExpansionPanel>
         )
@@ -264,6 +314,7 @@ UserPanel.propTypes = {
     userName: PropTypes.string.isRequired,
     userChecks: PropTypes.object.isRequired,
     handleManageCheckBoxChange: PropTypes.func.isRequired,
+    handleGroupChange: PropTypes.func.isRequired,
     handleCheckBoxChange: PropTypes.func.isRequired,
     checked: PropTypes.bool.isRequired,
 };
