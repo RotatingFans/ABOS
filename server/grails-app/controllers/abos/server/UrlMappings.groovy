@@ -23,7 +23,8 @@ class UrlMappings {
         "/api/Group"(resources: 'Groups')
 
         "/api/Reports"(controller: "Reports", action: "index")
-        "/api/UserHierarchy"(controller: "UserHierarchy", action: "index")
+        get "/api/UserHierarchy"(controller: "UserHierarchy", action: "index")
+        post "/api/UserHierarchy"(controller: "UserHierarchy", action: "save")
         "/api/AuthCheck"(controller: "AuthCheck", action: "index")
         "/"(controller: 'application', action: 'index')
         "500"(view: '/error')

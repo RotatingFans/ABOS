@@ -32,4 +32,36 @@ class UserHierarchyController {
         render(usersList as JSON)
         //render status: 200
     }
+
+    def save() {
+        def jsonParams = request.JSON
+        log.debug(jsonParams.toString())
+        def users = jsonParams
+        //def usersList = [:]
+        for (u in users) {
+            def user = User.findByUsername(u.key)
+
+            //def subUsers = [:]
+            for (su in u.value.subUsers) {
+                def subUser = User.findByUsername(su.key)
+                // UserManager.findOrSaveByManageAndUser(user, subUser)
+
+                if (su.value.checked) {
+                    UserManager.findOrSaveByManageAndUser(user, subUser)
+
+                } else {
+                    def uM = UserManager.findByManageAndUser(user, subUser)
+                    if (uM != null) {
+                        uM.delete(flush: true)
+                        //uM.save()
+                    }
+                }
+
+
+            }
+
+
+        }
+        render([status: "success"] as JSON, status: 200)
+    }
 }

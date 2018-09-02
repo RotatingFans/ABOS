@@ -30,7 +30,14 @@ import SaveIcon from '@material-ui/icons/Save';
 import Button from '@material-ui/core/Button';
 import {push} from 'react-router-redux';
 import {connect} from 'react-redux';
-
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
 import {
     BooleanInput,
     fetchUtils,
@@ -199,6 +206,8 @@ class UGYEditor extends React.Component {
         open: true,
         selectedGroup: 0,
         addUsersToGroupOpen: false,
+        selectedUser: "",
+        addUsersToUserOpen: false,
 
 
     };
@@ -334,11 +343,11 @@ class UGYEditor extends React.Component {
 
 
     save = event => {
-        /*        console.log(record);
+        console.log(this.state.userChecks);
                 let options = {};
-                let url = 'http://localhost:8080/api/Reports';
+        let url = 'http://localhost:8080/api/UserHierarchy';
                 if (!options.headers) {
-                    options.headers = new Headers({Accept: 'application/pdf'});
+                    options.headers = new Headers({Accept: 'application/json'});
                 }
                 const token = localStorage.getItem('access_token');
                 options.headers.set('Authorization', `Bearer ${token}`);
@@ -355,15 +364,15 @@ class UGYEditor extends React.Component {
                     },
                     redirect: "follow", // manual, *follow, error
                     referrer: "no-referrer", // no-referrer, *client
-                    body: JSON.stringify(record),
+                    body: JSON.stringify(this.state.userChecks),
                 }).then(response => {
-
-                })*/
+                    //  this.setState({open: false});
+                    //  this.props.push('/');
+                });
 
 
         //console.log(fetchUtils.fetchJson(url, options));
-        this.setState({open: false});
-        this.props.push('/');
+
 
     };
 
@@ -379,11 +388,11 @@ class UGYEditor extends React.Component {
 
 
         Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
-            parentState = update(this.state.userChecks, {
-                [userName]: {group: {$set: event.target.value}}
+            parentState = update(parentState, {
+                [userName]: {group: {$set: this.state.selectedGroup}}
             });
         });
-        this.setState({userChecks: parentState});
+        this.setState({userChecks: parentState, addUsersToGroupOpen: false});
 
     };
 
@@ -393,23 +402,37 @@ class UGYEditor extends React.Component {
         this.handleUserBulkMenuClose(event);
     };
 
-    removeSelectedUsersFromYear = event => {
-        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
-
-        });
-        this.handleUserBulkMenuClose(event);
-    };
 
     addSelectedUsersToUser = event => {
-        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+        let parentState = this.state.userChecks;
 
+
+        Object.keys(this.state.userChecks[this.state.selectedUser].subUsers).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+            parentState = update(parentState, {
+                [this.state.selectedUser]: {subUsers: {[userName]: {checked: {$set: true}}}}
+            });
         });
+        this.setState({userChecks: parentState, addUsersToUserOpen: false});
     };
     addSelectedUsersToUserClicked = event => {
 
+        this.setState({addUsersToUserOpen: true});
         this.handleUserBulkMenuClose(event);
     };
 
+    addSingleUser = event => {
+
+        this.handleUserAddMenuClose(event);
+    };
+
+    addBulkUser = event => {
+
+        this.handleUserAddMenuClose(event);
+    };
+
+    /*
+    Feature not yet implemented
+     */
     enableSelectedUsers = event => {
         Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
 
@@ -424,15 +447,15 @@ class UGYEditor extends React.Component {
         this.handleUserBulkMenuClose(event);
     };
 
-    addSingleUser = event => {
+    removeSelectedUsersFromYear = event => {
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
 
-        this.handleUserAddMenuClose(event);
+        });
+        this.handleUserBulkMenuClose(event);
     };
 
-    addBulkUser = event => {
 
-        this.handleUserAddMenuClose(event);
-    };
+
 
 
     renderEnabledUsers = () => {
@@ -477,6 +500,15 @@ class UGYEditor extends React.Component {
         return groupList;
     };
 
+    renderUserItems = () => {
+        let userList = [];
+        Object.keys(this.state.userChecks).forEach(userName => {
+            userList.push(<MenuItem value={userName}>{userName}</MenuItem>);
+
+        });
+        return userList;
+    };
+
     render() {
         const {classes, theme} = this.props;
         if (this.state.ready) {
@@ -484,7 +516,7 @@ class UGYEditor extends React.Component {
             const {tab, anchor, yearNavOpen, userBulkMenuAnchor, userAddMenuAnchor} = this.state;
             const userBulkMenuOpen = Boolean(userBulkMenuAnchor);
             const userAddMenuOpen = Boolean(userAddMenuAnchor);
-            const dialogs = (
+            const dialogs = [
                 <Dialog
                     open={this.state.addUsersToGroupOpen}
                     onClose={event => this.setState({addUsersToGroupOpen: false})}
@@ -517,12 +549,49 @@ class UGYEditor extends React.Component {
                         <Button onClick={event => this.setState({addUsersToGroupOpen: false})} color="primary">
                             Cancel
                         </Button>
-                        <Button onClick={this.addSelectedUsersToGroup()} color="primary">
+                        <Button onClick={this.addSelectedUsersToGroup} color="primary">
+                            Apply
+                        </Button>
+                    </DialogActions>
+                </Dialog>,
+                <Dialog
+                    open={this.state.addUsersToUserOpen}
+                    onClose={event => this.setState({addUsersToUserOpen: false})}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add Selected Users to User</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Please select the user to add the users to
+                        </DialogContentText>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="addUsersToGroup-GroupSelection">User</InputLabel>
+                            <Select
+                                value={this.state.selectedUser}
+                                onChange={event => {
+                                    this.setState({selectedUser: event.target.value})
+                                }}
+                                inputProps={{
+                                    name: 'UserSelection',
+                                    id: 'addUsersToUser-UserSelection',
+                                }}
+                            >
+                                {this.renderUserItems()
+
+                                }
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={event => this.setState({addUsersToUserOpen: false})} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={this.addSelectedUsersToUser} color="primary">
                             Apply
                         </Button>
                     </DialogActions>
                 </Dialog>
-            );
+            ];
             const drawer = (
                 <div>
                     <div className={classes.toolbar}/>
@@ -646,88 +715,93 @@ class UGYEditor extends React.Component {
             *                         |------------------------------------------------------------------- Save | Cancel ---
              */
             return (
+                <div>
+                    <Modal
 
-                <Modal
+                        open={this.state.open}
+                        disableBackdropClick={true}
+                    >
+                        <div className={classes.modal}>
+                            <div className={classes.root}>
+                                <AppBar className={classes.appBar}>
+                                    <Toolbar>
+                                        <IconButton
+                                            color="inherit"
+                                            aria-label="Open drawer"
+                                            onClick={this.handleDrawerToggle}
+                                        >
+                                            <MenuIcon/>
+                                        </IconButton>
+                                        <Typography variant="title" color="inherit" noWrap>
+                                            Users, Groups, and Years
+                                        </Typography>
+                                    </Toolbar>
+                                </AppBar>
+                                <Hidden mdUp>
 
-                    open={this.state.open}
-                    disableBackdropClick={true}
-                >
-                    <div className={classes.modal}>
-                        <div className={classes.root}>
-                            <AppBar className={classes.appBar}>
-                                <Toolbar>
-                                    <IconButton
-                                        color="inherit"
-                                        aria-label="Open drawer"
-                                        onClick={this.handleDrawerToggle}
+                                    <Drawer
+                                        variant="permanent"
+                                        open={this.state.yearNavOpen}
+                                        onClose={this.handleDrawerToggle}
+                                        classes={{
+                                            paper: classes.drawerPaper,
+                                        }}
                                     >
-                                        <MenuIcon/>
-                                    </IconButton>
-                                    <Typography variant="title" color="inherit" noWrap>
-                                        Users, Groups, and Years
-                                    </Typography>
-                                </Toolbar>
-                            </AppBar>
-                            <Hidden mdUp>
+                                        {drawer}
+                                    </Drawer>
+                                </Hidden>
+                                <Hidden smDown implementation="css" className={classes.fullHeight}>
+                                    <Drawer
+                                        variant="persistent"
+                                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
 
-                                <Drawer
-                                    variant="permanent"
-                                    open={this.state.yearNavOpen}
-                                    onClose={this.handleDrawerToggle}
-                                    classes={{
-                                        paper: classes.drawerPaper,
-                                    }}
-                                >
-                                    {drawer}
-                                </Drawer>
-                            </Hidden>
-                            <Hidden smDown implementation="css" className={classes.fullHeight}>
-                                <Drawer
-                                    variant="persistent"
-                                    anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+                                        open={this.state.yearNavOpen}
+                                        onClose={this.handleDrawerToggle}
+                                        classes={{
+                                            paper: classes.drawerPaper,
+                                        }}
+                                        className={classes.fullHeight}
+                                    >
+                                        {drawer}
+                                    </Drawer>
+                                </Hidden>
+                                <main className={classNames(classes.content, classes[`content-${anchor}`], {
+                                    [classes.contentShift]: yearNavOpen,
+                                    [classes[`contentShift-${anchor}`]]: yearNavOpen,
+                                })}>
+                                    <div className={classes.toolbar}/>
 
-                                    open={this.state.yearNavOpen}
-                                    onClose={this.handleDrawerToggle}
-                                    classes={{
-                                        paper: classes.drawerPaper,
-                                    }}
-                                    className={classes.fullHeight}
-                                >
-                                    {drawer}
-                                </Drawer>
-                            </Hidden>
-                            <main className={classNames(classes.content, classes[`content-${anchor}`], {
-                                [classes.contentShift]: yearNavOpen,
-                                [classes[`contentShift-${anchor}`]]: yearNavOpen,
-                            })}>
-                                <div className={classes.toolbar}/>
-
-                                <Tabs value={tab} onChange={this.handleTabChange}>
-                                    <Tab label="Users"/>
-                                    <Tab label="Groups"/>
-                                    <Tab label="Products"/>
-                                </Tabs>
-                                {value === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
-                                {value === 1 && <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
-                                {value === 2 && <TabContainer className={classes.tabScroll}>{prodsTab}</TabContainer>}
-                                <Toolbar>
-                                    <div className={classes.bottomBar}>
-                                        <Button variant="contained" color="secondary" className={classes.button}
-                                                onClick={this.cancel}>
-                                            Cancel
-                                        </Button>
-                                        <Button variant="contained" color="primary" className={classes.button}
-                                                onClick={this.save}>
-                                            <SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)}/>
-                                            Save
-                                        </Button>
-                                    </div>
-                                </Toolbar>
-                            </main>
+                                    <Tabs value={tab} onChange={this.handleTabChange}>
+                                        <Tab label="Users"/>
+                                        <Tab label="Groups"/>
+                                        <Tab label="Products"/>
+                                    </Tabs>
+                                    {tab === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
+                                    {tab === 1 &&
+                                    <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
+                                    {tab === 2 && <TabContainer className={classes.tabScroll}>{prodsTab}</TabContainer>}
+                                    <Toolbar>
+                                        <div className={classes.bottomBar}>
+                                            <Button variant="contained" color="secondary" className={classes.button}
+                                                    onClick={this.cancel}>
+                                                Cancel
+                                            </Button>
+                                            <Button variant="contained" color="primary" className={classes.button}
+                                                    onClick={this.save}>
+                                                <SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)}/>
+                                                Save
+                                            </Button>
+                                        </div>
+                                    </Toolbar>
+                                </main>
+                            </div>
                         </div>
-                    </div>
-                </Modal>,
+
+                    </Modal>
                     {dialogs}
+
+                </div>
+
             )
         } else {
             return (<h2>Loading...</h2>)

@@ -254,30 +254,30 @@ class UserPanel extends React.Component {
 
     };
 
-    renderUserManagementList = userName => {
+    renderUserManagementList = currentUser => {
         const {userChecks, handleManageCheckBoxChange, groups, classes} = this.props;
         let groupItems = [];
         if (Object.keys(this.state.groups).length > 0) {
             groups.forEach(group => {
                 let listItems = [];
 
-                Object.keys(userChecks[userName].subUsers).filter(grp => userChecks[userName].subUsers[grp].group === group.id).forEach(user => {
+                Object.keys(userChecks[currentUser].subUsers).filter(grp => userChecks[currentUser].subUsers[grp].group === group.id).forEach(user => {
                     //let userName = user;
                     //let checked = userChecks[userName].subUsers[user].checked;
-                    listItems.push(<UserListItem key={userName + "-sub-" + user} userName={userName}
+                    listItems.push(<UserListItem key={currentUser + "-sub-" + user} userName={currentUser}
                                                  handleManageCheckBoxChange={this.handleUserCheckbox} user={user}
-                                                 checked={this.state.userChecks[user]}/>)
+                                                 checked={this.props.userChecks[currentUser].subUsers[user].checked}/>)
                 });
 
                 groupItems.push(
-                    <UserListItem key={userName + "-sub-" + group.groupName} userName={userName}
+                    <UserListItem key={currentUser + "-sub-" + group.groupName} userName={currentUser}
                                   handleManageCheckBoxChange={this.handleGroupCheckbox(group.id)} user={group.groupName}
                                   checked={this.state.groups[group.groupName].checked}
                                   onClick={this.handleClick(group.groupName)}>
                         {this.state.groups[group.groupName].open ? <ExpandLess/> : <ExpandMore/>}
 
                     </UserListItem>,
-                    <Collapse key={userName + "-sub-" + group.groupName + "-collapse"}
+                    <Collapse key={currentUser + "-sub-" + group.groupName + "-collapse"}
                               in={this.state.groups[group.groupName].open} timeout="auto" unmountOnExit
                               className={classes.nested}>
                         <List component="div" disablePadding>
@@ -335,7 +335,14 @@ class UserPanel extends React.Component {
         this.setState({group: event.target.value});
         this.props.handleGroupChange(this.props.userName)(event)
     };
+    renderGroupItems = () => {
+        let groupList = [];
+        this.props.groups.forEach(group => {
+            groupList.push(<MenuItem value={group.id}>{group.groupName}</MenuItem>);
 
+        });
+        return groupList;
+    };
     // usage:
 
     render() {
@@ -378,18 +385,14 @@ class UserPanel extends React.Component {
 
                                 <InputLabel htmlFor={userName + "-group-select"}>Group</InputLabel>
                                 <Select
-                                    value={this.state.group}
+                                    value={this.props.group}
                                     onChange={this.handleGroupChange}
                                     inputProps={{
                                         name: userName + "-group-select",
                                         id: userName + "-group-select",
                                     }}
                                 >
-                                    <MenuItem value={-1}>Ungrouped</MenuItem>
-
-                                    <MenuItem value={1}>Group 1</MenuItem>
-                                    <MenuItem value={2}>Group 2</MenuItem>
-                                    <MenuItem value={3}>Group 3</MenuItem>
+                                    {this.renderGroupItems()}
                                 </Select>
                             </FormControl>
                         </div>
