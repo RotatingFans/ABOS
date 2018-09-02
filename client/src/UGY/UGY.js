@@ -38,8 +38,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import TextField from '@material-ui/core/TextField';
 import {
     BooleanInput,
+    CREATE,
     fetchUtils,
     FormDataConsumer,
     GET_LIST,
@@ -208,7 +210,12 @@ class UGYEditor extends React.Component {
         addUsersToGroupOpen: false,
         selectedUser: "",
         addUsersToUserOpen: false,
-
+        addUserOpen: false,
+        addUser: {
+            userName: "",
+            password: "",
+            fullName: "",
+        },
 
     };
 
@@ -421,11 +428,27 @@ class UGYEditor extends React.Component {
     };
 
     addSingleUser = event => {
+        dataProvider(CREATE, 'User', {
+            data: {
+                username: this.state.addUser.userName,
+                password: this.state.addUser.password
+            }
+        }).then(response => {
+            this.setState({addUserOpen: false});
+
+        });
+    };
+    addSingleUserClick = event => {
+        this.setState({addUserOpen: true});
 
         this.handleUserAddMenuClose(event);
     };
 
     addBulkUser = event => {
+
+        this.handleUserAddMenuClose(event);
+    };
+    addBulkUserClick = event => {
 
         this.handleUserAddMenuClose(event);
     };
@@ -508,7 +531,12 @@ class UGYEditor extends React.Component {
         });
         return userList;
     };
-
+    updateAddUserState = (field, value) => {
+        let parentState = update(this.state.addUser, {
+            [field]: {$set: value}
+        });
+        this.setState({addUser: parentState})
+    };
     render() {
         const {classes, theme} = this.props;
         if (this.state.ready) {
@@ -590,6 +618,75 @@ class UGYEditor extends React.Component {
                             Apply
                         </Button>
                     </DialogActions>
+                </Dialog>,
+                <Dialog
+                    open={this.state.addUserOpen}
+                    onClose={event => this.setState({addUserOpen: false})}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add User</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Please enter the information about the user
+                        </DialogContentText>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="AddUser-Username">Username</InputLabel>
+                            <TextField
+                                value={this.state.addUser.userName}
+                                onChange={event => {
+                                    this.updateAddUserState("userName", event.target.value)
+                                }}
+                                inputProps={{
+                                    name: 'UserName',
+                                    id: 'AddUser-Username',
+                                }}
+                            >
+
+                            </TextField>
+                        </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="AddUser-Password">Password</InputLabel>
+                            <TextField
+                                value={this.state.addUser.password}
+                                type="password"
+                                onChange={event => {
+                                    this.updateAddUserState("password", event.target.value)
+                                }}
+
+                                inputProps={{
+                                    name: 'Password',
+                                    id: 'AddUser-Password',
+                                }}
+                            >
+
+                            </TextField>
+                        </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="AddUser-FullName">FullName</InputLabel>
+                            <TextField
+                                value={this.state.addUser.fullName}
+                                onChange={event => {
+                                    this.updateAddUserState("fullName", event.target.value)
+                                }}
+
+                                inputProps={{
+                                    name: 'FullName',
+                                    id: 'AddUser-FullName',
+                                }}
+                            >
+
+                            </TextField>
+                        </FormControl>
+
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={event => this.setState({addUserOpen: false})} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={this.addSingleUser} color="primary">
+                            Apply
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             ];
             const drawer = (
@@ -634,8 +731,8 @@ class UGYEditor extends React.Component {
                                 open={userAddMenuOpen}
                                 onClose={this.handleUserAddMenuClose}
                             >
-                                <MenuItem onClick={this.addSingleUser}>Add Single User</MenuItem>
-                                <MenuItem onClick={this.addBulkUser}>Add Bulk Users</MenuItem>
+                                <MenuItem onClick={this.addSingleUserClick}>Add Single User</MenuItem>
+                                <MenuItem onClick={this.addBulkUserClick}>Add Bulk Users</MenuItem>
                             </Menu>
                             <IconButton
                                 aria-owns={userBulkMenuOpen ? 'user-Bulk-Menu' : null}
