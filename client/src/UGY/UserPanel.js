@@ -249,6 +249,22 @@ class UserPanel extends React.Component {
         });
 
         this.setState({userChecks: parentState});
+        let groupState = this.state.groups;
+        this.props.groups.forEach(group => {
+            let filter = Object.keys(parentState).filter(usr => this.props.userChecks[user].subUsers[usr].group === group.id);
+            if (filter.length > 0 && filter.filter(usr => !this.state.userChecks[usr]).length !== 0) {
+                groupState = update(groupState, {
+                    [group.groupName]: {checked: {$set: true}}
+                });
+
+            } else {
+                groupState = update(groupState, {
+                    [group.groupName]: {checked: {$set: false}}
+                });
+            }
+        });
+        this.setState({groups: groupState});
+
 
         handleManageCheckBoxChange(parentUser, user)(event);
 
@@ -338,7 +354,8 @@ class UserPanel extends React.Component {
     renderGroupItems = () => {
         let groupList = [];
         this.props.groups.forEach(group => {
-            groupList.push(<MenuItem value={group.id}>{group.groupName}</MenuItem>);
+            groupList.push(<MenuItem key={"AddGroupToUser-group-" + group.id}
+                                     value={group.id}>{group.groupName}</MenuItem>);
 
         });
         return groupList;

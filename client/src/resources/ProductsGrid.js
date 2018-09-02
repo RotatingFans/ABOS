@@ -181,7 +181,7 @@ class ProductsGrid extends Component {
         this.props.setSort(sortColumn, sortDirection);
     };
     updateDimensions = () => {
-        var w = window,
+        let w = window,
             d = document,
             documentElement = d.documentElement,
             body = d.getElementsByTagName('body')[0],

@@ -517,7 +517,8 @@ class UGYEditor extends React.Component {
     renderGroupItems = () => {
         let groupList = [];
         this.state.groups.forEach(group => {
-            groupList.push(<MenuItem value={group.id}>{group.groupName}</MenuItem>);
+            groupList.push(<MenuItem key={"AddGroupToUser-group-" + group.id}
+                                     value={group.id}>{group.groupName}</MenuItem>);
 
         });
         return groupList;
@@ -526,7 +527,7 @@ class UGYEditor extends React.Component {
     renderUserItems = () => {
         let userList = [];
         Object.keys(this.state.userChecks).forEach(userName => {
-            userList.push(<MenuItem value={userName}>{userName}</MenuItem>);
+            userList.push(<MenuItem key={"AddUserToUser-user-" + userName} value={userName}>{userName}</MenuItem>);
 
         });
         return userList;
@@ -546,6 +547,7 @@ class UGYEditor extends React.Component {
             const userAddMenuOpen = Boolean(userAddMenuAnchor);
             const dialogs = [
                 <Dialog
+                    key={"addUsersToGroupDialog"}
                     open={this.state.addUsersToGroupOpen}
                     onClose={event => this.setState({addUsersToGroupOpen: false})}
                     aria-labelledby="form-dialog-title"
@@ -583,6 +585,8 @@ class UGYEditor extends React.Component {
                     </DialogActions>
                 </Dialog>,
                 <Dialog
+                    key={"addUsersToUserDialog"}
+
                     open={this.state.addUsersToUserOpen}
                     onClose={event => this.setState({addUsersToUserOpen: false})}
                     aria-labelledby="form-dialog-title"
@@ -620,6 +624,8 @@ class UGYEditor extends React.Component {
                     </DialogActions>
                 </Dialog>,
                 <Dialog
+                    key={"addUserDialog"}
+
                     open={this.state.addUserOpen}
                     onClose={event => this.setState({addUserOpen: false})}
                     aria-labelledby="form-dialog-title"
