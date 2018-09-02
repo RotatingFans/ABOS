@@ -39,6 +39,7 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
+import ProductsGrid from './ProductsGrid.js';
 import {
     BooleanInput,
     CREATE,
@@ -166,6 +167,9 @@ const styles = theme => ({
         height: '85%',
         overflow: 'scroll',
     },
+    'tabNoScroll': {
+        height: '85%'
+    },
     fullHeight: {
         height: '100%',
     },
@@ -186,6 +190,11 @@ const styles = theme => ({
         position: 'absolute',
         bottom: 10,
         right: 10
+    },
+    productsGrid: {
+        height: '100% !important',
+        display: 'flex',
+        flexDirection: 'column'
     }
 });
 
@@ -785,9 +794,9 @@ class UGYEditor extends React.Component {
                 </div>
             );
             const prodsTab = (
-                <div>
+                <div className={classes.productsGrid}>
                     Products
-
+                    <ProductsGrid year={5}/>
                 </div>
             );
             /*
@@ -808,9 +817,9 @@ class UGYEditor extends React.Component {
             *                         |
             *                         |     P Mimic Add Customer, but Some Changes
             *                         |     R   Top Pane
-            *                         |     O     Different Import/Export function buttons
+            *                         |     O     Button for import/export
             *                         |     D   Add Product inputs/Button
-            *                         |     U   Table
+            *                         |     U   Table - implement row selection Toolbar(see all features, use AdvancedToolbar with custom stuffs)
             *                         |     C   No Quantity/Extended Cost
             *                         |     T   Add Category Selection
             *                         |     S     Include Add Category Button - Should open a modal dialog
@@ -882,7 +891,8 @@ class UGYEditor extends React.Component {
                                     {tab === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
                                     {tab === 1 &&
                                     <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
-                                    {tab === 2 && <TabContainer className={classes.tabScroll}>{prodsTab}</TabContainer>}
+                                    {tab === 2 &&
+                                    <TabContainer className={classes.tabNoScroll}>{prodsTab}</TabContainer>}
                                     <Toolbar>
                                         <div className={classes.bottomBar}>
                                             <Button variant="contained" color="secondary" className={classes.button}
