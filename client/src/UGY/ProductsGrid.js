@@ -20,8 +20,11 @@ import CurrencyFormatter from "../resources/Formatters/CurrencyFormatter";
 import ProductsToolbar from "./ProductsToolBar";
 import MUITextEditor from "../resources/Editors/MUITextEditor";
 import MUICurrencyEditor from "../resources/Editors/MUICurrencyEditor";
+import MUISelectEditor from "../resources/Editors/MUISelectEditor";
+import ProductsContextMenu from "./ProductsContextMenu";
+import DropDownFormatter from '../resources/Formatters/DropDownFormatter';
 
-const {Editors, Formatters} = require('react-data-grid-addons');
+//const {Editors, Formatters} = require('react-data-grid-addons');
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -56,6 +59,10 @@ const styles = theme => ({
     },
     'react-grid-Grid': {
         height: '100% !important'
+    },
+    contextMenu: {
+        zIndex: 80000,
+        backgroundColor: '#FFF'
     }
 
 
@@ -66,7 +73,56 @@ const emptyRow = {};
 
 class ProductsGrid extends Component {
 
-    state = {rows: [], order: {}, year: 0, userName: "", customer: {}, filter: {}};
+    state = {
+        rows: [], order: {}, year: 0, userName: "", customer: {}, filter: {}, columns: [{
+            key: 'humanProductId',
+            name: 'ID',
+            editable: true,
+            resizable: true,
+            filterable: true,
+            editor: MUITextEditor
+
+        },
+            {
+                key: 'productName',
+                name: 'Name',
+                editable: true,
+                resizable: true,
+                filterable: true,
+                editor: MUITextEditor
+
+            },
+            {
+                key: 'unitSize',
+                name: 'Size',
+                editable: true,
+                resizable: true,
+                filterable: true,
+                editor: MUITextEditor
+
+            },
+            {
+                key: 'unitCost',
+                name: 'Unit Cost',
+                editable: true,
+                formatter: CurrencyFormatter,
+                resizable: true,
+                filterable: true,
+                editor: MUICurrencyEditor
+
+            },
+            {
+                key: 'category',
+                name: 'Category',
+                editable: true,
+                resizable: true,
+                filterable: true,
+                editor: <MUISelectEditor options={[{id: '-1', value: ""}]}/>,
+                formatter: <DropDownFormatter options={[{id: '-1', value: ""}]} value={"-1"}/>
+
+
+            }]
+    };
     rowGetter = (i) => {
         return this.state.rows[i];
     };
@@ -123,12 +179,63 @@ class ProductsGrid extends Component {
     onClearFilters = () => {
         this.setState({filters: {}});
     };
+    deleteRow = (e, {rowIdx}) => {
+        this.state.rows.splice(rowIdx, 1);
+        this.setState({rows: this.state.rows});
+    };
+    insertRowAbove = (e, {rowIdx}) => {
+        this.insertRow(rowIdx);
+    };
+
+    componentDidMount() {
+        const aMonthAgo = new Date();
+        aMonthAgo.setDate(aMonthAgo.getDate() - 30);
+        window.addEventListener("resize", this.updateDimensions);
+        this.loadProducts(this.props.year);
+
+
+    }
+
+    insertRowBelow = (e, {rowIdx}) => {
+        this.insertRow(rowIdx + 1);
+    };
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.year !== this.props.year) {
+            this.loadProducts(nextProps.year);
+
+        }
+
+    }
+
+    componentWillUnmount() {
+
+        window.removeEventListener("resize", this.updateDimensions);
+
+    }
+
+    insertRow = (rowIdx) => {
+        const newRow = {
+            id: 0,
+            title: 'New at ' + (rowIdx + 1),
+            count: 0
+        };
+
+        let rows = [...this.state.rows];
+        rows.splice(rowIdx, 0, newRow);
+
+        this.setState({rows});
+    };
 
     constructor(props) {
         super(props);
         this.perPageInitial = this.props.perPage;
         this.loading = false;
-        this._columns = [
+        // this.createColumns();
+    }
+
+    createColumns(categories) {
+        return [
             {
                 key: 'humanProductId',
                 name: 'ID',
@@ -165,17 +272,18 @@ class ProductsGrid extends Component {
                 filterable: true,
                 editor: MUICurrencyEditor
 
+            },
+            {
+                key: 'category',
+                name: 'Category',
+                editable: true,
+                resizable: true,
+                filterable: true,
+                editor: <MUISelectEditor options={categories}/>,
+                formatter: <DropDownFormatter options={categories} value={"-1"}/>
+
             }
         ];
-    }
-
-    componentDidMount() {
-        const aMonthAgo = new Date();
-        aMonthAgo.setDate(aMonthAgo.getDate() - 30);
-        window.addEventListener("resize", this.updateDimensions);
-        this.loadProducts(this.props.year);
-
-
     }
 
     loadProducts(year) {
@@ -185,27 +293,26 @@ class ProductsGrid extends Component {
             filter = {year: year};
 
         }
-
-        dataProvider(GET_LIST, 'Products', {
+        dataProvider(GET_LIST, 'Categories', {
             filter: filter,
             pagination: {page: 1, perPage: 100},
             sort: {field: 'id', order: 'DESC'}
         })
             .then(response =>
-                response.data.reduce((stats, product) => {
-                        stats.products.push({
-                            humanProductId: product.humanProductId,
-                            id: product.id,
-                            year: {id: product.year.id},
-                            productName: product.productName,
-                            unitSize: product.unitSize,
-                            unitCost: product.unitCost,
+                response.data.reduce((stats, category) => {
+                        stats.categories.push({
+
+                            id: category.id,
+                            name: category.categoryName,
+                            value: category.categoryName,
+
 
                         });
+
                         return stats;
                     },
                     {
-                        products: []
+                        categories: [],
                         /*
                                                     humanProductId: '0',
                                                     id: 0,
@@ -218,28 +325,63 @@ class ProductsGrid extends Component {
                          */
                     }
                 )
-            ).then(({products}) => {
+            ).then(({categories}) => {
+                categories.push({id: '-1', value: " "});
+
                 this.setState({
-                    rows: products
+                    categories: categories,
+                    columns: this.createColumns(categories),
+
                 });
-                window.dispatchEvent(new Event('resize'));
+                dataProvider(GET_LIST, 'Products', {
+                    filter: filter,
+                    pagination: {page: 1, perPage: 100},
+                    sort: {field: 'id', order: 'DESC'}
+                })
+                    .then(response =>
+                        response.data.reduce((stats, product) => {
+                                let cat = -1;
+                                if (product.category) {
+                                    cat = product.category.id;
+                                }
+                                stats.products.push({
+                                    humanProductId: product.humanProductId,
+                                    id: product.id,
+                                    year: {id: product.year.id},
+                                    productName: product.productName,
+                                    unitSize: product.unitSize,
+                                    unitCost: product.unitCost,
+                                    category: cat
+
+                                });
+
+                                return stats;
+                            },
+                            {
+                                products: [],
+                                /*
+                                                            humanProductId: '0',
+                                                            id: 0,
+                                                            year: {id: 0},
+                                                            productName: '',
+                                                            unitSize: '',
+                                                            unitCost: 0.0,
+                                                            quantity: 0,
+                                                            extended_cost: 0.0,
+                                 */
+                            }
+                        )
+                    ).then(({products}) => {
+                        this.setState({
+                            rows: products
+                        });
+                        window.dispatchEvent(new Event('resize'));
+                    }
+                );
             }
         );
 
 
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.year !== this.props.year) {
-            this.loadProducts(nextProps.year);
-
-        }
-
-    }
-
-    componentWillUnmount() {
-
-        window.removeEventListener("resize", this.updateDimensions);
 
     }
 
@@ -254,7 +396,7 @@ class ProductsGrid extends Component {
                 <ReactDataGrid
                     className="toto"
                     enableCellSelect={true}
-                    columns={this._columns}
+                    columns={this.state.columns}
                     rowGetter={this.rowGetter}
                     rowsCount={this.state.rows.length}
                     onGridRowsUpdated={this.handleGridRowsUpdated}
@@ -265,6 +407,11 @@ class ProductsGrid extends Component {
                                               onImportExport={this.props.onImportExport}/>}
                     onAddFilter={this.handleFilterChange}
                     onClearFilters={this.onClearFilters}
+                    contextMenu={<ProductsContextMenu className={classes.contextMenu} id="customizedContextMenu"
+                                                      onRowDelete={this.deleteRow}
+                                                      onRowInsertAbove={this.insertRowAbove}
+                                                      onRowInsertBelow={this.insertRowBelow}/>}
+                    columnEquality={() => false}
 
                 />
                 {/*                    </div>

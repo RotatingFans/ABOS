@@ -10,6 +10,7 @@
     "ra-data-simple-rest": "^2.2.3",
     "react": "^16.4.2",
     "react-admin": "^2.2.3",
+    "react-contextmenu": "^2.9.3",
     "react-data-grid": "^4.0.8",
     "react-data-grid-addons": "^4.0.8",
     "react-dom": "^16.4.2",

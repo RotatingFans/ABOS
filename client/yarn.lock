@@ -6015,6 +6015,13 @@ react-autowhatever@^10.1.2:
     react-themeable "^1.1.0"
     section-iterator "^2.0.0"
 
+react-contextmenu@^2.9.3:
+  version "2.9.3"
+  resolved "https://registry.yarnpkg.com/react-contextmenu/-/react-contextmenu-2.9.3.tgz#f6de2e0770445c60ed14f4b37af3419e32866ba1"
+  dependencies:
+    classnames "^2.2.5"
+    object-assign "^4.1.0"
+
 react-data-grid-addons@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/react-data-grid-addons/-/react-data-grid-addons-4.0.8.tgz#a2b2b8803942fab78edac5f65f4964f24024d11b"
