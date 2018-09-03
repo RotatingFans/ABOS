@@ -15,8 +15,8 @@ import {
 } from 'ra-core';
 import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
 import restClient from '../grailsRestClient';
-import NumberEditor from "./Editors/NumberEditor";
 import CurrencyFormatter from "./Formatters/CurrencyFormatter";
+import MUINumberEditor from "./Editors/MUINumberEditor";
 
 const {Editors, Formatters} = require('react-data-grid-addons');
 
@@ -199,6 +199,7 @@ class ProductsGrid extends Component {
                 key: 'humanProductId',
                 name: 'ID',
                 resizable: true
+
             },
             {
                 key: 'productName',
@@ -223,7 +224,7 @@ class ProductsGrid extends Component {
                 key: 'quantity',
                 name: 'Quantity',
                 editable: false,
-                editor: NumberEditor,
+                editor: MUINumberEditor,
                 resizable: true
             },
             {

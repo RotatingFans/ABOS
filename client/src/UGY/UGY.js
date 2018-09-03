@@ -56,6 +56,7 @@ import {
     SimpleForm,
     TextInput
 } from 'react-admin';
+import Paper from '@material-ui/core/Paper';
 
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
@@ -225,6 +226,7 @@ class UGYEditor extends React.Component {
             password: "",
             fullName: "",
         },
+        importExportOpen: false,
 
     };
 
@@ -449,6 +451,11 @@ class UGYEditor extends React.Component {
     };
     addSingleUserClick = event => {
         this.setState({addUserOpen: true});
+
+        this.handleUserAddMenuClose(event);
+    };
+    handleImportExportClick = event => {
+        this.setState({importExportOpen: true});
 
         this.handleUserAddMenuClose(event);
     };
@@ -796,7 +803,9 @@ class UGYEditor extends React.Component {
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     Products
-                    <ProductsGrid year={5}/>
+                    <Paper className={classes.fullHeight}>
+                        <ProductsGrid year={5} onImportExport={this.handleImportExportClick}/>
+                    </Paper>
                 </div>
             );
             /*

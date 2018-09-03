@@ -18,6 +18,8 @@ import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle
 import restClient from '../grailsRestClient';
 import CurrencyFormatter from "../resources/Formatters/CurrencyFormatter";
 import ProductsToolbar from "./ProductsToolBar";
+import MUITextEditor from "../resources/Editors/MUITextEditor";
+import MUICurrencyEditor from "../resources/Editors/MUICurrencyEditor";
 
 const {Editors, Formatters} = require('react-data-grid-addons');
 
@@ -96,13 +98,8 @@ class ProductsGrid extends Component {
             height = w.innerHeight || documentElement.clientHeight || body.clientHeight;
         // wrapperDiv.height = height + "px";
     };
-    handleAddRow = ({newRowIndex}) => {
-        const newRow = {
-            humanProductId: newRowIndex,
-            productName: '',
-            unitSize: '',
-            unitCost: ''
-        };
+    handleAddRow = ({newRowIndex, newRow}) => {
+
 
         let parentState = update(this.state.rows, {
             $push: [newRow]
@@ -138,6 +135,7 @@ class ProductsGrid extends Component {
                 editable: true,
                 resizable: true,
                 filterable: true,
+                editor: MUITextEditor
 
             },
             {
@@ -146,6 +144,8 @@ class ProductsGrid extends Component {
                 editable: true,
                 resizable: true,
                 filterable: true,
+                editor: MUITextEditor
+
             },
             {
                 key: 'unitSize',
@@ -153,6 +153,8 @@ class ProductsGrid extends Component {
                 editable: true,
                 resizable: true,
                 filterable: true,
+                editor: MUITextEditor
+
             },
             {
                 key: 'unitCost',
@@ -161,6 +163,8 @@ class ProductsGrid extends Component {
                 formatter: CurrencyFormatter,
                 resizable: true,
                 filterable: true,
+                editor: MUICurrencyEditor
+
             }
         ];
     }
@@ -169,7 +173,7 @@ class ProductsGrid extends Component {
         const aMonthAgo = new Date();
         aMonthAgo.setDate(aMonthAgo.getDate() - 30);
         window.addEventListener("resize", this.updateDimensions);
-        this.loadProducts();
+        this.loadProducts(this.props.year);
 
 
     }
@@ -257,7 +261,8 @@ class ProductsGrid extends Component {
                     minColumnWidth="30"
                     disabled={true}
                     toolbar={<ProductsToolbar onAddRow={this.handleAddRow} enableFilter={true}
-                                              numberOfRows={this.getSize()}/>}
+                                              numberOfRows={this.getSize()}
+                                              onImportExport={this.props.onImportExport}/>}
                     onAddFilter={this.handleFilterChange}
                     onClearFilters={this.onClearFilters}
 
@@ -277,7 +282,7 @@ class ProductsGrid extends Component {
 
 ProductsGrid.propTypes = {
     label: PropTypes.string,
-
+    onImportExport: PropTypes.func,
     className: PropTypes.string,
 
     year: PropTypes.number
