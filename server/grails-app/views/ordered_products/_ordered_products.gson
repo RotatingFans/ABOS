@@ -9,6 +9,7 @@ json {
     id ordered_products.id
     quantity ordered_products.quantity
     extendedCost ordered_products.extendedCost
+    extendedCostCalc ordered_products.products.unitCost * ordered_products.quantity
     year year: ordered_products.year.year
 
     year id: ordered_products.year.id

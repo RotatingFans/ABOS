@@ -8,6 +8,10 @@ import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField'
 import NumberFormat from 'react-number-format';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = theme => ({
     button: {
@@ -18,31 +22,52 @@ const styles = theme => ({
         display: 'flex',
         flexDirection: 'row',
         flexShrink: 1,
-        flexGrow: 0,
+        flexGrow: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
+        //flexBasis: '300px',
+        //flexWrap: 'wrap'
 
     },
     toolBar: {
-
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
         flexShrink: 1,
         flexGrow: 1,
         alignItems: 'center',
+        //flexWrap: 'wrap'
 
     },
     additionFields: {
         display: 'flex',
         flexDirection: 'row',
-        flexShrink: 1,
+        flexShrink: 2,
         flexGrow: 1,
+        //flexBasis: '300px',
+        flexWrap: 'wrap'
+
+
     },
     textField: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
-        width: 200,
         flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: '50px',
+    },
+    formControl: {
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
+        minWidth: 120,
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: '50px',
+
+
+    },
+    selectEmpty: {
+        marginTop: theme.spacing.unit * 2,
     },
 
 });
@@ -84,7 +109,8 @@ class ProductsToolbar extends React.Component {
         numberOfRows: PropTypes.number,
         addRowButtonText: PropTypes.string,
         filterRowsButtonText: PropTypes.string,
-        children: PropTypes.any
+        children: PropTypes.any,
+        categories: PropTypes.array
     };
     state = {
         HID: '',
@@ -96,17 +122,20 @@ class ProductsToolbar extends React.Component {
     static defaultProps = {
         enableAddRow: true,
         addRowButtonText: 'Add Row',
-        filterRowsButtonText: 'Filter Rows'
+        filterRowsButtonText: 'Filter Rows',
+        categories: [{id: '-1', value: ''}]
     };
 
     onAddRow = () => {
         if (this.props.onAddRow !== null && this.props.onAddRow instanceof Function) {
             this.props.onAddRow({
                 newRowIndex: this.props.numberOfRows, newRow: {
+                    id: -1,
                     humanProductId: this.state.HID,
                     productName: this.state.name,
                     unitSize: this.state.size,
-                    unitCost: this.state.cost
+                    unitCost: this.state.cost,
+                    category: this.state.category
                 }
             });
         }
@@ -115,6 +144,7 @@ class ProductsToolbar extends React.Component {
             name: '',
             size: '',
             cost: '0.00',
+            category: '-1',
         })
     };
 
@@ -148,54 +178,86 @@ class ProductsToolbar extends React.Component {
             [name]: event.target.value,
         });
     };
+
+    renderOptions(): Array<ReactElement> {
+        let options = [];
+        //options.push(<MenuItem value={-1}/>);
+
+        this.props.categories.forEach(function (name) {
+            if (typeof(name) === 'string') {
+                options.push(<MenuItem key={"category-dropDown-" + name} value={name}>{name}</MenuItem>);
+            } else {
+                options.push(<MenuItem key={"category-dropDown-" + name.id}
+                                       value={name.id}>{name.text || name.value || name.name}</MenuItem>);
+            }
+        }, this);
+        return options;
+    }
     render() {
         const {classes} = this.props;
         return (
-            <div className={classes.toolBar}>
-                <div className={classes.additionFields}>
-                    <TextField
-                        id="HID"
-                        label="Product ID"
-                        className={classes.textField}
-                        value={this.state.HID}
-                        onChange={this.handleChange('HID')}
-                        margin="normal"
-                    />
-                    <TextField
-                        id="name"
-                        label="Product Name"
-                        className={classes.textField}
-                        value={this.state.name}
-                        onChange={this.handleChange('name')}
-                        margin="normal"
-                    />
-                    <TextField
-                        id="size"
-                        label="Product size"
-                        className={classes.textField}
-                        value={this.state.size}
-                        onChange={this.handleChange('size')}
-                        margin="normal"
-                    />
-                    <TextField
-                        id="cost"
-                        label="Product cost"
+            <div>
 
-                        className={classes.textField}
-                        value={this.state.cost}
-                        onChange={this.handleChange('cost')}
-                        margin="normal"
-                        InputProps={{
-                            inputComponent: NumberFormatCustom,
-                        }}
-                    />
-                </div>
-                <div className={classes.tools}>
-                    {this.renderAddRowButton()}
-                    {this.renderToggleFilterButton()}
-                    {this.renderImportExport()}
+                <div className={classes.toolBar}>
+                    <div className={classes.additionFields}>
 
-                    {this.props.children}
+                        <TextField
+                            id="HID"
+                            label="Product ID"
+                            className={classes.textField}
+                            value={this.state.HID}
+                            onChange={this.handleChange('HID')}
+                            margin="normal"
+                        />
+                        <TextField
+                            id="name"
+                            label="Product Name"
+                            className={classes.textField}
+                            value={this.state.name}
+                            onChange={this.handleChange('name')}
+                            margin="normal"
+                        />
+                        <TextField
+                            id="size"
+                            label="Product size"
+                            className={classes.textField}
+                            value={this.state.size}
+                            onChange={this.handleChange('size')}
+                            margin="normal"
+                        />
+                        <TextField
+                            id="cost"
+                            label="Product cost"
+
+                            className={classes.textField}
+                            value={this.state.cost}
+                            onChange={this.handleChange('cost')}
+                            margin="normal"
+                            InputProps={{
+                                inputComponent: NumberFormatCustom,
+                            }}
+                        />
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="category-helper">Category</InputLabel>
+                            <Select
+                                value={this.state.category}
+                                onChange={this.handleChange('category')}
+                                inputProps={{
+                                    name: 'category',
+                                    id: 'category-simple',
+                                }}
+                            >
+                                {this.renderOptions()}
+                            </Select>
+                        </FormControl>
+                    </div>
+                    <div className={classes.tools}>
+                        {this.renderAddRowButton()}
+                        {this.renderToggleFilterButton()}
+                        {this.renderImportExport()}
+
+                        {this.props.children}
+                    </div>
                 </div>
             </div>
         );

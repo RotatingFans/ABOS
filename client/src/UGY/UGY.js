@@ -90,7 +90,7 @@ TabContainer.propTypes = {
 
 const styles = theme => ({
     root: {
-        flexGrow: 1,
+        flexGrow: 0,
         zIndex: 1,
         overflow: 'hidden',
         position: 'relative',
@@ -131,8 +131,10 @@ const styles = theme => ({
     },
     content: {
         display: 'flex',
+        width: '100%',
+
         flexDirection: 'column',
-        flexGrow: 1,
+        flexGrow: 0,
         backgroundColor: theme.palette.background.default,
         padding: theme.spacing.unit,
         transition: theme.transitions.create('margin', {
@@ -169,12 +171,19 @@ const styles = theme => ({
         overflow: 'scroll',
     },
     'tabNoScroll': {
-        height: '85%'
+        height: '85%',
+        width: '100%',
+
     },
     fullHeight: {
         height: '100%',
     },
+    fullHeightWidth: {
+        height: '100%',
+        width: '100%',
+        flexGrow: 0,
 
+    },
     leftIcon: {
         marginRight: theme.spacing.unit,
     },
@@ -194,6 +203,7 @@ const styles = theme => ({
     },
     productsGrid: {
         height: '100% !important',
+        width: '100% !important',
         display: 'flex',
         flexDirection: 'column'
     }
@@ -802,10 +812,9 @@ class UGYEditor extends React.Component {
             );
             const prodsTab = (
                 <div className={classes.productsGrid}>
-                    Products
-                    <Paper className={classes.fullHeight}>
+                    <div className={classes.fullHeightWidth}>
                         <ProductsGrid year={5} onImportExport={this.handleImportExportClick}/>
-                    </Paper>
+                    </div>
                 </div>
             );
             /*
@@ -891,7 +900,7 @@ class UGYEditor extends React.Component {
                                     [classes[`contentShift-${anchor}`]]: yearNavOpen,
                                 })}>
                                     <div className={classes.toolbar}/>
-
+                                    <Paper className={classes.fullHeightWidth}>
                                     <Tabs value={tab} onChange={this.handleTabChange}>
                                         <Tab label="Users"/>
                                         <Tab label="Groups"/>
@@ -915,6 +924,7 @@ class UGYEditor extends React.Component {
                                             </Button>
                                         </div>
                                     </Toolbar>
+                                    </Paper>
                                 </main>
                             </div>
                         </div>

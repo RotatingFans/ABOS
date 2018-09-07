@@ -18,6 +18,8 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     }
     static mapping = {
         tenantId name: 'userName'
+
+
     }
 
     def beforeInsert() {

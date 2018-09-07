@@ -53,9 +53,13 @@ const styles = theme => ({
             margin: 0,
             padding: 0,
         },
-        height: '100% !important'
+        height: '100% !important',
+        width: '100%'
 
 
+    },
+    dataGrid: {
+        width: '100%'
     },
     'react-grid-Grid': {
         height: '100% !important'
@@ -216,9 +220,12 @@ class ProductsGrid extends Component {
 
     insertRow = (rowIdx) => {
         const newRow = {
-            id: 0,
-            title: 'New at ' + (rowIdx + 1),
-            count: 0
+            id: -2,
+            humanProductId: '',
+            productName: '',
+            unitSize: '',
+            unitCost: '0.00',
+            category: '-1'
         };
 
         let rows = [...this.state.rows];
@@ -394,17 +401,18 @@ class ProductsGrid extends Component {
                 {/*                <div id="dataGridWrapper" style={{position: "relative", height: "100%"}}>
                     <div style={{position: "absolute", width: "98%", height: "100%", margin: "1%"}}>*/}
                 <ReactDataGrid
-                    className="toto"
+                    className={classes.dataGrid}
                     enableCellSelect={true}
                     columns={this.state.columns}
                     rowGetter={this.rowGetter}
                     rowsCount={this.state.rows.length}
                     onGridRowsUpdated={this.handleGridRowsUpdated}
                     minColumnWidth="30"
-                    disabled={true}
+                    // midWidth={"100px"}
                     toolbar={<ProductsToolbar onAddRow={this.handleAddRow} enableFilter={true}
                                               numberOfRows={this.getSize()}
-                                              onImportExport={this.props.onImportExport}/>}
+                                              onImportExport={this.props.onImportExport}
+                                              categories={this.state.categories}/>}
                     onAddFilter={this.handleFilterChange}
                     onClearFilters={this.onClearFilters}
                     contextMenu={<ProductsContextMenu className={classes.contextMenu} id="customizedContextMenu"
