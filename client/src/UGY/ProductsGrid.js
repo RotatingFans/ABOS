@@ -73,6 +73,8 @@ const styles = theme => ({
 });
 
 const emptyRow = {};
+export const rowStatus = {NO_ACTION: 'NO_ACTION', INSERT: 'INSERT', UPDATE: 'UPDATE', DELETE: 'DELETE'};
+
 
 
 class ProductsGrid extends Component {
@@ -136,10 +138,15 @@ class ProductsGrid extends Component {
         if (cellKey === "quantity") {
 
         }
+
         for (let i = fromRow; i <= toRow; i++) {
             let rowToUpdate = rows[i];
 
             let updatedRow = update(rowToUpdate, {$merge: updated});
+            if (updatedRow.status !== rowStatus.INSERT) {
+                updatedRow.status = rowStatus.UPDATE;
+            }
+            this.props.updateProduct(updatedRow);
             rows[i] = updatedRow;
         }
         this.setState({rows});
@@ -160,7 +167,8 @@ class ProductsGrid extends Component {
     };
     handleAddRow = ({newRowIndex, newRow}) => {
 
-
+        newRow.status = rowStatus.INSERT;
+        this.props.addProduct(newRow);
         let parentState = update(this.state.rows, {
             $push: [newRow]
         });
@@ -184,6 +192,13 @@ class ProductsGrid extends Component {
         this.setState({filters: {}});
     };
     deleteRow = (e, {rowIdx}) => {
+        let row = this.state.rows[rowIdx];
+        if (row.status !== rowStatus.INSERT) {
+            row.status = rowStatus.DELETE;
+        }
+        this.props.deleteProduct(row);
+
+
         this.state.rows.splice(rowIdx, 1);
         this.setState({rows: this.state.rows});
     };
@@ -220,14 +235,15 @@ class ProductsGrid extends Component {
 
     insertRow = (rowIdx) => {
         const newRow = {
-            id: -2,
+            id: this.state.rows.size,
             humanProductId: '',
             productName: '',
             unitSize: '',
             unitCost: '0.00',
-            category: '-1'
+            category: '-1',
+            status: rowStatus.INSERT
         };
-
+        this.props.addProduct(newRow);
         let rows = [...this.state.rows];
         rows.splice(rowIdx, 0, newRow);
 
@@ -358,7 +374,8 @@ class ProductsGrid extends Component {
                                     productName: product.productName,
                                     unitSize: product.unitSize,
                                     unitCost: product.unitCost,
-                                    category: cat
+                                    category: cat,
+                                    status: rowStatus.NO_ACTION
 
                                 });
 
@@ -440,7 +457,10 @@ ProductsGrid.propTypes = {
     onImportExport: PropTypes.func,
     className: PropTypes.string,
 
-    year: PropTypes.number
+    year: PropTypes.number,
+    addProduct: PropTypes.func,
+    deleteProduct: PropTypes.func,
+    updateProduct: PropTypes.func
 };
 
 ProductsGrid.defaultProps = {};

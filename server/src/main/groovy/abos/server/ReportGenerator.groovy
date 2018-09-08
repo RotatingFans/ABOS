@@ -10,10 +10,10 @@ import com.itextpdf.tool.xml.html.Tags
 import com.itextpdf.tool.xml.parser.XMLParser
 import com.itextpdf.tool.xml.pipeline.css.CSSResolver
 import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline
+import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline
 
 //import Utilities.*
 
-import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline
 import com.itextpdf.tool.xml.pipeline.html.AbstractImageProvider
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext
@@ -326,8 +326,8 @@ class ReportGenerator {
                                             l:
                                             {
                                                 Element TotalCost = doc.createElement("TotalCost")
-                                                TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                                tCost = tCost.add(aRowDataF.extendedCost)
+                                                TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.products.unitCost * aRowDataF.quantity)))
+                                                tCost = tCost.add(aRowDataF.products.unitCost * aRowDataF.quantity)
                                                 Product.appendChild(TotalCost)
                                             }
                                         }
@@ -394,7 +394,7 @@ class ReportGenerator {
                                 }
                                 l:
                                 {
-                                    Element text = doc.createElement("GrandTotal")
+                                    Element text = doc.createElement("totalCost")
                                     text.appendChild(doc.createTextNode(tCost.add(new BigDecimal(donation)).toPlainString()))
                                     products.appendChild(text)
                                 }
@@ -513,13 +513,13 @@ class ReportGenerator {
                         Set<Ordered_products> orderArray
                         if (user == null) {
                             orderArray = Year.findByYear(selectedYear).orderedProducts.groupBy { it.products }.collect {
-                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
+                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.products.unitCost * (it.value.quantity.sum())]
                             }.sort { it.products.id }
                         } else {
                             orderArray = User.findByUsername(user).orderedProducts.findAll {
                                 it.getYearId() == Integer.decode(selectedYear)
                             }.groupBy { it.products }.collect {
-                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.extendedCost.sum()]
+                                [products: it.key, quantity: it.value.quantity.sum(), extendedCost: it.value.products.unitCost * (it.value.quantity.sum())]
                             }.sort { it.products.id }
 
                         }
@@ -608,8 +608,8 @@ class ReportGenerator {
                                         l:
                                         {
                                             Element TotalCost = doc.createElement("TotalCost")
-                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                            tCost = tCost.add(aRowDataF.extendedCost)
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.products.unitCost * aRowDataF.quantity)))
+                                            tCost += (aRowDataF.products.unitCost * aRowDataF.quantity)
                                             Product.appendChild(TotalCost)
                                         }
                                     }
@@ -627,7 +627,7 @@ class ReportGenerator {
                             l:
                             {
                                 Element TotalCost = doc.createElement("TotalCost")
-                                TotalCost.appendChild(doc.createTextNode((orderArray.extendedCost.sum().toString())))
+                                TotalCost.appendChild(doc.createTextNode(String.valueOf(tCost)))
                                 info.appendChild(TotalCost)
                             }
                             // OverallTotalQuantity elements
@@ -788,8 +788,8 @@ class ReportGenerator {
                                         l:
                                         {
                                             Element TotalCost = doc.createElement("TotalCost")
-                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                            tCost = tCost.add(aRowDataF.extendedCost)
+                                            TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.products.unitCost * aRowDataF.quantity)))
+                                            tCost += (aRowDataF.products.unitCost * aRowDataF.quantity)
                                             Product.appendChild(TotalCost)
                                         }
                                     }
@@ -942,8 +942,8 @@ class ReportGenerator {
                                     l:
                                     {
                                         Element TotalCost = doc.createElement("TotalCost")
-                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.extendedCost)))
-                                        tCost = tCost.add(aRowDataF.extendedCost)
+                                        TotalCost.appendChild(doc.createTextNode(String.valueOf(aRowDataF.products.unitCost * aRowDataF.quantity)))
+                                        tCost += (aRowDataF.products.unitCost * aRowDataF.quantity)
                                         Product.appendChild(TotalCost)
                                     }
                                 }

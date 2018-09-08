@@ -2,6 +2,7 @@ package abos.server
 
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
+import grails.transaction.Transactional
 
 @Secured(['ROLE_USER'])
 
@@ -33,6 +34,7 @@ class UserHierarchyController {
         //render status: 200
     }
 
+    @Transactional
     def save() {
         def jsonParams = request.JSON
         log.debug(jsonParams.toString())

@@ -60,6 +60,7 @@ import Paper from '@material-ui/core/Paper';
 
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
+import {rowStatus} from "./ProductsGrid";
 
 
 const drawerWidth = 240;
@@ -237,6 +238,10 @@ class UGYEditor extends React.Component {
             fullName: "",
         },
         importExportOpen: false,
+        newProducts: [],
+        updatedProducts: [],
+        deletedProducts: [],
+        confirmDeletionPassword: ''
 
     };
 
@@ -397,13 +402,62 @@ class UGYEditor extends React.Component {
                     //  this.setState({open: false});
                     //  this.props.push('/');
                 });
+        url = 'http://localhost:8080/api/ProductsMany';
+        options = {};
+        if (!options.headers) {
+            options.headers = new Headers({Accept: 'application/json'});
+        }
 
+        options.headers.set('Authorization', `Bearer ${token}`);
+        if (this.state.deletedProducts.length > 0) {
+
+        }
+        fetch(url, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin", // include, same-origin, *omit
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Authorization': `Bearer ${token}`
+                // "Content-Type": "application/x-www-form-urlencoded",
+            },
+            redirect: "follow", // manual, *follow, error
+            referrer: "no-referrer", // no-referrer, *client
+            body: JSON.stringify({
+                newProducts: this.state.newProducts,
+                updatedProducts: this.state.updatedProducts,
+                deletedProducts: this.state.deletedProducts
+            }),
+        }).then(response => {
+            //  this.setState({open: false});
+            //  this.props.push('/');
+        });
 
         //console.log(fetchUtils.fetchJson(url, options));
 
 
     };
-
+    confirmPassword = event => {
+        /*        const username = '';
+                const password = this.state.confirmDeletionPassword;
+                const request = new Request('http://localhost:8080/api/login', {
+                    method: 'POST',
+                    body: JSON.stringify({username, password}),
+                    headers: new Headers({'Content-Type': 'application/json'}),
+                });
+                return fetch(request)
+                    .then(response => {
+                        if (response.status < 200 || response.status >= 300) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(({access_token, roles}) => {
+                        localStorage.setItem('access_token', access_token);
+                        localStorage.setItem('role', roles[0]);
+                    });*/
+    };
     cancel = event => {
         this.setState({open: false});
         this.props.push('/');
@@ -564,6 +618,69 @@ class UGYEditor extends React.Component {
         });
         this.setState({addUser: parentState})
     };
+
+    handleAddProduct = (newProd) => {
+        let parentState = update(this.state.newProducts, {
+            $push: [newProd]
+        });
+        this.setState({newProducts: parentState})
+    };
+
+    handleUpdateProduct = (updated) => {
+        let parentState;
+        if (updated.status === rowStatus.UPDATE) {
+            let index = this.state.updatedProducts.findIndex(prod => prod.id === updated.id);
+
+            if (index > -1) {
+                parentState = update(this.state.updatedProducts, {
+                    [index]: {$merge: updated}
+                });
+            }
+            else {
+                parentState = update(this.state.updatedProducts, {
+                    $push: [updated]
+                });
+            }
+            this.setState({updatedProducts: parentState})
+        } else {
+            let index = this.state.newProducts.findIndex(prod => prod.id === updated.id);
+            if (index > -1) {
+                parentState = update(this.state.newProducts, {
+                    [index]: {$merge: updated}
+                });
+            }
+            else {
+                parentState = update(this.state.newProducts, {
+                    $push: [updated]
+                });
+            }
+            this.setState({newProducts: parentState})
+        }
+    };
+
+    handleDeleteProduct = (deleted) => {
+        let parentState;
+
+        if (deleted.status !== rowStatus.INSERT) {
+
+            parentState = update(this.state.deletedProducts, {
+                $push: [deleted]
+            });
+            this.setState({deletedProducts: parentState})
+
+
+        } else {
+            let index = this.state.newProducts.findIndex(prod => prod.id === deleted.id);
+            let updated = {status: rowStatus.DELETE};
+            parentState = update(this.state.newProducts, {
+                [index]: {$merge: updated}
+            });
+            this.setState({newProducts: parentState})
+
+        }
+
+    };
+
     render() {
         const {classes, theme} = this.props;
         if (this.state.ready) {
@@ -719,7 +836,47 @@ class UGYEditor extends React.Component {
                             Apply
                         </Button>
                     </DialogActions>
-                </Dialog>
+                </Dialog>,
+                <Dialog
+                    key={"confirmDeletionDialog"}
+                    open={this.state.confirmDeletionDialogOpen}
+                    onClose={event => this.setState({confirmDeletionDialogOpen: false})}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Are you sure you would like to delete any rows</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            You have deleted some of the products. This will lead to DATA LOSS of customer orders. If
+                            you would like to continue, please re-enter your password and the security code. If not,
+                            clicking cancel will still update the other changes, but it will not delete any products.
+                        </DialogContentText>
+                        <FormControl className={classes.formControl}>
+                            <InputLabel htmlFor="confirmDeletion-Password">Password</InputLabel>
+                            <TextField
+                                value={this.state.confirmDeletionPassword}
+                                type="password"
+                                onChange={event => {
+                                    this.setState({confirmDeletionPassword: event.target.value});
+                                }}
+
+                                inputProps={{
+                                    name: 'Password',
+                                    id: 'confirmDeletion-Password',
+                                }}
+                            >
+
+                            </TextField>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={event => this.setState({confirmDeletionDialogOpen: false})} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={this.confirmPassword} color="primary">
+                            Apply
+                        </Button>
+                    </DialogActions>
+                </Dialog>,
             ];
             const drawer = (
                 <div>
@@ -813,7 +970,9 @@ class UGYEditor extends React.Component {
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     <div className={classes.fullHeightWidth}>
-                        <ProductsGrid year={5} onImportExport={this.handleImportExportClick}/>
+                        <ProductsGrid year={5} onImportExport={this.handleImportExportClick}
+                                      addProduct={this.handleAddProduct} updateProduct={this.handleUpdateProduct}
+                                      deleteProduct={this.handleDeleteProduct}/>
                     </div>
                 </div>
             );

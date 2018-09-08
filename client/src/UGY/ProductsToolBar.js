@@ -130,7 +130,7 @@ class ProductsToolbar extends React.Component {
         if (this.props.onAddRow !== null && this.props.onAddRow instanceof Function) {
             this.props.onAddRow({
                 newRowIndex: this.props.numberOfRows, newRow: {
-                    id: -1,
+                    id: this.props.numberOfRows,
                     humanProductId: this.state.HID,
                     productName: this.state.name,
                     unitSize: this.state.size,

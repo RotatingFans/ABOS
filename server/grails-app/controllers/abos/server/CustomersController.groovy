@@ -3,6 +3,7 @@ package abos.server
 import Utilities.Geolocation
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugins.restsearch.customRestSearchController
+import grails.transaction.Transactional
 
 import static grails.gorm.multitenancy.Tenants.withId
 
@@ -17,6 +18,7 @@ class CustomersController extends customRestSearchController<Customers> {
         super(Customers, readOnly)
     }
 
+    @Transactional
     def delete() {
         try {
 
@@ -34,6 +36,7 @@ class CustomersController extends customRestSearchController<Customers> {
         }
     }
 
+    @Transactional
 
     def save() {
         try {

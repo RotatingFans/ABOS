@@ -10,11 +10,11 @@ class Products implements Comparable<Products> {
     BigDecimal unitCost
     Categories category
     Year year
-
+    static hasMany = [orderedProducts: Ordered_products]
     static mapping = {
         year fetch: 'join'
         category fetch: 'join'
-
+        orderedProducts cascade: 'all-delete-orphan'
     }
 
     static constraints = {

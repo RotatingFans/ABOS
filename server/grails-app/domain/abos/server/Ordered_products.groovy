@@ -5,7 +5,7 @@ import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(['ROLE_USER'])
 class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
-    static belongsTo = [user: User, customer: Customers, order: Orders]
+    static belongsTo = [user: User, customer: Customers, order: Orders, products: Products]
     Products products
     int quantity
     BigDecimal extendedCost
@@ -18,7 +18,6 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
     }
     static mapping = {
         tenantId name: 'userName'
-
 
     }
 

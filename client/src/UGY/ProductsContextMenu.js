@@ -39,10 +39,10 @@ class ProductsContextMenu extends React.Component {
         return (
             <ContextMenu id={id}>
                 <MenuItem data={{rowIdx, idx}} onClick={this.onRowDelete}>Delete Row</MenuItem>
-                <SubMenu title="Insert Row">
+                {/* <SubMenu title="Insert Row">
                     <MenuItem data={{rowIdx, idx}} onClick={this.onRowInsertAbove}>Above</MenuItem>
                     <MenuItem data={{rowIdx, idx}} onClick={this.onRowInsertBelow}>Below</MenuItem>
-                </SubMenu>
+                </SubMenu>*/}
             </ContextMenu>
         );
     }
