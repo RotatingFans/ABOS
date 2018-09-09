@@ -103,7 +103,8 @@ NumberFormatCustom.propTypes = {
 class ProductsToolbar extends React.Component {
     static propTypes = {
         onAddRow: PropTypes.func,
-        onImportExport: PropTypes.func,
+        onImport: PropTypes.func,
+        onExport: PropTypes.func,
         onToggleFilter: PropTypes.func,
         enableFilter: PropTypes.bool,
         numberOfRows: PropTypes.number,
@@ -164,11 +165,20 @@ class ProductsToolbar extends React.Component {
             </IconButton>);
         }
     };
-    renderImportExport = () => {
-        if (this.props.onImportExport) {
+    renderImport = () => {
+        if (this.props.onImport) {
             return (<Button variant={"contained"} className={this.props.classes.button} aria-label="Filter"
-                            onClick={this.props.onImportExport}>
-                Import/Export
+                            onClick={this.props.onImport}>
+                Import
+                <ImportExportIcon/>
+            </Button>);
+        }
+    };
+    renderExport = () => {
+        if (this.props.onExport) {
+            return (<Button variant={"contained"} className={this.props.classes.button} aria-label="Filter"
+                            onClick={this.props.onExport}>
+                Export
                 <ImportExportIcon/>
             </Button>);
         }
@@ -254,7 +264,8 @@ class ProductsToolbar extends React.Component {
                     <div className={classes.tools}>
                         {this.renderAddRowButton()}
                         {this.renderToggleFilterButton()}
-                        {this.renderImportExport()}
+                        {this.renderImport()}
+                        {this.renderExport()}
 
                         {this.props.children}
                     </div>

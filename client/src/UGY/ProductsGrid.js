@@ -428,8 +428,8 @@ class ProductsGrid extends Component {
                     // midWidth={"100px"}
                     toolbar={<ProductsToolbar onAddRow={this.handleAddRow} enableFilter={true}
                                               numberOfRows={this.getSize()}
-                                              onImportExport={this.props.onImportExport}
-                                              categories={this.state.categories}/>}
+                                              onImport={this.props.onImport}
+                                              categories={this.state.categories} onExport={this.props.onExport}/>}
                     onAddFilter={this.handleFilterChange}
                     onClearFilters={this.onClearFilters}
                     contextMenu={<ProductsContextMenu className={classes.contextMenu} id="customizedContextMenu"
@@ -454,7 +454,8 @@ class ProductsGrid extends Component {
 
 ProductsGrid.propTypes = {
     label: PropTypes.string,
-    onImportExport: PropTypes.func,
+    onImport: PropTypes.func,
+    onExport: PropTypes.func,
     className: PropTypes.string,
 
     year: PropTypes.number,

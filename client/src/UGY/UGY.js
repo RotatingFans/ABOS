@@ -63,6 +63,7 @@ import Paper from '@material-ui/core/Paper';
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
 import {rowStatus} from "./ProductsGrid";
+import ImportDialog from "./ImportDialog";
 
 
 const drawerWidth = 240;
@@ -245,13 +246,14 @@ class UGYEditor extends React.Component {
             password: "",
             fullName: "",
         },
-        importExportOpen: false,
+        importDialogOpen: false,
         newProducts: [],
         updatedProducts: [],
         deletedProducts: [],
         confirmDeletionPassword: '',
         confirmDeletionDialogOpen: false,
-        passwordError: false
+        passwordError: false,
+        importStepsContent: []
 
     };
 
@@ -602,11 +604,22 @@ class UGYEditor extends React.Component {
 
         this.handleUserAddMenuClose(event);
     };
-    handleImportExportClick = event => {
-        this.setState({importExportOpen: true});
+    handleImportClick = event => {
+        this.setState({importDialogOpen: true});
 
         this.handleUserAddMenuClose(event);
     };
+    handleImportClose = event => {
+        this.setState({importDialogOpen: false});
+
+    };
+    handleExportClick = event => {
+
+        this.handleUserAddMenuClose(event);
+
+
+    };
+
 
     addBulkUser = event => {
 
@@ -966,6 +979,8 @@ class UGYEditor extends React.Component {
                         </Button>
                     </DialogActions>
                 </Dialog>,
+                <ImportDialog closeImportDialog={this.handleImportClose}
+                              importDialogOpen={this.state.importDialogOpen}/>,
             ];
             const drawer = (
                 <div>
@@ -1059,7 +1074,7 @@ class UGYEditor extends React.Component {
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     <div className={classes.fullHeightWidth}>
-                        <ProductsGrid year={5} onImportExport={this.handleImportExportClick}
+                        <ProductsGrid year={5} onImport={this.handleImportClick} onExport={this.handleExportClick}
                                       addProduct={this.handleAddProduct} updateProduct={this.handleUpdateProduct}
                                       deleteProduct={this.handleDeleteProduct}/>
                     </div>
