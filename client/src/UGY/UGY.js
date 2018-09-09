@@ -53,9 +53,11 @@ import {
     required,
     SelectArrayInput,
     SelectInput,
+    showNotification,
     SimpleForm,
     TextInput
 } from 'react-admin';
+
 import Paper from '@material-ui/core/Paper';
 
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
@@ -207,7 +209,13 @@ const styles = theme => ({
         width: '100% !important',
         display: 'flex',
         flexDirection: 'column'
-    }
+    },
+    deleteButton: {
+        margin: theme.spacing.unit,
+        color: 'white',
+        backgroundColor: 'red',
+
+    },
 });
 
 
@@ -241,7 +249,9 @@ class UGYEditor extends React.Component {
         newProducts: [],
         updatedProducts: [],
         deletedProducts: [],
-        confirmDeletionPassword: ''
+        confirmDeletionPassword: '',
+        confirmDeletionDialogOpen: false,
+        passwordError: false
 
     };
 
@@ -410,53 +420,127 @@ class UGYEditor extends React.Component {
 
         options.headers.set('Authorization', `Bearer ${token}`);
         if (this.state.deletedProducts.length > 0) {
-
+            this.setState({confirmDeletionDialogOpen: true});
+        } else {
+            fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    'Authorization': `Bearer ${token}`
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: JSON.stringify({
+                    newProducts: this.state.newProducts,
+                    updatedProducts: this.state.updatedProducts,
+                    deletedProducts: this.state.deletedProducts
+                }),
+            }).then(response => {
+                this.setState({open: false});
+                //  this.setState({open: false});
+                this.props.push('/');
+            });
         }
-        fetch(url, {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin", // include, same-origin, *omit
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                'Authorization': `Bearer ${token}`
-                // "Content-Type": "application/x-www-form-urlencoded",
-            },
-            redirect: "follow", // manual, *follow, error
-            referrer: "no-referrer", // no-referrer, *client
-            body: JSON.stringify({
-                newProducts: this.state.newProducts,
-                updatedProducts: this.state.updatedProducts,
-                deletedProducts: this.state.deletedProducts
-            }),
-        }).then(response => {
-            //  this.setState({open: false});
-            //  this.props.push('/');
-        });
 
         //console.log(fetchUtils.fetchJson(url, options));
 
 
     };
     confirmPassword = event => {
-        /*        const username = '';
-                const password = this.state.confirmDeletionPassword;
-                const request = new Request('http://localhost:8080/api/login', {
-                    method: 'POST',
-                    body: JSON.stringify({username, password}),
-                    headers: new Headers({'Content-Type': 'application/json'}),
-                });
-                return fetch(request)
-                    .then(response => {
-                        if (response.status < 200 || response.status >= 300) {
-                            throw new Error(response.statusText);
-                        }
+        const url = 'http://localhost:8080/api/ProductsMany';
+
+        if (event.currentTarget.value == 2) {
+            const username = localStorage.getItem('userName');
+            const password = this.state.confirmDeletionPassword;
+            const request = new Request('http://localhost:8080/api/login', {
+                method: 'POST',
+                body: JSON.stringify({username, password}),
+                headers: new Headers({'Content-Type': 'application/json'}),
+            });
+
+            fetch(request)
+                .then(response => {
+                    if (response.status < 200 || response.status >= 300) {
+                        this.setState({passwordError: true});
+                        return {};
+                    } else {
                         return response.json();
-                    })
-                    .then(({access_token, roles}) => {
+                    }
+                })
+                .then(({access_token, roles}) => {
+                    if (access_token) {
+                        this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: ''});
                         localStorage.setItem('access_token', access_token);
                         localStorage.setItem('role', roles[0]);
-                    });*/
+                        let options = {};
+                        if (!options.headers) {
+                            options.headers = new Headers({Accept: 'application/json'});
+                        }
+
+                        options.headers.set('Authorization', `Bearer ${access_token}`);
+
+                        fetch(url, {
+                            method: "POST",
+                            mode: "cors",
+                            cache: "no-cache",
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "Content-Type": "application/json; charset=utf-8",
+                                'Authorization': `Bearer ${access_token}`
+                                // "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            redirect: "follow", // manual, *follow, error
+                            referrer: "no-referrer", // no-referrer, *client
+                            body: JSON.stringify({
+                                newProducts: this.state.newProducts,
+                                updatedProducts: this.state.updatedProducts,
+                                deletedProducts: this.state.deletedProducts
+                            }),
+                        }).then(response => {
+                            this.setState({open: false});
+                            this.props.push('/');
+                        });
+                    }
+                });
+        } else {
+            this.setState({deletedProducts: []});
+            let options = {};
+            if (!options.headers) {
+                options.headers = new Headers({Accept: 'application/json'});
+            }
+            const token = localStorage.getItem('access_token');
+
+            options.headers.set('Authorization', `Bearer ${token}`);
+
+            fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    'Authorization': `Bearer ${token}`
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: JSON.stringify({
+                    newProducts: this.state.newProducts,
+                    updatedProducts: this.state.updatedProducts,
+                    deletedProducts: []
+                }),
+            }).then(response => {
+                this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: '', open: false});
+
+                //  this.setState({open: false});
+                this.props.push('/');
+            });
+        }
+        /**/
     };
     cancel = event => {
         this.setState({open: false});
@@ -850,6 +934,10 @@ class UGYEditor extends React.Component {
                             you would like to continue, please re-enter your password and the security code. If not,
                             clicking cancel will still update the other changes, but it will not delete any products.
                         </DialogContentText>
+                        {this.state.passwordError &&
+                        <Typography color={'error'}>Invalid Password!</Typography>
+
+                        }
                         <FormControl className={classes.formControl}>
                             <InputLabel htmlFor="confirmDeletion-Password">Password</InputLabel>
                             <TextField
@@ -869,11 +957,12 @@ class UGYEditor extends React.Component {
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={event => this.setState({confirmDeletionDialogOpen: false})} color="primary">
-                            Cancel
+                        <Button value={1} onClick={this.confirmPassword} color="primary" variant={"contained"}>
+                            Don't Delete
                         </Button>
-                        <Button onClick={this.confirmPassword} color="primary">
-                            Apply
+                        <Button value={2} onClick={this.confirmPassword} variant={"contained"}
+                                className={classes.deleteButton} autoFocus>
+                            Delete
                         </Button>
                     </DialogActions>
                 </Dialog>,
@@ -1130,5 +1219,7 @@ UGYEditor.propTypes = {
 };
 export default connect(null, {
     push,
+    showNotification,
+
 })(withStyles(styles, {withTheme: true})(UGYEditor));
 

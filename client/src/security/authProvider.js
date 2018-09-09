@@ -21,6 +21,23 @@ export default (type, params) => {
             .then(({access_token, roles}) => {
                 localStorage.setItem('access_token', access_token);
                 localStorage.setItem('role', roles[0]);
+                const request = new Request('http://localhost:8080/api/currentUser', {
+                    method: 'GET',
+                    headers: new Headers({
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`
+                    }),
+                });
+                return fetch(request)
+                    .then(response => {
+                        if (response.status < 200 || response.status >= 300) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    }).then(({userName, fullName}) => {
+                        localStorage.setItem('userName', userName);
+                        localStorage.setItem('fullName', fullName);
+                    });
             });
     }
     if (type === AUTH_LOGOUT) {

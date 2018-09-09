@@ -27,6 +27,7 @@ class UrlMappings {
         get "/api/UserHierarchy"(controller: "UserHierarchy", action: "index")
         post "/api/UserHierarchy"(controller: "UserHierarchy", action: "save")
         "/api/AuthCheck"(controller: "AuthCheck", action: "index")
+        "/api/currentUser"(controller: "User", action: "currentUser")
         "/"(controller: 'application', action: 'index')
         "500"(view: '/error')
         "404"(view: '/notFound')
