@@ -3,10 +3,10 @@ import {withStyles} from '@material-ui/core/styles';
 import compose from 'recompose/compose';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import {addField, SimpleForm, Toolbar} from 'react-admin';
+import {addField, Button, SimpleForm, Toolbar} from 'react-admin';
+
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';

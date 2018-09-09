@@ -6,7 +6,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
@@ -101,7 +100,6 @@ class ImportDialog extends React.Component {
                     newRowIndex++;
                 });
                 this.setState({products: products, newRowIndex: newRowIndex});
-                this.finalStepsContent();
                 this.props.addProducts(products);
 
             });
@@ -121,8 +119,8 @@ class ImportDialog extends React.Component {
                 });*/
                 let recordsProds = [];
 
-                if (records.products) {
-                    recordsProds = records.products;
+                if (records.Export.Products) {
+                    recordsProds = records.Export.Products;
                     recordsProds.forEach(product => {
                         let cat = (this.props.categories.find(cat => cat.name === (product.category._text)) || {id: -1}).id;
                         products.push(
@@ -160,10 +158,16 @@ class ImportDialog extends React.Component {
                 }
 
                 this.setState({products: products, newRowIndex: newRowIndex, categories: categories});
-                this.finalStepsContent();
                 this.props.addProducts(products);
             });
         }
+        this.setState({
+            action: '',
+            importType: '',
+            products: [],
+            categories: []
+        });
+
     };
     showStep = (step) => {
         return true;
@@ -241,12 +245,12 @@ class ImportDialog extends React.Component {
 }
 
 ImportDialog.propTypes = {
-    closeImportDialog: PropTypes.func.required,
-    importDialogOpen: PropTypes.bool.required,
-    importNumber: PropTypes.number.required,
-    categories: PropTypes.array.isRequired,
-    year: PropTypes.number.isRequired,
-    addProducts: PropTypes.func.isRequired
+    /*    closeImportDialog: PropTypes.func.required,
+        importDialogOpen: PropTypes.bool.required,
+        importNumber: PropTypes.number.required,
+        categories: PropTypes.array.required,
+        year: PropTypes.number.required,
+        addProducts: PropTypes.func.required*/
 };
 
 export default connect(null, {

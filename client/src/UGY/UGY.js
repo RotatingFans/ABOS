@@ -255,6 +255,7 @@ class UGYEditor extends React.Component {
         importStepsContent: [],
         importNumber: 0,
         year: 5,
+        yearText: "2018",
         categories: []
 
     };
@@ -1114,7 +1115,7 @@ class UGYEditor extends React.Component {
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     <div className={classes.fullHeightWidth}>
-                        <ProductsGrid year={this.state.year}
+                        <ProductsGrid year={this.state.year} yearText={this.state.yearText}
                                       addProduct={this.handleAddProduct} updateProduct={this.handleUpdateProduct}
                                       deleteProduct={this.handleDeleteProduct} categories={this.state.categories}/>
                     </div>

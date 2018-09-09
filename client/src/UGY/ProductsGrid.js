@@ -5,7 +5,7 @@ import compose from 'recompose/compose';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-
+import encoding from 'encoding-japanese'
 import {
     changeListParams,
     crudGetList,
@@ -24,6 +24,8 @@ import MUISelectEditor from "../resources/Editors/MUISelectEditor";
 import ProductsContextMenu from "./ProductsContextMenu";
 import DropDownFormatter from '../resources/Formatters/DropDownFormatter';
 import ImportDialog from "./ImportDialog";
+import convert from 'xml-js';
+import download from "downloadjs";
 
 //const {Editors, Formatters} = require('react-data-grid-addons');
 
@@ -210,7 +212,30 @@ class ProductsGrid extends Component {
 
     };
     handleExportClick = event => {
+        let products = {
+            "_declaration": {"_attributes": {"version": "1.0", "encoding": "utf-8"}},
+            Export: {Products: []}
+        };
+        let idx = 0;
+        this.state.rows.forEach(product => {
+            if (product.status !== rowStatus.DELETE) {
+                products.Export.Products.push({
+                    humanProductId: product.humanProductId,
+                    productName: product.productName,
+                    unitSize: product.unitSize,
+                    unitCost: product.unitCost,
+                    category: (this.props.categories.find(cat => cat.id === product.category) || {name: ''}).name,
+                    _attributes: {id: idx}
+                });
+                idx++;
+            }
+        });
 
+        const options = {compact: true, ignoreComment: true, spaces: 4};
+        let result = convert.js2xml(products, options);
+        //console.log(encoding.detect(result));
+        //console.log(encoding.convert(result,'UTF8'));
+        download(encoding.convert(result, 'UTF8'), this.props.yearText + "-export.xml", "application/xml")
 
     };
 
@@ -409,7 +434,8 @@ ProductsGrid.propTypes = {
     addProduct: PropTypes.func,
     deleteProduct: PropTypes.func,
     updateProduct: PropTypes.func,
-    categories: PropTypes.array
+    categories: PropTypes.array,
+    yearText: PropTypes.string
 };
 
 ProductsGrid.defaultProps = {};
