@@ -103,110 +103,6 @@ public class AddYearController {
         }
     }
 
-    private void convert(String csvLoc, String xmlLoc) {
-        List<String> headers = new ArrayList<>(5);
-
-
-        File file = new File(csvLoc);
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
-
-            Document newDoc = domBuilder.newDocument();
-            // Root element
-            Element rootElement = newDoc.createElement("LawnGarden");
-            newDoc.appendChild(rootElement);
-
-            int line = 0;
-
-            String text;
-            while ((text = reader.readLine()) != null) {
-
-                StringTokenizer st = new StringTokenizer(text, ";", false);
-                String[] rowValues = new String[st.countTokens()];
-                int index = 0;
-                while (st.hasMoreTokens()) {
-
-                    String next = st.nextToken();
-                    rowValues[index] = next;
-                    index++;
-
-                }
-
-                //String[] rowValues = text.split(",");
-
-                if (line == 0) { // Header row
-                    Collections.addAll(headers, rowValues);
-                } else { // Data row
-                    Element rowElement = newDoc.createElement("Products");
-                    rootElement.appendChild(rowElement);
-                    Attr attr = newDoc.createAttribute("id");
-                    attr.setValue(Integer.toString(line - 1));
-                    rowElement.setAttributeNode(attr);
-                    for (int col = 0; col < headers.size(); col++) {
-                        String header = headers.get(col);
-                        String value;
-
-                        if (col < rowValues.length) {
-                            value = rowValues[col].trim();
-                        } else {
-                            // ?? Default value
-                            value = "";
-                        }
-
-                        Element curElement = newDoc.createElement(header);
-                        curElement.appendChild(newDoc.createTextNode(value));
-                        rowElement.appendChild(curElement);
-                    }
-                }
-                line++;
-            }
-
-            OutputStreamWriter osw = null;
-
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                osw = new OutputStreamWriter(baos);
-
-                TransformerFactory tranFactory = TransformerFactory.newInstance();
-                Transformer aTransformer = tranFactory.newTransformer();
-                aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
-                //aTransformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-                aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-                Source src = new DOMSource(newDoc);
-                Result result = new StreamResult(osw);
-                aTransformer.transform(src, result);
-
-                osw.flush();
-                //System.out.println(new String(baos.toByteArray()));
-
-                try (OutputStream outStream = new FileOutputStream(xmlLoc)) {// writing bytes in to byte output stream
-
-                    baos.writeTo(outStream);
-                } catch (IOException e) {
-                    LogToFile.log(e, Severity.SEVERE, "Error writing XML file. Please try again.");
-                }
-
-
-            } catch (Exception exp) {
-                LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
-            } finally {
-                try {
-                    if (osw != null) {
-                        osw.close();
-                    }
-                } catch (IOException e) {
-                    LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
-                }
-
-            }
-        } catch (Exception e) {
-            LogToFile.log(e, Severity.SEVERE, "Error reading CSV file. Ensure the path exists, and the software has permission to read it.");
-        }
-    }
 
     @FXML
     private void csvToXml(ActionEvent event) {
@@ -593,6 +489,111 @@ public class AddYearController {
     private void addYear() {
         Year yearToAdd = new Year(yearText.getText());
         yearToAdd.addYear();
+    }
+
+    private void convert(String csvLoc, String xmlLoc) {
+        List<String> headers = new ArrayList<>(5);
+
+
+        File file = new File(csvLoc);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+
+            Document newDoc = domBuilder.newDocument();
+            // Root element
+            Element rootElement = newDoc.createElement("LawnGarden");
+            newDoc.appendChild(rootElement);
+
+            int line = 0;
+
+            String text;
+            while ((text = reader.readLine()) != null) {
+
+                StringTokenizer st = new StringTokenizer(text, ";", false);
+                String[] rowValues = new String[st.countTokens()];
+                int index = 0;
+                while (st.hasMoreTokens()) {
+
+                    String next = st.nextToken();
+                    rowValues[index] = next;
+                    index++;
+
+                }
+
+                //String[] rowValues = text.split(",");
+
+                if (line == 0) { // Header row
+                    Collections.addAll(headers, rowValues);
+                } else { // Data row
+                    Element rowElement = newDoc.createElement("Products");
+                    rootElement.appendChild(rowElement);
+                    Attr attr = newDoc.createAttribute("id");
+                    attr.setValue(Integer.toString(line - 1));
+                    rowElement.setAttributeNode(attr);
+                    for (int col = 0; col < headers.size(); col++) {
+                        String header = headers.get(col);
+                        String value;
+
+                        if (col < rowValues.length) {
+                            value = rowValues[col].trim();
+                        } else {
+                            // ?? Default value
+                            value = "";
+                        }
+
+                        Element curElement = newDoc.createElement(header);
+                        curElement.appendChild(newDoc.createTextNode(value));
+                        rowElement.appendChild(curElement);
+                    }
+                }
+                line++;
+            }
+
+            OutputStreamWriter osw = null;
+
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                osw = new OutputStreamWriter(baos);
+
+                TransformerFactory tranFactory = TransformerFactory.newInstance();
+                Transformer aTransformer = tranFactory.newTransformer();
+                aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                //aTransformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+                aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                Source src = new DOMSource(newDoc);
+                Result result = new StreamResult(osw);
+                aTransformer.transform(src, result);
+
+                osw.flush();
+                //System.out.println(new String(baos.toByteArray()));
+
+                try (OutputStream outStream = new FileOutputStream(xmlLoc)) {// writing bytes in to byte output stream
+
+                    baos.writeTo(outStream);
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error writing XML file. Please try again.");
+                }
+
+
+            } catch (Exception exp) {
+                LogToFile.log(exp, Severity.SEVERE, "Error writing XML file. Please try again.");
+            } finally {
+                try {
+                    if (osw != null) {
+                        osw.close();
+                    }
+                } catch (IOException e) {
+                    LogToFile.log(e, Severity.SEVERE, "Error closing file. Please try again.");
+                }
+
+            }
+        } catch (Exception e) {
+            LogToFile.log(e, Severity.SEVERE, "Error reading CSV file. Ensure the path exists, and the software has permission to read it.");
+        }
     }
 
     /**

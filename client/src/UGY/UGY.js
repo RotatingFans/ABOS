@@ -63,7 +63,6 @@ import Paper from '@material-ui/core/Paper';
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
 import {rowStatus} from "./ProductsGrid";
-import ImportDialog from "./ImportDialog";
 
 
 const drawerWidth = 240;
@@ -253,7 +252,10 @@ class UGYEditor extends React.Component {
         confirmDeletionPassword: '',
         confirmDeletionDialogOpen: false,
         passwordError: false,
-        importStepsContent: []
+        importStepsContent: [],
+        importNumber: 0,
+        year: 5,
+        categories: []
 
     };
 
@@ -265,7 +267,54 @@ class UGYEditor extends React.Component {
 
     }
 
+    loadCategories = () => {
+        let filter = {};
+        if (this.state.year) {
+            filter = {year: this.state.year};
 
+        }
+        dataProvider(GET_LIST, 'Categories', {
+            filter: filter,
+            pagination: {page: 1, perPage: 100},
+            sort: {field: 'id', order: 'DESC'}
+        })
+            .then(response =>
+                response.data.reduce((stats, category) => {
+                        stats.categories.push({
+
+                            id: category.id,
+                            name: category.categoryName,
+                            value: category.categoryName,
+
+
+                        });
+
+                        return stats;
+                    },
+                    {
+                        categories: [],
+                        /*
+                                                    humanProductId: '0',
+                                                    id: 0,
+                                                    year: {id: 0},
+                                                    productName: '',
+                                                    unitSize: '',
+                                                    unitCost: 0.0,
+                                                    quantity: 0,
+                                                    extended_cost: 0.0,
+                         */
+                    }
+                )
+            ).then(({categories}) => {
+                categories.push({id: '-1', value: " "});
+
+                this.setState({
+                    categories: categories,
+                });
+
+            }
+        );
+    };
 
     getYears() {
         dataProvider(GET_LIST, 'Years', {
@@ -604,15 +653,7 @@ class UGYEditor extends React.Component {
 
         this.handleUserAddMenuClose(event);
     };
-    handleImportClick = event => {
-        this.setState({importDialogOpen: true});
 
-        this.handleUserAddMenuClose(event);
-    };
-    handleImportClose = event => {
-        this.setState({importDialogOpen: false});
-
-    };
     handleExportClick = event => {
 
         this.handleUserAddMenuClose(event);
@@ -979,8 +1020,7 @@ class UGYEditor extends React.Component {
                         </Button>
                     </DialogActions>
                 </Dialog>,
-                <ImportDialog closeImportDialog={this.handleImportClose}
-                              importDialogOpen={this.state.importDialogOpen}/>,
+
             ];
             const drawer = (
                 <div>
@@ -1074,9 +1114,9 @@ class UGYEditor extends React.Component {
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     <div className={classes.fullHeightWidth}>
-                        <ProductsGrid year={5} onImport={this.handleImportClick} onExport={this.handleExportClick}
+                        <ProductsGrid year={this.state.year}
                                       addProduct={this.handleAddProduct} updateProduct={this.handleUpdateProduct}
-                                      deleteProduct={this.handleDeleteProduct}/>
+                                      deleteProduct={this.handleDeleteProduct} categories={this.state.categories}/>
                     </div>
                 </div>
             );
@@ -1205,7 +1245,7 @@ class UGYEditor extends React.Component {
 
 
     componentWillMount() {
-
+        this.loadCategories();
     }
 
     componentWillReceiveProps() {

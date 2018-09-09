@@ -111,7 +111,8 @@ class ProductsToolbar extends React.Component {
         addRowButtonText: PropTypes.string,
         filterRowsButtonText: PropTypes.string,
         children: PropTypes.any,
-        categories: PropTypes.array
+        categories: PropTypes.array,
+        newRowIndex: PropTypes.number
     };
     state = {
         HID: '',
@@ -124,14 +125,15 @@ class ProductsToolbar extends React.Component {
         enableAddRow: true,
         addRowButtonText: 'Add Row',
         filterRowsButtonText: 'Filter Rows',
-        categories: [{id: '-1', value: ''}]
+        categories: [{id: '-1', value: ''}],
+        newRowIndex: 0
     };
 
     onAddRow = () => {
         if (this.props.onAddRow !== null && this.props.onAddRow instanceof Function) {
             this.props.onAddRow({
-                newRowIndex: this.props.numberOfRows, newRow: {
-                    id: this.props.numberOfRows,
+                newRowIndex: this.props.newRowIndex, newRow: {
+                    id: this.props.newRowIndex,
                     humanProductId: this.state.HID,
                     productName: this.state.name,
                     unitSize: this.state.size,
