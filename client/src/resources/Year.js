@@ -13,29 +13,26 @@ import {
     TextInput,
 } from 'react-admin';
 //import ErrorBoundary from '../ErrorBoundary';
-import YearIcon from 'material-ui/svg-icons/social/person';
 
-export {YearIcon};
 
 export const YearList = props => (
     <List {...props}>
         <Datagrid>
-            <TextField source="YearName"/>
-            <DateField source="deliveryDate"/>
-            <EditButton basePath="/categories"/>
+            <TextField source="year"/>
+            <EditButton basePath="/year"/>
         </Datagrid>
     </List>
 );
 
 const YearTitle = ({record}) => {
-    return <span>Year {record ? `"${record.name}"` : ''}</span>;
+    return <span>Year {record ? `"${record.year}"` : ''}</span>;
 };
 
 export const YearEdit = props => (
     <Edit title={<YearTitle/>} {...props}>
         <SimpleForm>
-            <DisabledInput source="YearName"/>
-            <DateInput source="deliveryDate"/>
+            <DisabledInput source="year"/>
+
         </SimpleForm>
     </Edit>
 );
@@ -43,8 +40,7 @@ export const YearEdit = props => (
 export const YearCreate = props => (
     <Create title="Create a Year" {...props}>
         <SimpleForm>
-            <TextInput source="name"/>
-            <DateInput source="deliveryDate"/>
+            <TextInput source="year"/>
         </SimpleForm>
     </Create>
 );

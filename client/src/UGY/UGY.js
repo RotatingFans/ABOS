@@ -908,6 +908,18 @@ class UGYEditor extends React.Component {
 
     };
 
+    updateYear = year => event => {
+        this.setState({year: year.id, yearText: year.year});
+    };
+    renderYearItems = () => {
+        let yearItems = [];
+        this.state.years.forEach(year => {
+            yearItems.push(<ListItem key={"YearItem-" + year.id} button onClick={this.updateYear(year)}>
+                <ListItemText primary={year.year}/>
+            </ListItem>)
+        });
+        return yearItems;
+    };
     render() {
         const {classes, theme} = this.props;
         if (this.state.ready) {
@@ -1116,9 +1128,8 @@ class UGYEditor extends React.Component {
                     <div className={classes.toolbar}/>
                     <Divider/>
                     <List>
-                        <ListItem button>
-                            <ListItemText primary="Trash"/>
-                        </ListItem>
+                        {this.renderYearItems()}
+
                     </List>
 
                 </div>
@@ -1195,12 +1206,7 @@ class UGYEditor extends React.Component {
                     </div>
                 </div>
             );
-            const groupsTab = (
-                <div>
-                    Groups
 
-                </div>
-            );
             const prodsTab = (
                 <div className={classes.productsGrid}>
                     <div className={classes.fullHeightWidth}>
@@ -1296,13 +1302,10 @@ class UGYEditor extends React.Component {
                                     <Paper className={classes.fullHeightWidth}>
                                     <Tabs value={tab} onChange={this.handleTabChange}>
                                         <Tab label="Users"/>
-                                        <Tab label="Groups"/>
                                         <Tab label="Products"/>
                                     </Tabs>
                                     {tab === 0 && <TabContainer className={classes.tabScroll}>{usersTab}</TabContainer>}
                                     {tab === 1 &&
-                                    <TabContainer className={classes.tabScroll}>{groupsTab}</TabContainer>}
-                                    {tab === 2 &&
                                     <TabContainer className={classes.tabNoScroll}>{prodsTab}</TabContainer>}
                                     <Toolbar>
                                         <div className={classes.bottomBar}>

@@ -4,4 +4,10 @@ model {
     Groups group
 }
 
-json g.render(group, [resolveTemplate: false])
+json {
+    id group.id
+    groupName group.groupName
+    year group.year.id
+
+    g.render(group, [resolveTemplate: false])
+}

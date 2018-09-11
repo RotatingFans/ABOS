@@ -31,7 +31,6 @@ const App = () => (
             <Resource name="Reports" list={Reports}/>,
             //Reports
             // <Resource name="customers"/>,
-            <Resource name="Years"/>,
             <Resource name="User"/>,
 
             permissions === 'manager'
@@ -46,9 +45,9 @@ const App = () => (
                 //UGY
                 : <Resource name="Years"/>,
             permissions === 'ROLE_ADMIN'
-                ? <Resource name="Groups" list={GroupList} edit={GroupEdit} create={GroupCreate}/>
+                ? <Resource name="Group" list={GroupList} edit={GroupEdit} create={GroupCreate}/>
                 //UGY
-                : <Resource name="Groups"/>,
+                : <Resource name="Group"/>,
             permissions === 'ROLE_ADMIN'
                 ? <Resource name="UGY" list={UGY}/>
                 //UGY

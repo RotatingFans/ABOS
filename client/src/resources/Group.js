@@ -8,34 +8,36 @@ import {
     Edit,
     EditButton,
     List,
+    ReferenceField,
+    ReferenceInput,
+    SelectInput,
     SimpleForm,
     TextField,
-    TextInput,
+    TextInput
 } from 'react-admin';
 //import ErrorBoundary from '../ErrorBoundary';
-import GroupIcon from 'material-ui/svg-icons/social/person';
 
-export {GroupIcon};
 
 export const GroupList = props => (
     <List {...props}>
         <Datagrid>
-            <TextField source="GroupName"/>
-            <DateField source="deliveryDate"/>
-            <EditButton basePath="/categories"/>
+            <TextField source="groupName"/>
+            <ReferenceField label="Year" source="year" reference="Years">
+                <TextField source="year"/>
+            </ReferenceField>
+            <EditButton basePath="/group"/>
         </Datagrid>
     </List>
 );
 
 const GroupTitle = ({record}) => {
-    return <span>Group {record ? `"${record.name}"` : ''}</span>;
+    return <span>Group {record ? `"${record.groupName}"` : ''}</span>;
 };
 
 export const GroupEdit = props => (
     <Edit title={<GroupTitle/>} {...props}>
         <SimpleForm>
-            <DisabledInput source="GroupName"/>
-            <DateInput source="deliveryDate"/>
+            <TextInput source="groupName"/>
         </SimpleForm>
     </Edit>
 );
@@ -43,8 +45,10 @@ export const GroupEdit = props => (
 export const GroupCreate = props => (
     <Create title="Create a Group" {...props}>
         <SimpleForm>
-            <TextInput source="name"/>
-            <DateInput source="deliveryDate"/>
+            <TextInput source="GroupName"/>
+            <ReferenceInput label="Year" source="year" reference="Years">
+                <SelectInput optionText="year"/>
+            </ReferenceInput>
         </SimpleForm>
     </Create>
 );
