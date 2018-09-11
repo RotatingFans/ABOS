@@ -1,0 +1,19 @@
+import abos.server.UserYear
+
+model {
+    UserYear userYear
+}
+
+json {
+
+    year year: userYear.year.year
+
+    year id: userYear.year.id
+
+    status userYear.status
+
+    group id: userYear.group.id
+    group groupName: userYear.group.groupName
+
+
+}

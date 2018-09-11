@@ -10,4 +10,8 @@ json {
 
     userName user.username
 
+    fullName user.fullName
+
+    yearInfo tmpl.'/user_year/user_year'(user.userYears)
+
 }

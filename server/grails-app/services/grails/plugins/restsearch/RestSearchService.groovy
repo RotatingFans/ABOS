@@ -46,8 +46,37 @@ class RestSearchService {
         PagedResultList results
         if (resource.getInterfaces().contains(grails.gorm.MultiTenant)) {
             def tCount = 0
+            def preYears = params.findResult { it.year?.value }
+            if (preYears != null && preYears.toString() != '') {
+                params.remove(year: preYears.toString())
+            }
+            params.remove([:])
             userService.listAllManaged().each {
+                /*def years = params.find({
+                    sp ->
+                        log.debug(sp.toString())
+                        sp.key == "year"})?.value*/
+                def years = ''
+                //log.debug(years.toString())
 
+                it.userYears.each({ uY ->
+
+                    if (uY.status != "DISABLED" && (preYears.toString().contains(uY.yearId.toString()) || preYears == null || preYears.toString() == "")) {
+                        if (userService.getYearAccess(uY.year) != "DISABLED") {
+                            if (years != '') {
+                                years += ',' + (uY.yearId.toString())
+                            } else {
+                                years = (uY.yearId.toString())
+
+                            }
+                        }
+                    }
+                })
+                if (years == '') {
+                    years = '!*'
+                }
+                params.push(year: years)
+                log.debug(params.toString())
                 withId(it.username, { session ->
                     log.debug(currentId().toString())
                     def c = resource.createCriteria()
@@ -209,6 +238,7 @@ class RestSearchService {
 
                     }
                 })
+                params.remove(year: years)
 
             }
             try {

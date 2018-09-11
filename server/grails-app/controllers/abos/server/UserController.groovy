@@ -1,6 +1,6 @@
 package abos.server
 
-import grails.converters.JSON
+
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugins.restsearch.customRestSearchController
 
@@ -19,6 +19,6 @@ class UserController extends customRestSearchController<User> {
     def currentUser() {
         User user = springSecurityService.currentUser
 
-        render([userName: user.username, fullName: 'Test Person'] as JSON, status: 200)
+        render(template: 'user', model: [user: user], status: 200)
     }
 }

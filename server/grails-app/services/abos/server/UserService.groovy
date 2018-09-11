@@ -38,5 +38,15 @@ class UserService {
         }.list().user
 
     }
+
+    @CompileDynamic
+    String getYearAccess(Year year) {
+        User currentUser = springSecurityService.isLoggedIn() ?
+                springSecurityService.loadCurrentUser() as User :
+                null as User
+
+        UserYear.findByUserAndYear(currentUser, year).status
+
+    }
 }
 

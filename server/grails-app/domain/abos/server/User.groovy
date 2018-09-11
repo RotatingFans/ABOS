@@ -15,8 +15,9 @@ class User implements Serializable {
 
     String username
     String password
+    String fullName
     boolean enabled = true
-    static hasMany = [orderedProducts: Ordered_products, customers: Customers, orders: Orders]
+    static hasMany = [orderedProducts: Ordered_products, customers: Customers, orders: Orders, userYears: UserYear]
 
     boolean accountExpired
     boolean accountLocked
