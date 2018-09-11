@@ -185,6 +185,8 @@ const styles = theme => ({
         height: '100%',
         width: '100%',
         flexGrow: 0,
+        display: 'flex',
+        flexDirection: 'column'
 
     },
     leftIcon: {
@@ -341,37 +343,71 @@ class UGYEditor extends React.Component {
 
     }
 
-    getUsers() {
-        /*     dataProvider(GET_LIST, 'User', {
-                 filter: {},
-                 sort: {field: 'id', order: 'DESC'},
-                 pagination: {page: 1, perPage: 1000},
-             }).then(response => {
-                 let users = response.data;
-                 let userChecks = {};
-                 users.forEach(user => {
-                     let userName = user.userName;
-                     let userState = {};
-                     users.forEach(subUser => {
-                         userState[subUser.userName] = false;
-                     });
+    save = event => {
+        console.log(this.state.userChecks);
+                let options = {};
+        let url = 'http://localhost:8080/api/UserHierarchy';
+                if (!options.headers) {
+                    options.headers = new Headers({Accept: 'application/json'});
+                }
+                const token = localStorage.getItem('access_token');
+                options.headers.set('Authorization', `Bearer ${token}`);
 
-                     userChecks[userName] = {checked: false, groups: -1, subUsers: userState};
-                 });
-                 this.setState({'users': users, 'update': true, 'userChecks': userChecks})
-             });*/
-        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {}).then(response => {
-            let users = response.data;
-            let userChecks = {};
-            Object.keys(users).forEach(user => {
+                fetch(url, {
+                    method: "POST",
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin", // include, same-origin, *omit
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        'Authorization': `Bearer ${token}`
+                        // "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrer: "no-referrer", // no-referrer, *client
+                    body: JSON.stringify({year: this.state.year, data: this.state.userChecks}),
+                }).then(response => {
+                    //  this.setState({open: false});
+                    //  this.props.push('/');
+                });
+        url = 'http://localhost:8080/api/ProductsMany';
+        options = {};
+        if (!options.headers) {
+            options.headers = new Headers({Accept: 'application/json'});
+        }
 
-                userChecks[user] = {checked: false, group: users[user].group, subUsers: users[user].subUsers};
+        options.headers.set('Authorization', `Bearer ${token}`);
+        if (this.state.deletedProducts.length > 0) {
+            this.setState({confirmDeletionDialogOpen: true});
+        } else {
+            fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    'Authorization': `Bearer ${token}`
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: JSON.stringify({
+                    newProducts: this.state.newProducts,
+                    updatedProducts: this.state.updatedProducts,
+                    deletedProducts: this.state.deletedProducts
+                }),
+            }).then(response => {
+                this.setState({open: false});
+                //  this.setState({open: false});
+                this.props.push('/');
             });
-            this.setState({'users': users, 'update': true, 'userChecks': userChecks})
-        });
+        }
+
+        //console.log(fetchUtils.fetchJson(url, options));
 
 
-    }
+    };
 
 
     handleDrawerToggle = () => {
@@ -435,72 +471,20 @@ class UGYEditor extends React.Component {
     handleTabChange = (event, value) => {
         this.setState({tab: value});
     };
+    /*
+    Feature not yet implemented
+     */
+    enableSelectedUsers = event => {
+        let parentState = this.state.userChecks;
 
-
-    save = event => {
-        console.log(this.state.userChecks);
-                let options = {};
-        let url = 'http://localhost:8080/api/UserHierarchy';
-                if (!options.headers) {
-                    options.headers = new Headers({Accept: 'application/json'});
-                }
-                const token = localStorage.getItem('access_token');
-                options.headers.set('Authorization', `Bearer ${token}`);
-
-                fetch(url, {
-                    method: "POST",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin", // include, same-origin, *omit
-                    headers: {
-                        "Content-Type": "application/json; charset=utf-8",
-                        'Authorization': `Bearer ${token}`
-                        // "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    redirect: "follow", // manual, *follow, error
-                    referrer: "no-referrer", // no-referrer, *client
-                    body: JSON.stringify(this.state.userChecks),
-                }).then(response => {
-                    //  this.setState({open: false});
-                    //  this.props.push('/');
-                });
-        url = 'http://localhost:8080/api/ProductsMany';
-        options = {};
-        if (!options.headers) {
-            options.headers = new Headers({Accept: 'application/json'});
-        }
-
-        options.headers.set('Authorization', `Bearer ${token}`);
-        if (this.state.deletedProducts.length > 0) {
-            this.setState({confirmDeletionDialogOpen: true});
-        } else {
-            fetch(url, {
-                method: "POST",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin", // include, same-origin, *omit
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                    'Authorization': `Bearer ${token}`
-                    // "Content-Type": "application/x-www-form-urlencoded",
-                },
-                redirect: "follow", // manual, *follow, error
-                referrer: "no-referrer", // no-referrer, *client
-                body: JSON.stringify({
-                    newProducts: this.state.newProducts,
-                    updatedProducts: this.state.updatedProducts,
-                    deletedProducts: this.state.deletedProducts
-                }),
-            }).then(response => {
-                this.setState({open: false});
-                //  this.setState({open: false});
-                this.props.push('/');
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+            parentState = update(parentState, {
+                [userName]: {status: {$set: "ENABLED"}}
             });
-        }
+        });
+        this.setState({userChecks: parentState});
 
-        //console.log(fetchUtils.fetchJson(url, options));
-
-
+        this.handleUserBulkMenuClose(event);
     };
     confirmPassword = event => {
         const url = 'http://localhost:8080/api/ProductsMany';
@@ -671,48 +655,43 @@ class UGYEditor extends React.Component {
 
         this.handleUserAddMenuClose(event);
     };
-
-    /*
-    Feature not yet implemented
-     */
-    enableSelectedUsers = event => {
-        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
-
-        });
-        this.handleUserBulkMenuClose(event);
-    };
-
     archiveSelectedUsers = event => {
-        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+        let parentState = this.state.userChecks;
 
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+            parentState = update(parentState, {
+                [userName]: {status: {$set: "ARCHIVED"}}
+            });
         });
+        this.setState({userChecks: parentState});
         this.handleUserBulkMenuClose(event);
     };
-
     removeSelectedUsersFromYear = event => {
-        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+        let parentState = this.state.userChecks;
 
+        Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
+            parentState = update(parentState, {
+                [userName]: {status: {$set: "DISABLED"}}
+            });
         });
+        this.setState({userChecks: parentState});
         this.handleUserBulkMenuClose(event);
     };
-
-
-
-
-
     renderEnabledUsers = () => {
         const {classes, theme} = this.props;
         let users = ['me', 'test1'];
         let userPanels = [];
         Object.keys(this.state.userChecks).forEach(user => {
-            let userName = user;
-            userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
-                                       handleManageCheckBoxChange={this.handleManageCheckBoxChange}
-                                       handleCheckBoxChange={this.handleCheckBoxChange}
-                                       checked={this.state.userChecks[userName].checked}
-                                       handleGroupChange={this.handleGroupChange}
-                                       group={this.state.userChecks[userName].group}
-                                       groups={this.state.groups}/>)
+            if (this.state.userChecks[user].status === "ENABLED") {
+                let userName = user;
+                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                                           handleManageCheckBoxChange={this.handleManageCheckBoxChange}
+                                           handleCheckBoxChange={this.handleCheckBoxChange}
+                                           checked={this.state.userChecks[userName].checked}
+                                           handleGroupChange={this.handleGroupChange}
+                                           group={this.state.userChecks[userName].group}
+                                           groups={this.state.groups}/>)
+            }
         });
         return (
             <ExpansionPanel className={classes.topLevelExpansionPanel}>
@@ -732,6 +711,115 @@ class UGYEditor extends React.Component {
             </ExpansionPanel>
         )
     };
+    renderDisabledUsers = () => {
+        const {classes, theme} = this.props;
+        let users = ['me', 'test1'];
+        let userPanels = [];
+        Object.keys(this.state.userChecks).forEach(user => {
+            if (this.state.userChecks[user].status !== "ENABLED" && this.state.userChecks[user].status !== "ARCHIVED") {
+
+                let userName = user;
+                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                                           handleManageCheckBoxChange={this.handleManageCheckBoxChange}
+                                           handleCheckBoxChange={this.handleCheckBoxChange}
+                                           checked={this.state.userChecks[userName].checked}
+                                           handleGroupChange={this.handleGroupChange}
+                                           group={this.state.userChecks[userName].group}
+                                           groups={this.state.groups}/>)
+            }
+        });
+        return (
+            <ExpansionPanel className={classes.topLevelExpansionPanel}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                    <div className={classes.flex}>
+
+                        <Typography className={classes.heading}>Disabled Users</Typography>
+                    </div>
+
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={classes.topLevelExpansionPanel}>
+                    {
+                        userPanels
+                    }
+
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+        )
+    };
+    renderArchivedUsers = () => {
+        const {classes, theme} = this.props;
+        let users = ['me', 'test1'];
+        let userPanels = [];
+        Object.keys(this.state.userChecks).forEach(user => {
+            if (this.state.userChecks[user].status === "ARCHIVED") {
+
+                let userName = user;
+                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                                           handleManageCheckBoxChange={this.handleManageCheckBoxChange}
+                                           handleCheckBoxChange={this.handleCheckBoxChange}
+                                           checked={this.state.userChecks[userName].checked}
+                                           handleGroupChange={this.handleGroupChange}
+                                           group={this.state.userChecks[userName].group}
+                                           groups={this.state.groups}/>)
+            }
+        });
+        return (
+            <ExpansionPanel className={classes.topLevelExpansionPanel}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                    <div className={classes.flex}>
+
+                        <Typography className={classes.heading}>Archived Users</Typography>
+                    </div>
+
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails className={classes.topLevelExpansionPanel}>
+                    {
+                        userPanels
+                    }
+
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+        )
+    };
+
+    getUsers() {
+        /*     dataProvider(GET_LIST, 'User', {
+                 filter: {},
+                 sort: {field: 'id', order: 'DESC'},
+                 pagination: {page: 1, perPage: 1000},
+             }).then(response => {
+                 let users = response.data;
+                 let userChecks = {};
+                 users.forEach(user => {
+                     let userName = user.userName;
+                     let userState = {};
+                     users.forEach(subUser => {
+                         userState[subUser.userName] = false;
+                     });
+
+                     userChecks[userName] = {checked: false, groups: -1, subUsers: userState};
+                 });
+                 this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+             });*/
+        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {filter: {year: this.state.year}}).then(response => {
+            let users = response.data;
+            let userChecks = {};
+            Object.keys(users).forEach(user => {
+
+                userChecks[user] = {
+                    checked: false,
+                    group: users[user].group,
+                    status: users[user].status,
+                    subUsers: users[user].subUsers
+                };
+            });
+            this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+        });
+
+
+    }
+
+
 
     renderGroupItems = () => {
         let groupList = [];
@@ -1091,8 +1179,7 @@ class UGYEditor extends React.Component {
                                 onClose={this.handleUserBulkMenuClose}
                             >
                                 <MenuItem onClick={this.addSelectedUsersToGroupClicked}>Add Selected to Group</MenuItem>
-                                <MenuItem onClick={this.removeSelectedUsersFromYear}>Remove Selected from
-                                    year</MenuItem>
+                                <MenuItem onClick={this.removeSelectedUsersFromYear}>Disable Selected</MenuItem>
                                 <MenuItem onClick={this.enableSelectedUsers}>Enable Selected</MenuItem>
                                 <MenuItem onClick={this.addSelectedUsersToUserClicked}>Add selected to User</MenuItem>
                                 <MenuItem onClick={this.archiveSelectedUsers}>Archive selected users</MenuItem>
@@ -1103,6 +1190,8 @@ class UGYEditor extends React.Component {
                     </Toolbar>
                     <div>
                         {this.renderEnabledUsers()}
+                        {this.renderArchivedUsers()}
+                        {this.renderDisabledUsers()}
                     </div>
                 </div>
             );

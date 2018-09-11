@@ -48,7 +48,7 @@ export default (httpClient = fetchUtils.fetchJson) => {
                 break;
             }
             case GET_PLAIN_MANY: {
-                url = `${apiUrl}/${resource}`;
+                url = `${apiUrl}/${resource}?q=${makeFilters(params.filter)}`;
                 break;
             }
             case GET_MANY_REFERENCE: {
