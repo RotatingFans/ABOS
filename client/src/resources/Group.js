@@ -13,35 +13,35 @@ import {
     TextInput,
 } from 'react-admin';
 //import ErrorBoundary from '../ErrorBoundary';
-import YearIcon from 'material-ui/svg-icons/social/person';
+import GroupIcon from 'material-ui/svg-icons/social/person';
 
-export {YearIcon};
+export {GroupIcon};
 
-export const YearList = props => (
+export const GroupList = props => (
     <List {...props}>
         <Datagrid>
-            <TextField source="YearName"/>
+            <TextField source="GroupName"/>
             <DateField source="deliveryDate"/>
             <EditButton basePath="/categories"/>
         </Datagrid>
     </List>
 );
 
-const YearTitle = ({record}) => {
-    return <span>Year {record ? `"${record.name}"` : ''}</span>;
+const GroupTitle = ({record}) => {
+    return <span>Group {record ? `"${record.name}"` : ''}</span>;
 };
 
-export const YearEdit = props => (
-    <Edit title={<YearTitle/>} {...props}>
+export const GroupEdit = props => (
+    <Edit title={<GroupTitle/>} {...props}>
         <SimpleForm>
-            <DisabledInput source="YearName"/>
+            <DisabledInput source="GroupName"/>
             <DateInput source="deliveryDate"/>
         </SimpleForm>
     </Edit>
 );
 
-export const YearCreate = props => (
-    <Create title="Create a Year" {...props}>
+export const GroupCreate = props => (
+    <Create title="Create a Group" {...props}>
         <SimpleForm>
             <TextInput source="name"/>
             <DateInput source="deliveryDate"/>

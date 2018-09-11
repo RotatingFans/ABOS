@@ -3,6 +3,8 @@ import React from 'react';
 import {Admin, fetchUtils, Layout, Resource} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
+import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
+import {YearCreate, YearEdit, YearList} from './resources/Year.js';
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
@@ -31,14 +33,22 @@ const App = () => (
             // <Resource name="customers"/>,
             <Resource name="Years"/>,
             <Resource name="User"/>,
-            <Resource name="Categories"/>,
+
             permissions === 'manager'
                 ? <Resource name="User"/>
                 : null,
             permissions === 'ROLE_ADMIN'
                 ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
                 //UGY
-                : null,
+                : <Resource name="Categories"/>,
+            permissions === 'ROLE_ADMIN'
+                ? <Resource name="Years" list={YearList} edit={YearEdit} create={YearCreate}/>
+                //UGY
+                : <Resource name="Years"/>,
+            permissions === 'ROLE_ADMIN'
+                ? <Resource name="Groups" list={GroupList} edit={GroupEdit} create={GroupCreate}/>
+                //UGY
+                : <Resource name="Groups"/>,
             permissions === 'ROLE_ADMIN'
                 ? <Resource name="UGY" list={UGY}/>
                 //UGY
