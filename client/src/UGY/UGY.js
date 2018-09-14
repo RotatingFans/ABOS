@@ -270,9 +270,12 @@ class UGYEditor extends React.Component {
 
     }
 
-    loadCategories = () => {
+    loadCategories = (yearId) => {
         let filter = {};
-        if (this.state.year) {
+        if (yearId) {
+            filter = {year: yearId};
+
+        } else if (this.state.year) {
             filter = {year: this.state.year};
 
         }
@@ -471,15 +474,13 @@ class UGYEditor extends React.Component {
     handleTabChange = (event, value) => {
         this.setState({tab: value});
     };
-    /*
-    Feature not yet implemented
-     */
     enableSelectedUsers = event => {
         let parentState = this.state.userChecks;
-
+        let curYear = this.state.year;
         Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
             parentState = update(parentState, {
-                [userName]: {status: {$set: "ENABLED"}}
+                [userName]: {enabledYear: {$set: curYear}, status: {$set: "ENABLED"}}
+
             });
         });
         this.setState({userChecks: parentState});
@@ -660,7 +661,7 @@ class UGYEditor extends React.Component {
 
         Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
             parentState = update(parentState, {
-                [userName]: {status: {$set: "ARCHIVED"}}
+                [userName]: {status: {$set: "ARCHIVED"}, enabledYear: {$set: -1}}
             });
         });
         this.setState({userChecks: parentState});
@@ -671,7 +672,8 @@ class UGYEditor extends React.Component {
 
         Object.keys(this.state.userChecks).filter(userName => this.state.userChecks[userName].checked).forEach(userName => {
             parentState = update(parentState, {
-                [userName]: {status: {$set: "DISABLED"}}
+                [userName]: {status: {$set: "DISABLED"}, enabledYear: {$set: -1}}
+
             });
         });
         this.setState({userChecks: parentState});
@@ -682,7 +684,7 @@ class UGYEditor extends React.Component {
         let users = ['me', 'test1'];
         let userPanels = [];
         Object.keys(this.state.userChecks).forEach(user => {
-            if (this.state.userChecks[user].status === "ENABLED") {
+            if (this.state.userChecks[user].enabledYear === this.state.year) {
                 let userName = user;
                 userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
                                            handleManageCheckBoxChange={this.handleManageCheckBoxChange}
@@ -716,7 +718,7 @@ class UGYEditor extends React.Component {
         let users = ['me', 'test1'];
         let userPanels = [];
         Object.keys(this.state.userChecks).forEach(user => {
-            if (this.state.userChecks[user].status !== "ENABLED" && this.state.userChecks[user].status !== "ARCHIVED") {
+            if (this.state.userChecks[user].enabledYear !== this.state.year && this.state.userChecks[user].status !== "ENABLED" && this.state.userChecks[user].status !== "ARCHIVED") {
 
                 let userName = user;
                 userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
@@ -751,7 +753,7 @@ class UGYEditor extends React.Component {
         let users = ['me', 'test1'];
         let userPanels = [];
         Object.keys(this.state.userChecks).forEach(user => {
-            if (this.state.userChecks[user].status === "ARCHIVED") {
+            if (this.state.userChecks[user].enabledYear !== this.state.year && this.state.userChecks[user].status === "ARCHIVED") {
 
                 let userName = user;
                 userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
@@ -781,43 +783,11 @@ class UGYEditor extends React.Component {
             </ExpansionPanel>
         )
     };
-
-    getUsers() {
-        /*     dataProvider(GET_LIST, 'User', {
-                 filter: {},
-                 sort: {field: 'id', order: 'DESC'},
-                 pagination: {page: 1, perPage: 1000},
-             }).then(response => {
-                 let users = response.data;
-                 let userChecks = {};
-                 users.forEach(user => {
-                     let userName = user.userName;
-                     let userState = {};
-                     users.forEach(subUser => {
-                         userState[subUser.userName] = false;
-                     });
-
-                     userChecks[userName] = {checked: false, groups: -1, subUsers: userState};
-                 });
-                 this.setState({'users': users, 'update': true, 'userChecks': userChecks})
-             });*/
-        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {filter: {year: this.state.year}}).then(response => {
-            let users = response.data;
-            let userChecks = {};
-            Object.keys(users).forEach(user => {
-
-                userChecks[user] = {
-                    checked: false,
-                    group: users[user].group,
-                    status: users[user].status,
-                    subUsers: users[user].subUsers
-                };
-            });
-            this.setState({'users': users, 'update': true, 'userChecks': userChecks})
-        });
-
-
-    }
+    updateYear = year => event => {
+        this.setState({year: year.id, yearText: year.year});
+        this.getUsers(year.id);
+        this.loadCategories(year.id);
+    };
 
 
 
@@ -908,9 +878,43 @@ class UGYEditor extends React.Component {
 
     };
 
-    updateYear = year => event => {
-        this.setState({year: year.id, yearText: year.year});
-    };
+    getUsers(yearId) {
+        /*     dataProvider(GET_LIST, 'User', {
+                 filter: {},
+                 sort: {field: 'id', order: 'DESC'},
+                 pagination: {page: 1, perPage: 1000},
+             }).then(response => {
+                 let users = response.data;
+                 let userChecks = {};
+                 users.forEach(user => {
+                     let userName = user.userName;
+                     let userState = {};
+                     users.forEach(subUser => {
+                         userState[subUser.userName] = false;
+                     });
+
+                     userChecks[userName] = {checked: false, groups: -1, subUsers: userState};
+                 });
+                 this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+             });*/
+        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {filter: {year: yearId || this.state.year}}).then(response => {
+            let users = response.data;
+            let userChecks = {};
+            Object.keys(users).forEach(user => {
+
+                userChecks[user] = {
+                    checked: false,
+                    group: users[user].group,
+                    status: users[user].status,
+                    subUsers: users[user].subUsers,
+                    enabledYear: users[user].enabledYear
+                };
+            });
+            this.setState({'users': users, 'update': true, 'userChecks': userChecks})
+        });
+
+
+    }
     renderYearItems = () => {
         let yearItems = [];
         this.state.years.forEach(year => {

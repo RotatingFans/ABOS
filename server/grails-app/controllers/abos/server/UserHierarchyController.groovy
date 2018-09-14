@@ -58,9 +58,10 @@ class UserHierarchyController {
 
             usersList.put((u.username),
                     [
-                            group   : userYear?.group?.id,
-                            subUsers: subUsers,
-                            status  : userYear?.status
+                            group      : userYear?.group?.id,
+                            subUsers   : subUsers,
+                            status     : userYear?.status,
+                            enabledYear: UserYear.findByUserAndStatus(u, "ENABLED")?.year?.id ?: -1
                     ]
             )
 
@@ -71,38 +72,69 @@ class UserHierarchyController {
 
     @Transactional
     def save() {
-        def jsonParams = request.JSON
-        log.debug(jsonParams.toString())
-        def users = jsonParams.data
-        def year = Year.findById(Long.decode(jsonParams.year.toString()))
-        //def usersList = [:]
-        for (u in users) {
-            def user = User.findByUsername(u.key)
-            UserYear userYear = UserYear.findOrCreateByUserAndYear(user, year)
-            if (u.value.group != null) {
-                userYear.group = Groups.findById(u.value.group)
-            }
-            userYear.status = u.value.status ?: "DISABLED"
-            userYear.save()
-            //def subUsers = [:]
-            for (su in u.value.subUsers) {
-                def subUser = User.findByUsername(su.key)
-                // UserManager.findOrSaveByManageAndUser(user, subUser)
+        try {
+            def jsonParams = request.JSON
+            log.debug(jsonParams.toString())
+            def users = jsonParams.data
+            def year = Year.findById(Long.decode(jsonParams.year.toString()))
+            //def usersList = [:]
+            for (u in users) {
+                def user = User.findByUsername(u.key)
+                UserYear userYear = UserYear.findOrCreateByUserAndYear(user, year)
+                if (u.value.group != null) {
+                    userYear.group = Groups.findById(u.value.group)
+                }
+                if (u.value.enabledYear != -1) {
+                    if (year.id != u.value.enabledYear) {
+                        if (u.value.status == "ENABLED") {
+                            u.value.status = "ARCHIVED"
+                        }
+                    } else {
 
-                if (su.value.checked) {
-                    UserManager.findOrSaveByManageAndUser(user, subUser)
+                        UserYear.findAllByUserAndStatus(user, "ENABLED").each { enabledU ->
+                            enabledU.status = "ARCHIVED"
+                            if (!enabledU.save()) {
+                                enabledU.errors.allErrors.each {
+                                    println it
+                                }
+                            }
+                            //enabledU.save()
+                        }
+                        u.value.status = "ENABLED"
 
-                } else {
-                    def uM = UserManager.findByManageAndUser(user, subUser)
-                    if (uM != null) {
-                        uM.delete(flush: true)
-                        //uM.save()
+
                     }
+                } else {
+                    if (u.value.status == "ENABLED") {
+                        u.value.status = "ARCHIVED"
+                    }
+                }
+                userYear.status = u.value.status ?: "DISABLED"
+                userYear.save(flush: true)
+                //def subUsers = [:]
+                for (su in u.value.subUsers) {
+                    def subUser = User.findByUsername(su.key)
+                    // UserManager.findOrSaveByManageAndUser(user, subUser)
+
+                    if (su.value.checked) {
+                        UserManager.findOrSaveByManageAndUserAndYear(user, subUser, year)
+
+                    } else {
+                        def uM = UserManager.findByManageAndUserAndYear(user, subUser, year)
+                        if (uM != null) {
+                            uM.delete(flush: true)
+                            //uM.save()
+                        }
+                    }
+
+
                 }
 
 
             }
-
+        } catch (e) {
+            e.printStackTrace()
+            render([status: "Failure"] as JSON, status: 500)
 
         }
         render([status: "success"] as JSON, status: 200)

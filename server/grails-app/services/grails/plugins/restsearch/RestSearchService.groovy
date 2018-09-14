@@ -47,11 +47,18 @@ class RestSearchService {
         if (resource.getInterfaces().contains(grails.gorm.MultiTenant)) {
             def tCount = 0
             def preYears = params.findResult { it.year?.value }
+            //def users
+            def users = userService.listAllManaged(userService.getLatestYear())
+
             if (preYears != null && preYears.toString() != '') {
                 params.remove(year: preYears.toString())
+                //users = userService.listAllManaged(Year.findById(preYears.toString()))
+            } else {
+                //users = userService.listAllManaged(userService.getLatestYear())
             }
             params.remove([:])
-            userService.listAllManaged().each {
+
+            users.each {
                 /*def years = params.find({
                     sp ->
                         log.debug(sp.toString())
@@ -243,7 +250,7 @@ class RestSearchService {
             }
             try {
 
-                results = results.sort { a, b ->
+                results = results?.sort { a, b ->
                     def orderField, SortField
                     sortFields.eachWithIndex { sortField, idx ->
                         if (orderFields?.size() > idx)
@@ -270,7 +277,7 @@ class RestSearchService {
             } catch (GroovyCastException e) {
                 e.printStackTrace()
             }
-            results.setTotalCount(tCount)
+            results?.setTotalCount(tCount)
         } else {
             def c = resource.createCriteria()
             results = c.list([max: max, offset: offset]) {

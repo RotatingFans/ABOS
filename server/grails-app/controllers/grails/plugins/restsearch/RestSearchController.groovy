@@ -25,7 +25,7 @@ abstract class RestSearchController<T> extends RestfulController<T> {
         def result = search(params)
 
         // headers for response
-        header 'X-Search-Hit-Count', result.totalCount ?: 0
+        header 'X-Search-Hit-Count', result?.totalCount ?: 0
         header 'X-Current-Offset', params.offset ?: 0
         header 'X-Search-Sort', params.'sort'
         header 'X-Search-Order', params.'order'
@@ -36,7 +36,7 @@ abstract class RestSearchController<T> extends RestfulController<T> {
             render ''
         } else {
             def results = []
-            result.each({
+            result?.each({
 //				log.trace(it.properties)
                 if (it.hasProperty("userName")) {
                     withId(it.userName, { session ->

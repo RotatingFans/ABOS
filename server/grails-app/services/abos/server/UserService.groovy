@@ -40,12 +40,34 @@ class UserService {
     }
 
     @CompileDynamic
+    List<User> listAllManaged(Year year) {
+        User currentUser = springSecurityService.isLoggedIn() ?
+                springSecurityService.loadCurrentUser() as User :
+                null as User
+        UserManager.where {
+            manage == currentUser
+            year == year
+        }.list().user
+
+    }
+
+    @CompileDynamic
     String getYearAccess(Year year) {
         User currentUser = springSecurityService.isLoggedIn() ?
                 springSecurityService.loadCurrentUser() as User :
                 null as User
 
         UserYear.findByUserAndYear(currentUser, year).status
+
+    }
+
+    @CompileDynamic
+    Year getLatestYear() {
+        User currentUser = springSecurityService.isLoggedIn() ?
+                springSecurityService.loadCurrentUser() as User :
+                null as User
+
+        UserYear.findAllByUserAndStatus(currentUser, "ENABLED").last().year
 
     }
 }
