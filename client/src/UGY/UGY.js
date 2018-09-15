@@ -878,6 +878,7 @@ class UGYEditor extends React.Component {
 
     };
 
+
     getUsers(yearId) {
         /*     dataProvider(GET_LIST, 'User', {
                  filter: {},
@@ -918,7 +919,8 @@ class UGYEditor extends React.Component {
     renderYearItems = () => {
         let yearItems = [];
         this.state.years.forEach(year => {
-            yearItems.push(<ListItem key={"YearItem-" + year.id} button onClick={this.updateYear(year)}>
+            yearItems.push(<ListItem key={"YearItem-" + year.id} selected={this.state.year === year.id} button
+                                     onClick={this.updateYear(year)}>
                 <ListItemText primary={year.year}/>
             </ListItem>)
         });
@@ -1131,7 +1133,7 @@ class UGYEditor extends React.Component {
                 <div>
                     <div className={classes.toolbar}/>
                     <Divider/>
-                    <List>
+                    <List component="nav">
                         {this.renderYearItems()}
 
                     </List>
@@ -1266,7 +1268,7 @@ class UGYEditor extends React.Component {
                                             <MenuIcon/>
                                         </IconButton>
                                         <Typography variant="title" color="inherit" noWrap>
-                                            Users, Groups, and Years
+                                            Users And Products
                                         </Typography>
                                     </Toolbar>
                                 </AppBar>

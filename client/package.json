@@ -9,6 +9,8 @@
     "google-map-react": "^1.0.6",
     "immutability-helper": "^2.7.1",
     "jwt-decode": "^2.2.0",
+    "@material-ui/core": "^3.0.3",
+    "@material-ui/icons": "^3.0.3",
     "ra-data-json-server": "^2.2.3",
     "ra-data-simple-rest": "^2.2.3",
     "react": "^16.4.2",
