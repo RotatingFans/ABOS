@@ -13,6 +13,7 @@ import {Reports} from "./Reports";
 import Menu from "./resources/Menu";
 import {UGY} from "./UGY";
 import {UserList, UserShow} from "./resources/User";
+import {Maps} from './maps';
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -30,6 +31,7 @@ const App = () => (
         {permissions => [
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
             <Resource name="Reports" list={Reports}/>,
+            <Resource name="Maps" list={Maps}/>,
             //Reports
             // <Resource name="customers"/>,
             <Resource name="User" list={UserList} show={UserShow}/>,

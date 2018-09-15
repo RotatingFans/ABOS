@@ -6,6 +6,7 @@
     "csv-parse": "^3.0.0",
     "downloadjs": "^1.4.7",
     "encoding-japanese": "^1.0.29",
+    "google-map-react": "^1.0.6",
     "immutability-helper": "^2.7.1",
     "jwt-decode": "^2.2.0",
     "ra-data-json-server": "^2.2.3",

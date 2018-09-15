@@ -62,7 +62,8 @@ class Customers implements MultiTenant<abos.server.Customers> {
             user        : [field: 'user.id'],
             id          : true,
             'year'      : [field: 'year.id'],
-            'year.id'   : true
+            'year.id'   : true,
+            userName    : true
     ]
 
 }
