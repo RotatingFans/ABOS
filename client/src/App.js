@@ -4,7 +4,7 @@ import {Admin, fetchUtils, Layout, Resource} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
 import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
-import {YearCreate, YearEdit, YearList} from './resources/Year.js';
+import {YearCreate, YearEdit, YearList, YearShow} from './resources/Year.js';
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
@@ -12,6 +12,7 @@ import {Dashboard} from './dashboard';
 import {Reports} from "./Reports";
 import Menu from "./resources/Menu";
 import {UGY} from "./UGY";
+import {UserList, UserShow} from "./resources/User";
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -31,7 +32,7 @@ const App = () => (
             <Resource name="Reports" list={Reports}/>,
             //Reports
             // <Resource name="customers"/>,
-            <Resource name="User"/>,
+            <Resource name="User" list={UserList} show={UserShow}/>,
 
             permissions === 'manager'
                 ? <Resource name="User"/>
@@ -41,7 +42,7 @@ const App = () => (
                 //UGY
                 : <Resource name="Categories"/>,
             permissions === 'ROLE_ADMIN'
-                ? <Resource name="Years" list={YearList} edit={YearEdit} create={YearCreate}/>
+                ? <Resource name="Years" show={YearShow} edit={YearEdit} list={YearList} create={YearCreate}/>
                 //UGY
                 : <Resource name="Years"/>,
             permissions === 'ROLE_ADMIN'
@@ -49,7 +50,7 @@ const App = () => (
                 //UGY
                 : <Resource name="Group"/>,
             permissions === 'ROLE_ADMIN'
-                ? <Resource name="UGY" list={UGY}/>
+                ? <Resource name="UsersProducts" options={{label: 'Users and Products'}} list={UGY}/>
                 //UGY
                 : null,
         ]}

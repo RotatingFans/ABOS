@@ -22,7 +22,7 @@ export const GroupList = props => (
     <List {...props}>
         <Datagrid>
             <TextField source="groupName"/>
-            <ReferenceField label="Year" source="year" reference="Years">
+            <ReferenceField label="Year" source="year.id" reference="Years">
                 <TextField source="year"/>
             </ReferenceField>
             <EditButton basePath="/group"/>

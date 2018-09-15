@@ -36,6 +36,8 @@ class Ordered_products implements MultiTenant<abos.server.Ordered_products> {
             'year'      : [field: 'year.id'],
             'year.id'   : true,
             userName    : true,
+            user        : [field: 'user.id'],
+
 
     ]
 }

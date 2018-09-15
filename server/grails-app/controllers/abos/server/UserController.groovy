@@ -19,6 +19,7 @@ class UserController extends customRestSearchController<User> {
     def currentUser() {
         User user = springSecurityService.currentUser
 
-        render(template: 'user', model: [user: user], status: 200)
+        render(template: 'user', model: [user: user, enabledYear: UserYear.findByUserAndStatus(user, "ENABLED")?.year?.id ?: -1
+        ], status: 200)
     }
 }

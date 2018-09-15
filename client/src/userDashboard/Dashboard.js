@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 
 import TotalSales from './TotalSales';
 import Donations from './Donations';
@@ -40,10 +39,16 @@ class Dashboard extends Component {
         } else {
             year = this.props.year;
         }
+        let userId = -1;
+        if (!this.props.userId) {
+            userId = -1;
+        } else {
+            userId = this.props.userId;
+        }
 
         {
             dataProvider(GET_LIST, 'Orders', {
-                filter: {year: year},
+                filter: {year: year, user: userId},
                 sort: {field: 'id', order: 'DESC'},
                 pagination: {page: 1, perPage: 1000},
             })
@@ -99,7 +104,7 @@ class Dashboard extends Component {
 
         }
         dataProvider(GET_LIST, 'Ordered_products', {
-            filter: {year: year},
+            filter: {year: year, user: userId},
             sort: {field: 'products', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         })
@@ -215,7 +220,7 @@ class Dashboard extends Component {
     }
 }
 
-Dashboard.propTypes = {
-    year: PropTypes.number
-};
+/*Dashboard.propTypes = {
+  year: PropTypes.number
+};*/
 export default Dashboard;

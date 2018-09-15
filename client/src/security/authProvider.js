@@ -34,9 +34,10 @@ export default (type, params) => {
                             throw new Error(response.statusText);
                         }
                         return response.json();
-                    }).then(({userName, fullName}) => {
+                    }).then(({userName, fullName, enabledYear}) => {
                         localStorage.setItem('userName', userName);
                         localStorage.setItem('fullName', fullName);
+                        localStorage.setItem('enabledYear', enabledYear);
                     });
             });
     }

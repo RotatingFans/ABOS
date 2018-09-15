@@ -8,18 +8,23 @@ import {
     Edit,
     EditButton,
     List,
+    Show,
+    ShowButton,
     SimpleForm,
+    SimpleShowLayout,
     TextField,
-    TextInput,
+    TextInput
 } from 'react-admin';
+import {Dashboard} from "../dashboard";
 //import ErrorBoundary from '../ErrorBoundary';
 
 
-export const YearList = props => (
+export const YearList = ({permissions, ...props}) => (
     <List {...props}>
         <Datagrid>
             <TextField source="year"/>
-            <EditButton basePath="/year"/>
+            <ShowButton basePath="/Years"/>
+            {/*{permissions === "ROLE_ADMIN" ? <EditButton basePath="/Years"/> : null }*/}
         </Datagrid>
     </List>
 );
@@ -44,3 +49,12 @@ export const YearCreate = props => (
         </SimpleForm>
     </Create>
 );
+
+export const YearShow = props => {
+    return (<Show title={<YearTitle/>} {...props}>
+        <SimpleShowLayout>
+            <Dashboard year={props.id}/>
+        </SimpleShowLayout>
+    </Show>)
+
+};

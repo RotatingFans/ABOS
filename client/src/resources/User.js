@@ -8,43 +8,55 @@ import {
     Edit,
     EditButton,
     List,
+    Show,
+    ShowButton,
     SimpleForm,
+    SimpleShowLayout,
     TextField,
-    TextInput,
+    TextInput
 } from 'react-admin';
+import {UserDashboard} from "../userDashboard";
 //import ErrorBoundary from '../ErrorBoundary';
-import CategoryIcon from 'material-ui/svg-icons/social/person';
 
-export {CategoryIcon};
 
-export const CategoryList = props => (
+export const UserList = props => (
     <List {...props}>
         <Datagrid>
-            <TextField source="categoryName"/>
-            <DateField source="deliveryDate"/>
-            <EditButton basePath="/categories"/>
+            <TextField source="userName"/>
+            <TextField source="fullName"/>
+            <ShowButton basePath="/User"/>
         </Datagrid>
     </List>
 );
 
-const CategoryTitle = ({record}) => {
-    return <span>Category {record ? `"${record.name}"` : ''}</span>;
+const UserTitle = ({record}) => {
+    return <span>{record ? `${record.fullName}` : ''}</span>;
 };
 
-export const CategoryEdit = props => (
-    <Edit title={<CategoryTitle/>} {...props}>
+/*export const UserEdit = props => (
+    <Edit title={<UserTitle/>} {...props}>
         <SimpleForm>
-            <DisabledInput source="categoryName"/>
+            <DisabledInput source="UserName"/>
             <DateInput source="deliveryDate"/>
         </SimpleForm>
     </Edit>
-);
+);*/
 
-export const CategoryCreate = props => (
-    <Create title="Create a Category" {...props}>
+/*export const UserCreate = props => (
+    <Create title="Create a User" {...props}>
         <SimpleForm>
             <TextInput source="name"/>
             <DateInput source="deliveryDate"/>
         </SimpleForm>
     </Create>
-);
+);*/
+
+export const UserShow = (props, {record}) => {
+    return (<Show title={<UserTitle/>} {...props}>
+        <SimpleShowLayout>
+
+            <UserDashboard userId={props.id}/>
+        </SimpleShowLayout>
+    </Show>)
+
+};

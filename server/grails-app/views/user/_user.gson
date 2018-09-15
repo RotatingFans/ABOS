@@ -2,6 +2,7 @@ import abos.server.User
 
 model {
     User user
+    def enabledYear
 }
 
 json {
@@ -14,4 +15,5 @@ json {
 
     yearInfo tmpl.'/user_year/user_year'(user.userYears)
 
+    enabledYear enabledYear
 }

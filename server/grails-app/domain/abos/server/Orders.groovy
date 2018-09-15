@@ -43,5 +43,7 @@ class Orders implements MultiTenant<abos.server.Orders> {
             'year'         : [field: 'year.id'],
             'year.id'      : true,
             userName       : true,
+            user           : [field: 'user.id'],
+
     ]
 }

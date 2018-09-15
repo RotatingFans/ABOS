@@ -92,7 +92,7 @@ class RestSearchService {
                         //			log.debug(c)
 
                         def result = c.list([max: max, offset: offset]) {
-                            or {
+                            and {
                                 log.trace "search.or.begin"
                                 params.each { orJoin ->
                                     and {
@@ -169,7 +169,7 @@ class RestSearchService {
 
                     } else {
                         results = c.list([max: max, offset: offset]) {
-                            or {
+                            and {
                                 log.trace "search.or.begin"
                                 params.each { orJoin ->
                                     and {
