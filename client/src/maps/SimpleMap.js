@@ -49,10 +49,10 @@ class SimpleMap extends Component {
         },
         markers: [],
         customers: [],
-        clusterRadius: 60,
+        clusterRadius: 30,
         options: {
             minZoom: 3,
-            maxZoom: 15,
+            maxZoom: 19,
         },
         getCluster: (e) => {
         },
