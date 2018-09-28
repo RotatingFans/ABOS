@@ -21,6 +21,7 @@
     "react-data-grid-addons": "^4.0.8",
     "react-dom": "^16.4.2",
     "react-number-format": "^3.5.2",
+    "react-places-autocomplete": "^7.2.0",
     "react-scripts": "1.1.5",
     "xml-js": "^1.6.7"
   },
