@@ -36,10 +36,10 @@ class simpleMarker extends React.Component {
     render() {
         const {
             classes,
-            defaultMotionStyle, motionStyle, text
+            defaultMotionStyle, motionStyle, text, onClick
         } = this.props;
         return (
-            <div>
+            <div onClick={onClick}>
 
                 <div className={classes.marker}>
                     <div className={classes.text}>

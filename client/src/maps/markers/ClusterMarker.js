@@ -44,7 +44,7 @@ class clusterMarker extends React.Component {
 
                 <div className={classes.marker}>
                     <div className={classes.text}>
-                        {text}
+                        {this.props.numPoints}
                     </div>
                 </div>
 
