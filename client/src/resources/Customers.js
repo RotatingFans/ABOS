@@ -30,11 +30,11 @@ import {
     TextInput,
     UPDATE
 } from 'react-admin';
-import ProductsGrid from './ProductsGrid'
 import restClient from '../grailsRestClient';
 import CustomerLinkField from "./CustomerRecordLink";
 import {withStyles} from '@material-ui/core/styles';
-
+import CustomerEditClass from './Customers/CustomerEdit';
+import CustomerCreateClass from './Customers/CustomerCreate';
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -123,50 +123,9 @@ const CustomerTitle = ({record}) => {
     return <span>Customer {record ? `"${record.name}"` : ''}</span>;
 };
 
-export const CustomerEdit = withStyles(styles)(({classes, ...props}) => (
-    <Edit {...props}>
-
-        <SimpleForm>
-            <TextInput label="Customer Name" source="customerName" formClassName={classes.inlineBlock}/>
-            <TextInput source="phone" formClassName={classes.inlineBlock}/>
-            <TextInput source="custEmail" formClassName={classes.inlineBlock}/>
-            <span/>
-
-            <TextInput source="streetAddress" formClassName={classes.inlineBlock}/>
-            <TextInput source="city" formClassName={classes.inlineBlock}/>
-            <TextInput source="state" formClassName={classes.inlineBlock}/>
-            <TextInput source="zipCode" formClassName={classes.inlineBlock}/>
-            <span/>
-
-
-            <TextInput label="Donation" source="donation" formClassName={classes.inlineBlock}/>
-            <TextInput label="Amount Paid" source="order.amountPaid" formClassName={classes.inlineBlock}/>
-            <BooleanInput label="Delivered?" source="order.delivered" formClassName={classes.inlineBlock}/>
-            <span/>
-            {/*            <ReferenceInput label="Year to add to" source="year" reference="Years">
-                <SelectInput optionText="year" />
-            </ReferenceInput>
-
-            <ReferenceInput label="User to add to" source="user" reference="User" >
-                <SelectInput optionText="username"  />
-            </ReferenceInput>*/}
-
-            <ProductsGrid source="order"  {...props}/>
-        </SimpleForm>
-    </Edit>
-    /*<Edit {...props} filters={<CustomerFilter/>}>
-    <ProductsGrid>
-        <TextField label="Customer Name" source="customerName"/>
-        <TextField source="streetAddress"/>
-        <TextField source="city"/>
-        <TextField source="state"/>
-        <NumberField label="Order Cost" source="order.cost" options={{style: 'currency', currency: 'USD'}}/>
-        <NumberField label="Amount Paid" source="order.paid" options={{style: 'currency', currency: 'USD'}}/>
-        <BooleanField label="Delivered?" source="order.delivered"/>
-        <EditButton basePath="/customers"/>
-    </ProductsGrid>
-</Edit>*/
-));
+export const CustomerEdit = ({...props}) => (
+    <CustomerEditClass {...props}/>
+);
 const reverseGeocode = (address) => {
     return {lat: 0, long: 0};
 };
@@ -239,40 +198,6 @@ const saveCreation = (record, redirect) => {
 
 };
 export const CustomerCreate = withStyles(styles)(({classes, ...props}) => (
-    <Create title="Create a Customer" {...props}>
-        <SimpleForm save={saveCreation}>
-            <TextInput label="Customer Name" source="customerName" formClassName={classes.inlineBlock}/>
-            <TextInput source="phone" formClassName={classes.inlineBlock}/>
-            <TextInput source="custEmail" formClassName={classes.inlineBlock}/>
-            <span/>
+    <CustomerCreateClass {...props}/>
 
-            <TextInput source="streetAddress" formClassName={classes.inlineBlock}/>
-            <TextInput source="city" formClassName={classes.inlineBlock}/>
-            <TextInput source="state" formClassName={classes.inlineBlock}/>
-            <TextInput source="zipCode" formClassName={classes.inlineBlock}/>
-            <span/>
-
-
-            <TextInput label="Donation" source="donation" formClassName={classes.inlineBlock}/>
-            <TextInput label="Amount Paid" source="order.amountPaid" formClassName={classes.inlineBlock}/>
-            <BooleanInput label="Delivered?" source="order.delivered" formClassName={classes.inlineBlock}/>
-            <span/>
-
-            <ReferenceInput label="Year to add to" source="year" reference="Years" formClassName={classes.inlineBlock}>
-                <SelectInput optionText="year"/>
-            </ReferenceInput>
-
-            <ReferenceInput label="User to add to" source="user" reference="User" formClassName={classes.inlineBlock}>
-                <SelectInput optionText="username"/>
-            </ReferenceInput>
-            <FormDataConsumer>
-                {({formData, ...rest}) => formData.year &&
-                    <ProductsGrid source="order"  {...props} year={formData.year} {...rest}/>
-                }
-            </FormDataConsumer>
-
-
-
-        </SimpleForm>
-    </Create>
 ));

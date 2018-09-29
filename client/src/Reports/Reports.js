@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    addField,
     BooleanInput,
     fetchUtils,
     FormDataConsumer,
@@ -14,10 +15,16 @@ import {
     SimpleForm,
     TextInput
 } from 'react-admin';
+import {withStyles} from "@material-ui/core";
+import {change, formValueSelector, reduxForm} from 'redux-form';
+import AddressInput from '../resources/Customers/addressInput';
+
 import Wizard from './Wizard'
 import download from 'downloadjs';
 import restClient from "../grailsRestClient";
-import {formValueSelector} from 'redux-form';
+import FormLabel from "@material-ui/core/FormLabel/FormLabel";
+import Divider from "@material-ui/core/Divider/Divider";
+import Typography from "@material-ui/core/Typography/Typography";
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -36,6 +43,12 @@ const CustomSelectInput = ({onChangeCustomHandler, ...rest}) => (
                  {...rest}
     />
 );
+const AddrInput = addField(({input, meta: {touched, error}, updateAddress, ...props}) => (
+    <AddressInput updateAddress={address => {
+        console.log(address);
+        updateAddress(address)
+    }}/>
+));
 
 const steps = () => [
     "Pick Report Template", "Fill In Details"
@@ -51,10 +64,48 @@ const convertFileToBase64 = file => new Promise((resolve, reject) => {
 const requiredValidate = required();
 
 const formValidate = required();
-
+const styles = {
+    flex: {display: 'flex'},
+    flexColumn: {display: 'flex', flexDirection: 'column'},
+    leftCol: {flex: 1, marginRight: '1em'},
+    rightCol: {flex: 1, marginLeft: '1em'},
+    singleCol: {marginTop: '2em', marginBottom: '2em'},
+    inlineBlock: {display: 'inline-flex', marginRight: '1rem'},
+    fullWidth: {width: '100%'},
+    block: {display: 'block'},
+    halfDivider: {
+        flexGrow: 1,
+        height: '2px',
+        backgroundColor: 'rgba(0,0,0,0.25)'
+    },
+    dividerContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        verticalAlign: 'middle',
+        alignItems: 'center',
+    },
+    orText: {
+        margin: '10px'
+    },
+    addressContainer: {
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'row'
+    },
+    addressContainerLabeled: {
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column'
+    },
+    addressComponent: {
+        flexGrow: '1',
+        marginRight: '1rem'
+    }
+};
 class reportsWizard extends React.Component {
     //users: {}, years: {}, customers: {}
-    state = {update: false};
+    state = {update: false, address: '', zipCode: '', city: '', state: '', updateAddress: 0};
 
     constructor(props) {
         super(props);
@@ -269,6 +320,55 @@ class reportsWizard extends React.Component {
         // this.updateChoices();
     }
 
+    updateAddress = (address) => {
+        let addressObj = {address: '', zipCode: '', city: '', state: '', bldgNum: '', street: ''};
+        for (let i = 0; i < address.address_components.length; i++) {
+            let addressType = address.address_components[i].types[0];
+            let val = address.address_components[i]['short_name'];
+
+            switch (addressType) {
+                case "street_address":
+                    addressObj.address = val;
+                    break;
+                case "street_number":
+                    addressObj.bldgNum = val;
+
+                    break;
+                case "route":
+                    addressObj.street = val;
+
+                    break;
+                case "locality":
+                    addressObj.city = val;
+
+                    break;
+                case "administrative_area_level_1":
+                    addressObj.state = val;
+
+                    break;
+                case "country":
+
+                    break;
+                case "postal_code":
+                    addressObj.zipCode = val;
+
+                    break;
+                case "postal_town":
+                    addressObj.city = val;
+
+                    break;
+                case "sublocality_level_1":
+                    addressObj.city = val;
+
+                    break;
+            }
+
+        }
+        if (!addressObj.address) {
+            addressObj.address = addressObj.bldgNum + ' ' + addressObj.street;
+        }
+        this.setState({...addressObj, updateAddress: 1});
+    };
     updateChoices() {
         if (this.state.update) {
             const year = this.state.year;
@@ -290,7 +390,7 @@ class reportsWizard extends React.Component {
         }
     }
     stepsContent() {
-
+        const {classes} = this.props;
         this.setState({
             stepsContent: [<CustomSelectInput
                 source="template" choices={[{id: 'customers_split', name: 'Year; Split by Customer'}, {
@@ -303,14 +403,49 @@ class reportsWizard extends React.Component {
                     [
                         <TextInput
                             source="Scout_name" validate={requiredValidate}/>,
-                        <TextInput
-                            source="Scout_address" validate={requiredValidate}/>,
-                        <TextInput
-                            source="Scout_Zip" validate={requiredValidate}/>,
-                        <TextInput
-                            source="Scout_Town" validate={requiredValidate}/>,
-                        <TextInput
-                            source="Scout_State" validate={requiredValidate}/>,
+                        <div className={classes.addressContainerLabeled}>
+                            <FormLabel variant={"headline"}>Search For Address</FormLabel>
+                            <AddrInput updateAddress={this.updateAddress}/>
+                        </div>,
+                        <div className={classes.dividerContainer}>
+                            <Divider className={classes.halfDivider}/>
+                            <Typography className={classes.orText}>OR</Typography>
+                            <Divider className={classes.halfDivider}/>
+
+                        </div>,
+                        <FormDataConsumer className={classes.addressComponent}>
+                            {({formData, ...rest}) => {
+
+                                if (this.state.updateAddress === 1) {
+                                    this.setState({updateAddress: 0});
+                                    rest.dispatch(change('record-form', "Scout_address", this.state.address));
+                                    rest.dispatch(change('record-form', "Scout_Town", this.state.city));
+                                    rest.dispatch(change('record-form', "Scout_State", this.state.state));
+                                    rest.dispatch(change('record-form', "Scout_Zip", this.state.zipCode));
+                                }
+                                return (
+
+
+                                    <div className={classes.addressContainerLabeled}>
+                                        <FormLabel variant={"headline"}>Enter an Address manually</FormLabel>
+                                        <div className={classes.addressContainer}>
+
+                                            <TextInput source="Scout_address" className={classes.addressComponent}
+                                                       value={this.state.address} validate={requiredValidate}/>
+
+
+                                            <TextInput source="Scout_Town" className={classes.addressComponent}
+                                                       validate={requiredValidate}/>
+                                            <TextInput source="Scout_State" className={classes.addressComponent}
+                                                       validate={requiredValidate}/>
+                                            <TextInput source="Scout_Zip" className={classes.addressComponent}
+                                                       validate={requiredValidate}/>
+                                        </div>
+                                    </div>
+                                )
+                            }}
+                        </FormDataConsumer>,
+
                         <TextInput
                             source="Scout_Phone" validate={requiredValidate}/>,
                         <TextInput
@@ -414,5 +549,5 @@ class reportsWizard extends React.Component {
     }
 }
 
-export default reportsWizard;
+export default withStyles(styles)(reportsWizard);
 
