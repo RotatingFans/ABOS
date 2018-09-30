@@ -2,10 +2,11 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import compose from 'recompose/compose';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import {withStyles} from '@material-ui/core/styles';
 import classnames from 'classnames';
-import {Button, CircularProgress} from 'react-admin';
+import {Button} from 'react-admin';
 import {showNotification, translate} from 'ra-core';
 
 const styles = {

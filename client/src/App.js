@@ -1,6 +1,6 @@
 // in src/App.js
 import React from 'react';
-import {Admin, fetchUtils, Layout, Resource} from 'react-admin';
+import {Admin, fetchUtils, Layout, Resource, AppBar, UserMenu, MenuItemLink} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
 import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
@@ -14,6 +14,9 @@ import Menu from "./resources/Menu";
 import {UGY} from "./UGY";
 import {UserList, UserShow} from "./resources/User";
 import {Maps} from './maps';
+import { Route } from 'react-router-dom';
+import About from './resources/About';
+import InfoIcon from '@material-ui/icons/Info';
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -25,9 +28,23 @@ const httpClient = (url, options = {}) => {
 };
 const dataProvider = restClient(httpClient);
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
-const layout = (props) => <Layout {...props} menu={Menu}/>;
+const MyUserMenu = props => (
+    <UserMenu {...props}>
+        <MenuItemLink
+            to="/about"
+            primaryText="About"
+            leftIcon={<InfoIcon />}
+        />
+    </UserMenu>
+);
+
+const MyAppBar = props => <AppBar {...props} userMenu={<MyUserMenu />} />;
+const routes = [
+    <Route exact path="/about" component={About} />,
+];
+const layout = (props) => <Layout {...props} appBar={MyAppBar}/>;
 const App = () => (
-    <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider}>
+    <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider} appLayout={layout} customRoutes={routes}>
         {permissions => [
             <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
             <Resource name="Reports" list={Reports}/>,
