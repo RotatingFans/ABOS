@@ -6,8 +6,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import {withStyles} from '@material-ui/core/styles';
 import classnames from 'classnames';
-import {Button} from 'react-admin';
 import {showNotification, translate} from 'ra-core';
+import Button from '@material-ui/core/Button';
 
 const styles = {
     button: {

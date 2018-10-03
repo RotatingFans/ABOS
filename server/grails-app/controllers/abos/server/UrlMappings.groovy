@@ -41,6 +41,7 @@ class UrlMappings {
         "/api/Group"(resources: 'Groups')
 
         "/api/Reports"(controller: "Reports", action: "index")
+        // "/api/convert"(controller: "Convert", action: "index")
         "/api/ProductsMany"(controller: "ProductsTable", action: "index")
         get "/api/UserHierarchy"(controller: "UserHierarchy", action: "index")
         post "/api/UserHierarchy"(controller: "UserHierarchy", action: "save")

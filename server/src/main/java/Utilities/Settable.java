@@ -83,7 +83,7 @@ public class Settable<T> {
     }
 
     public T orElseGetAndSet(Supplier<? extends T> var1) {
-        if (!(this.set && !Objects.equals(val, inval))) {
+        if ((!this.set || Objects.equals(val, inval))) {
             this.val = var1.get();
         }
         return this.val;

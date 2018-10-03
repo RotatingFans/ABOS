@@ -244,7 +244,7 @@ public class Order {
             //Fills row array for table with info
 
 
-            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+            if ((quant > 0) || !excludeZeroOrders) {
                 BigDecimal unitCost = new BigDecimal(ProductInfoArray.get(i).productUnitPrice.replaceAll("\\$", ""));
                 allProducts[noProductsOrdered] = new Product.formattedProduct(ProductInfoArray.get(i).productID, ProductInfoArray.get(i).productName, ProductInfoArray.get(i).productSize, ProductInfoArray.get(i).productUnitPrice, ProductInfoArray.get(i).productCategory, quant, unitCost.multiply(new BigDecimal(quant)));
                 totL = unitCost.multiply(new BigDecimal(quant)).add(totL);

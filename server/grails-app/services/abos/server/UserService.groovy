@@ -85,7 +85,7 @@ class UserService {
                 springSecurityService.loadCurrentUser() as User :
                 null as User
 
-        UserYear.findAllByUserAndStatus(currentUser, "ENABLED").last().year
+        UserYear.findAllByUserAndStatus(currentUser, "ENABLED")?.last()?.year
 
     }
 }

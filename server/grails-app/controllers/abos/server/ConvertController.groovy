@@ -18,21 +18,16 @@
 
 package abos.server
 
-class BootStrap {
+import grails.plugin.springsecurity.annotation.Secured
+import javafx.util.Pair
 
-    def init = { servletContext ->
-        /*def adminRole = new Role(authority: 'ROLE_ADMIN').save()
-        def userRole = new Role(authority: 'ROLE_USER').save()
-        def roleHierarchy = new RoleHierarchyEntry(entry: 'ROLE_ADMIN > ROLE_USER').save()
-
-        def testUser = new User(username: 'me', password: 'password', fullName: "admin").save()
-
-        UserRole.create testUser, adminRole, true*/
+@Secured(["ROLE_ADMIN"])
+class ConvertController {
+    static responseFormats = ['json', 'xml']
 
 
-
-
-    }
-    def destroy = {
+    def index() {
+        def jsonParams = request.JSON
+        new convertFrmMySqlToGORM().convert(new Pair<String, String>(jsonParams.userName, jsonParams.password))
     }
 }

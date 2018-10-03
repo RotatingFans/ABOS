@@ -183,7 +183,7 @@ public class Order {
                         while (rs.next()) {
 
                             quant = rs.getInt("SUM(Quantity)");
-                            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+                            if ((quant > 0) || !excludeZeroOrders) {
                                 BigDecimal unitCost = rs.getBigDecimal("Cost");
                                 allProducts.add(new formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
                                 totL = unitCost.multiply(new BigDecimal(quant)).add(totL);
@@ -206,7 +206,7 @@ public class Order {
 
                         while (rs.next()) {
                             quant = rs.getInt("SUM(Quantity)");
-                            if (((quant > 0) && excludeZeroOrders) || !excludeZeroOrders) {
+                            if ((quant > 0) || !excludeZeroOrders) {
                                 BigDecimal unitCost = rs.getBigDecimal("Cost");
                                 allProducts.add(new formattedProduct(rs.getInt("idproducts"), rs.getString("ID"), rs.getString("Name"), rs.getString("UnitSize"), rs.getBigDecimal("Cost"), rs.getString("Category"), quant, unitCost.multiply(new BigDecimal(quant))));
                                 totL = unitCost.multiply(new BigDecimal(quant)).add(totL);

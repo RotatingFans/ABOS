@@ -49,7 +49,7 @@ public class Group {
         this.id.orElseGetAndSet(() -> {
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("SELECT * FROM groups WHERE ID=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                prep.setString(1, name);
+                prep.setInt(1, id);
                 try (ResultSet rs = prep.executeQuery()) {
 
 
@@ -83,7 +83,7 @@ public class Group {
             }
             try (Connection con = DbInt.getConnection(year);
                  PreparedStatement prep = con.prepareStatement("SELECT * FROM users WHERE groupId=?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                prep.setInt(1, getID());
+                prep.setInt(1, id);
 
                 try (ResultSet rs = prep.executeQuery()) {
 
