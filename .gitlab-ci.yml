@@ -56,7 +56,8 @@ variables:
 
 stages:
   - build
-  - test
+  - test-server
+  - test-client
   - review
   - dast
   - staging
@@ -65,7 +66,7 @@ stages:
   - performance
   - cleanup
 
-build server:
+build_server:
   stage: build
   image: docker:stable-git
   services:
@@ -77,12 +78,12 @@ build server:
   only:
     - branches
 
-test server:
+test_server:
   services:
     - postgres:latest
   variables:
     POSTGRES_DB: test
-  stage: test
+  stage: test-server
   image: gliderlabs/herokuish:latest
   script:
     - cd ./server
@@ -95,7 +96,7 @@ test server:
     variables:
       - $TEST_DISABLED
 
-build client:
+build_client:
   stage: build
   image: docker:stable-git
   services:
@@ -107,12 +108,12 @@ build client:
   only:
     - branches
 
-test client:
+test_client:
   services:
     - postgres:latest
   variables:
     POSTGRES_DB: test
-  stage: test
+  stage: test-client
   image: gliderlabs/herokuish:latest
   script:
     - cd ./client
@@ -125,8 +126,8 @@ test client:
     variables:
       - $TEST_DISABLED
 
-test code_quality server:
-  stage: test
+code_quality-server:
+  stage: test-server
   image: docker:stable
   allow_failure: true
   services:
@@ -143,8 +144,8 @@ test code_quality server:
     variables:
       - $CODE_QUALITY_DISABLED
 
-test license_management server:
-  stage: test
+license_management-server:
+  stage: test-server
   image: docker:stable
   allow_failure: true
   services:
@@ -164,7 +165,7 @@ test license_management server:
     variables:
       - $LICENSE_MANAGEMENT_DISABLED
 
-test performance server:
+performance-server:
   stage: performance
   image: docker:stable
   allow_failure: true
@@ -186,8 +187,8 @@ test performance server:
     variables:
       - $PERFORMANCE_DISABLED
 
-test sast server:
-  stage: test
+sast-server:
+  stage: test-server
   image: docker:stable
   allow_failure: true
   services:
@@ -207,8 +208,8 @@ test sast server:
     variables:
       - $SAST_DISABLED
 
-test dependency_scanning server:
-  stage: test
+dependency_scanning-server:
+  stage: test-server
   image: docker:stable
   allow_failure: true
   services:
@@ -228,8 +229,8 @@ test dependency_scanning server:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-test container_scanning server:
-  stage: test
+container_scanning-server:
+  stage: test-server
   image: docker:stable
   allow_failure: true
   services:
@@ -249,7 +250,7 @@ test container_scanning server:
     variables:
       - $CONTAINER_SCANNING_DISABLED
 
-test dast server:
+dast-server:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
@@ -273,8 +274,8 @@ test dast server:
       - $DAST_DISABLED
 
 
-test code_quality client:
-  stage: test
+code_quality-client:
+  stage: test-client
   image: docker:stable
   allow_failure: true
   services:
@@ -291,8 +292,8 @@ test code_quality client:
     variables:
       - $CODE_QUALITY_DISABLED
 
-test license_management client:
-  stage: test
+license_management-client:
+  stage: test-client
   image: docker:stable
   allow_failure: true
   services:
@@ -312,7 +313,7 @@ test license_management client:
     variables:
       - $LICENSE_MANAGEMENT_DISABLED
 
-test performance client:
+performance-client:
   stage: performance
   image: docker:stable
   allow_failure: true
@@ -334,8 +335,8 @@ test performance client:
     variables:
       - $PERFORMANCE_DISABLED
 
-test sast-client:
-  stage: test
+sast-client:
+  stage: test-client
   image: docker:stable
   allow_failure: true
   services:
@@ -355,8 +356,8 @@ test sast-client:
     variables:
       - $SAST_DISABLED
 
-test dependency_scanning client:
-  stage: test
+dependency_scanning-client:
+  stage: test-client
   image: docker:stable
   allow_failure: true
   services:
@@ -376,8 +377,8 @@ test dependency_scanning client:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-test container_scanning client:
-  stage: test
+container_scanning-client:
+  stage: test-client
   image: docker:stable
   allow_failure: true
   services:
@@ -397,7 +398,7 @@ test container_scanning client:
     variables:
       - $CONTAINER_SCANNING_DISABLED
 
-test dast client:
+dast-client:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
