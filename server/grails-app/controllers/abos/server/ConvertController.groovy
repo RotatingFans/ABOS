@@ -19,7 +19,8 @@
 package abos.server
 
 import grails.plugin.springsecurity.annotation.Secured
-import javafx.util.Pair
+
+//import javafx.util.Pair
 
 @Secured(["ROLE_ADMIN"])
 class ConvertController {
@@ -28,6 +29,6 @@ class ConvertController {
 
     def index() {
         def jsonParams = request.JSON
-        new convertFrmMySqlToGORM().convert(new Pair<String, String>(jsonParams.userName, jsonParams.password))
+        //  new convertFrmMySqlToGORM().convert(new Pair<String, String>(jsonParams.userName, jsonParams.password))
     }
 }
