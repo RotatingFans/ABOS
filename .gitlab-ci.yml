@@ -65,7 +65,7 @@ stages:
   - performance
   - cleanup
 
-build_server:
+build server:
   stage: build
   image: docker:stable-git
   services:
@@ -77,7 +77,7 @@ build_server:
   only:
     - branches
 
-test_server:
+test server:
   services:
     - postgres:latest
   variables:
@@ -95,7 +95,7 @@ test_server:
     variables:
       - $TEST_DISABLED
 
-build_client:
+build client:
   stage: build
   image: docker:stable-git
   services:
@@ -107,7 +107,7 @@ build_client:
   only:
     - branches
 
-test_client:
+test client:
   services:
     - postgres:latest
   variables:
@@ -125,7 +125,7 @@ test_client:
     variables:
       - $TEST_DISABLED
 
-code_quality-server:
+test code_quality server:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -143,7 +143,7 @@ code_quality-server:
     variables:
       - $CODE_QUALITY_DISABLED
 
-license_management-server:
+test license_management server:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -164,7 +164,7 @@ license_management-server:
     variables:
       - $LICENSE_MANAGEMENT_DISABLED
 
-performance-server:
+test performance server:
   stage: performance
   image: docker:stable
   allow_failure: true
@@ -186,7 +186,7 @@ performance-server:
     variables:
       - $PERFORMANCE_DISABLED
 
-sast-server:
+test sast server:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -207,7 +207,7 @@ sast-server:
     variables:
       - $SAST_DISABLED
 
-dependency_scanning-server:
+test dependency_scanning server:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -228,7 +228,7 @@ dependency_scanning-server:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-container_scanning-server:
+test container_scanning server:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -249,7 +249,7 @@ container_scanning-server:
     variables:
       - $CONTAINER_SCANNING_DISABLED
 
-dast-server:
+test dast server:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
@@ -273,7 +273,7 @@ dast-server:
       - $DAST_DISABLED
 
 
-code_quality-client:
+test code_quality client:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -291,7 +291,7 @@ code_quality-client:
     variables:
       - $CODE_QUALITY_DISABLED
 
-license_management-client:
+test license_management client:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -312,7 +312,7 @@ license_management-client:
     variables:
       - $LICENSE_MANAGEMENT_DISABLED
 
-performance-client:
+test performance client:
   stage: performance
   image: docker:stable
   allow_failure: true
@@ -334,7 +334,7 @@ performance-client:
     variables:
       - $PERFORMANCE_DISABLED
 
-sast-client:
+test sast-client:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -355,7 +355,7 @@ sast-client:
     variables:
       - $SAST_DISABLED
 
-dependency_scanning-client:
+test dependency_scanning client:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -376,7 +376,7 @@ dependency_scanning-client:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-container_scanning-client:
+test container_scanning client:
   stage: test
   image: docker:stable
   allow_failure: true
@@ -397,7 +397,7 @@ container_scanning-client:
     variables:
       - $CONTAINER_SCANNING_DISABLED
 
-dast-client:
+test dast client:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
