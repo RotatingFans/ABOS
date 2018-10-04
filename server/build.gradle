@@ -84,8 +84,9 @@ dependencies {
     compile group: 'org.flywaydb', name: 'flyway-core', version:'5.0.7'
     compile group: 'com.itextpdf', name: 'itextpdf', version:'5.5.10'
     compile group: 'com.itextpdf.tool', name: 'xmlworker', version:'5.5.10'
-    compile group: 'org.w3c.tidy', name: 'jtidy', version:'938'
-    compile group: 'net.sf.saxon', name: 'saxon', version:'9'
+    compile group: 'net.sf.jtidy', name: 'jtidy', version: 'r938'
+
+    compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.9.0-1'
     compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.0.1'
 }
 
