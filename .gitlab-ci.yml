@@ -282,6 +282,7 @@ code_quality-client:
     - docker:stable-dind
   script:
     - cd ./client
+    - rm build.gradle
     - setup_docker
     - code_quality
   artifacts:
@@ -300,6 +301,7 @@ license_management-client:
     - docker:stable-dind
   script:
     - cd ./client
+    - rm build.gradle
     - setup_docker
     - license_management
   artifacts:
@@ -321,6 +323,7 @@ performance-client:
     - docker:stable-dind
   script:
     - cd ./client
+    - rm build.gradle
     - setup_docker
     - performance
   artifacts:
@@ -343,6 +346,7 @@ sast-client:
     - docker:stable-dind
   script:
     - cd ./client
+    - rm build.gradle
     - setup_docker
     - sast
   artifacts:
@@ -364,6 +368,7 @@ dependency_scanning-client:
     - docker:stable-dind
   script:
     - cd ./client
+    - rm build.gradle
     - setup_docker
     - dependency_scanning
   artifacts:
@@ -406,6 +411,7 @@ dast-client:
     POSTGRES_DB: "false"
   script:
     - cd ./client
+    - rm build.gradle
     - dast
   artifacts:
     paths: [gl-dast-report.json]
