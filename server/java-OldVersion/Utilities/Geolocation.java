@@ -130,7 +130,7 @@ public class Geolocation {
                     }
                 }
             } catch (Exception e) {
-                //LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please Check the address and try again");
+               // LogToFile.log(e, Severity.WARNING, "Error parsing geolocation server response. Please Check the address and try again");
             }
         }
         //Formats City and state into one string to return

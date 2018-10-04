@@ -18,7 +18,7 @@
 
 package abos.server
 
-import Utilities.DbInt
+/*import Utilities.DbInt
 import Utilities.Group
 import Utilities.Order
 import javafx.util.Pair
@@ -27,10 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
-import static grails.gorm.multitenancy.Tenants.withId
+import static grails.gorm.multitenancy.Tenants.withId*/
 
 class convertFrmMySqlToGORM {
-    @Autowired
+    /*@Autowired
     RoleDataService roleDataService
 
     @Autowired
@@ -55,7 +55,7 @@ class convertFrmMySqlToGORM {
 
     def convert(Pair<String, String> userPass) {
 
-        /*
+        *//*
         login
         Loop through users
             - add users with test as password
@@ -69,7 +69,7 @@ class convertFrmMySqlToGORM {
             - Add customers
             - Add Orders
             - Add ordered_products
-         */
+         *//*
 
         if (DbInt.verifyLoginAndUser(userPass) && DbInt.testConnection() && DbInt.isAdmin()) {
             Role adminRole = Role.findOrSaveWhere(authority: 'ROLE_ADMIN')
@@ -149,12 +149,12 @@ class convertFrmMySqlToGORM {
                                 }
                                 println orders
                                 ordArr.orderData.each { data ->
-                                    /* println data.productID
+                                    *//* println data.productID
                                  println Products.findByHumanProductIdAndYear(data.productID, year)
                                  println data.orderedQuantity
                                  println data.extendedCost.toString()
                                  //println customers
-                                 println year*/
+                                 println year*//*
                                     Ordered_products ops = new Ordered_products(user: user, customer: customers, order: orders, products: Products.findByHumanProductIdAndYear(data.productID, year), quantity: data.orderedQuantity, extendedCost: data.extendedCost, year: year, userName: user.username)
                                     if (!ops.save()) {
                                         ops.errors.allErrors.each {
@@ -171,5 +171,5 @@ class convertFrmMySqlToGORM {
             }
 
         }
-    }
+    }*/
 }

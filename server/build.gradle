@@ -23,7 +23,6 @@ group 'rotatingFans.ABOS'
 version '2.2.4'
 
 description "ABOS"
-apply plugin: "com.github.hierynomus.license"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
@@ -85,7 +84,6 @@ dependencies {
     compile group: 'com.itextpdf', name: 'itextpdf', version:'5.5.10'
     compile group: 'com.itextpdf.tool', name: 'xmlworker', version:'5.5.10'
     compile group: 'net.sf.jtidy', name: 'jtidy', version: 'r938'
-    compile group: 'org.wildfly.swarm', name: 'javafx', version: '2017.4.0'
     compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.9.0-1'
     compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.0.1'
 }
@@ -127,7 +125,7 @@ licenseReport {
     // Use 'ALL' to dynamically resolve all configurations:
     // configurations = ALL
 }*/
-downloadLicenses {
+/*downloadLicenses {
     ext.apacheTwo = license('Apache License, Version 2.0', 'http://opensource.org/licenses/Apache-2.0')
     ext.bsd = license('BSD License', 'http://www.opensource.org/licenses/bsd-license.php')
     ext.EPL1 = license('Eclipse Public License - v 1.0', 'https://www.eclipse.org/org/documents/epl-v10.php')
@@ -144,6 +142,6 @@ downloadLicenses {
     ]
 
 
-}
+}*/
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean
