@@ -73,7 +73,7 @@ build_server:
   script:
     - cd ./server
     - setup_docker
-    - build
+    - build_server
   only:
     - branches
 
@@ -103,7 +103,7 @@ build_client:
   script:
     - cd ./client
     - setup_docker
-    - build
+    - build_client
   only:
     - branches
 
@@ -125,13 +125,14 @@ test_client:
     variables:
       - $TEST_DISABLED
 
-code_quality:
+code_quality-server:
   stage: test
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
     - code_quality
   artifacts:
@@ -142,13 +143,14 @@ code_quality:
     variables:
       - $CODE_QUALITY_DISABLED
 
-license_management:
+license_management-server:
   stage: test
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
     - license_management
   artifacts:
@@ -162,13 +164,14 @@ license_management:
     variables:
       - $LICENSE_MANAGEMENT_DISABLED
 
-performance:
+performance-server:
   stage: performance
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
     - performance
   artifacts:
@@ -183,13 +186,14 @@ performance:
     variables:
       - $PERFORMANCE_DISABLED
 
-sast:
+sast-server:
   stage: test
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
     - sast
   artifacts:
@@ -203,13 +207,14 @@ sast:
     variables:
       - $SAST_DISABLED
 
-dependency_scanning:
+dependency_scanning-server:
   stage: test
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
     - dependency_scanning
   artifacts:
@@ -223,15 +228,16 @@ dependency_scanning:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-container_scanning:
+container_scanning-server:
   stage: test
   image: docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
   script:
+    - cd ./server
     - setup_docker
-    - container_scanning
+    - container_scanning_server
   artifacts:
     paths: [gl-container-scanning-report.json]
   only:
@@ -243,13 +249,162 @@ container_scanning:
     variables:
       - $CONTAINER_SCANNING_DISABLED
 
-dast:
+dast-server:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
   variables:
     POSTGRES_DB: "false"
   script:
+    - cd ./server
+    - dast
+  artifacts:
+    paths: [gl-dast-report.json]
+  only:
+    refs:
+      - branches
+    kubernetes: active
+    variables:
+      - $GITLAB_FEATURES =~ /\bdast\b/
+  except:
+    refs:
+      - master
+    variables:
+      - $DAST_DISABLED
+
+
+code_quality-client:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - code_quality
+  artifacts:
+    paths: [gl-code-quality-report.json]
+  only:
+    - branches
+  except:
+    variables:
+      - $CODE_QUALITY_DISABLED
+
+license_management-client:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - license_management
+  artifacts:
+    paths: [gl-license-management-report.json]
+  only:
+    - branches
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\blicense_management\b/
+  except:
+    variables:
+      - $LICENSE_MANAGEMENT_DISABLED
+
+performance-client:
+  stage: performance
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - performance
+  artifacts:
+    paths:
+    - performance.json
+    - sitespeed-results/
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    variables:
+      - $PERFORMANCE_DISABLED
+
+sast-client:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - sast
+  artifacts:
+    paths: [gl-sast-report.json]
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/
+  except:
+    variables:
+      - $SAST_DISABLED
+
+dependency_scanning-client:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - dependency_scanning
+  artifacts:
+    paths: [gl-dependency-scanning-report.json]
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
+  except:
+    variables:
+      - $DEPENDENCY_SCANNING_DISABLED
+
+container_scanning-client:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - cd ./client
+    - setup_docker
+    - container_scanning_client
+  artifacts:
+    paths: [gl-container-scanning-report.json]
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast_container\b/
+  except:
+    variables:
+      - $CONTAINER_SCANNING_DISABLED
+
+dast-client:
+  stage: dast
+  allow_failure: true
+  image: registry.gitlab.com/gitlab-org/security-products/zaproxy
+  variables:
+    POSTGRES_DB: "false"
+  script:
+    - cd ./client
     - dast
   artifacts:
     paths: [gl-dast-report.json]
@@ -506,13 +661,13 @@ rollout 100%:
     fi
   }
 
-  function container_scanning() {
+  function container_scanning_server() {
     registry_login
 
     docker run -d --name db arminc/clair-db:latest
     docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.1
     apk add -U wget ca-certificates
-    docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
+    docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-Server
     wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
     mv clair-scanner_linux_amd64 clair-scanner
     chmod +x clair-scanner
@@ -520,7 +675,24 @@ rollout 100%:
     retries=0
     echo "Waiting for clair daemon to start"
     while( ! wget -T 10 -q -O /dev/null http://docker:6060/v1/namespaces ) ; do sleep 1 ; echo -n "." ; if [ $retries -eq 10 ] ; then echo " Timeout, aborting." ; exit 1 ; fi ; retries=$(($retries+1)) ; done
-    ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG} || true
+    ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-Server || true
+  }
+
+    function container_scanning_client() {
+    registry_login
+
+    docker run -d --name db arminc/clair-db:latest
+    docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.1
+    apk add -U wget ca-certificates
+    docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-Client
+    wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
+    mv clair-scanner_linux_amd64 clair-scanner
+    chmod +x clair-scanner
+    touch clair-whitelist.yml
+    retries=0
+    echo "Waiting for clair daemon to start"
+    while( ! wget -T 10 -q -O /dev/null http://docker:6060/v1/namespaces ) ; do sleep 1 ; echo -n "." ; if [ $retries -eq 10 ] ; then echo " Timeout, aborting." ; exit 1 ; fi ; retries=$(($retries+1)) ; done
+    ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-Client || true
   }
 
   function code_quality() {
@@ -747,7 +919,7 @@ rollout 100%:
     fi
   }
 
-  function build() {
+  function build_server() {
     registry_login
 
     if [[ -f Dockerfile ]]; then
@@ -761,7 +933,7 @@ rollout 100%:
         --build-arg ftp_proxy="$ftp_proxy" \
         --build-arg NO_PROXY="$NO_PROXY" \
         --build-arg no_proxy="$no_proxy" \
-        -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
+        -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server" .
     else
       echo "Building Heroku-based application using gliderlabs/herokuish docker image..."
       docker run -i \
@@ -775,19 +947,62 @@ rollout 100%:
         -e NO_PROXY \
         -e no_proxy \
         --name="$CI_CONTAINER_NAME" -v "$(pwd):/tmp/app:ro" gliderlabs/herokuish /bin/herokuish buildpack build
-      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server"
       docker rm "$CI_CONTAINER_NAME" >/dev/null
       echo ""
 
-      echo "Configuring $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG docker image..."
-      docker create --expose 5000 --env PORT=5000 --name="$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" /bin/herokuish procfile start web
-      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+      echo "Configuring $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server docker image..."
+      docker create --expose 5000 --env PORT=5000 --name="$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server" /bin/herokuish procfile start web
+      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server"
       docker rm "$CI_CONTAINER_NAME" >/dev/null
       echo ""
     fi
 
     echo "Pushing to GitLab Container Registry..."
-    docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+    docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Server"
+    echo ""
+  }
+  function build_client() {
+    registry_login
+
+    if [[ -f Dockerfile ]]; then
+      echo "Building Dockerfile-based application..."
+      docker build \
+        --build-arg HTTP_PROXY="$HTTP_PROXY" \
+        --build-arg http_proxy="$http_proxy" \
+        --build-arg HTTPS_PROXY="$HTTPS_PROXY" \
+        --build-arg https_proxy="$https_proxy" \
+        --build-arg FTP_PROXY="$FTP_PROXY" \
+        --build-arg ftp_proxy="$ftp_proxy" \
+        --build-arg NO_PROXY="$NO_PROXY" \
+        --build-arg no_proxy="$no_proxy" \
+        -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client" .
+    else
+      echo "Building Heroku-based application using gliderlabs/herokuish docker image..."
+      docker run -i \
+        -e BUILDPACK_URL \
+        -e HTTP_PROXY \
+        -e http_proxy \
+        -e HTTPS_PROXY \
+        -e https_proxy \
+        -e FTP_PROXY \
+        -e ftp_proxy \
+        -e NO_PROXY \
+        -e no_proxy \
+        --name="$CI_CONTAINER_NAME" -v "$(pwd):/tmp/app:ro" gliderlabs/herokuish /bin/herokuish buildpack build
+      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client"
+      docker rm "$CI_CONTAINER_NAME" >/dev/null
+      echo ""
+
+      echo "Configuring $CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client docker image..."
+      docker create --expose 5000 --env PORT=5000 --name="$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client" /bin/herokuish procfile start web
+      docker commit "$CI_CONTAINER_NAME" "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client"
+      docker rm "$CI_CONTAINER_NAME" >/dev/null
+      echo ""
+    fi
+
+    echo "Pushing to GitLab Container Registry..."
+    docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG-Client"
     echo ""
   }
 
