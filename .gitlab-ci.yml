@@ -153,7 +153,7 @@ license_management-server:
   script:
     - cd ./server
     - setup_docker
-    - license_management
+    - license_management_server
   artifacts:
     paths: [gl-license-management-report.json]
   only:
@@ -208,7 +208,7 @@ sast-server:
     variables:
       - $SAST_DISABLED
 
-dependency_scanning-server:
+.dependency_scanning-server:
   stage: test-server
   image: docker:stable
   allow_failure: true
@@ -708,12 +708,19 @@ rollout 100%:
                --volume /var/run/docker.sock:/var/run/docker.sock \
                "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
   }
-
   function license_management() {
     # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable"
     LICENSE_MANAGEMENT_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
 
-    docker run --env GRADLE_VERSION="3.5.1" --volume "$PWD:/code" \
+    docker run --volume "$PWD:/code" \
+                                    "registry.gitlab.com/gitlab-org/security-products/license-management:$LICENSE_MANAGEMENT_VERSION" analyze /code
+  }
+
+  function license_management_server() {
+    # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable"
+    LICENSE_MANAGEMENT_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+
+    docker run --env SETUP_CMD="./gradlew build" --volume "$PWD:/code" \
                                     "registry.gitlab.com/gitlab-org/security-products/license-management:$LICENSE_MANAGEMENT_VERSION" analyze /code
   }
 
