@@ -152,6 +152,8 @@ license_management-server:
     - docker:stable-dind
   script:
     - cd ./server
+    - chmod +x ./gradlew
+    - chmod 777 ./gradlew
     - setup_docker
     - license_management_server
   artifacts:
