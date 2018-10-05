@@ -137,7 +137,7 @@ code_quality-server:
     - setup_docker
     - code_quality
   artifacts:
-    paths: [gl-code-quality-report.json]
+    paths: [server/gl-code-quality-report.json]
   only:
     - branches
   except:
@@ -155,7 +155,7 @@ license_management-server:
     - setup_docker
     - license_management_server
   artifacts:
-    paths: [gl-license-management-report.json]
+    paths: [server/gl-license-management-report.json]
   only:
     - branches
   only:
@@ -177,8 +177,8 @@ performance-server:
     - performance
   artifacts:
     paths:
-    - performance.json
-    - sitespeed-results/
+    - server/performance.json
+    - server/sitespeed-results/
   only:
     refs:
       - branches
@@ -198,7 +198,7 @@ sast-server:
     - setup_docker
     - sast
   artifacts:
-    paths: [gl-sast-report.json]
+    paths: [server/gl-sast-report.json]
   only:
     refs:
       - branches
@@ -240,7 +240,7 @@ container_scanning-server:
     - setup_docker
     - container_scanning_server
   artifacts:
-    paths: [gl-container-scanning-report.json]
+    paths: [server/gl-container-scanning-report.json]
   only:
     refs:
       - branches
@@ -260,7 +260,7 @@ dast-server:
     - cd ./server
     - dast
   artifacts:
-    paths: [gl-dast-report.json]
+    paths: [server/gl-dast-report.json]
   only:
     refs:
       - branches
@@ -286,7 +286,7 @@ code_quality-client:
     - setup_docker
     - code_quality
   artifacts:
-    paths: [gl-code-quality-report.json]
+    paths: [client/gl-code-quality-report.json]
   only:
     - branches
   except:
@@ -305,7 +305,7 @@ license_management-client:
     - setup_docker
     - license_management
   artifacts:
-    paths: [gl-license-management-report.json]
+    paths: [client/gl-license-management-report.json]
   only:
     - branches
   only:
@@ -328,8 +328,8 @@ performance-client:
     - performance
   artifacts:
     paths:
-    - performance.json
-    - sitespeed-results/
+    - client/performance.json
+    - client/sitespeed-results/
   only:
     refs:
       - branches
@@ -350,7 +350,7 @@ sast-client:
     - setup_docker
     - sast
   artifacts:
-    paths: [gl-sast-report.json]
+    paths: [client/gl-sast-report.json]
   only:
     refs:
       - branches
@@ -372,7 +372,7 @@ dependency_scanning-client:
     - setup_docker
     - dependency_scanning
   artifacts:
-    paths: [gl-dependency-scanning-report.json]
+    paths: [client/gl-dependency-scanning-report.json]
   only:
     refs:
       - branches
@@ -393,7 +393,7 @@ container_scanning-client:
     - setup_docker
     - container_scanning_client
   artifacts:
-    paths: [gl-container-scanning-report.json]
+    paths: [client/gl-container-scanning-report.json]
   only:
     refs:
       - branches
@@ -414,7 +414,7 @@ dast-client:
     - rm build.gradle
     - dast
   artifacts:
-    paths: [gl-dast-report.json]
+    paths: [client/gl-dast-report.json]
   only:
     refs:
       - branches
