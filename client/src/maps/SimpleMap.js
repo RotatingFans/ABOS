@@ -366,7 +366,7 @@ class SimpleMap extends Component {
             const {clusters, hoveredMarkerId} = this.state;
             this.setState({
                     clusters: clusters
-                        .map(({...cluster, id}) => ({
+                        .map(({id, ...cluster}) => ({
                             ...cluster,
                             hovered: id === hoveredMarkerId,
                         })),
@@ -402,7 +402,7 @@ class SimpleMap extends Component {
                     >
                         {
                             clusters
-                                .map(({...markerProps, id, numPoints}) => (
+                                .map(({id, numPoints, ...markerProps}) => (
                                     numPoints === 1
                                         ? <SimpleMarker key={id} {...markerProps}
                                                         onClick={this.handleMarkerClick(id, {...markerProps})}/>
