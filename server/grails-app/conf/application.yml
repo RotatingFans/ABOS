@@ -121,9 +121,9 @@ environments:
     production:
         dataSource:
             dbCreate: "update"
-            url: "jdbc:mysql://1:3306/my_database"
-            username: "username"
-            password: "password"
+            url: "jdbc:mysql://172.17.0.2:3306/GORM-testing-2"
+            username: "admin"
+            password: "dev123"
 ---
 grails:
     plugin:
