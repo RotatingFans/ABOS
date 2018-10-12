@@ -70,12 +70,15 @@ stages:
 build_server:
   stage: build
   image: docker:stable-git
+  services:
+  - docker:stable-dind
   script:
-    - cd ./server
-    - chmod +x ./gradlew
-    - ./gradlew build
+  - cd ./server
+  - setup_docker
+  - build
   only:
-    - branches
+  - branches
+
 
 test_server:
   services:
