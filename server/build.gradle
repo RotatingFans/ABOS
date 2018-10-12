@@ -188,6 +188,15 @@ licenseReport {
     // Use 'ALL' to dynamically resolve all configurations:
     // configurations = ALL
 }*/
+
+license {
+    header project.file('HEADER')
+    strictCheck false
+    ignoreFailures true
+    skipExistingHeaders true
+    
+}
+
 downloadLicenses {
     ext.apacheTwo = license('Apache License, Version 2.0', 'http://opensource.org/licenses/Apache-2.0')
     ext.bsd = license('BSD License', 'http://www.opensource.org/licenses/bsd-license.php')
