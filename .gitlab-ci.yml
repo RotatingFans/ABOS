@@ -75,7 +75,7 @@ build_server:
   script:
   - cd ./server
   - setup_docker
-  - build
+  - build_server
   only:
   - branches
 
