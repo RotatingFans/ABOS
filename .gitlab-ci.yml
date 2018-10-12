@@ -485,10 +485,8 @@ deploy_server:
   before_script:
   - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
   - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  - apt-get update && apt-get install google-cloud-sdk
+  - apt-get update && apt-get install -y google-cloud-sdk
 
-  after_script:
-  - rm /tmp/$CI_PIPELINE_ID.json
   stage: deploy
 
   script:
@@ -497,6 +495,7 @@ deploy_server:
   - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
   - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
   - gcloud --quiet --project $PROJECT_ID_PRODUCTION app deploy
+  - rm /tmp/$CI_PIPELINE_ID.json
 
 # Keys that start with a dot (.) will not be processed by GitLab CI.
 # Staging and canary jobs are disabled by default, to enable them
