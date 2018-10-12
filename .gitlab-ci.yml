@@ -103,7 +103,7 @@ build_client:
   script:
     - cd ./client
     - yarn install
-    - yarn build
+    - env CI=false yarn build
   only:
     - branches
 
