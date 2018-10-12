@@ -64,6 +64,7 @@ stages:
   - canary
   - production
   - deploy
+  - External
   - performance
   - cleanup
 
@@ -478,21 +479,29 @@ stop_review:
       - $REVIEW_DISABLED
 
 deploy_server:
-  image: python:2.7
-  before_script:
-  - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
-  - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  - apt-get update && apt-get install -y google-cloud-sdk
+  image: openjdk:8u171-jdk-alpine3.8
+  script:
+  - cd ./server
+  - chmod +x ./gradlew
+  - ./gradlew appengineDeploy
+
+  only:
+  - branches
+  #  image: python:2.7
+  #  before_script:
+  #  - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+  #  - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  #  - apt-get update && apt-get install -y google-cloud-sdk
 
   stage: deploy
 
-  script:
-  - cd ./server
-  - echo $DATA_SOURCE_FILE > ./src/main/resources/secrets.yml
-  - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
-  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-  - gcloud --quiet --project $PROJECT_ID_PRODUCTION app deploy
-  - rm /tmp/$CI_PIPELINE_ID.json
+#  script:
+#  - cd ./server
+#  - echo $DATA_SOURCE_FILE > ./src/main/resources/secrets.yml
+#  - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
+#  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+#  - gcloud --quiet --project $PROJECT_ID_PRODUCTION app deploy
+#  - rm /tmp/$CI_PIPELINE_ID.json
 
 # Keys that start with a dot (.) will not be processed by GitLab CI.
 # Staging and canary jobs are disabled by default, to enable them
