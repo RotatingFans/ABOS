@@ -63,6 +63,7 @@ stages:
   - staging
   - canary
   - production
+  - deploy
   - performance
   - cleanup
 
