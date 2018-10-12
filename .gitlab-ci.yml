@@ -72,8 +72,6 @@ build_server:
   image: java:openjdk-8-jdk-alpine
   script:
   - cd ./server
-  - chmod +x ./gradlew
-  - ./gradlew build
   only:
   - branches
 
