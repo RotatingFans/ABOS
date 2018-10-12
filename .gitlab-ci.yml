@@ -72,6 +72,7 @@ build_server:
   image: openjdk:8u171-jdk-alpine3.8
   script:
   - cd ./server
+  - chmod +x ./gradlew
   - ./gradlew build
 
   only:
@@ -98,8 +99,7 @@ test_server:
 
 build_client:
   stage: build
-  image: jonbaldie/yarn:latest
-
+  image: node:8-alpine
   script:
     - cd ./client
     - yarn build
@@ -229,26 +229,26 @@ sast-server:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-container_scanning-server:
-  stage: test-server
-  image: docker:stable
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - cd ./server
-    - setup_docker
-    - container_scanning_server
-  artifacts:
-    paths: [server/gl-container-scanning-report.json]
-  only:
-    refs:
-      - branches
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast_container\b/
-  except:
-    variables:
-      - $CONTAINER_SCANNING_DISABLED
+#container_scanning-server:
+#  stage: test-server
+#  image: docker:stable
+#  allow_failure: true
+#  services:
+#    - docker:stable-dind
+#  script:
+#    - cd ./server
+#    - setup_docker
+#    - container_scanning_server
+#  artifacts:
+#    paths: [server/gl-container-scanning-report.json]
+#  only:
+#    refs:
+#      - branches
+#    variables:
+#      - $GITLAB_FEATURES =~ /\bsast_container\b/
+#  except:
+#    variables:
+#      - $CONTAINER_SCANNING_DISABLED
 
 dast-server:
   stage: dast
@@ -382,26 +382,26 @@ dependency_scanning-client:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-container_scanning-client:
-  stage: test-client
-  image: docker:stable
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - cd ./client
-    - setup_docker
-    - container_scanning_client
-  artifacts:
-    paths: [client/gl-container-scanning-report.json]
-  only:
-    refs:
-      - branches
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast_container\b/
-  except:
-    variables:
-      - $CONTAINER_SCANNING_DISABLED
+#container_scanning-client:
+#  stage: test-client
+#  image: docker:stable
+#  allow_failure: true
+#  services:
+#    - docker:stable-dind
+#  script:
+#    - cd ./client
+#    - setup_docker
+#    - container_scanning_client
+#  artifacts:
+#    paths: [client/gl-container-scanning-report.json]
+#  only:
+#    refs:
+#      - branches
+#    variables:
+#      - $GITLAB_FEATURES =~ /\bsast_container\b/
+#  except:
+#    variables:
+#      - $CONTAINER_SCANNING_DISABLED
 
 dast-client:
   stage: dast
