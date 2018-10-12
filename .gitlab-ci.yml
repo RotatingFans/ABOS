@@ -72,6 +72,7 @@ build_server:
   image: docker:stable-git
   script:
     - cd ./server
+    - chmod +x ./gradlew
     - ./gradlew build
   only:
     - branches
