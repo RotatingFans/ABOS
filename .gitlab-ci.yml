@@ -69,13 +69,11 @@ stages:
 
 build_server:
   stage: build
-  image: docker:stable-git
-  services:
-  - docker:stable-dind
+  image: java:openjdk-8-jdk-alpine
   script:
   - cd ./server
-  - setup_docker
-  - build_server
+  - chmod +x ./gradlew
+  - ./gradlew build
   only:
   - branches
 
