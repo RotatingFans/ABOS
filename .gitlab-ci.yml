@@ -69,7 +69,7 @@ stages:
 
 build_server:
   stage: build
-  image: java:8u171-jdk-alpine3.8
+  image: openjdk:8u171-jdk-alpine3.8
   script:
   - cd ./server
   - ./gradlew build
@@ -98,13 +98,11 @@ test_server:
 
 build_client:
   stage: build
-  image: docker:stable-git
-  services:
-  - docker:stable-dind
+  image: jonbaldie/yarn:latest
+
   script:
     - cd ./client
-    - setup_docker
-    - build_client
+    - yarn build
   only:
     - branches
 
