@@ -81,8 +81,9 @@ grails:
 dataSource:
     pooled: true
 
-    driverClassName: "com.mysql.jdbc.Driver"
-    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    dbCreate: "update"
 
     properties:
        jmxEnabled: true
@@ -126,7 +127,13 @@ environments:
             password: "dev123"
 ---
 grails:
-    plugin:
+  config:
+    locations:
+    - classpath:secrets.yml
+---
+grails:
+
+  plugin:
         springsecurity:
             roleHierarchyEntryClassName: abos.server.RoleHierarchyEntry
             userLookup:

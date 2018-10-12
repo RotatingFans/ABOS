@@ -69,12 +69,9 @@ stages:
 build_server:
   stage: build
   image: docker:stable-git
-  services:
-  - docker:stable-dind
   script:
     - cd ./server
-    - setup_docker
-    - build_server
+    - ./gradlew build
   only:
     - branches
 
@@ -478,6 +475,24 @@ stop_review:
     variables:
       - $REVIEW_DISABLED
 
+deploy_server:
+  image: alpine:latest
+  before_script:
+  - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+  - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  - apt-get update && apt-get install google-cloud-sdk
+
+  after_script:
+  - rm /tmp/$CI_PIPELINE_ID.json
+  stage: deploy
+
+  script:
+  - cd ./server
+  - echo $DATA_SOURCE_FILE > ./src/main/resources/secrets.yml
+  - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
+  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+  - gcloud --quiet --project $PROJECT_ID_PRODUCTION app deploy
+
 # Keys that start with a dot (.) will not be processed by GitLab CI.
 # Staging and canary jobs are disabled by default, to enable them
 # remove the dot (.) before the job name.
@@ -489,164 +504,164 @@ stop_review:
 # only manually promote to production, enable this job by setting
 # STAGING_ENABLED.
 
-staging:
-  stage: staging
-  script:
-    - check_kube_domain
-    - install_dependencies
-    - download_chart
-    - ensure_namespace
-    - install_tiller
-    - create_secret
-    - deploy
-  environment:
-    name: staging
-    url: http://$CI_PROJECT_PATH_SLUG-staging.$AUTO_DEVOPS_DOMAIN
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $STAGING_ENABLED
-
-# Canaries are also disabled by default, but if you want them,
-# and know what the downsides are, you can enable this by setting
-# CANARY_ENABLED.
-
-canary:
-  stage: canary
-  script:
-    - check_kube_domain
-    - install_dependencies
-    - download_chart
-    - ensure_namespace
-    - install_tiller
-    - create_secret
-    - deploy canary
-  environment:
-    name: production
-    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
-  when: manual
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $CANARY_ENABLED
-
-.production: &production_template
-  stage: production
-  script:
-    - check_kube_domain
-    - install_dependencies
-    - download_chart
-    - ensure_namespace
-    - install_tiller
-    - create_secret
-    - deploy
-    - delete canary
-    - delete rollout
-    - persist_environment_url
-  environment:
-    name: production
-    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
-  artifacts:
-    paths: [environment_url.txt]
-
-production:
-  <<: *production_template
-  only:
-    refs:
-      - master
-    kubernetes: active
-  except:
-    variables:
-      - $STAGING_ENABLED
-      - $CANARY_ENABLED
-      - $INCREMENTAL_ROLLOUT_ENABLED
-
-production_manual:
-  <<: *production_template
-  when: manual
-  allow_failure: false
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $STAGING_ENABLED
-      - $CANARY_ENABLED
-  except:
-    variables:
-      - $INCREMENTAL_ROLLOUT_ENABLED
-
-# This job implements incremental rollout on for every push to `master`.
-
-.rollout: &rollout_template
-  stage: production
-  script:
-    - check_kube_domain
-    - install_dependencies
-    - download_chart
-    - ensure_namespace
-    - install_tiller
-    - create_secret
-    - deploy rollout $ROLLOUT_PERCENTAGE
-    - scale stable $((100-ROLLOUT_PERCENTAGE))
-    - delete canary
-    - persist_environment_url
-  environment:
-    name: production
-    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
-  artifacts:
-    paths: [environment_url.txt]
-
-rollout 10%:
-  <<: *rollout_template
-  variables:
-    ROLLOUT_PERCENTAGE: 10
-  when: manual
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $INCREMENTAL_ROLLOUT_ENABLED
-
-rollout 25%:
-  <<: *rollout_template
-  variables:
-    ROLLOUT_PERCENTAGE: 25
-  when: manual
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $INCREMENTAL_ROLLOUT_ENABLED
-
-rollout 50%:
-  <<: *rollout_template
-  variables:
-    ROLLOUT_PERCENTAGE: 50
-  when: manual
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $INCREMENTAL_ROLLOUT_ENABLED
-
-rollout 100%:
-  <<: *production_template
-  when: manual
-  allow_failure: false
-  only:
-    refs:
-      - master
-    kubernetes: active
-    variables:
-      - $INCREMENTAL_ROLLOUT_ENABLED
+#staging:
+#  stage: staging
+#  script:
+#    - check_kube_domain
+#    - install_dependencies
+#    - download_chart
+#    - ensure_namespace
+#    - install_tiller
+#    - create_secret
+#    - deploy
+#  environment:
+#    name: staging
+#    url: http://$CI_PROJECT_PATH_SLUG-staging.$AUTO_DEVOPS_DOMAIN
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $STAGING_ENABLED
+#
+## Canaries are also disabled by default, but if you want them,
+## and know what the downsides are, you can enable this by setting
+## CANARY_ENABLED.
+#
+#canary:
+#  stage: canary
+#  script:
+#    - check_kube_domain
+#    - install_dependencies
+#    - download_chart
+#    - ensure_namespace
+#    - install_tiller
+#    - create_secret
+#    - deploy canary
+#  environment:
+#    name: production
+#    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
+#  when: manual
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $CANARY_ENABLED
+#
+#.production: &production_template
+#  stage: production
+#  script:
+#    - check_kube_domain
+#    - install_dependencies
+#    - download_chart
+#    - ensure_namespace
+#    - install_tiller
+#    - create_secret
+#    - deploy
+#    - delete canary
+#    - delete rollout
+#    - persist_environment_url
+#  environment:
+#    name: production
+#    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
+#  artifacts:
+#    paths: [environment_url.txt]
+#
+#production:
+#  <<: *production_template
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#  except:
+#    variables:
+#      - $STAGING_ENABLED
+#      - $CANARY_ENABLED
+#      - $INCREMENTAL_ROLLOUT_ENABLED
+#
+#production_manual:
+#  <<: *production_template
+#  when: manual
+#  allow_failure: false
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $STAGING_ENABLED
+#      - $CANARY_ENABLED
+#  except:
+#    variables:
+#      - $INCREMENTAL_ROLLOUT_ENABLED
+#
+## This job implements incremental rollout on for every push to `master`.
+#
+#.rollout: &rollout_template
+#  stage: production
+#  script:
+#    - check_kube_domain
+#    - install_dependencies
+#    - download_chart
+#    - ensure_namespace
+#    - install_tiller
+#    - create_secret
+#    - deploy rollout $ROLLOUT_PERCENTAGE
+#    - scale stable $((100-ROLLOUT_PERCENTAGE))
+#    - delete canary
+#    - persist_environment_url
+#  environment:
+#    name: production
+#    url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN
+#  artifacts:
+#    paths: [environment_url.txt]
+#
+#rollout 10%:
+#  <<: *rollout_template
+#  variables:
+#    ROLLOUT_PERCENTAGE: 10
+#  when: manual
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $INCREMENTAL_ROLLOUT_ENABLED
+#
+#rollout 25%:
+#  <<: *rollout_template
+#  variables:
+#    ROLLOUT_PERCENTAGE: 25
+#  when: manual
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $INCREMENTAL_ROLLOUT_ENABLED
+#
+#rollout 50%:
+#  <<: *rollout_template
+#  variables:
+#    ROLLOUT_PERCENTAGE: 50
+#  when: manual
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $INCREMENTAL_ROLLOUT_ENABLED
+#
+#rollout 100%:
+#  <<: *production_template
+#  when: manual
+#  allow_failure: false
+#  only:
+#    refs:
+#      - master
+#    kubernetes: active
+#    variables:
+#      - $INCREMENTAL_ROLLOUT_ENABLED
 
 # ---------------------------------------------------------------------------
 
