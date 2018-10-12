@@ -102,6 +102,7 @@ build_client:
   image: node:8-alpine
   script:
     - cd ./client
+    - yarn install
     - yarn build
   only:
     - branches
