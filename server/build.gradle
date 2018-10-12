@@ -22,7 +22,9 @@ buildscript {
 
     }
 }
-
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
 group 'rotatingFans.ABOS'
 version '2.2.4'
 
@@ -186,7 +188,7 @@ licenseReport {
     // Use 'ALL' to dynamically resolve all configurations:
     // configurations = ALL
 }*/
-/*downloadLicenses {
+downloadLicenses {
     ext.apacheTwo = license('Apache License, Version 2.0', 'http://opensource.org/licenses/Apache-2.0')
     ext.bsd = license('BSD License', 'http://www.opensource.org/licenses/bsd-license.php')
     ext.EPL1 = license('Eclipse Public License - v 1.0', 'https://www.eclipse.org/org/documents/epl-v10.php')
@@ -203,7 +205,7 @@ licenseReport {
     ]
 
 
-}*/
+}
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean
 sourceCompatibility = 1.8     // App Engine Flexible uses Java 8
