@@ -69,7 +69,7 @@ stages:
 
 build_server:
   stage: build
-  image: java:alpine
+  image: alpine:latest
   script:
   - cd ./server
 
