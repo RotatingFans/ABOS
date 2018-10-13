@@ -73,9 +73,9 @@ build_server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   script:
   - cd ./server
   - chmod +x ./gradlew
@@ -89,9 +89,9 @@ test_server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   stage: test-server
   image: openjdk:8u171-jdk-alpine3.8
   script:
@@ -141,9 +141,9 @@ code_quality-server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   #  allow_failure: true
   #  services:
   #    - docker:stable-dind
@@ -165,9 +165,9 @@ license_management-server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   allow_failure: true
   #  services:
   #    - docker:stable-dind
@@ -193,9 +193,9 @@ performance-server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   allow_failure: true
   #  services:
   #    - docker:stable-dind
@@ -221,9 +221,9 @@ sast-server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   allow_failure: true
   #  services:
   #    - docker:stable-dind
@@ -291,9 +291,9 @@ dast-server:
   cache:
     key: ${CI_COMMIT_REF_SLUG}-server
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
+    - cache/.gradle/caches/
+    - cache/.gradle/wrapper/
+    - cache/.gradle/build-cache/
   variables:
     POSTGRES_DB: "false"
   script:
