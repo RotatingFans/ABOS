@@ -63,6 +63,7 @@ import Paper from '@material-ui/core/Paper';
 import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
 import UserPanel from "./UserPanel";
 import {rowStatus} from "./ProductsGrid";
+import hostURL from "../host";
 
 
 const drawerWidth = 240;
@@ -349,7 +350,7 @@ class UGYEditor extends React.Component {
     save = event => {
         console.log(this.state.userChecks);
                 let options = {};
-        let url = 'http://localhost:8080/api/UserHierarchy';
+        let url = hostURL + '/api/UserHierarchy';
                 if (!options.headers) {
                     options.headers = new Headers({Accept: 'application/json'});
                 }
@@ -373,7 +374,7 @@ class UGYEditor extends React.Component {
                     //  this.setState({open: false});
                     //  this.props.push('/');
                 });
-        url = 'http://localhost:8080/api/ProductsMany';
+        url = hostURL + '/api/ProductsMany';
         options = {};
         if (!options.headers) {
             options.headers = new Headers({Accept: 'application/json'});
@@ -488,12 +489,12 @@ class UGYEditor extends React.Component {
         this.handleUserBulkMenuClose(event);
     };
     confirmPassword = event => {
-        const url = 'http://localhost:8080/api/ProductsMany';
+        const url = hostURL + '/api/ProductsMany';
 
         if (event.currentTarget.value == 2) {
             const username = localStorage.getItem('userName');
             const password = this.state.confirmDeletionPassword;
-            const request = new Request('http://localhost:8080/api/login', {
+            const request = new Request(hostURL + '/api/login', {
                 method: 'POST',
                 body: JSON.stringify({username, password}),
                 headers: new Headers({'Content-Type': 'application/json'}),

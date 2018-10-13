@@ -1,12 +1,13 @@
 // in src/authProvider.js
 import {AUTH_CHECK, AUTH_ERROR, AUTH_GET_PERMISSIONS, AUTH_LOGIN, AUTH_LOGOUT} from 'react-admin';
+import hostURL from '../host';
 
 export default (type, params) => {
 
 
     if (type === AUTH_LOGIN) {
         const {username, password} = params;
-        const request = new Request('http://localhost:8080/api/login', {
+        const request = new Request(hostURL + '/api/login', {
             method: 'POST',
             body: JSON.stringify({username, password}),
             headers: new Headers({'Content-Type': 'application/json'}),
@@ -21,7 +22,7 @@ export default (type, params) => {
             .then(({access_token, roles}) => {
                 localStorage.setItem('access_token', access_token);
                 localStorage.setItem('role', roles[0]);
-                const request = new Request('http://localhost:8080/api/currentUser', {
+                const request = new Request(hostURL + '/api/currentUser', {
                     method: 'GET',
                     headers: new Headers({
                         'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ export default (type, params) => {
         const token = localStorage.getItem('access_token');
 
         return localStorage.getItem('access_token') && fetch(
-            `http://localhost:8080/api/AuthCheck`,
+            hostURL + `/api/AuthCheck`,
 
             {
                 headers: {

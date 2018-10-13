@@ -25,6 +25,7 @@ import restClient from "../grailsRestClient";
 import FormLabel from "@material-ui/core/FormLabel/FormLabel";
 import Divider from "@material-ui/core/Divider/Divider";
 import Typography from "@material-ui/core/Typography/Typography";
+import hostURL from "../host";
 
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
@@ -116,7 +117,7 @@ class reportsWizard extends React.Component {
     save = (record, redirect) => {
         console.log(record);
         let options = {};
-        let url = 'http://localhost:8080/api/Reports';
+        let url = hostURL + '/api/Reports';
         if (!options.headers) {
             options.headers = new Headers({Accept: 'application/pdf'});
         }
