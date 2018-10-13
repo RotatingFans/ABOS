@@ -71,6 +71,7 @@ stages:
 
 build_server:
   cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
     paths:
     - .gradle/wrapper
     - .gradle/caches
@@ -88,6 +89,7 @@ build_server:
 
 test_server:
   cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
     paths:
     - .gradle/wrapper
     - .gradle/caches
@@ -491,6 +493,7 @@ stop_review:
 
 deploy_server:
   cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
     paths:
     - .gradle/wrapper
     - .gradle/caches
