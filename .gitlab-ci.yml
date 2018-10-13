@@ -70,6 +70,11 @@ stages:
 - cleanup
 
 build_server:
+  cache:
+    paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
   stage: build
   image: openjdk:8u171-jdk-alpine3.8
   script:
@@ -82,6 +87,11 @@ build_server:
 
 
 test_server:
+  cache:
+    paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
   services:
   - postgres:latest
   variables:
@@ -480,6 +490,11 @@ stop_review:
     - $REVIEW_DISABLED
 
 deploy_server:
+  cache:
+    paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
   image: registry.gitlab.com/abos-software/abos/gcloud:latest
   script:
   - cd ./server
@@ -1123,3 +1138,5 @@ deploy_server:
 
 before_script:
 - *auto_devops
+- export GRADLE_USER_HOME=`pwd`/.gradle
+

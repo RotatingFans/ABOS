@@ -188,13 +188,20 @@ licenseReport {
     // Use 'ALL' to dynamically resolve all configurations:
     // configurations = ALL
 }*/
+appengine {  // App Engine tasks configuration
+
+
+    deploy {   // deploy configuration
+        project "abos-1536973204401"
+    }
+}
 
 license {
     header project.file('HEADER')
     strictCheck false
     ignoreFailures true
     skipExistingHeaders true
-    
+
 }
 
 downloadLicenses {
