@@ -71,6 +71,10 @@ stages:
 build_server:
   stage: build
   image: openjdk:8u171-jdk-alpine3.8
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   script:
   - cd ./server
   - chmod +x ./gradlew
@@ -81,17 +85,15 @@ build_server:
 
 
 test_server:
-  services:
-    - postgres:latest
-  variables:
-    POSTGRES_DB: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   stage: test-server
-  image: gliderlabs/herokuish:latest
+  image: openjdk:8u171-jdk-alpine3.8
   script:
     - cd ./server
-    - setup_test_db
-    - cp -R . /tmp/app
-    - /bin/herokuish buildpack test
+    - ./gradlew test
   only:
     - branches
   except:
@@ -101,6 +103,11 @@ test_server:
 build_client:
   stage: build
   image: node:8-alpine
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
+
   script:
     - cd ./client
     - yarn install
@@ -109,17 +116,15 @@ build_client:
     - branches
 
 test_client:
-  services:
-    - postgres:latest
-  variables:
-    POSTGRES_DB: test
   stage: test-client
-  image: gliderlabs/herokuish:latest
+  image: node:8-alpine
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
   script:
     - cd ./client
-    - setup_test_db
-    - cp -R . /tmp/app
-    - /bin/herokuish buildpack test
+    - env CI=false yarn test
   only:
     - branches
   except:
@@ -128,13 +133,17 @@ test_client:
 
 code_quality-server:
   stage: test-server
-  image: docker:stable
-  allow_failure: true
-  services:
-    - docker:stable-dind
+  image: registry.gitlab.com/gitlab-org/security-products/codequality:latest
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
+  #  allow_failure: true
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./server
-    - setup_docker
+  # - setup_docker
     - code_quality
   artifacts:
     paths: [server/gl-code-quality-report.json]
@@ -146,15 +155,18 @@ code_quality-server:
 
 license_management-server:
   stage: test-server
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/license-management:latest
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   allow_failure: true
-  services:
-    - docker:stable-dind
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./server
     - chmod +x ./gradlew
-    - chmod 777 ./gradlew
-    - setup_docker
+  #    - setup_docker
     - license_management_server
   artifacts:
     paths: [server/gl-license-management-report.json]
@@ -170,9 +182,13 @@ license_management-server:
 performance-server:
   stage: performance
   image: docker:stable
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   allow_failure: true
-  services:
-    - docker:stable-dind
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./server
     - setup_docker
@@ -191,13 +207,17 @@ performance-server:
 
 sast-server:
   stage: test-server
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/sast:latest
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   allow_failure: true
-  services:
-    - docker:stable-dind
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./server
-    - setup_docker
+  #   - setup_docker
     - sast
   artifacts:
     paths: [server/gl-sast-report.json]
@@ -256,6 +276,10 @@ dast-server:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-server
+    paths:
+    - $HOME/.gradle/caches/
   variables:
     POSTGRES_DB: "false"
   script:
@@ -278,15 +302,19 @@ dast-server:
 
 code_quality-client:
   stage: test-client
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/codequality:latest
   allow_failure: true
-  services:
-    - docker:stable-dind
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./client
     - rm build.gradle
-    - setup_docker
-    - code_quality
+  # - setup_docker
+    - /run.sh ./
   artifacts:
     paths: [client/gl-code-quality-report.json]
   only:
@@ -297,14 +325,18 @@ code_quality-client:
 
 license_management-client:
   stage: test-client
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/license-management:latest
   allow_failure: true
-  services:
-    - docker:stable-dind
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./client
     - rm build.gradle
-    - setup_docker
+  #- setup_docker
     - license_management
   artifacts:
     paths: [client/gl-license-management-report.json]
@@ -323,6 +355,10 @@ performance-client:
   allow_failure: true
   services:
     - docker:stable-dind
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
   script:
     - cd ./client
     - rm build.gradle
@@ -342,14 +378,18 @@ performance-client:
 
 sast-client:
   stage: test-client
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/sast:latest
   allow_failure: true
-  services:
-    - docker:stable-dind
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./client
     - rm build.gradle
-    - setup_docker
+  #- setup_docker
     - sast
   artifacts:
     paths: [client/gl-sast-report.json]
@@ -366,6 +406,10 @@ dependency_scanning-client:
   stage: test-client
   image: registry.gitlab.com/gitlab-org/security-products/dependency-scanning:latest
   allow_failure: true
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
   #  services:
   #    - docker:stable-dind
   script:
@@ -410,6 +454,10 @@ dast-client:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-client
+    paths:
+    - ./client/node_modules/
   variables:
     POSTGRES_DB: "false"
   script:
@@ -748,8 +796,7 @@ deploy_server:
     # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable"
     LICENSE_MANAGEMENT_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
 
-    docker run --env SETUP_CMD="./gradlew build" --volume "$PWD:/code" \
-                                    "registry.gitlab.com/gitlab-org/security-products/license-management:$LICENSE_MANAGEMENT_VERSION" analyze /code
+    env SETUP_CMD="./gradlew build" analyze ./
   }
 
   function sast() {
@@ -762,10 +809,7 @@ deploy_server:
           echo "WARNING: CONFIDENCE_LEVEL is deprecated and MUST be replaced with SAST_CONFIDENCE_LEVEL"
         fi
 
-        docker run --env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}" \
-                   --volume "$PWD:/code" \
-                   --volume /var/run/docker.sock:/var/run/docker.sock \
-                   "registry.gitlab.com/gitlab-org/security-products/sast:$SP_VERSION" /app/bin/run /code
+         env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}" /app/bin/run ./
         ;;
       *)
         echo "GitLab EE is required"
