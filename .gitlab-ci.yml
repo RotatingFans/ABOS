@@ -491,20 +491,9 @@ stop_review:
     - $REVIEW_DISABLED
 
 deploy_server:
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - .gradle/wrapper
-    - .gradle/caches
-
-  image: registry.gitlab.com/abos-software/abos/gcloud:latest
+  image: ilyasemenov/gitlab-ci-git-push
   script:
-  - cd ./server
-  - chmod +x ./gradlew
-  - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
-  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-  - ./gradlew appengineDeploy
-  - rm /tmp/$CI_PIPELINE_ID.json
+  - git-push git@heroku.com:abos-rf
 
   only:
   - branches
