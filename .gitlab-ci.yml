@@ -55,27 +55,22 @@ variables:
   DOCKER_DRIVER: overlay2
 
 stages:
-  - build
-  - test-server
-  - test-client
-  - review
-  - dast
-  - staging
-  - canary
-  - production
-  - deploy
-  - External
-  - performance
-  - cleanup
+- build
+- test-server
+- test-client
+- review
+- dast
+- staging
+- canary
+- production
+- deploy
+- External
+- performance
+- cleanup
+
 build_server:
   stage: build
   image: openjdk:8u171-jdk-alpine3.8
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
   script:
   - cd ./server
   - chmod +x ./gradlew
@@ -86,182 +81,155 @@ build_server:
 
 
 test_server:
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
+  services:
+  - postgres:latest
+  variables:
+    POSTGRES_DB: test
   stage: test-server
-  image: openjdk:8u171-jdk-alpine3.8
+  image: gliderlabs/herokuish:latest
   script:
-    - cd ./server
-    - chmod +x ./gradlew
-    - ./gradlew test
+  - cd ./server
+  - setup_test_db
+  - cp -R . /tmp/app
+  - /bin/herokuish buildpack test
   only:
-    - branches
+  - branches
   except:
     variables:
-      - $TEST_DISABLED
+    - $TEST_DISABLED
 
 build_client:
   stage: build
   image: node:8-alpine
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
-
   script:
-    - cd ./client
-    - yarn install
-    - env CI=false yarn build
+  - cd ./client
+  - yarn install
+  - env CI=false yarn build
   only:
-    - branches
+  - branches
 
 test_client:
+  services:
+  - postgres:latest
+  variables:
+    POSTGRES_DB: test
   stage: test-client
-  image: node:8-alpine
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
+  image: gliderlabs/herokuish:latest
   script:
-    - cd ./client
-    - env CI=false yarn test
+  - cd ./client
+  - setup_test_db
+  - cp -R . /tmp/app
+  - /bin/herokuish buildpack test
   only:
-    - branches
+  - branches
   except:
     variables:
-      - $TEST_DISABLED
+    - $TEST_DISABLED
 
 code_quality-server:
   stage: test-server
-  image: registry.gitlab.com/gitlab-org/security-products/codequality:latest
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
-  #  allow_failure: true
-  #  services:
-  #    - docker:stable-dind
+  image: docker:stable
+  allow_failure: true
+  services:
+  - docker:stable-dind
   script:
-    - cd ./server
-  # - setup_docker
-    - code_quality
+  - cd ./server
+  - setup_docker
+  - code_quality
   artifacts:
     paths: [server/gl-code-quality-report.json]
   only:
-    - branches
+  - branches
   except:
     variables:
-      - $CODE_QUALITY_DISABLED
+    - $CODE_QUALITY_DISABLED
 
 license_management-server:
   stage: test-server
-  image: registry.gitlab.com/gitlab-org/security-products/license-management:latest
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
+  image: docker:stable
   allow_failure: true
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./server
-    - chmod +x ./gradlew
-  #    - setup_docker
-    - license_management_server
+  - cd ./server
+  - chmod +x ./gradlew
+  - chmod 777 ./gradlew
+  - setup_docker
+  - license_management_server
   artifacts:
     paths: [server/gl-license-management-report.json]
   only:
-    - branches
+  - branches
   only:
     variables:
-      - $GITLAB_FEATURES =~ /\blicense_management\b/
+    - $GITLAB_FEATURES =~ /\blicense_management\b/
   except:
     variables:
-      - $LICENSE_MANAGEMENT_DISABLED
+    - $LICENSE_MANAGEMENT_DISABLED
 
 performance-server:
   stage: performance
   image: docker:stable
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
   allow_failure: true
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./server
-    - setup_docker
-    - performance
+  - cd ./server
+  - setup_docker
+  - performance
   artifacts:
     paths:
     - server/performance.json
     - server/sitespeed-results/
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
   except:
     variables:
-      - $PERFORMANCE_DISABLED
+    - $PERFORMANCE_DISABLED
 
 sast-server:
   stage: test-server
-  image: registry.gitlab.com/gitlab-org/security-products/sast:latest
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
+  image: docker:stable
   allow_failure: true
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./server
-  #   - setup_docker
-    - sast
+  - cd ./server
+  - setup_docker
+  - sast
   artifacts:
     paths: [server/gl-sast-report.json]
   only:
     refs:
-      - branches
+    - branches
     variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/
+    - $GITLAB_FEATURES =~ /\bsast\b/
   except:
     variables:
-      - $SAST_DISABLED
+    - $SAST_DISABLED
 
 .dependency_scanning-server:
   stage: test-server
   image: docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+  - docker:stable-dind
   script:
-    - cd ./server
-    - setup_docker
-    - dependency_scanning
+  - cd ./server
+  - setup_docker
+  - dependency_scanning
   artifacts:
     paths: [gl-dependency-scanning-report.json]
   only:
     refs:
-      - branches
+    - branches
     variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
+    - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
   except:
     variables:
-      - $DEPENDENCY_SCANNING_DISABLED
+    - $DEPENDENCY_SCANNING_DISABLED
 
 #container_scanning-server:
 #  stage: test-server
@@ -288,160 +256,133 @@ dast-server:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - cache/.gradle/caches/
-    - cache/.gradle/wrapper/
-    - cache/.gradle/build-cache/
   variables:
     POSTGRES_DB: "false"
   script:
-    - cd ./server
-    - dast
+  - cd ./server
+  - dast
   artifacts:
     paths: [server/gl-dast-report.json]
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
     variables:
-      - $GITLAB_FEATURES =~ /\bdast\b/
+    - $GITLAB_FEATURES =~ /\bdast\b/
   except:
     refs:
-      - master
+    - master
     variables:
-      - $DAST_DISABLED
+    - $DAST_DISABLED
 
 
 code_quality-client:
   stage: test-client
-  image: registry.gitlab.com/gitlab-org/security-products/codequality:latest
+  image: docker:stable
   allow_failure: true
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./client
-    - rm build.gradle
-  # - setup_docker
-    - /run.sh ./
+  - cd ./client
+  - rm build.gradle
+  - setup_docker
+  - code_quality
   artifacts:
     paths: [client/gl-code-quality-report.json]
   only:
-    - branches
+  - branches
   except:
     variables:
-      - $CODE_QUALITY_DISABLED
+    - $CODE_QUALITY_DISABLED
 
 license_management-client:
   stage: test-client
-  image: registry.gitlab.com/gitlab-org/security-products/license-management:latest
+  image: docker:stable
   allow_failure: true
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./client
-    - rm build.gradle
-  #- setup_docker
-    - license_management
+  - cd ./client
+  - rm build.gradle
+  - setup_docker
+  - license_management
   artifacts:
     paths: [client/gl-license-management-report.json]
   only:
-    - branches
+  - branches
   only:
     variables:
-      - $GITLAB_FEATURES =~ /\blicense_management\b/
+    - $GITLAB_FEATURES =~ /\blicense_management\b/
   except:
     variables:
-      - $LICENSE_MANAGEMENT_DISABLED
+    - $LICENSE_MANAGEMENT_DISABLED
 
 performance-client:
   stage: performance
   image: docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
+  - docker:stable-dind
   script:
-    - cd ./client
-    - rm build.gradle
-    - setup_docker
-    - performance
+  - cd ./client
+  - rm build.gradle
+  - setup_docker
+  - performance
   artifacts:
     paths:
     - client/performance.json
     - client/sitespeed-results/
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
   except:
     variables:
-      - $PERFORMANCE_DISABLED
+    - $PERFORMANCE_DISABLED
 
 sast-client:
   stage: test-client
-  image: registry.gitlab.com/gitlab-org/security-products/sast:latest
+  image: docker:stable
   allow_failure: true
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./client
-    - rm build.gradle
-  #- setup_docker
-    - sast
+  - cd ./client
+  - rm build.gradle
+  - setup_docker
+  - sast
   artifacts:
     paths: [client/gl-sast-report.json]
   only:
     refs:
-      - branches
+    - branches
     variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/
+    - $GITLAB_FEATURES =~ /\bsast\b/
   except:
     variables:
-      - $SAST_DISABLED
+    - $SAST_DISABLED
 
 dependency_scanning-client:
   stage: test-client
-  image: registry.gitlab.com/gitlab-org/security-products/dependency-scanning:latest
+  image: docker:stable
   allow_failure: true
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
-  #  services:
-  #    - docker:stable-dind
+  services:
+  - docker:stable-dind
   script:
-    - cd ./client
-    - rm build.gradle
-    - /run.sh ./
-  #    - setup_docker
-  #    - dependency_scanning
+  - cd ./client
+  - rm build.gradle
+  - setup_docker
+  - dependency_scanning
   artifacts:
     paths: [client/gl-dependency-scanning-report.json]
   only:
     refs:
-      - branches
+    - branches
     variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
+    - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
   except:
     variables:
-      - $DEPENDENCY_SCANNING_DISABLED
+    - $DEPENDENCY_SCANNING_DISABLED
 
 #container_scanning-client:
 #  stage: test-client
@@ -468,41 +409,37 @@ dast-client:
   stage: dast
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/zaproxy
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-client
-    paths:
-    - ./client/node_modules/
   variables:
     POSTGRES_DB: "false"
   script:
-    - cd ./client
-    - rm build.gradle
-    - dast
+  - cd ./client
+  - rm build.gradle
+  - dast
   artifacts:
     paths: [client/gl-dast-report.json]
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
     variables:
-      - $GITLAB_FEATURES =~ /\bdast\b/
+    - $GITLAB_FEATURES =~ /\bdast\b/
   except:
     refs:
-      - master
+    - master
     variables:
-      - $DAST_DISABLED
+    - $DAST_DISABLED
 
 review:
   stage: review
   script:
-    - check_kube_domain
-    - install_dependencies
-    - download_chart
-    - ensure_namespace
-    - install_tiller
-    - create_secret
-    - deploy
-    - persist_environment_url
+  - check_kube_domain
+  - install_dependencies
+  - download_chart
+  - ensure_namespace
+  - install_tiller
+  - create_secret
+  - deploy
+  - persist_environment_url
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: http://$CI_PROJECT_PATH_SLUG-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN
@@ -511,21 +448,21 @@ review:
     paths: [environment_url.txt]
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
   except:
     refs:
-      - master
+    - master
     variables:
-      - $REVIEW_DISABLED
+    - $REVIEW_DISABLED
 
 stop_review:
   stage: cleanup
   variables:
     GIT_STRATEGY: none
   script:
-    - install_dependencies
-    - delete
+  - install_dependencies
+  - delete
   environment:
     name: review/$CI_COMMIT_REF_NAME
     action: stop
@@ -533,13 +470,13 @@ stop_review:
   allow_failure: true
   only:
     refs:
-      - branches
+    - branches
     kubernetes: active
   except:
     refs:
-      - master
+    - master
     variables:
-      - $REVIEW_DISABLED
+    - $REVIEW_DISABLED
 
 deploy_server:
   image: registry.gitlab.com/abos-software/abos/gcloud:latest
@@ -810,7 +747,8 @@ deploy_server:
     # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable"
     LICENSE_MANAGEMENT_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
 
-    /run.sh analyze ./
+    docker run --env SETUP_CMD="./gradlew build" --volume "$PWD:/code" \
+                                    "registry.gitlab.com/gitlab-org/security-products/license-management:$LICENSE_MANAGEMENT_VERSION" analyze /code
   }
 
   function sast() {
@@ -823,7 +761,10 @@ deploy_server:
           echo "WARNING: CONFIDENCE_LEVEL is deprecated and MUST be replaced with SAST_CONFIDENCE_LEVEL"
         fi
 
-         /app/bin/run ./
+        docker run --env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}" \
+                   --volume "$PWD:/code" \
+                   --volume /var/run/docker.sock:/var/run/docker.sock \
+                   "registry.gitlab.com/gitlab-org/security-products/sast:$SP_VERSION" /app/bin/run /code
         ;;
       *)
         echo "GitLab EE is required"
@@ -1177,6 +1118,4 @@ deploy_server:
   }
 
 before_script:
-  - *auto_devops
-  - export GRADLE_USER_HOME=cache/.gradle
-
+- *auto_devops
