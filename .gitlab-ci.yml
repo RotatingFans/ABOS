@@ -96,6 +96,7 @@ test_server:
   image: openjdk:8u171-jdk-alpine3.8
   script:
     - cd ./server
+    - chmod +x ./gradlew
     - ./gradlew test
   only:
     - branches
@@ -809,7 +810,7 @@ deploy_server:
     # Extract "MAJOR.MINOR" from CI_SERVER_VERSION and generate "MAJOR-MINOR-stable"
     LICENSE_MANAGEMENT_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
 
-    env SETUP_CMD="./gradlew build" analyze ./
+    /run.sh analyze ./
   }
 
   function sast() {
@@ -822,7 +823,7 @@ deploy_server:
           echo "WARNING: CONFIDENCE_LEVEL is deprecated and MUST be replaced with SAST_CONFIDENCE_LEVEL"
         fi
 
-         env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}" /app/bin/run ./
+         /app/bin/run ./
         ;;
       *)
         echo "GitLab EE is required"
