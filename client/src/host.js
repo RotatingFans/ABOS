@@ -1,2 +1,2 @@
-const url = 'https://abos-1536973204401.appspot.com';
+const url = 'http://abos-rf.herokuapp.com';
 export default url;

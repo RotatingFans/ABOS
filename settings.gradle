@@ -1,1 +1,4 @@
-include 'client', 'server'
+include 'server'
+if (INCLUDE_CLIENT == "true") {
+    include 'client'
+}
