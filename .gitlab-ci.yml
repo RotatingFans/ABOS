@@ -55,6 +55,8 @@ variables:
   DOCKER_DRIVER: overlay2
 
 stages:
+- deploy
+
 - build
 - test-server
 - test-client
@@ -63,7 +65,6 @@ stages:
 - staging
 - canary
 - production
-- deploy
 - External
 - performance
 - cleanup
@@ -483,7 +484,10 @@ deploy_server:
   script:
   - cd ./server
   - chmod +x ./gradlew
+  - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
+  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
   - ./gradlew appengineDeploy
+  - rm /tmp/$CI_PIPELINE_ID.json
 
   only:
   - branches
