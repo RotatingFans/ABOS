@@ -479,7 +479,7 @@ stop_review:
       - $REVIEW_DISABLED
 
 deploy_server:
-  image: openjdk:8u171-jdk-alpine3.8
+  image: registry.gitlab.com/abos-software/abos/gcloud:latest
   script:
   - cd ./server
   - chmod +x ./gradlew
