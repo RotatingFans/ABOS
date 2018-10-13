@@ -364,15 +364,16 @@ sast-client:
 
 dependency_scanning-client:
   stage: test-client
-  image: docker:stable
+  image: registry.gitlab.com/gitlab-org/security-products/dependency-scanning:latest
   allow_failure: true
-  services:
-    - docker:stable-dind
+  #  services:
+  #    - docker:stable-dind
   script:
     - cd ./client
     - rm build.gradle
-    - setup_docker
-    - dependency_scanning
+    - /run.sh ./
+  #    - setup_docker
+  #    - dependency_scanning
   artifacts:
     paths: [client/gl-dependency-scanning-report.json]
   only:
