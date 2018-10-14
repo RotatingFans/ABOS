@@ -81,12 +81,11 @@ grails:
 dataSource:
     pooled: true
 
-    dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
     dbCreate: "update"
-    url: ${JDBC_DATABASE_URL}
-    username: ${JDBC_DATABASE_USERNAME}
-    password: ${JDBC_DATABASE_PASSWORD}
-    driverClassName: "org.postgresql.Driver"
+    url: ${GOOGLE_CONNECTION_URL}
+
+    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    driverClassName: com.mysql.cj.jdbc.Driver
     properties:
        jmxEnabled: true
        initialSize: 5
