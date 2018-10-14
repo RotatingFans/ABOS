@@ -101,7 +101,7 @@ dependencies {
     compile "org.codehaus.groovy:groovy-groovysh:2.4.15"
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
 
-//    compile "com.google.api-client:google-api-client:1.25.0"
+    compile "com.google.api-client:google-api-client:1.25.0"
 //    compile "com.google.api-client:google-api-client-appengine:1.25.0"
 //    compile "com.google.api-client:google-api-client-servlet:1.25.0"
 /*
