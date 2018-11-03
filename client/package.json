@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.0.3",
+    "@material-ui/core": "3.3.2",
     "@material-ui/icons": "^3.0.1",
     "csv-parse": "^3.0.0",
     "downloadjs": "^1.4.7",
     "encoding-japanese": "^1.0.29",
     "google-map-react": "^1.0.6",
     "immutability-helper": "^2.7.1",
+    "jss": "^9.8.7",
     "jwt-decode": "^2.2.0",
     "points-cluster": "^0.1.4",
     "ra-data-json-server": "^2.2.3",
@@ -20,6 +21,7 @@
     "react-data-grid": "^4.0.8",
     "react-data-grid-addons": "^4.0.8",
     "react-dom": "^16.4.2",
+    "react-jss": "^8.6.1",
     "react-number-format": "^3.5.2",
     "react-places-autocomplete": "^7.2.0",
     "react-scripts": "2.0.3",
@@ -36,5 +38,11 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "resolutions": {
+    "ra-ui-materialui/@material-ui/core": "3.3.2",
+    "ra-ui-materialui/@material-ui/icons": "^3.0.1",
+    "@material-ui/core": "3.3.2",
+    "@material-ui/icons": "3.0.1"
+  }
 }

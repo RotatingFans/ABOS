@@ -286,14 +286,15 @@ class UserPanel extends React.Component {
                 });
 
                 groupItems.push(
-                    <UserListItem key={currentUser + "-sub-" + group.groupName} userName={currentUser}
+                    <UserListItem key={currentUser + "-sub-" + group.groupName + "-" + group.year.id}
+                                  userName={currentUser}
                                   handleManageCheckBoxChange={this.handleGroupCheckbox(group.id)} user={group.groupName}
                                   checked={this.state.groups[group.groupName].checked}
                                   onClick={this.handleClick(group.groupName)}>
                         {this.state.groups[group.groupName].open ? <ExpandLess/> : <ExpandMore/>}
 
                     </UserListItem>,
-                    <Collapse key={currentUser + "-sub-" + group.groupName + "-collapse"}
+                    <Collapse key={currentUser + "-sub-" + group.groupName + "-collapse" + "-" + group.year.id}
                               in={this.state.groups[group.groupName].open} timeout="auto" unmountOnExit
                               className={classes.nested}>
                         <List component="div" disablePadding>

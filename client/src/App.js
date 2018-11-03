@@ -1,6 +1,6 @@
 // in src/App.js
 import React from 'react';
-import {Admin, fetchUtils, Layout, Resource, AppBar, UserMenu, MenuItemLink} from 'react-admin';
+import {Admin, AppBar, fetchUtils, Layout, MenuItemLink, Resource, UserMenu} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
 import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
@@ -10,14 +10,18 @@ import restClient from './grailsRestClient';
 import authProvider from './security/authProvider';
 import {Dashboard} from './dashboard';
 import {Reports} from "./Reports";
-import Menu from "./resources/Menu";
 import {UGY} from "./UGY";
 import {UserList, UserShow} from "./resources/User";
 import {Maps} from './maps';
-import { Route } from 'react-router-dom';
+import {Route} from 'react-router-dom';
 import About from './resources/About';
 import InfoIcon from '@material-ui/icons/Info';
+import {createGenerateClassName, jssPreset} from '@material-ui/core/styles';
+import JssProvider from 'react-jss/lib/JssProvider';
+import {create} from 'jss';
 
+const generateClassName = createGenerateClassName();
+const jss = create(jssPreset());
 const httpClient = (url, options = {}) => {
     if (!options.headers) {
         options.headers = new Headers({Accept: 'application/json'});
@@ -44,37 +48,40 @@ const routes = [
 ];
 const layout = (props) => <Layout {...props} appBar={MyAppBar}/>;
 const App = () => (
-    <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider} appLayout={layout} customRoutes={routes}>
-        {permissions => [
-            <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
-            <Resource name="Reports" list={Reports}/>,
-            <Resource name="Maps" list={Maps}/>,
-            //Reports
-            // <Resource name="customers"/>,
-            <Resource name="User" list={UserList} show={UserShow}/>,
+    <JssProvider jss={jss} generateClassName={generateClassName}>
 
-            permissions === 'manager'
-                ? <Resource name="User"/>
-                : null,
-            permissions === 'ROLE_ADMIN'
-                ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
-                //UGY
-                : <Resource name="Categories"/>,
-            permissions === 'ROLE_ADMIN'
-                ? <Resource name="Years" show={YearShow} edit={YearEdit} list={YearList} create={YearCreate}/>
-                //UGY
-                : <Resource name="Years"/>,
-            permissions === 'ROLE_ADMIN'
-                ? <Resource name="Group" list={GroupList} edit={GroupEdit} create={GroupCreate}/>
-                //UGY
-                : <Resource name="Group"/>,
-            permissions === 'ROLE_ADMIN'
-                ? <Resource name="UsersProducts" options={{label: 'Users and Products'}} list={UGY}/>
-                //UGY
-                : null,
-        ]}
+        <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider} appLayout={layout} customRoutes={routes}>
+            {permissions => [
+                <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
+                <Resource name="Reports" list={Reports}/>,
+                <Resource name="Maps" list={Maps}/>,
+                //Reports
+                // <Resource name="customers"/>,
+                <Resource name="User" list={UserList} show={UserShow}/>,
 
-    </Admin>
+                permissions === 'manager'
+                    ? <Resource name="User"/>
+                    : null,
+                permissions === 'ROLE_ADMIN'
+                    ? <Resource name="Categories" list={CategoryList} edit={CategoryEdit} create={CategoryCreate}/>
+                    //UGY
+                    : <Resource name="Categories"/>,
+                permissions === 'ROLE_ADMIN'
+                    ? <Resource name="Years" show={YearShow} edit={YearEdit} list={YearList} create={YearCreate}/>
+                    //UGY
+                    : <Resource name="Years"/>,
+                permissions === 'ROLE_ADMIN'
+                    ? <Resource name="Group" list={GroupList} edit={GroupEdit} create={GroupCreate}/>
+                    //UGY
+                    : <Resource name="Group"/>,
+                permissions === 'ROLE_ADMIN'
+                    ? <Resource name="UsersProducts" options={{label: 'Users and Products'}} list={UGY}/>
+                    //UGY
+                    : null,
+            ]}
+
+        </Admin>
+    </JssProvider>
 );
 
 export default App;

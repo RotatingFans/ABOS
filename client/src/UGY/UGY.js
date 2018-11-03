@@ -1355,8 +1355,12 @@ class UGYEditor extends React.Component {
         this.setState({ready: true})
     }
 
-    shouldComponentUpdate() {
-        if (this.state.groups.length > 0 && Object.keys(this.state.userChecks).length > 0) {
+    shouldComponentUpdate(nextProps, nextState, ctx) {
+        console.log(nextState.groups);
+        console.log(nextState.userChecks);
+        console.log(nextState);
+
+        if (nextState.groups.length > 0 && Object.keys(nextState.userChecks).length > 0) {
             return true
         }
         /*        if (this.state.update === true) {
