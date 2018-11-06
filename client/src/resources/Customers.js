@@ -89,21 +89,21 @@ export { CustomerIcon };*/
 
  */
 const CustomerFilter = (props) => (
-    <Filter className="form" {...props}>
+    <Filter  {...props}>
         <TextInput label="Search" source="customerName" alwaysOn/>
-        {/*        <ReferenceArrayInput
+        <ReferenceArrayInput
             source="year"
             reference="Years"
             sort={{field: 'id', order: 'ASC'}}
             label="Year"
         >
             <SelectArrayInput optionText="year" source="year" label="Year"/>
-        </ReferenceArrayInput>*/}
+        </ReferenceArrayInput>
     </Filter>
 );
 
 export const CustomerList = (props) => (
-    <List {...props} filters={<CustomerFilter/>}>
+    <List {...props} filters={<CustomerFilter context="form"/>}>
         <Datagrid>
             <CustomerLinkField/>
             <TextField source="streetAddress"/>
@@ -120,11 +120,11 @@ export const CustomerList = (props) => (
 );
 
 const CustomerTitle = ({record}) => {
-    return <span>Customer {record ? `"${record.name}"` : ''}</span>;
+    return <span>{record ? (record.customerName ? `${record.customerName + " " + record.year.year + " Order"}` : `${record.json.customerName + " " + record.json.year.year + " Order"}`) : ''}</span>;
 };
 
 export const CustomerEdit = ({...props}) => (
-    <CustomerEditClass {...props}/>
+    <CustomerEditClass {...props} title={<CustomerTitle/>}/>
 );
 const reverseGeocode = (address) => {
     return {lat: 0, long: 0};

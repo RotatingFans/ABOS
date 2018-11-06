@@ -248,7 +248,10 @@ class ProductsGrid extends Component {
     }
 
     loadProducts(year) {
-        const {record} = this.props;
+        let {record} = this.props;
+        if (record.json) {
+            record = record.json;
+        }
         this.props.crudGetList(
             this.props.resource,
             {page: 1, perPage: 100},
@@ -260,10 +263,15 @@ class ProductsGrid extends Component {
             filter = {year: year};
 
         }
-        if (record.year) {
+        else if (record.year) {
             filter = {year: record.year.id};
 
         }
+        else if (this.props.year) {
+            filter = {year: this.props.year};
+
+        }
+
         this.setState({customer: record});
         if (record.order) {
 

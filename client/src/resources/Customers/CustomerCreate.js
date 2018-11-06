@@ -84,6 +84,9 @@ const reverseGeocode = (address) => {
 const saveCreation = (record, redirect) => {
 
     let {lat, long} = reverseGeocode(record.streetAddress + " " + record.city + ", " + record.state + " " + record.zipCode);
+    let order = record.order;
+    // order.customer = customer;
+
     dataProvider(CREATE, 'Customers', {
         data: {
             customerName: record.customerName,
@@ -104,47 +107,48 @@ const saveCreation = (record, redirect) => {
             user: record.user,
 
             userName: record.user.userName,
-            order: {}
+            order: order
 
         }
-    }).then(response => {
-        let customer = {id: response.id};
-        let order = record.order;
-        order.customer = customer;
-        let newOrderedProducts = [];
-        order.orderedProducts.forEach((orderedProduct) => {
-            orderedProduct.customer = customer;
-            newOrderedProducts.push(orderedProduct);
-        });
-        order.orderedProducts = newOrderedProducts;
-        dataProvider(UPDATE, 'Customers', {
+    })
+    /*.then(response => {
+            let customer = {id: response.id};
+            let order = record.order;
+            order.customer = customer;
+            let newOrderedProducts = [];
+            order.orderedProducts.forEach((orderedProduct) => {
+                orderedProduct.customer = customer;
+                newOrderedProducts.push(orderedProduct);
+            });
+            order.orderedProducts = newOrderedProducts;
+            dataProvider(UPDATE, 'Customers', {
 
-            data: {
-                customerName: record.customerName,
-                streetAddress: record.streetAddress,
-                city: record.city,
-                state: record.state,
-                zipCode: record.zipCode,
-                phone: record.phone,
-                custEmail: record.custEmail,
-                latitude: lat,
-                longitude: long,
-                ordered: false,
-                home: true,
-                interested: true,
-                donation: record.donation,
-                year: {id: record.year},
+                data: {
+                    customerName: record.customerName,
+                    streetAddress: record.streetAddress,
+                    city: record.city,
+                    state: record.state,
+                    zipCode: record.zipCode,
+                    phone: record.phone,
+                    custEmail: record.custEmail,
+                    latitude: lat,
+                    longitude: long,
+                    ordered: false,
+                    home: true,
+                    interested: true,
+                    donation: record.donation,
+                    year: {id: record.year},
 
-                user: record.user,
+                    user: record.user,
 
-                userName: record.user.userName,
-                order: order
+                    userName: record.user.userName,
+                    order: order
 
 
-            }
+                }
 
-        });
-    });
+            });
+        });*/
 
 
 };
@@ -264,7 +268,7 @@ class CustomerCreate extends React.Component {
 
                     <ReferenceInput label="User to add to" source="user" reference="User"
                                     formClassName={classes.inlineBlock}>
-                        <SelectInput optionText="username"/>
+                        <SelectInput optionText="fullName" optionValue="id"/>
                     </ReferenceInput>
                     <FormDataConsumer>
                         {({formData, ...rest}) => formData.year &&

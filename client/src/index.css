@@ -11,6 +11,13 @@ body {
     height: 100% !important;
 }
 
+.react-grid-Row.row-selected {
+    background-color: #97a6b4;
+}
+
+.react-grid-Row .row-selected {
+    background-color: #97a6b4;
+}
 .react-grid-Container {
     display: flex;
     flex-direction: column;

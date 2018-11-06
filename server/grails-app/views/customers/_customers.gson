@@ -55,9 +55,11 @@ json {
 
     longitude customers.longitude
 
-    year year: customers.year.year
+    year {
+        id customers.year.id
 
-    year id: customers.year.id
+        year customers.year.year
+    }
 
     user tmpl.'/user/user'(customers.user)
 

@@ -35,9 +35,11 @@ json {
 
     delivered orders.delivered
 
-    year year: orders.year.year
+    year {
+        id orders.year.id
 
-    year id: orders.year.id
+        year orders.year.year
+    }
 
     userName orders.userName
 
