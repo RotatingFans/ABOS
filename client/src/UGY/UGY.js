@@ -55,7 +55,8 @@ import {
     SelectInput,
     showNotification,
     SimpleForm,
-    TextInput
+    TextInput,
+    UPDATE
 } from 'react-admin';
 
 import Paper from '@material-ui/core/Paper';
@@ -259,7 +260,10 @@ class UGYEditor extends React.Component {
         importNumber: 0,
         year: 5,
         yearText: "2018",
-        categories: []
+        categories: [],
+        editUser: {id: -1, userName: '', password: '', fullName: ""},
+        editUserOpen: false,
+
 
     };
 
@@ -628,6 +632,7 @@ class UGYEditor extends React.Component {
         dataProvider(CREATE, 'User', {
             data: {
                 username: this.state.addUser.userName,
+                fullName: this.state.addUser.fullName,
                 password: this.state.addUser.password
             }
         }).then(response => {
@@ -640,6 +645,27 @@ class UGYEditor extends React.Component {
 
         this.handleUserAddMenuClose(event);
     };
+
+    editUser = event => {
+        dataProvider(UPDATE, 'User', {
+            id: this.state.editUser.id,
+            data: {
+                username: this.state.editUser.userName,
+                fullName: this.state.editUser.fullName,
+
+                password: this.state.editUser.password
+            }
+        }).then(response => {
+            this.setState({editUserOpen: false});
+
+        });
+    };
+    editUserClick = (uName, id, fName) => event => {
+        this.setState({editUserOpen: true, editUser: {id: id, userName: uName, password: '', fullName: fName}});
+
+        //this.handleUserAddMenuClose(event);
+    };
+
 
     handleExportClick = event => {
 
@@ -687,13 +713,19 @@ class UGYEditor extends React.Component {
         Object.keys(this.state.userChecks).forEach(user => {
             if (this.state.userChecks[user].enabledYear === this.state.year) {
                 let userName = user;
-                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                let id = this.state.userChecks[user].id;
+                let fullName = this.state.userChecks[user].fullName;
+
+                userPanels.push(<UserPanel id={id} key={userName} userName={userName} fullName={fullName}
+                                           userChecks={this.state.userChecks}
                                            handleManageCheckBoxChange={this.handleManageCheckBoxChange}
                                            handleCheckBoxChange={this.handleCheckBoxChange}
                                            checked={this.state.userChecks[userName].checked}
                                            handleGroupChange={this.handleGroupChange}
                                            group={this.state.userChecks[userName].group}
-                                           groups={this.state.groups}/>)
+                                           groups={this.state.groups}
+                                           onEdit={this.editUserClick}/>
+                )
             }
         });
         return (
@@ -722,13 +754,19 @@ class UGYEditor extends React.Component {
             if (this.state.userChecks[user].enabledYear !== this.state.year && this.state.userChecks[user].status !== "ENABLED" && this.state.userChecks[user].status !== "ARCHIVED") {
 
                 let userName = user;
-                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                let id = this.state.userChecks[user].id;
+                let fullName = this.state.userChecks[user].fullName;
+
+                userPanels.push(<UserPanel id={id} key={userName} userName={userName} fullName={fullName}
+                                           userChecks={this.state.userChecks}
                                            handleManageCheckBoxChange={this.handleManageCheckBoxChange}
                                            handleCheckBoxChange={this.handleCheckBoxChange}
                                            checked={this.state.userChecks[userName].checked}
                                            handleGroupChange={this.handleGroupChange}
                                            group={this.state.userChecks[userName].group}
-                                           groups={this.state.groups}/>)
+                                           groups={this.state.groups}
+                                           onEdit={this.editUserClick}/>
+                )
             }
         });
         return (
@@ -757,13 +795,18 @@ class UGYEditor extends React.Component {
             if (this.state.userChecks[user].enabledYear !== this.state.year && this.state.userChecks[user].status === "ARCHIVED") {
 
                 let userName = user;
-                userPanels.push(<UserPanel key={userName} userName={userName} userChecks={this.state.userChecks}
+                let id = this.state.userChecks[user].id;
+                let fullName = this.state.userChecks[user].fullName;
+
+                userPanels.push(<UserPanel id={id} key={userName} userName={userName} fullName={fullName}
+                                           userChecks={this.state.userChecks}
                                            handleManageCheckBoxChange={this.handleManageCheckBoxChange}
                                            handleCheckBoxChange={this.handleCheckBoxChange}
                                            checked={this.state.userChecks[userName].checked}
                                            handleGroupChange={this.handleGroupChange}
                                            group={this.state.userChecks[userName].group}
-                                           groups={this.state.groups}/>)
+                                           groups={this.state.groups}
+                                           onEdit={this.editUserClick}/>)
             }
         });
         return (
@@ -815,6 +858,12 @@ class UGYEditor extends React.Component {
             [field]: {$set: value}
         });
         this.setState({addUser: parentState})
+    };
+    updateEditUserState = (field, value) => {
+        let parentState = update(this.state.editUser, {
+            [field]: {$set: value}
+        });
+        this.setState({editUser: parentState})
     };
 
     handleAddProduct = (newProd) => {
@@ -906,6 +955,8 @@ class UGYEditor extends React.Component {
 
                 userChecks[user] = {
                     checked: false,
+                    id: users[user].id,
+                    fullName: users[user].fullName,
                     group: users[user].group,
                     status: users[user].status,
                     subUsers: users[user].subUsers,
@@ -1079,6 +1130,73 @@ class UGYEditor extends React.Component {
                             Cancel
                         </Button>
                         <Button onClick={this.addSingleUser} color="primary">
+                            Apply
+                        </Button>
+                    </DialogActions>
+                </Dialog>, <Dialog
+                    key={"editUserDialog"}
+
+                    open={this.state.editUserOpen}
+                    onClose={event => this.setState({editUserOpen: false})}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Edit User</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Please enter the information about the user
+                        </DialogContentText>
+                        <TextField
+                            value={this.state.editUser.userName}
+                            label={"Username"}
+                            onChange={event => {
+                                this.updateEditUserState("userName", event.target.value)
+                            }}
+                            inputProps={{
+                                name: 'UserName',
+                                id: 'AddUser-Username',
+                            }}
+                            disabled
+                        >
+
+                        </TextField>
+                        <TextField
+                            label={"Password"}
+
+                            value={this.state.editUser.password}
+                            type="password"
+                            onChange={event => {
+                                this.updateEditUserState("password", event.target.value)
+                            }}
+
+                            inputProps={{
+                                name: 'Password',
+                                id: 'AddUser-Password',
+                            }}
+                        >
+
+                        </TextField>
+                        <TextField
+                            label={"FullName"}
+
+                            value={this.state.editUser.fullName}
+                            onChange={event => {
+                                this.updateEditUserState("fullName", event.target.value)
+                            }}
+
+                            inputProps={{
+                                name: 'FullName',
+                                id: 'AddUser-FullName',
+                            }}
+                        >
+
+                        </TextField>
+
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={event => this.setState({editUserOpen: false})} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={this.editUser} color="primary">
                             Apply
                         </Button>
                     </DialogActions>
@@ -1356,9 +1474,6 @@ class UGYEditor extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState, ctx) {
-        console.log(nextState.groups);
-        console.log(nextState.userChecks);
-        console.log(nextState);
 
         if (nextState.groups.length > 0 && Object.keys(nextState.userChecks).length > 0) {
             return true

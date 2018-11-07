@@ -364,7 +364,7 @@ class UserPanel extends React.Component {
     // usage:
 
     render() {
-        const {userName, classes} = this.props;
+        const {id, userName, fullName, classes} = this.props;
         return (<ExpansionPanel className={classes.userPanel} expanded={this.state.expanded}
                                 onChange={this.handleUserPanelExpanded}>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
@@ -383,7 +383,8 @@ class UserPanel extends React.Component {
                     <div>
                         <InputWrapper>
 
-                            <Button variant="contained" color={'primary'} className={classes.button}>
+                            <Button variant="contained" color={'primary'} className={classes.button}
+                                    onClick={this.props.onEdit(userName, id, fullName)}>
                                 Edit
                             </Button>
                         </InputWrapper>
@@ -426,14 +427,17 @@ class UserPanel extends React.Component {
 }
 
 UserPanel.propTypes = {
+    id: PropTypes.number.isRequired,
     classes: PropTypes.object.isRequired,
     theme: PropTypes.object.isRequired,
     userName: PropTypes.string.isRequired,
+    fullName: PropTypes.string.isRequired,
     userChecks: PropTypes.object.isRequired,
     groups: PropTypes.array.isRequired,
     handleManageCheckBoxChange: PropTypes.func.isRequired,
     handleGroupChange: PropTypes.func.isRequired,
     handleCheckBoxChange: PropTypes.func.isRequired,
     checked: PropTypes.bool.isRequired,
+    onEdit: PropTypes.func
 };
 export default withStyles(styles, {withTheme: true})(UserPanel);

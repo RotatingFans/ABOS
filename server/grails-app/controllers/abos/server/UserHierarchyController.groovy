@@ -76,6 +76,8 @@ class UserHierarchyController {
 
             usersList.put((u.username),
                     [
+                            id         : u.id,
+                            fullName   : u.fullName,
                             group      : userYear?.group?.id,
                             subUsers   : subUsers,
                             status     : userYear?.status,
