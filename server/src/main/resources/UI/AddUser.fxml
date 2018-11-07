@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ ABOS
+  ~ Copyright (C) 2018 Patrick Magauran
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as published
+  ~ by the Free Software Foundation, either version 3 of the License, or
+  ~ any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Affero General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Affero General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" stylesheets="@Main.css"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Controllers.AddUserController" styleClass="pane"
+            BorderPane.alignment="CENTER">
+    <top>
+        <FlowPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                  styleClass="pane" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER" fillHeight="false">
+                    <children>
+                        <VBox styleClass="VBox">
+                            <children>
+                                <Label text="Username"/>
+                                <TextField fx:id="userNameField" promptText="Username"/>
+                            </children>
+                        </VBox>
+                        <VBox styleClass="VBox">
+                            <children>
+                                <Label text="Password"/>
+                                <PasswordField fx:id="passwordField" promptText="Password"/>
+                            </children>
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </VBox>
+                        <VBox layoutX="10.0" layoutY="10.0">
+                            <children>
+                                <Label text="Full Name"/>
+                                <TextField fx:id="fullNameField" promptText="Full Name"/>
+                            </children>
+                        </VBox>
+                        <VBox layoutX="362.0" layoutY="10.0">
+                            <children>
+                                <CheckBox fx:id="adminCheckbox" mnemonicParsing="false" text="Admin"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+            </children>
+        </FlowPane>
+    </top>
+    <bottom>
+        <ButtonBar BorderPane.alignment="CENTER">
+            <buttons>
+                <Button fx:id="deleteUserButton" disable="true" mnemonicParsing="false" onAction="#deleteUser"
+                        style="-fx-background-color: RED;" text="Delete" textFill="WHITE"/>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#submit" text="OK"/>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
+    <center>
+        <ScrollPane maxHeight="Infinity" maxWidth="Infinity" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                    fitToWidth="true" styleClass="pane" BorderPane.alignment="CENTER">
+            <content>
+                <Accordion fx:id="yearsPanel"/>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
+
