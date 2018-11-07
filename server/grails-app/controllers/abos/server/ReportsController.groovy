@@ -77,7 +77,7 @@ class ReportsController {
 
                 break
         }
-        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year.toString(), jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation.base64, Category, user, customers, repTitle, Splitting, jsonParams.Print_Due_Header, "")
+        ReportGenerator rg = new ReportGenerator(jsonParams.template, jsonParams.Year.toString(), jsonParams.Scout_name, jsonParams.Scout_address, formattedAddress, jsonParams.Scout_Rank, jsonParams.Scout_Phone, jsonParams.LogoLocation?.base64, Category, user, customers, repTitle, Splitting, jsonParams.Print_Due_Header, "")
         String fileLoc = rg.generate()
         println fileLoc
         InputStream pdf = new FileInputStream(fileLoc)
