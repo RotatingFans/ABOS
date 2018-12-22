@@ -54,9 +54,9 @@
 #
 #  DOCKER_DRIVER: overlay2
 #
-#stages:
+stages:
 #
-#- build
+- build
 #- test-server
 #- test-client
 #- review
@@ -70,7 +70,9 @@
 #- performance
 #- cleanup
 #
-#build_server:
+build_server:
+  script:
+  - echo "Done"
 #  cache:
 #    key: ${CI_COMMIT_REF_SLUG}-server
 #    paths:
