@@ -73,13 +73,14 @@ stages:
 build_server:
   script:
   - echo "Done"
+
 #  cache:
 #    key: ${CI_COMMIT_REF_SLUG}-server
 #    paths:
 #    - .gradle/wrapper
 #    - .gradle/caches
 #
-#  stage: build
+  stage: build
 #  image: openjdk:8u171-jdk-alpine3.8
 #  script:
 #  - cd ./server
