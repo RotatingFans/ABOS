@@ -2,29 +2,29 @@ import {CREATE, DELETE, fetchUtils, GET_LIST, GET_MANY, GET_MANY_REFERENCE, GET_
 import hostURL from "./host";
 
 export const GET_PLAIN_MANY = "GET_PLAIN_MANY";
-const apiUrl = hostURL + '/api';
+const apiUrl = hostURL;
 
 export default (httpClient = fetchUtils.fetchJson) => {
     const makeFilters = filters => {
-        let filterString = '';
+        let filterString = '{';
         Object.keys(filters).map(function (key, index) {
             let value = filters[key];
-            if (filterString !== '') {
-                filterString += ';';
+            if (filterString !== '{') {
+                filterString += ',';
             }
-            filterString += `${key}:${value}`;
+            filterString += `"${key}":"${value}"`;
         });
 
 
-        return filterString;
+        return filterString + '}';
     };
 
     const makeParam = params => {
         const {page, perPage} = params.pagination;
         const {field, order} = params.sort;
         // TODO: handle filter
-        return `sort=${field}&order=${order}&max=${perPage}&offset=${(page - 1) *
-        perPage}&q=${makeFilters(params.filter)}`;
+        return `sort=${field} ${order}&limit=${perPage}&skip=${(page - 1) *
+        perPage}&where=${makeFilters(params.filter)}`;
     };
 
     /**
@@ -38,14 +38,14 @@ export default (httpClient = fetchUtils.fetchJson) => {
         const options = {};
         switch (type) {
             case GET_LIST: {
-                url = `${apiUrl}/${resource}.json?${makeParam(params)}`;
+                url = `${apiUrl}/${resource}?${makeParam(params)}`;
                 break;
             }
             case GET_ONE:
-                url = `${apiUrl}/${resource}/${params.id}.json`;
+                url = `${apiUrl}/${resource}/${params.id}`;
                 break;
             case GET_MANY: {
-                url = `${apiUrl}/${resource}.json`;
+                url = `${apiUrl}/${resource}`;
                 break;
             }
             case GET_PLAIN_MANY: {
@@ -53,21 +53,21 @@ export default (httpClient = fetchUtils.fetchJson) => {
                 break;
             }
             case GET_MANY_REFERENCE: {
-                url = `${apiUrl}/${resource}.json?${makeParam(params)}`;
+                url = `${apiUrl}/${resource}?${makeParam(params)}`;
                 break;
             }
             case UPDATE:
-                url = `${apiUrl}/${resource}/${params.id}.json`;
+                url = `${apiUrl}/${resource}/${params.id}`;
                 options.method = 'PUT';
                 options.body = JSON.stringify(params.data);
                 break;
             case CREATE:
-                url = `${apiUrl}/${resource}.json`;
+                url = `${apiUrl}/${resource}`;
                 options.method = 'POST';
                 options.body = JSON.stringify(params.data);
                 break;
             case DELETE:
-                url = `${apiUrl}/${resource}/${params.id}.json`;
+                url = `${apiUrl}/${resource}/${params.id}`;
                 options.method = 'DELETE';
                 break;
             default:

@@ -98,7 +98,7 @@ class Dashboard extends Component {
 
 
         }
-        dataProvider(GET_LIST, 'Ordered_products', {
+        dataProvider(GET_LIST, 'orderedProducts', {
             filter: {year: year},
             sort: {field: 'products', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},

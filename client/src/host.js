@@ -1,2 +1,2 @@
-const url = 'https://abos-rf.herokuapp.com';
+const url = 'http://localhost:1337';
 export default url;
