@@ -6,25 +6,55 @@ const apiUrl = hostURL;
 
 export default (httpClient = fetchUtils.fetchJson) => {
     const makeFilters = filters => {
-        let filterString = '{';
+        let filterString = '';
         Object.keys(filters).map(function (key, index) {
             let value = filters[key];
-            if (filterString !== '{') {
-                filterString += ',';
+            if (filterString !== '') {
+                filterString += '&';
             }
-            filterString += `"${key}":"${value}"`;
+            filterString += `${key}=${value}`;
         });
 
 
-        return filterString + '}';
+        return filterString + '';
     };
 
     const makeParam = params => {
+        let param = ``;
         const {page, perPage} = params.pagination;
         const {field, order} = params.sort;
         // TODO: handle filter
-        return `sort=${field} ${order}&limit=${perPage}&skip=${(page - 1) *
-        perPage}&where=${makeFilters(params.filter)}`;
+        if (field) {
+            param += `$sort[${field}]`;
+            if (order) {
+                if (order === "DESC") {
+                    param += `=1`;
+                } else {
+                    param += `=-1`;
+
+                }
+
+            } else {
+                param += `=-1`;
+
+            }
+            param += `&`;
+
+        }
+        if (perPage) {
+            param += `$limit=${perPage}&`;
+
+        }
+        if (page) {
+            param += `$skip=${(page - 1) *
+            perPage}&`;
+
+        }
+        if (params.filter) {
+            param += `${makeFilters(params.filter)}`;
+
+        }
+        return param;
     };
 
     /**
@@ -96,8 +126,8 @@ export default (httpClient = fetchUtils.fetchJson) => {
                 }
                 */
                 return {
-                    data: json,
-                    total: parseInt(headers.get('X-Search-Hit-Count'), 10),
+                    data: json.data,
+                    total: parseInt(json.total, 10),
                 };
             case CREATE:
                 return {data: {json, id: json.id}};

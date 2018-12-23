@@ -6,7 +6,7 @@ import Donations from './Donations';
 import GrandTotals from './GrandTotals';
 import NbCustomers from './NbCustomers';
 import OrderedProducts from './OrderedProducts';
-import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
+import {fetchUtils, GET_LIST} from 'react-admin';
 import restClient from '../grailsRestClient';
 
 
@@ -54,8 +54,8 @@ class Dashboard extends Component {
 
                                 stats.total += order.cost;
                                 stats.nbCustomers++;
-                                stats.donation += order.donation;
-                                stats.grandTotal += order.cost + order.donation;
+                                stats.donation += order.customer.donation;
+                                stats.grandTotal += order.cost + order.customer.donation;
                                 stats.pendingOrders.push(order);
 
                                 return stats;
@@ -100,7 +100,7 @@ class Dashboard extends Component {
         }
         dataProvider(GET_LIST, 'orderedProducts', {
             filter: {year: year},
-            sort: {field: 'products', order: 'DESC'},
+            sort: {},
             pagination: {page: 1, perPage: 1000},
         })
             .then(response =>
@@ -157,6 +157,14 @@ class Dashboard extends Component {
                     )
             )
             .then(({orderedProducts}) => {
+                orderedProducts.sort((a, b) => {
+                    if (a.pID > b.pID) {
+                        return 1;
+                    }
+                    else {
+                        return -1;
+                    }
+                });
                 this.setState({
 
                     orderedProductsVal: orderedProducts,
