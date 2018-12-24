@@ -118,6 +118,8 @@ export default (httpClient = fetchUtils.fetchJson) => {
         switch (type) {
             case GET_LIST:
             case GET_MANY_REFERENCE:
+            case GET_MANY:
+            case GET_PLAIN_MANY:
                 /*
                 if (!headers.has('content-range')) {
                   throw new Error(

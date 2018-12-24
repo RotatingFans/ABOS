@@ -8,10 +8,7 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
-        version: {
-            type: DataTypes.BIGINT,
-            allowNull: false
-        },
+
         phone: {
             type: DataTypes.STRING(255),
             allowNull: true

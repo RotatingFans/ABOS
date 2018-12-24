@@ -4,6 +4,7 @@ const path = require('path');
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
 const socketio = require('@feathersjs/socketio');
+const Service = require('feathers-sequelize').Service;
 
 const Sequelize = require('sequelize');
 const service = require('feathers-sequelize');
@@ -119,6 +120,7 @@ app.configure(socketio());
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS, PATCH, DELETE");
     next();
 });
 app.use('/messages', service({
@@ -138,13 +140,108 @@ app.use('/categories', service({
 
 }));
 
+class customerService extends Service {
+    async update(id, data, params) {
+        try {
+            //BadRequest: notNull Violation: customers.version cannot be null,
+            // notNull Violation: customers.user_name cannot be null,
+            // notNull Violation: customers.customer_name cannot be null,
+            // notNull Violation: customers.street_address cannot be null,
+            // notNull Violation: customers.latitude cannot be null,
+            // notNull Violation: customers.longitude cannot be null
+            let customer = await customers.findByPk(id, {
+                include: [{
+                    model: orders,
+                    as: 'order',
+                    include: [{
+                        model: orderedProducts,
+                        as: 'orderedProducts'
+                    }],
+
+                }]
+
+            });
+
+            customer.set(data);
+            let usr = await customer.getUser();
+            customer.user_name = usr.username;
+            customer.customer_name = data.customerName;
+            customer.street_address = data.streetAddress;
+            customer.zip_code = data.zipCode;
+            customer.latitude = 0;
+            customer.longitude = 0;
+            /*            let ops = [];
+                        //let ord = orders.build(customer.order);
+                        for (var opI in customer.order.orderedProducts) {
+                            let op = customer.order.orderedProducts[opI];
+                            op.extended_cost = op.dataValues.extendedCost;
+                            op.user_name = usr.username;
+                            op.user = usr;
+
+                            orderedProducts.findOrBuild({where: {id: op.id}}).spread(async (opD, cr) => {
+                                opD.set(op);
+                                let del = false;
+                                if (op.id) {
+                                    if (op.quantity < 1) {
+                                        //opD = await orderedProducts.findByPk(op.id);
+                                        customer.order.removeOrderedProduct(opD);
+
+                                        await opD.destroy();
+                                        del = true;
+                                    } else {
+
+                                    }
+
+                                }
+                                else {
+                                    opD.isNewRecord = true;
+                                }
+                                if (!del) {
+                                    //  let opdb, created = await orderedProducts.upsert(op);
+                                    customer.order.addOrderedProduct(opD);
+                                    ops.push(opD);
+                                }
+                            });
+
+                        }
+
+                        /!*   if (customer.order.id) {
+                               if (await orders.findByPk(customer.order.id).id > -1) {
+                                   ord.id = customer.order.id;
+                               }
+                           }*!/
+
+                        customer.order.orderedProducts = ops;
+                        customer.order.user_name = usr.username;
+                        customer.order.user = usr;
+                        customer.order.amount_paid = data.order.amountPaid;
+                        //ord = customer.order;
+                       // let orderMod, createdM = await orders.upsert(ord);
+
+                        //customer.order = ord;
+                        //let cust = customer;
+
+                        //customer.order = ord;
+                        customer.id = id;*/
+            await customer.save();
+            // context.data = customer;
+            return Promise.resolve(customer);
+
+        } catch (e) {
+            console.error(e);
+            return Promise.reject();
+        }
+    }
+}
 app.use('/customers', service({
     Model: customers,
     raw: false,
     paginate: {
         default: 10,
         max: 100
-    }
+    },
+
+
 
 }));
 app.service('/customers').hooks({
@@ -153,15 +250,19 @@ app.service('/customers').hooks({
         find(context) {
             // Get the Sequelize instance. In the generated application via:
             //  const sequelize = context.app.get('sequelizeClient');
+            let yrInc = yearInclude();
+            if (context.params.query.year) {
+                yrInc.where = {id: context.params.query.year};
+                delete context.params.query.year;
 
+            }
 
             context.params.sequelize = {
-                include: [yearInclude(), userInclude, {
+                include: [yrInc, userInclude, {
                     model: orders,
                     attributes: ordersAttr,
                     include: [{
                         model: orderedProducts,
-                        attributes: orderedProductsAttr,
                         include: [productsInclude, yearInclude()],
                         as: 'orderedProducts'
                     }, yearInclude()],
@@ -193,6 +294,78 @@ app.service('/customers').hooks({
                 attributes: customerAttr,
             };
 
+            return context;
+        },
+        async create(context) {
+            //BadRequest: notNull Violation: customers.version cannot be null,
+            // notNull Violation: customers.user_name cannot be null,
+            // notNull Violation: customers.customer_name cannot be null,
+            // notNull Violation: customers.street_address cannot be null,
+            // notNull Violation: customers.latitude cannot be null,
+            // notNull Violation: customers.longitude cannot be null
+            let customer = context.data;
+            let usr = await user.findByPk(customer.user);
+            customer.user_name = usr.username;
+            customer.customer_name = customer.customerName;
+            customer.street_address = customer.streetAddress;
+            customer.latitude = 0;
+            customer.longitude = 0;
+            let ops = [];
+            customer.order.orderedProducts.forEach(op => {
+                op.extended_cost = op.extendedCost;
+                op.user_name = usr.username;
+                op.user = usr;
+                ops.push(op);
+            });
+            customer.order.orderedProducts = ops;
+            customer.order.user_name = usr.username;
+            customer.order.user = usr;
+            customer.order.amount_paid = customer.order.amountPaid;
+            context.data = customer;
+            context.params.sequelize = {
+                include: [{
+                    model: orders,
+                    as: 'order',
+                    include: [{
+                        model: orderedProducts,
+                        as: 'orderedProducts'
+                    }],
+
+                }],
+            };
+            return context;
+        },
+        async update(context) {
+            let customer = context.data;
+            let usr = await user.findByPk(customer.user.id);
+            customer.user_name = usr.username;
+            customer.customer_name = customer.customerName;
+            customer.street_address = customer.streetAddress;
+            customer.latitude = 0;
+            customer.longitude = 0;
+            let ops = [];
+            customer.order.orderedProducts.forEach(op => {
+                op.extended_cost = op.extendedCost;
+                op.user_name = usr.username;
+                op.user = usr;
+                ops.push(op);
+            });
+            customer.order.orderedProducts = ops;
+            customer.order.user_name = usr.username;
+            customer.order.user = usr;
+            customer.order.amount_paid = customer.order.amountPaid;
+            context.data = customer;
+            context.params.sequelize = {
+                include: [{
+                    model: orders,
+                    as: 'order',
+                    include: [{
+                        model: orderedProducts,
+                        as: 'orderedProducts'
+                    }],
+
+                }],
+            };
             return context;
         }
     },
@@ -225,6 +398,48 @@ app.service('/customers').hooks({
             context.result.dataValues.order.dataValues.orderedProducts = ops;
             return context;
 
+        },
+        async update(context) {
+            let order;
+            if (context.data.order.id) {
+                order = await orders.findByPk(context.data.order.id);
+                order.set(context.data.order);
+            } else {
+                order = orders.build(context.data.order);
+            }
+            let customer = await customers.findByPk(context.data.id);
+            let user = await customer.getUser();
+            let year = await customer.getYear();
+            let ops = [];
+            order.user_name = context.data.user_name;
+
+            for (const op of context.data.order.orderedProducts) {
+
+                /*}
+                await context.data.order.orderedProducts.forEach(async op => {*/
+                let opM;
+                if (op.id) {
+                    opM = await orderedProducts.findByPk(op.id);
+                    opM.set(op);
+                } else {
+                    opM = orderedProducts.build(op);
+                }
+                let product = await products.findByPk(op.products.id);
+                opM.user_name = context.data.user_name;
+
+                opM.setUser(user, {save: false});
+                opM.setYear(year, {save: false});
+                opM.setCustomer(customer, {save: false});
+                opM.setOrder(order, {save: false});
+                opM.setProducts(product, {save: false});
+                // console.log(opM.toJSON());
+                let response5 = await opM.save();
+                ops.push(response5);
+            }
+            await order.setOrderedProducts(ops, {save: false});
+            //
+            await order.save();
+            return context;
         }
     }
 });
@@ -457,6 +672,33 @@ app.use('/user', service({
     }
 
 }));
+app.service('/user').hooks({
+
+    before: {
+        find(context) {
+            // Get the Sequelize instance. In the generated application via:
+            //  const sequelize = context.app.get('sequelizeClient');
+
+
+            context.params.sequelize = {
+                attributes: [['full_name', 'fullName'], 'username', 'id']
+            };
+
+            return context;
+        },
+        get(context) {
+            // Get the Sequelize instance. In the generated application via:
+            //  const sequelize = context.app.get('sequelizeClient');
+
+
+            context.params.sequelize = {
+                attributes: [['full_name', 'fullName'], 'username', 'id']
+            };
+
+            return context;
+        }
+    }
+});
 app.use('/userManager', service({
     Model: userManager,
     raw: false,
@@ -484,7 +726,7 @@ app.use('/userRole', service({
     }
 
 }));
-app.use('/year', service({
+app.use('/Years', service({
     Model: year,
     raw: false,
     paginate: {

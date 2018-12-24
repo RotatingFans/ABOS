@@ -8,10 +8,7 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
-        version: {
-            type: DataTypes.BIGINT,
-            allowNull: false
-        },
+
 
     }, {
         tableName: 'user_manager',
