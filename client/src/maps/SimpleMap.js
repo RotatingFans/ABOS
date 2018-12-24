@@ -96,7 +96,7 @@ class SimpleMap extends Component {
 
     };
     withinError = (in1, in2, error) => {
-        return Math.abs(in1 - in2) / in1 <= error;
+        return Math.abs(Math.abs(in1 - in2) / in1) <= error;
     };
     getCustomers = () => {
 
@@ -406,7 +406,7 @@ class SimpleMap extends Component {
                                     numPoints === 1
                                         ? <SimpleMarker key={id} {...markerProps}
                                                         onClick={this.handleMarkerClick(id, {...markerProps})}/>
-                                        : <ClusterMarker key={id} {...markerProps} />
+                                        : <ClusterMarker key={id} {...markerProps} numPoints={numPoints}/>
                                 ))
                         }
                     </GoogleMapReact>
