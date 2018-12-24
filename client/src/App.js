@@ -77,7 +77,7 @@ const App = () => (
                 permissions === 'ROLE_ADMIN'
                     ? <Resource name="UsersProducts" options={{label: 'Users and Products'}} list={UGY}/>
                     //UGY
-                    : null,
+                    : <Resource name="UsersProducts" options={{label: 'Users and Products'}} list={UGY}/>,
             ]}
 
         </Admin>

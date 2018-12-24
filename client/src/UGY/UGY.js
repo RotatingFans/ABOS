@@ -44,7 +44,7 @@ import {CREATE, fetchUtils, GET_LIST, showNotification, UPDATE} from 'react-admi
 
 import Paper from '@material-ui/core/Paper';
 
-import restClient, {GET_PLAIN_MANY} from "../grailsRestClient";
+import restClient from "../grailsRestClient";
 import UserPanel from "./UserPanel";
 import {rowStatus} from "./ProductsGrid";
 import hostURL from "../host";
@@ -322,22 +322,10 @@ class UGYEditor extends React.Component {
 
     }
 
-    getGroups() {
-        dataProvider(GET_LIST, 'Group', {
-            filter: {},
-            sort: {field: 'id', order: 'DESC'},
-            pagination: {page: 1, perPage: 1000},
-        }).then(response => {
-            this.setState({groups: response.data})
-        })
-
-
-    }
-
     save = event => {
         console.log(this.state.userChecks);
                 let options = {};
-        let url = hostURL + '/api/UserHierarchy';
+        let url = hostURL + '/UserHierarchy';
                 if (!options.headers) {
                     options.headers = new Headers({Accept: 'application/json'});
                 }
@@ -361,7 +349,7 @@ class UGYEditor extends React.Component {
                     //  this.setState({open: false});
                     //  this.props.push('/');
                 });
-        url = hostURL + '/api/ProductsMany';
+        url = hostURL + '/ProductsMany';
         options = {};
         if (!options.headers) {
             options.headers = new Headers({Accept: 'application/json'});
@@ -386,7 +374,8 @@ class UGYEditor extends React.Component {
                 body: JSON.stringify({
                     newProducts: this.state.newProducts,
                     updatedProducts: this.state.updatedProducts,
-                    deletedProducts: this.state.deletedProducts
+                    deletedProducts: this.state.deletedProducts,
+                    year: this.state.year
                 }),
             }).then(response => {
                 this.setState({open: false});
@@ -398,6 +387,101 @@ class UGYEditor extends React.Component {
         //console.log(fetchUtils.fetchJson(url, options));
 
 
+    };
+    confirmPassword = event => {
+        const url = hostURL + '/ProductsMany';
+
+        if (event.currentTarget.value == 2) {
+            const username = localStorage.getItem('userName');
+            const password = this.state.confirmDeletionPassword;
+            const request = new Request(hostURL + '/api/login', {
+                method: 'POST',
+                body: JSON.stringify({username, password}),
+                headers: new Headers({'Content-Type': 'application/json'}),
+            });
+
+            fetch(request)
+                .then(response => {
+                    if (response.status < 200 || response.status >= 300) {
+                        this.setState({passwordError: true});
+                        return {};
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(({access_token, roles}) => {
+                    if (access_token) {
+                        this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: ''});
+                        localStorage.setItem('access_token', access_token);
+                        localStorage.setItem('role', roles[0]);
+                        let options = {};
+                        if (!options.headers) {
+                            options.headers = new Headers({Accept: 'application/json'});
+                        }
+
+                        options.headers.set('Authorization', `Bearer ${access_token}`);
+
+                        fetch(url, {
+                            method: "POST",
+                            mode: "cors",
+                            cache: "no-cache",
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "Content-Type": "application/json; charset=utf-8",
+                                'Authorization': `Bearer ${token}`
+                                // "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            redirect: "follow", // manual, *follow, error
+                            referrer: "no-referrer", // no-referrer, *client
+                            body: JSON.stringify({
+                                newProducts: this.state.newProducts,
+                                updatedProducts: this.state.updatedProducts,
+                                deletedProducts: this.state.deletedProducts,
+                                year: this.state.year
+                            }),
+                        }).then(response => {
+                            this.setState({open: false});
+                            //  this.setState({open: false});
+                            this.props.push('/');
+                        });
+                    }
+                });
+        } else {
+            this.setState({deletedProducts: []});
+            let options = {};
+            if (!options.headers) {
+                options.headers = new Headers({Accept: 'application/json'});
+            }
+            const token = localStorage.getItem('access_token');
+
+            options.headers.set('Authorization', `Bearer ${token}`);
+            fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    'Authorization': `Bearer ${token}`
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: JSON.stringify({
+                    newProducts: this.state.newProducts,
+                    updatedProducts: this.state.updatedProducts,
+                    deletedProducts: this.state.deletedProducts,
+                    year: this.state.year
+                }),
+            }).then(response => {
+                this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: '', open: false});
+
+                //  this.setState({open: false});
+                this.props.push('/');
+            });
+
+        }
+        /**/
     };
 
 
@@ -475,97 +559,11 @@ class UGYEditor extends React.Component {
 
         this.handleUserBulkMenuClose(event);
     };
-    confirmPassword = event => {
-        const url = hostURL + '/api/ProductsMany';
-
-        if (event.currentTarget.value == 2) {
-            const username = localStorage.getItem('userName');
-            const password = this.state.confirmDeletionPassword;
-            const request = new Request(hostURL + '/api/login', {
-                method: 'POST',
-                body: JSON.stringify({username, password}),
-                headers: new Headers({'Content-Type': 'application/json'}),
-            });
-
-            fetch(request)
-                .then(response => {
-                    if (response.status < 200 || response.status >= 300) {
-                        this.setState({passwordError: true});
-                        return {};
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(({access_token, roles}) => {
-                    if (access_token) {
-                        this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: ''});
-                        localStorage.setItem('access_token', access_token);
-                        localStorage.setItem('role', roles[0]);
-                        let options = {};
-                        if (!options.headers) {
-                            options.headers = new Headers({Accept: 'application/json'});
-                        }
-
-                        options.headers.set('Authorization', `Bearer ${access_token}`);
-
-                        fetch(url, {
-                            method: "POST",
-                            mode: "cors",
-                            cache: "no-cache",
-                            credentials: "same-origin", // include, same-origin, *omit
-                            headers: {
-                                "Content-Type": "application/json; charset=utf-8",
-                                'Authorization': `Bearer ${access_token}`
-                                // "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            redirect: "follow", // manual, *follow, error
-                            referrer: "no-referrer", // no-referrer, *client
-                            body: JSON.stringify({
-                                newProducts: this.state.newProducts,
-                                updatedProducts: this.state.updatedProducts,
-                                deletedProducts: this.state.deletedProducts
-                            }),
-                        }).then(response => {
-                            this.setState({open: false});
-                            this.props.push('/');
-                        });
-                    }
-                });
-        } else {
-            this.setState({deletedProducts: []});
-            let options = {};
-            if (!options.headers) {
-                options.headers = new Headers({Accept: 'application/json'});
-            }
-            const token = localStorage.getItem('access_token');
-
-            options.headers.set('Authorization', `Bearer ${token}`);
-
-            fetch(url, {
-                method: "POST",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin", // include, same-origin, *omit
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                    'Authorization': `Bearer ${token}`
-                    // "Content-Type": "application/x-www-form-urlencoded",
-                },
-                redirect: "follow", // manual, *follow, error
-                referrer: "no-referrer", // no-referrer, *client
-                body: JSON.stringify({
-                    newProducts: this.state.newProducts,
-                    updatedProducts: this.state.updatedProducts,
-                    deletedProducts: []
-                }),
-            }).then(response => {
-                this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: '', open: false});
-
-                //  this.setState({open: false});
-                this.props.push('/');
-            });
-        }
-        /**/
+    updateYear = year => event => {
+        this.setState({year: year.id, yearText: year.year});
+        this.getUsers(year.id);
+        this.getGroups(year.id);
+        this.loadCategories(year.id);
     };
     cancel = event => {
         this.setState({open: false});
@@ -810,11 +808,18 @@ class UGYEditor extends React.Component {
             </ExpansionPanel>
         )
     };
-    updateYear = year => event => {
-        this.setState({year: year.id, yearText: year.year});
-        this.getUsers(year.id);
-        this.loadCategories(year.id);
-    };
+
+    getGroups(yearId) {
+        dataProvider(GET_LIST, 'Group', {
+            filter: {year_id: yearId || this.state.year},
+            sort: {field: 'id', order: 'DESC'},
+            pagination: {page: 1, perPage: 1000},
+        }).then(response => {
+            this.setState({groups: response.data})
+        })
+
+
+    }
 
 
 
@@ -911,7 +916,6 @@ class UGYEditor extends React.Component {
 
     };
 
-
     getUsers(yearId) {
         /*     dataProvider(GET_LIST, 'User', {
                  filter: {},
@@ -931,8 +935,8 @@ class UGYEditor extends React.Component {
                  });
                  this.setState({'users': users, 'update': true, 'userChecks': userChecks})
              });*/
-        dataProvider(GET_PLAIN_MANY, 'UserHierarchy', {filter: {year: yearId || this.state.year}}).then(response => {
-            let users = response.data;
+        dataProvider(GET_LIST, 'UserHierarchy', {filter: {year: yearId || this.state.year}}).then(response => {
+            let users = response.data[0];
             let userChecks = {};
             Object.keys(users).forEach(user => {
 
@@ -1446,10 +1450,11 @@ class UGYEditor extends React.Component {
 
 
     componentWillMount() {
-        this.loadCategories();
     }
 
-    componentWillReceiveProps() {
+    componentDidMount() {
+        this.loadCategories();
+
         this.getUsers();
         this.getYears();
         this.getGroups();

@@ -19,6 +19,7 @@ module.exports = function (sequelize, DataTypes) {
     });
     schema.associate = models => {
         schema.belongsTo(models.year);
+        schema.hasMany(models.user_year);
     };
     return schema;
 };

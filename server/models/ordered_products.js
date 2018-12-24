@@ -16,7 +16,7 @@ module.exports = function (sequelize, DataTypes) {
 
 
         extended_cost: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(19, 2),
             allowNull: false
         },
 

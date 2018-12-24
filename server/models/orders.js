@@ -15,7 +15,7 @@ module.exports = function (sequelize, DataTypes) {
         },
 
         amount_paid: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(19, 2),
             allowNull: false
         },
         delivered: {
@@ -28,7 +28,7 @@ module.exports = function (sequelize, DataTypes) {
         },
 
         cost: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(19, 2),
             allowNull: false
         },
 

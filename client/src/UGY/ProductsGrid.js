@@ -319,8 +319,8 @@ class ProductsGrid extends Component {
         }
         dataProvider(GET_LIST, 'Products', {
             filter: filter,
-            pagination: {page: 1, perPage: 100},
-            sort: {field: 'id', order: 'DESC'}
+            pagination: {page: 1, perPage: 1000},
+            sort: {field: 'id', order: 'ASC'}
         })
             .then(response =>
                 response.data.reduce((stats, product) => {

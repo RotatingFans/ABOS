@@ -30,7 +30,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true
         },
         donation: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(19, 2),
             allowNull: true
         },
         user_name: {
