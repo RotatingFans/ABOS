@@ -1,0 +1,22 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "public": "../public/",
+  "paginate": {
+    "default": 10,
+    "max": 1000
+  },
+  "serviceOptions": {
+    "raw": false
+  },
+  "mysql": {
+    "database": "sequelize",
+    "username": "admin",
+    "password": "dev123",
+    "host": "172.17.0.2",
+    "port": 3306,
+    "dialectOptions": {
+      "decimalNumbers": true
+    }
+  }
+}

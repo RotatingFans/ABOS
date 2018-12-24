@@ -428,7 +428,7 @@ class UGYEditor extends React.Component {
                             credentials: "same-origin", // include, same-origin, *omit
                             headers: {
                                 "Content-Type": "application/json; charset=utf-8",
-                                'Authorization': `Bearer ${token}`
+                                'Authorization': `Bearer ${access_token}`
                                 // "Content-Type": "application/x-www-form-urlencoded",
                             },
                             redirect: "follow", // manual, *follow, error
