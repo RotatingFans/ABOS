@@ -5,7 +5,7 @@ import Donations from './Donations';
 import GrandTotals from './GrandTotals';
 import NbCustomers from './NbCustomers';
 import OrderedProducts from './OrderedProducts';
-import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
+import {fetchUtils, GET_LIST} from 'react-admin';
 import restClient from '../grailsRestClient';
 
 
@@ -17,7 +17,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 
 const styles = {
     flex: {display: 'flex'},

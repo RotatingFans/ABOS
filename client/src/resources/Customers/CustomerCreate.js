@@ -1,6 +1,6 @@
 import {withStyles} from "@material-ui/core";
 import React from "react";
-import {change, reduxForm} from 'redux-form';
+import {change} from 'redux-form';
 import Typography from '@material-ui/core/Typography';
 
 import {
@@ -8,14 +8,12 @@ import {
     BooleanInput,
     CREATE,
     Create,
-    Edit,
     fetchUtils,
     FormDataConsumer,
     ReferenceInput,
     SelectInput,
     SimpleForm,
-    TextInput,
-    UPDATE
+    TextInput
 } from "react-admin";
 import ProductsGrid from "../ProductsGrid";
 import AddressInput from './addressInput';
@@ -31,7 +29,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 const styles = {
     flex: {display: 'flex'},
     flexColumn: {display: 'flex', flexDirection: 'column'},

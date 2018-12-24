@@ -6,15 +6,8 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import encoding from 'encoding-japanese'
-import {
-    changeListParams,
-    crudGetList,
-    crudGetList as crudGetListAction,
-    crudGetOne,
-    crudUpdate,
-    startUndoable
-} from 'ra-core';
-import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
+import {changeListParams, crudGetList as crudGetListAction, crudUpdate, startUndoable} from 'ra-core';
+import {fetchUtils, GET_LIST} from 'react-admin';
 import restClient from '../grailsRestClient';
 import CurrencyFormatter from "../resources/Formatters/CurrencyFormatter";
 import ProductsToolbar from "./ProductsToolBar";
@@ -37,7 +30,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 //import dataProviderFactory from '../grailsRestClient';
 
 const styles = theme => ({

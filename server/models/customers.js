@@ -72,7 +72,7 @@ module.exports = function (sequelize, DataTypes) {
     schema.associate = models => {
         schema.belongsTo(models.year);
         schema.belongsTo(models.user);
-        schema.hasOne(models.orders);
+        schema.hasOne(models.orders, {onDelete: 'cascade'});
     };
     return schema;
 };

@@ -18,7 +18,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 
 const styles = {
     flex: {display: 'flex'},

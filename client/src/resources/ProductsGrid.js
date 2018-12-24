@@ -5,15 +5,8 @@ import compose from 'recompose/compose';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-    changeListParams,
-    crudGetList,
-    crudGetList as crudGetListAction,
-    crudGetOne,
-    crudUpdate,
-    startUndoable
-} from 'ra-core';
-import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, ViewTitle} from 'react-admin';
+import {changeListParams, crudGetList as crudGetListAction, crudUpdate, startUndoable} from 'ra-core';
+import {addField, fetchUtils, GET_LIST, GET_ONE} from 'react-admin';
 import restClient from '../grailsRestClient';
 import CurrencyFormatter from "./Formatters/CurrencyFormatter";
 import MUINumberEditor from "./Editors/MUINumberEditor";
@@ -28,7 +21,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 //import dataProviderFactory from '../grailsRestClient';
 
 const styles = theme => ({
@@ -284,7 +277,7 @@ class ProductsGrid extends Component {
                         dataProvider(GET_LIST, 'Products', {
                             filter: filter,
                             pagination: {page: 1, perPage: 1000},
-                            sort: {field: 'id', order: 'DESC'}
+                            sort: {field: 'id', order: 'ASC'}
                         })
                             .then(response =>
                                 response.data.reduce((stats, product) => {
@@ -346,8 +339,8 @@ class ProductsGrid extends Component {
             } else {
                 dataProvider(GET_LIST, 'Products', {
                     filter: filter,
-                    pagination: {page: 1, perPage: 100},
-                    sort: {field: 'id', order: 'DESC'}
+                    pagination: {page: 1, perPage: 1000},
+                    sort: {field: 'id', order: 'ASC'}
                 })
                     .then(response =>
                         response.data.reduce((stats, product) => {
@@ -410,8 +403,8 @@ class ProductsGrid extends Component {
         } else {
             dataProvider(GET_LIST, 'Products', {
                 filter: filter,
-                pagination: {page: 1, perPage: 100},
-                sort: {field: 'id', order: 'DESC'}
+                pagination: {page: 1, perPage: 1000},
+                sort: {field: 'id', order: 'ASC'}
             })
                 .then(response =>
                     response.data.reduce((stats, product) => {

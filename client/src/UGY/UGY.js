@@ -40,24 +40,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import ProductsGrid from './ProductsGrid.js';
-import {
-    BooleanInput,
-    CREATE,
-    fetchUtils,
-    FormDataConsumer,
-    GET_LIST,
-    ImageField,
-    ImageInput,
-    ReferenceArrayInput,
-    ReferenceInput,
-    required,
-    SelectArrayInput,
-    SelectInput,
-    showNotification,
-    SimpleForm,
-    TextInput,
-    UPDATE
-} from 'react-admin';
+import {CREATE, fetchUtils, GET_LIST, showNotification, UPDATE} from 'react-admin';
 
 import Paper from '@material-ui/core/Paper';
 
@@ -78,7 +61,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 
 function TabContainer(props) {
     return (

@@ -40,7 +40,7 @@ module.exports = function (sequelize, DataTypes) {
         schema.belongsTo(models.user);
 
         schema.belongsTo(models.customers);
-        schema.hasMany(models.ordered_products, {as: 'orderedProducts'});
+        schema.hasMany(models.ordered_products, {as: 'orderedProducts', onDelete: 'cascade'});
 
     };
     return schema;

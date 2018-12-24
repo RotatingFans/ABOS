@@ -1,4 +1,12 @@
-import {CREATE, DELETE, fetchUtils, GET_LIST, GET_MANY, GET_MANY_REFERENCE, GET_ONE, UPDATE,} from 'react-admin';
+import {restClient} from 'ra-data-feathers';
+import feathersClient from './feathersClient';
+
+export default restClient(feathersClient, {});
+
+export const GET_PLAIN_MANY = "GET_PLAIN_MANY";
+
+
+/*import {CREATE, DELETE, fetchUtils, GET_LIST, GET_MANY, GET_MANY_REFERENCE, GET_ONE, UPDATE,} from 'react-admin';
 import hostURL from "./host";
 
 export const GET_PLAIN_MANY = "GET_PLAIN_MANY";
@@ -57,12 +65,12 @@ export default (httpClient = fetchUtils.fetchJson) => {
         return param;
     };
 
-    /**
+    /!**
      * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
      * @param {String} resource Name of the resource to fetch, e.g. 'posts'
      * @param {Object} params The REST request params, depending on the type
      * @returns {Object} { url, options } The HTTP request parameters
-     */
+     *!/
     const convertRESTRequestToHTTP = (type, resource, params) => {
         let url = '';
         const options = {};
@@ -106,13 +114,13 @@ export default (httpClient = fetchUtils.fetchJson) => {
         return {url, options};
     };
 
-    /**
+    /!**
      * @param {Object} response HTTP response from fetch()
      * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
      * @param {String} resource Name of the resource to fetch, e.g. 'posts'
      * @param {Object} params The REST request params, depending on the type
      * @returns {Object} REST response
-     */
+     *!/
     const convertHTTPResponseToREST = (response, type, resource, params) => {
         const {headers, json} = response;
         switch (type) {
@@ -120,13 +128,13 @@ export default (httpClient = fetchUtils.fetchJson) => {
             case GET_MANY_REFERENCE:
             case GET_MANY:
             case GET_PLAIN_MANY:
-                /*
+                /!*
                 if (!headers.has('content-range')) {
                   throw new Error(
                     'The Content-Range header is missing in the HTTP Response. The simple REST client expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare Content-Range in the Access-Control-Expose-Headers header?'
                   );
                 }
-                */
+                *!/
                 return {
                     data: json.data,
                     total: parseInt(json.total, 10),
@@ -134,18 +142,18 @@ export default (httpClient = fetchUtils.fetchJson) => {
             case CREATE:
                 return {data: {json, id: json.id}};
             case DELETE:
-                return {data: {...params.data}};
+                return {data: {json}};
             default:
                 return {data: json};
         }
     };
 
-    /**
+    /!**
      * @param {string} type Request type, e.g GET_LIST
      * @param {string} resource Resource name, e.g. "posts"
      * @param {Object} payload Request parameters. Depends on the request type
      * @returns {Promise} the Promise for a REST response
-     */
+     *!/
     return (type, resource, params) => {
         const {url, options} = convertRESTRequestToHTTP(type, resource, params);
 
@@ -153,4 +161,4 @@ export default (httpClient = fetchUtils.fetchJson) => {
             return convertHTTPResponseToREST(response, type, resource, params);
         });
     };
-};
+};*/

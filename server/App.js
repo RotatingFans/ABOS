@@ -305,6 +305,8 @@ app.service('/customers').hooks({
             // notNull Violation: customers.longitude cannot be null
             let customer = context.data;
             let usr = await user.findByPk(customer.user);
+            customer.user_id = customer.user;
+            customer.year_id = customer.year;
             customer.user_name = usr.username;
             customer.customer_name = customer.customerName;
             customer.street_address = customer.streetAddress;
@@ -314,12 +316,15 @@ app.service('/customers').hooks({
             customer.order.orderedProducts.forEach(op => {
                 op.extended_cost = op.extendedCost;
                 op.user_name = usr.username;
-                op.user = usr;
+                op.user_id = customer.user;
+                op.year_id = customer.year;
+                op.products_id = op.products.id;
                 ops.push(op);
             });
             customer.order.orderedProducts = ops;
             customer.order.user_name = usr.username;
-            customer.order.user = usr;
+            customer.order.user_id = customer.user;
+            customer.order.year_id = customer.year;
             customer.order.amount_paid = customer.order.amountPaid;
             context.data = customer;
             context.params.sequelize = {
@@ -426,6 +431,48 @@ app.service('/customers').hooks({
                 }
                 let product = await products.findByPk(op.products.id);
                 opM.user_name = context.data.user_name;
+
+                opM.setUser(user, {save: false});
+                opM.setYear(year, {save: false});
+                opM.setCustomer(customer, {save: false});
+                opM.setOrder(order, {save: false});
+                opM.setProducts(product, {save: false});
+                // console.log(opM.toJSON());
+                let response5 = await opM.save();
+                ops.push(response5);
+            }
+            await order.setOrderedProducts(ops, {save: false});
+            //
+            await order.save();
+            return context;
+        },
+        async create(context) {
+            let order;
+            if (context.result.order.id) {
+                order = await orders.findByPk(context.result.order.id);
+                order.set(context.result.order);
+            } else {
+                order = orders.build(context.result.order);
+            }
+            let customer = await customers.findByPk(context.result.id);
+            let user = await customer.getUser();
+            let year = await customer.getYear();
+            let ops = [];
+            order.user_name = context.result.user_name;
+
+            for (const op of context.result.order.orderedProducts) {
+
+                /*}
+                await context.result.order.orderedProducts.forEach(async op => {*/
+                let opM;
+                if (op.id) {
+                    opM = await orderedProducts.findByPk(op.id);
+                    opM.set(op);
+                } else {
+                    opM = orderedProducts.build(op);
+                }
+                let product = await products.findByPk(op.products_id);
+                opM.user_name = context.result.user_name;
 
                 opM.setUser(user, {save: false});
                 opM.setYear(year, {save: false});

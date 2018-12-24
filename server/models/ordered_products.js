@@ -34,7 +34,7 @@ module.exports = function (sequelize, DataTypes) {
         schema.belongsTo(models.user);
 
         schema.belongsTo(models.products, {as: 'products'});
-        schema.belongsTo(models.customers);
+        schema.belongsTo(models.customers, {onDelete: 'cascade'});
         schema.belongsTo(models.orders);
 
     };

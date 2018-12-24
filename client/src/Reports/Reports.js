@@ -7,16 +7,13 @@ import {
     GET_LIST,
     ImageField,
     ImageInput,
-    ReferenceArrayInput,
-    ReferenceInput,
     required,
     SelectArrayInput,
     SelectInput,
-    SimpleForm,
     TextInput
 } from 'react-admin';
 import {withStyles} from "@material-ui/core";
-import {change, formValueSelector, reduxForm} from 'redux-form';
+import {change} from 'redux-form';
 import AddressInput from '../resources/Customers/addressInput';
 
 import Wizard from './Wizard'
@@ -35,7 +32,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 
 const CustomSelectInput = ({onChangeCustomHandler, ...rest}) => (
     <SelectInput onChange={(event, key, payload) => {

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import GoogleMapReact from 'google-map-react';
 import {mapKey} from "./mapKey";
 import restClient from '../grailsRestClient';
-import {addField, fetchUtils, GET_LIST, GET_MANY, GET_ONE, Responsive, showNotification, ViewTitle} from 'react-admin';
+import {fetchUtils, GET_LIST, showNotification} from 'react-admin';
 import supercluster from "points-cluster";
 import SimpleMarker from "./markers/SimpleMarker";
 import ClusterMarker from "./markers/ClusterMarker";
@@ -23,7 +23,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 const MapMarker = ({text, customer}) => <div>{customer.customerName}</div>;
 const styles = {
     list: {

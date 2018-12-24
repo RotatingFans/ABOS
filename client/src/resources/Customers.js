@@ -1,31 +1,17 @@
 import React from 'react';
 import {
     BooleanField,
-    BooleanInput,
-    CheckboxGroupInput,
     classes,
-    Create,
     CREATE,
     Datagrid,
-    DateField,
-    DateInput,
-    DisabledInput,
-    Edit,
     EditButton,
     fetchUtils,
     Field,
     Filter,
-    FormDataConsumer,
-    GET_LIST,
-    Link,
     List,
     NumberField,
-    NumberInput,
     ReferenceArrayInput,
-    ReferenceInput,
     SelectArrayInput,
-    SelectInput,
-    SimpleForm,
     TextField,
     TextInput,
     UPDATE
@@ -44,7 +30,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 const styles = {
     flex: {display: 'flex'},
     flexColumn: {display: 'flex', flexDirection: 'column'},

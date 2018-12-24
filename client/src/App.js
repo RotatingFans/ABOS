@@ -30,7 +30,7 @@ const httpClient = (url, options = {}) => {
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
-const dataProvider = restClient(httpClient);
+const dataProvider = restClient;
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
 const MyUserMenu = props => (
     <UserMenu {...props}>
