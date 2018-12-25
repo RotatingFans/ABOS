@@ -1,29 +1,50 @@
 /* eslint-disable no-unused-vars */
 class Service {
-  constructor(options) {
+  constructor(options, app) {
     this.options = options || {};
+    this.app = app;
   }
 
   async find(params) {
+    const seqClient = this.app.get('sequelizeClient');
+    const categories = seqClient.models['categories'];
+    const customers = seqClient.models['customers'];
+    const groups = seqClient.models['groups'];
+    const orderedProducts = seqClient.models['ordered_products'];
+    const orders = seqClient.models['orders'];
+    const products = seqClient.models['products'];
+    const role = seqClient.models['role'];
+    const RoleHierarchyEntry = seqClient.models['role_hierarchy_entry'];
+    const user = seqClient.models['user'];
+    const userManager = seqClient.models['user_manager'];
+    const userRole = seqClient.models['user_role'];
+    const userYear = seqClient.models['user_year'];
+    const year = seqClient.models['year'];
     console.log(params);
-    let users = await user.findAll({attributes: ['id', 'full_name', 'username']});
     let yr = await year.findByPk(params.query.year);
+    let users = await user.findAll({
+      attributes: ['id', 'full_name', 'username'],
+      include: [{model: userYear, where: {year_id: yr.id}}]
+    });
+
     let usersList = {};
 
 
     for (const u of users) {
       let subUsers = {};
-      let userYr = await userYear.findOne({where: {user_id: u.id, year_id: yr.id}});
+      //let userYr = await userYear.findOne({where: {user_id: u.id, year_id: yr.id}});
+      let userYr = u.user_years[0];
       if (!userYr) {
         userYr = {};
         userYr.group_id = 1;
         userYr.status = "DISABLED"
       }
       for (const su of users) {
-        let userYearSub = await userYear.findOne({
-          where: {user_id: u.id, year_id: yr.id},
+        let userYearSub = su.user_years[0];
+        /*let userYearSub = await userYear.findOne({
+          where: {user_id: su.id, year_id: yr.id},
           attributes: ['group_id', 'status']
-        });
+        });*/
         if (!userYearSub) {
           userYearSub = {};
           userYearSub.group_id = 1;
@@ -71,7 +92,20 @@ class Service {
   }
 
   async create(data, params) {
-
+    const seqClient = this.app.get('sequelizeClient');
+    const categories = seqClient.models['categories'];
+    const customers = seqClient.models['customers'];
+    const groups = seqClient.models['groups'];
+    const orderedProducts = seqClient.models['ordered_products'];
+    const orders = seqClient.models['orders'];
+    const products = seqClient.models['products'];
+    const role = seqClient.models['role'];
+    const RoleHierarchyEntry = seqClient.models['role_hierarchy_entry'];
+    const user = seqClient.models['user'];
+    const userManager = seqClient.models['user_manager'];
+    const userRole = seqClient.models['user_role'];
+    const userYear = seqClient.models['user_year'];
+    const year = seqClient.models['year'];
     //   log.debug(jsonParams.toString());
     let users = data.data;
     let yr = await year.findByPk(data.year);
@@ -155,8 +189,8 @@ class Service {
   }
 }
 
-module.exports = function (options) {
-  return new Service(options);
+module.exports = function (options, app) {
+  return new Service(options, app);
 };
 
 module.exports.Service = Service;

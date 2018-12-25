@@ -1,3 +1,5 @@
+const {ValidationError} = require("sequelize");
+
 const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require("../../models/attributes");
 
 // const seqClient = app.get('sequelizeClient');
@@ -11,8 +13,15 @@ module.exports = {
       // Get the Sequelize instance. In the generated application via:
       const sequelize = context.app.get('sequelizeClient');
       const orderedProducts = sequelize.models['ordered_products'];
+      const categories = sequelize.models['categories'];
 
-      let yrInc = {model: sequelize.models['year'], attributes: yearAttr};
+      const orders = sequelize.models['orders'];
+      const products = sequelize.models['products'];
+
+      const user = sequelize.models['user'];
+
+      const year = sequelize.models['year'];
+      let yrInc = {model: year, attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
         delete context.params.query.year;
@@ -21,21 +30,22 @@ module.exports = {
 
       context.params.sequelize = {
         include: [yrInc, {
-          model: sequelize.models.user,
+          model: user,
           attributes: userAttr
         }, {
-          model: sequelize.models.orders,
+          model: orders,
           attributes: ordersAttr,
           include: [{
             model: orderedProducts,
+            attributes: orderedProductsAttr,
             include: [{
-              model: sequelize.models.products,
+              model: products,
               attributes: productsAttr,
-              include: [{model: sequelize.models.categories}, {model: sequelize.models.year, attributes: yearAttr}],
+              include: [{model: categories}, {model: year, attributes: yearAttr}],
               as: 'products'
-            }, {model: sequelize.models.year, attributes: yearAttr}],
+            }, {model: year, attributes: yearAttr}],
             as: 'orderedProducts'
-          }, {model: sequelize.models.year, attributes: yearAttr}],
+          }, {model: year, attributes: yearAttr}],
           as: 'order'
         }],
         attributes: customerAttr,
@@ -49,25 +59,33 @@ module.exports = {
       //  const sequelize = context.app.get('sequelizeClient');
 
       const sequelize = context.app.get('sequelizeClient');
+      const orderedProducts = sequelize.models['ordered_products'];
+      const categories = sequelize.models['categories'];
 
+      const orders = sequelize.models['orders'];
+      const products = sequelize.models['products'];
+
+      const user = sequelize.models['user'];
+
+      const year = sequelize.models['year'];
       context.params.sequelize = {
-        include: [{model: sequelize.models.year, attributes: yearAttr}, {
-          model: sequelize.models.user,
+        include: [{model: year, attributes: yearAttr}, {
+          model: user,
           attributes: userAttr
         }, {
-          model: sequelize.models.orders,
+          model: orders,
           attributes: ordersAttr,
           include: [{
-            model: sequelize.models.orderedProducts,
+            model: orderedProducts,
             attributes: orderedProductsAttr,
             include: [{
-              model: sequelize.models.products,
+              model: products,
               attributes: productsAttr,
-              include: [{model: sequelize.models.categories}, {model: sequelize.models.year, attributes: yearAttr}],
+              include: [{model: categories}, {model: year, attributes: yearAttr}],
               as: 'products'
-            }, {model: sequelize.models.year, attributes: yearAttr}],
+            }, {model: year, attributes: yearAttr}],
             as: 'orderedProducts'
-          }, {model: sequelize.models.year, attributes: yearAttr}],
+          }, {model: year, attributes: yearAttr}],
           as: 'order'
         }],
         attributes: customerAttr,
@@ -80,6 +98,7 @@ module.exports = {
       // const seqClient = context.app.get('sequelizeClient');
       //   const orders = seqClient.models['orders'];
       const orderedProducts = sequelize.models['ordered_products'];
+      const orders = sequelize.models['orders'];
 
       const user = sequelize.models['user'];
 
@@ -115,10 +134,10 @@ module.exports = {
       context.data = customer;
       context.params.sequelize = {
         include: [{
-          model: sequelize.models.orders,
+          model: orders,
           as: 'order',
           include: [{
-            model: sequelize.models.orderedProducts,
+            model: orderedProducts,
             as: 'orderedProducts'
           }],
 
@@ -133,6 +152,7 @@ module.exports = {
 
 
       const user = sequelize.models['user'];
+      const orders = sequelize.models['orders'];
 
       let customer = context.data;
       let usr = await user.findByPk(customer.user.id);
@@ -155,10 +175,10 @@ module.exports = {
       context.data = customer;
       context.params.sequelize = {
         include: [{
-          model: sequelize.models.orders,
+          model: orders,
           as: 'order',
           include: [{
-            model: sequelize.models.orderedProducts,
+            model: orderedProducts,
             as: 'orderedProducts'
           }],
 
@@ -178,37 +198,43 @@ module.exports = {
       const orderedProducts = seqClient.models['ordered_products'];
 
       context.result.data.forEach(cust => {
-
-        let ops = [];
-        cust.dataValues.order.dataValues.orderedProducts.forEach(op => {
-          op.dataValues.extendedCost = op.dataValues.quantity * op.products.dataValues.unitCost;
-          ops.push(op);
-        });
-        cust.dataValues.order.dataValues.orderedProducts = ops;
+        if (cust.dataValues.order) {
+          let ops = [];
+          cust.dataValues.order.dataValues.orderedProducts.forEach(op => {
+            op.dataValues.extendedCost = op.dataValues.quantity * op.products.dataValues.unitCost;
+            ops.push(op);
+          });
+          cust.dataValues.order.dataValues.orderedProducts = ops;
+        }
         customers.push(cust);
+
       });
       context.result.data = customers;
       return context;
     },
     get(context) {
 
+      if (context.result.dataValues.order) {
 
-      let ops = [];
-      context.result.dataValues.order.dataValues.orderedProducts.forEach(op => {
-        op.dataValues.extendedCost = op.dataValues.quantity * op.products.dataValues.unitCost;
-        ops.push(op);
-      });
-      context.result.dataValues.order.dataValues.orderedProducts = ops;
+        let ops = [];
+        context.result.dataValues.order.dataValues.orderedProducts.forEach(op => {
+          op.dataValues.extendedCost = op.dataValues.quantity * op.products.dataValues.unitCost;
+          ops.push(op);
+        });
+        context.result.dataValues.order.dataValues.orderedProducts = ops;
+      }
       return context;
 
     },
     async update(context) {
-      const seqClient = app.get('sequelizeClient');
+      const seqClient = context.app.get('sequelizeClient');
       const customers = seqClient.models['customers'];
       const orderedProducts = seqClient.models['ordered_products'];
       const orders = seqClient.models['orders'];
       const products = seqClient.models['products'];
-
+      const categories = seqClient.models['categories'];
+      const yearM = seqClient.models['year'];
+      const userM = seqClient.models['user'];
       let order;
       if (context.data.order.id) {
         order = await orders.findByPk(context.data.order.id);
@@ -247,15 +273,45 @@ module.exports = {
       }
       await order.setOrderedProducts(ops, {save: false});
       //
-      await order.save();
+      let ord = await order.save();
+      if (typeof ord !== ValidationError) {
+        const options = {
+          include: [{model: yearM, attributes: yearAttr}, {
+            model: userM,
+            attributes: userAttr
+          }, {
+            model: orders,
+            attributes: ordersAttr,
+            include: [{
+              model: orderedProducts,
+              attributes: orderedProductsAttr,
+              include: [{
+                model: products,
+                attributes: productsAttr,
+                include: [{model: categories}, {model: yearM, attributes: yearAttr}],
+                as: 'products'
+              }, {model: yearM, attributes: yearAttr}],
+              as: 'orderedProducts'
+            }, {model: yearM, attributes: yearAttr}],
+            as: 'order'
+          }],
+          attributes: customerAttr,
+        };
+        context.result = await customers.findByPk(customer.id, options);
+      }
       return context;
     },
     async create(context) {
-      const seqClient = app.get('sequelizeClient');
+      const seqClient = context.app.get('sequelizeClient');
       const customers = seqClient.models['customers'];
-      const orderedProducts = seqClient.models['ordered_products'];
       const orders = seqClient.models['orders'];
       const products = seqClient.models['products'];
+      const orderedProducts = seqClient.models['ordered_products'];
+
+      const categories = seqClient.models['categories'];
+      const yearM = seqClient.models['year'];
+      const userM = seqClient.models['user'];
+
 
       let order;
       if (context.result.order.id) {
@@ -295,7 +351,32 @@ module.exports = {
       }
       await order.setOrderedProducts(ops, {save: false});
       //
-      await order.save();
+      let ord = await order.save();
+      if (typeof ord !== ValidationError) {
+        const options = {
+          include: [{model: yearM, attributes: yearAttr}, {
+            model: userM,
+            attributes: userAttr
+          }, {
+            model: orders,
+            attributes: ordersAttr,
+            include: [{
+              model: orderedProducts,
+              attributes: orderedProductsAttr,
+              include: [{
+                model: products,
+                attributes: productsAttr,
+                include: [{model: categories}, {model: yearM, attributes: yearAttr}],
+                as: 'products'
+              }, {model: yearM, attributes: yearAttr}],
+              as: 'orderedProducts'
+            }, {model: yearM, attributes: yearAttr}],
+            as: 'order'
+          }],
+          attributes: customerAttr,
+        };
+        context.result = await customers.findByPk(customer.id, options);
+      }
       return context;
     },
     patch: [],

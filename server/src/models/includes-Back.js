@@ -2,19 +2,18 @@ const attributes = require('./attributes');
 
 module.exports = function (app) {
   const seqClient = app.get('sequelizeClient');
-  const SomeModel = seqClient.models['some-model'];
   const categories = seqClient.models['categories'];
   const customers = seqClient.models['customers'];
   const groups = seqClient.models['groups'];
-  const orderedProducts = seqClient.models['orderedProducts'];
+  const orderedProducts = seqClient.models['ordered_products'];
   const orders = seqClient.models['orders'];
   const products = seqClient.models['products'];
   const role = seqClient.models['role'];
-  const RoleHierarchyEntry = seqClient.models['RoleHierarchyEntry'];
+  const RoleHierarchyEntry = seqClient.models['role_hierarchy_entry'];
   const user = seqClient.models['user'];
-  const userManager = seqClient.models['userManager'];
-  const userRole = seqClient.models['userRole'];
-  const userYear = seqClient.models['userYear'];
+  const userManager = seqClient.models['user_manager'];
+  const userRole = seqClient.models['user_role'];
+  const userYear = seqClient.models['user_year'];
   const year = seqClient.models['year'];
   return {
 

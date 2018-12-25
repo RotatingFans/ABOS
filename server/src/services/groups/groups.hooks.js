@@ -4,9 +4,9 @@ module.exports = {
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
-      const seqClient = app.get('sequelizeClient');
+      const seqClient = context.app.get('sequelizeClient');
 
-      const userYear = seqClient.models['userYear'];
+      const userYear = seqClient.models['user_year'];
       const year = seqClient.models['year'];
 
       context.params.sequelize = {
@@ -19,9 +19,9 @@ module.exports = {
     get(context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
-      const seqClient = app.get('sequelizeClient');
+      const seqClient = context.app.get('sequelizeClient');
 
-      const userYear = seqClient.models['userYear'];
+      const userYear = seqClient.models['user_year'];
       const year = seqClient.models['year'];
 
       context.params.sequelize = {

@@ -7,8 +7,13 @@ module.exports = {
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       const sequelize = context.app.get('sequelizeClient');
+      const categories = sequelize.models['categories'];
 
-      let yrInc = {model: sequelize.models['year'], attributes: yearAttr};
+      const products = sequelize.models['products'];
+
+
+      const year = sequelize.models['year'];
+      let yrInc = {model: year, attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
         delete context.params.query.year;
@@ -17,9 +22,9 @@ module.exports = {
       context.params.sequelize = {
         attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
         include: [{
-          model: sequelize.models.products,
+          model: products,
           attributes: productsAttr,
-          include: [{model: sequelize.models.categories}, {model: sequelize.models.year, attributes: yearAttr}],
+          include: [{model: categories}, {model: year, attributes: yearAttr}],
           as: 'products'
         }, yrInc],
       };
@@ -28,7 +33,9 @@ module.exports = {
     get(context) {
       // Get the Sequelize instance. In the generated application via:
       const sequelize = context.app.get('sequelizeClient');
+      const categories = sequelize.models['categories'];
 
+      const products = sequelize.models['products'];
       let yrInc = {model: sequelize.models['year'], attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
@@ -38,9 +45,9 @@ module.exports = {
       context.params.sequelize = {
         attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
         include: [{
-          model: sequelize.models.products,
+          model: products,
           attributes: productsAttr,
-          include: [{model: sequelize.models.categories}, {model: sequelize.models.year, attributes: yearAttr}],
+          include: [{model: categories}, {model: year, attributes: yearAttr}],
           as: 'products'
         }, yrInc],
       };
