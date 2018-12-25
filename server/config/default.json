@@ -18,5 +18,29 @@
     "dialectOptions": {
       "decimalNumbers": true
     }
+  },
+  "authentication": {
+    "secret": "b6a7bafc4fe333dfe51d992e2f4016f9f3efae5411cce3c4c31c6be122c67e9a477921b6e826c00996e16430eed3700f048590bebaa64934eb6e3a134a939953916ed1fd9ac14449fccda35ff341b4b2b1eb2851622eecf2bc28bebe02fc6b04f3cfa7d023e84cacc18dba4dcf1b0ba682ad53c3b3c7c878be673cc2c65436d03b3ce0388419a42ba63f6b4a234bebc076a14a22c62ddea4f22ceef87c59e87629b86c558057d0cc1a5489a503d931331c807a3dc2832607ca95e9e524aaab14b5f5cbcdf482171d303a5be55d2140b543e6c5561579f8ccae15cdac8cb2817708e93ec6f725524d77bdc8fc911a2355daaffd4fe0cef61decd64af66e650c88",
+    "strategies": [
+      "jwt",
+      "local"
+    ],
+    "path": "/authentication",
+    "service": "user",
+    "jwt": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "subject": "anonymous",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "entity": "user",
+      "usernameField": "username",
+      "passwordField": "password"
+    }
   }
 }

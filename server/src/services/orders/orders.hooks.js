@@ -19,9 +19,9 @@ module.exports = {
       let yrInc = {model: year, attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
-        delete context.params.query.year;
 
       }
+      delete context.params.query.year;
 
       context.params.sequelize = {
         include: [{model: customers, attributes: ['donation']}, {
@@ -35,7 +35,7 @@ module.exports = {
           }, {model: year, attributes: yearAttr}],
           as: 'orderedProducts'
         }, yrInc],
-        attributes: ['id', 'cost', 'quantity', ['amount_paid', 'amountPaid'], 'delivered', ['user_name', 'userName'], 'customer_id'],
+        attributes: ['id', 'cost', 'quantity', ['amount_paid', 'amountPaid'], 'delivered', ['user_name', 'userName'], 'customer_id', 'year_id'],
       };
 
       return context;
@@ -56,6 +56,7 @@ module.exports = {
         delete context.params.query.year;
 
       }
+      delete context.params.query.year;
 
       context.params.sequelize = {
         include: [{model: customers, attributes: ['donation']}, {
@@ -69,7 +70,7 @@ module.exports = {
           }, {model: year, attributes: yearAttr}],
           as: 'orderedProducts'
         }, yrInc],
-        attributes: ['id', 'cost', 'quantity', ['amount_paid', 'amountPaid'], 'delivered', ['user_name', 'userName'], 'customer_id'],
+        attributes: ['id', 'cost', 'quantity', ['amount_paid', 'amountPaid'], 'delivered', ['user_name', 'userName'], 'customer_id', 'year_id'],
       };
 
       return context;

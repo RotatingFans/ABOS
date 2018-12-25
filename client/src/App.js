@@ -1,13 +1,13 @@
 // in src/App.js
 import React from 'react';
-import {Admin, AppBar, fetchUtils, Layout, MenuItemLink, Resource, UserMenu} from 'react-admin';
+import {Admin, AppBar, Layout, MenuItemLink, Resource, UserMenu} from 'react-admin';
 
 import {CategoryCreate, CategoryEdit, CategoryList} from './resources/Categories.js';
 import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
 import {YearCreate, YearEdit, YearList, YearShow} from './resources/Year.js';
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
-import authProvider from './security/authProvider';
+import authClient from './security/authProvider';
 import {Dashboard} from './dashboard';
 import {Reports} from "./Reports";
 import {UGY} from "./UGY";
@@ -19,16 +19,20 @@ import InfoIcon from '@material-ui/icons/Info';
 import {createGenerateClassName, jssPreset} from '@material-ui/core/styles';
 import JssProvider from 'react-jss/lib/JssProvider';
 import {create} from 'jss';
+import feathersClient from './feathersClient';
 
 const generateClassName = createGenerateClassName();
 const jss = create(jssPreset());
-const httpClient = (url, options = {}) => {
-    if (!options.headers) {
-        options.headers = new Headers({Accept: 'application/json'});
-    }
-    const token = localStorage.getItem('access_token');
-    options.headers.set('Authorization', `Bearer ${token}`);
-    return fetchUtils.fetchJson(url, options);
+const authClientConfig = {
+    storageKey: 'token', // The key in localStorage used to store the authentication token
+    authenticate: { // Options included in calls to Feathers client.authenticate
+        strategy: 'local', // The authentication strategy Feathers should use
+    },
+    permissionsKey: 'permissions', // The key in localStorage used to store permissions from decoded JWT
+    permissionsField: 'roles', // The key in the decoded JWT containing the user's role
+    passwordField: 'password', // The key used to provide the password to Feathers client.authenticate
+    usernameField: 'username', // The key used to provide the username to Feathers client.authenticate
+    redirectTo: '/login', // Redirect to this path if an AUTH_CHECK fails. Uses the react-admin default of '/login' if omitted.
 };
 const dataProvider = restClient;
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
@@ -50,7 +54,8 @@ const layout = (props) => <Layout {...props} appBar={MyAppBar}/>;
 const App = () => (
     <JssProvider jss={jss} generateClassName={generateClassName}>
 
-        <Admin dashboard={Dashboard} dataProvider={dataProvider} authProvider={authProvider} appLayout={layout} customRoutes={routes}>
+        <Admin dashboard={Dashboard} dataProvider={dataProvider}
+               authProvider={authClient(feathersClient, authClientConfig)} appLayout={layout} customRoutes={routes}>
             {permissions => [
                 <Resource name="customers" list={CustomerList} edit={CustomerEdit} create={CustomerCreate}/>,
                 <Resource name="Reports" list={Reports}/>,

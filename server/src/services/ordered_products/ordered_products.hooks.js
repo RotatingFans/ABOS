@@ -16,9 +16,10 @@ module.exports = {
       let yrInc = {model: year, attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
-        delete context.params.query.year;
 
       }
+      delete context.params.query.year;
+
       context.params.sequelize = {
         attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
         include: [{
@@ -39,9 +40,10 @@ module.exports = {
       let yrInc = {model: sequelize.models['year'], attributes: yearAttr};
       if (context.params.query.year) {
         yrInc.where = {id: context.params.query.year};
-        delete context.params.query.year;
 
       }
+      delete context.params.query.year;
+
       context.params.sequelize = {
         attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
         include: [{

@@ -719,6 +719,15 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
+"@feathersjs/authentication-client@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@feathersjs/authentication-client/-/authentication-client-1.0.9.tgz#af39666f0f3f03e5facfb9aa3b465260b39abfd5"
+  integrity sha512-R6KamMOez2M6j0vJtAwHWldIy+s+0pB4MzkLr7W1iUGDXYUSj4V/6U86VeR6Te/YjLDaAawtSn0YowyJ2ssI1g==
+  dependencies:
+    "@feathersjs/errors" "^3.3.5"
+    debug "^4.0.0"
+    jwt-decode "^2.1.0"
+
 "@feathersjs/client@^3.7.6":
   version "3.7.6"
   resolved "https://registry.yarnpkg.com/@feathersjs/client/-/client-3.7.6.tgz#982d3001f26f236143ce886fbfc25ef7c45d6f95"
@@ -5821,7 +5830,7 @@ jsx-ast-utils@^2.0.1:
   dependencies:
     array-includes "^3.0.3"
 
-jwt-decode@^2.2.0:
+jwt-decode@^2.1.0, jwt-decode@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-2.2.0.tgz#7d86bd56679f58ce6a84704a657dd392bba81a79"
   integrity sha1-fYa9VmefWM5qhHBKZX3TkruoGnk=

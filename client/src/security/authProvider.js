@@ -1,90 +1,83 @@
-// in src/authProvider.js
-import {AUTH_CHECK, AUTH_ERROR, AUTH_GET_PERMISSIONS, AUTH_LOGIN, AUTH_LOGOUT} from 'react-admin';
-import hostURL from '../host';
+import {AUTH_CHECK, AUTH_ERROR, AUTH_GET_PERMISSIONS, AUTH_LOGIN, AUTH_LOGOUT,} from 'react-admin';
+import decodeJwt from 'jwt-decode';
 
-export default (type, params) => {
+export default (client, options = {}) => (type, params) => {
+    const {
+        storageKey,
+        authenticate,
+        permissionsKey,
+        permissionsField,
+        passwordField,
+        usernameField,
+        redirectTo,
+    } = Object.assign({}, {
+        storageKey: 'token',
+        authenticate: {type: 'local'},
+        permissionsKey: 'permissions',
+        permissionsField: 'roles',
+        passwordField: 'password',
+        usernameField: 'email',
+    }, options);
+
+    switch (type) {
+        case AUTH_LOGIN:
+            const {username, password} = params;
+            return client.authenticate({
+                ...authenticate,
+                [usernameField]: username,
+                [passwordField]: password,
+            }).then(async response => {
+                //console.log('Authenticated!', response);
+                const payload = await client.passport.verifyJWT(response.accessToken);
+                //console.log('Authenticated!', payload);
+
+                let user = await client.service('user').get(payload.userId);
+                client.set('user', user);
+                localStorage.setItem('userName', user.username);
+                localStorage.setItem('fullName', user.fullName);
+                localStorage.setItem('enabledYear', user.enabledYear);
+
+                // console.log('User', client.get('user'));
 
 
-    if (type === AUTH_LOGIN) {
-        const {username, password} = params;
-        const request = new Request(hostURL + '/api/login', {
-            method: 'POST',
-            body: JSON.stringify({username, password}),
-            headers: new Headers({'Content-Type': 'application/json'}),
-        });
-        return fetch(request)
-            .then(response => {
-                if (response.status < 200 || response.status >= 300) {
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then(({access_token, roles}) => {
-                localStorage.setItem('access_token', access_token);
-                localStorage.setItem('role', roles[0]);
-                const request = new Request(hostURL + '/api/currentUser', {
-                    method: 'GET',
-                    headers: new Headers({
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${access_token}`
-                    }),
-                });
-                return fetch(request)
-                    .then(response => {
-                        if (response.status < 200 || response.status >= 300) {
-                            throw new Error(response.statusText);
-                        }
-                        return response.json();
-                    }).then(({userName, fullName, enabledYear}) => {
-                        localStorage.setItem('userName', userName);
-                        localStorage.setItem('fullName', fullName);
-                        localStorage.setItem('enabledYear', enabledYear);
-                    });
+                return response;
             });
-    }
-    if (type === AUTH_LOGOUT) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('role');
-        return Promise.resolve();
-    }
-    if (type === AUTH_ERROR) {
-        const status = params.status;
-        if (status === 401 || status === 403) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('role');
+        case AUTH_LOGOUT:
+            localStorage.removeItem(permissionsKey);
+            return client.logout();
+        case AUTH_CHECK:
+            return localStorage.getItem(storageKey) ? Promise.resolve() : Promise.reject({redirectTo});
+        case AUTH_ERROR:
+            const {code} = params;
+            if (code === 401 || code === 403) {
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem(permissionsKey);
+                return Promise.reject();
+            }
+            return Promise.resolve();
+        case AUTH_GET_PERMISSIONS:
+            /*
+            JWT token may be providen by oauth,
+            so that's why the permissions are decoded here and not in AUTH_LOGIN.
+            */
+            // Get the permissions from localstorage if any.
+            const localStoragePermissions = JSON.parse(localStorage.getItem(permissionsKey));
+            // If any, provide them.
+            if (localStoragePermissions) {
+                return Promise.resolve(localStoragePermissions);
+            }
+            // Or find them from the token, save them and provide them.
+            try {
+                const jwtToken = localStorage.getItem(storageKey);
+                const decodedToken = decodeJwt(jwtToken);
+                const jwtPermissions = decodedToken[permissionsField] ? decodedToken[permissionsField] : [];
+                localStorage.setItem(permissionsKey, JSON.stringify(jwtPermissions));
+                return Promise.resolve(jwtPermissions);
+            } catch (e) {
+                return Promise.reject();
+            }
 
-            return Promise.reject();
-        }
-        return Promise.resolve();
+        default:
+            return Promise.reject(`Unsupported FeathersJS authClient action type ${type}`);
     }
-    if (type === AUTH_CHECK) {
-        const token = localStorage.getItem('access_token');
-
-        return localStorage.getItem('access_token') && fetch(
-            hostURL + `/api/AuthCheck`,
-
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                let status = response.status;
-                if (status === 401 || status === 403) {
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('role');
-
-                    return false;
-                } else {
-                    return true;
-                }
-            })
-            ? Promise.resolve() : Promise.reject();
-    }
-    if (type === AUTH_GET_PERMISSIONS) {
-        const role = localStorage.getItem('role');
-        return role ? Promise.resolve(role) : Promise.reject();
-    }
-    return Promise.resolve();
-}
+};
