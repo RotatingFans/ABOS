@@ -24,7 +24,7 @@ class Service {
     let yr = await year.findByPk(params.query.year);
     let users = await user.findAll({
       attributes: ['id', 'full_name', 'username'],
-      include: [{model: userYear, where: {year_id: yr.id}}]
+      include: [{model: userYear, where: {year_id: yr.id}, required: false}]
     });
 
     let usersList = {};
@@ -109,14 +109,12 @@ class Service {
     //   log.debug(jsonParams.toString());
     let users = data.data;
     let yr = await year.findByPk(data.year);
+    let retEnabledYear = -1;
     //let usersList = [:]
     for (const uK of Object.keys(users)) {
       const u = users[uK];
       let usr = await user.findOne({where: {username: uK}});
-      let [userYr, cr] = await userYear.findOrBuild({where: {user_id: usr.id, year_id: yr.id}});
-      if (u.group != null) {
-        userYr.group_id = u.group
-      }
+
       if (u.enabledYear !== -1) {
         if (yr.id !== u.enabledYear) {
           if (u.status === "ENABLED") {
@@ -144,7 +142,14 @@ class Service {
           u.status = "ARCHIVED"
         }
       }
+      let [userYr, cr] = await userYear.findOrBuild({where: {user_id: usr.id, year_id: yr.id}});
+      if (u.group != null) {
+        userYr.group_id = u.group
+      }
       userYr.status = u.status || "DISABLED";
+      if (userYr.user_id === params.payload.userId && userYr.status === "ENABLED") {
+        retEnabledYear = userYr.year_id;
+      }
       await userYr.save();
       //let subUsers = [:]
       for (const suK of Object.keys(u.subUsers)) {
@@ -174,7 +179,7 @@ class Service {
 
 
     }
-    return ['success'];
+    return {enabledYear: retEnabledYear};
 
 
   }

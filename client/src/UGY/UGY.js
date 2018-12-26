@@ -49,6 +49,9 @@ import UserPanel from "./UserPanel";
 import {rowStatus} from "./ProductsGrid";
 import hostURL from "../host";
 
+import feathersClient from '../feathersClient';
+import {authClientConfig} from '../security/authProvider';
+
 
 const drawerWidth = 240;
 
@@ -331,24 +334,30 @@ class UGYEditor extends React.Component {
                 }
                 const token = localStorage.getItem('access_token');
                 options.headers.set('Authorization', `Bearer ${token}`);
-
-                fetch(url, {
-                    method: "POST",
-                    mode: "cors",
-                    cache: "no-cache",
-                    credentials: "same-origin", // include, same-origin, *omit
-                    headers: {
-                        "Content-Type": "application/json; charset=utf-8",
-                        'Authorization': `Bearer ${token}`
-                        // "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    redirect: "follow", // manual, *follow, error
-                    referrer: "no-referrer", // no-referrer, *client
-                    body: JSON.stringify({year: this.state.year, data: this.state.userChecks}),
-                }).then(response => {
-                    //  this.setState({open: false});
-                    //  this.props.push('/');
-                });
+        dataProvider(CREATE, 'UserHierarchy', {
+            data: {year: this.state.year, data: this.state.userChecks}
+        }).then(response => {
+            localStorage.setItem("enabledYear", response.data.enabledYear);
+            //console.log(response);
+            //this.setState({years: response.data})
+        });
+        /*                fetch(url, {
+                            method: "POST",
+                            mode: "cors",
+                            cache: "no-cache",
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "Content-Type": "application/json; charset=utf-8",
+                                'Authorization': `Bearer ${token}`
+                                // "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            redirect: "follow", // manual, *follow, error
+                            referrer: "no-referrer", // no-referrer, *client
+                            body: JSON.stringify({year: this.state.year, data: this.state.userChecks}),
+                        }).then(response => {
+                            //  this.setState({open: false});
+                            //  this.props.push('/');
+                        });*/
         url = hostURL + '/ProductsMany';
         options = {};
         if (!options.headers) {
@@ -359,7 +368,19 @@ class UGYEditor extends React.Component {
         if (this.state.deletedProducts.length > 0) {
             this.setState({confirmDeletionDialogOpen: true});
         } else {
-            fetch(url, {
+            dataProvider(CREATE, 'ProductsMany', {
+                data: {
+                    newProducts: this.state.newProducts,
+                    updatedProducts: this.state.updatedProducts,
+                    deletedProducts: this.state.deletedProducts,
+                    year: this.state.year
+                }
+            }).then(response => {
+                this.setState({open: false});
+                //  this.setState({open: false});
+                this.props.push('/');
+            });
+            /*fetch(url, {
                 method: "POST",
                 mode: "cors",
                 cache: "no-cache",
@@ -381,7 +402,7 @@ class UGYEditor extends React.Component {
                 this.setState({open: false});
                 //  this.setState({open: false});
                 this.props.push('/');
-            });
+            });*/
         }
 
         //console.log(fetchUtils.fetchJson(url, options));
@@ -394,91 +415,104 @@ class UGYEditor extends React.Component {
         if (event.currentTarget.value == 2) {
             const username = localStorage.getItem('userName');
             const password = this.state.confirmDeletionPassword;
-            const request = new Request(hostURL + '/api/login', {
-                method: 'POST',
-                body: JSON.stringify({username, password}),
-                headers: new Headers({'Content-Type': 'application/json'}),
+            feathersClient.authenticate({...authClientConfig, username: username, password: password}).then(() => {
+                dataProvider(CREATE, 'ProductsMany', {
+                    data: {
+                        newProducts: this.state.newProducts,
+                        updatedProducts: this.state.updatedProducts,
+                        deletedProducts: this.state.deletedProducts,
+                        year: this.state.year
+                    }
+                }).then(response => {
+                    this.setState({open: false});
+                    //  this.setState({open: false});
+                    this.props.push('/');
+                });
+                /*this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: ''});
+                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('role', roles[0]);
+                let options = {};
+                if (!options.headers) {
+                    options.headers = new Headers({Accept: 'application/json'});
+                }
+
+                options.headers.set('Authorization', `Bearer ${access_token}`);
+
+                fetch(url, {
+                    method: "POST",
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin", // include, same-origin, *omit
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        'Authorization': `Bearer ${access_token}`
+                        // "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrer: "no-referrer", // no-referrer, *client
+                    body: JSON.stringify({
+                        newProducts: this.state.newProducts,
+                        updatedProducts: this.state.updatedProducts,
+                        deletedProducts: this.state.deletedProducts,
+                        year: this.state.year
+                    }),
+                }).then(response => {
+                    this.setState({open: false});
+                    //  this.setState({open: false});
+                    this.props.push('/');
+                });*/
+            }).catch(() => {
+                this.setState({passwordError: true});
+                return {};
             });
 
-            fetch(request)
-                .then(response => {
-                    if (response.status < 200 || response.status >= 300) {
-                        this.setState({passwordError: true});
-                        return {};
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(({access_token, roles}) => {
-                    if (access_token) {
-                        this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: ''});
-                        localStorage.setItem('access_token', access_token);
-                        localStorage.setItem('role', roles[0]);
-                        let options = {};
-                        if (!options.headers) {
-                            options.headers = new Headers({Accept: 'application/json'});
-                        }
-
-                        options.headers.set('Authorization', `Bearer ${access_token}`);
-
-                        fetch(url, {
-                            method: "POST",
-                            mode: "cors",
-                            cache: "no-cache",
-                            credentials: "same-origin", // include, same-origin, *omit
-                            headers: {
-                                "Content-Type": "application/json; charset=utf-8",
-                                'Authorization': `Bearer ${access_token}`
-                                // "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            redirect: "follow", // manual, *follow, error
-                            referrer: "no-referrer", // no-referrer, *client
-                            body: JSON.stringify({
-                                newProducts: this.state.newProducts,
-                                updatedProducts: this.state.updatedProducts,
-                                deletedProducts: this.state.deletedProducts,
-                                year: this.state.year
-                            }),
-                        }).then(response => {
-                            this.setState({open: false});
-                            //  this.setState({open: false});
-                            this.props.push('/');
-                        });
-                    }
-                });
         } else {
             this.setState({deletedProducts: []});
-            let options = {};
-            if (!options.headers) {
-                options.headers = new Headers({Accept: 'application/json'});
-            }
-            const token = localStorage.getItem('access_token');
 
-            options.headers.set('Authorization', `Bearer ${token}`);
-            fetch(url, {
-                method: "POST",
-                mode: "cors",
-                cache: "no-cache",
-                credentials: "same-origin", // include, same-origin, *omit
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                    'Authorization': `Bearer ${token}`
-                    // "Content-Type": "application/x-www-form-urlencoded",
-                },
-                redirect: "follow", // manual, *follow, error
-                referrer: "no-referrer", // no-referrer, *client
-                body: JSON.stringify({
+            dataProvider(CREATE, 'ProductsMany', {
+                data: {
                     newProducts: this.state.newProducts,
                     updatedProducts: this.state.updatedProducts,
-                    deletedProducts: this.state.deletedProducts,
+                    deletedProducts: [],
                     year: this.state.year
-                }),
+                }
             }).then(response => {
                 this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: '', open: false});
-
                 //  this.setState({open: false});
                 this.props.push('/');
             });
+            /* this.setState({deletedProducts: []});
+             let options = {};
+             if (!options.headers) {
+                 options.headers = new Headers({Accept: 'application/json'});
+             }
+             const token = localStorage.getItem('access_token');
+
+             options.headers.set('Authorization', `Bearer ${token}`);
+             fetch(url, {
+                 method: "POST",
+                 mode: "cors",
+                 cache: "no-cache",
+                 credentials: "same-origin", // include, same-origin, *omit
+                 headers: {
+                     "Content-Type": "application/json; charset=utf-8",
+                     'Authorization': `Bearer ${token}`
+                     // "Content-Type": "application/x-www-form-urlencoded",
+                 },
+                 redirect: "follow", // manual, *follow, error
+                 referrer: "no-referrer", // no-referrer, *client
+                 body: JSON.stringify({
+                     newProducts: this.state.newProducts,
+                     updatedProducts: this.state.updatedProducts,
+                     deletedProducts: this.state.deletedProducts,
+                     year: this.state.year
+                 }),
+             }).then(response => {
+                 this.setState({confirmDeletionDialogOpen: false, confirmDeletionPassword: '', open: false});
+
+                 //  this.setState({open: false});
+                 this.props.push('/');
+             });*/
 
         }
         /**/
@@ -613,7 +647,7 @@ class UGYEditor extends React.Component {
         dataProvider(CREATE, 'User', {
             data: {
                 username: this.state.addUser.userName,
-                fullName: this.state.addUser.fullName,
+                full_name: this.state.addUser.fullName,
                 password: this.state.addUser.password
             }
         }).then(response => {
@@ -632,7 +666,7 @@ class UGYEditor extends React.Component {
             id: this.state.editUser.id,
             data: {
                 username: this.state.editUser.userName,
-                fullName: this.state.editUser.fullName,
+                full_name: this.state.editUser.fullName,
 
                 password: this.state.editUser.password
             }

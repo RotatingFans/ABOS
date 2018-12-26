@@ -1,13 +1,17 @@
 /* eslint-disable no-unused-vars */
 class Service {
-  constructor(options) {
+  constructor(options, app) {
     this.options = options || {};
+    this.app = app;
   }
 
   async get(id, params) {
   }
 
   async create(data, params) {
+    const seqClient = this.app.get('sequelizeClient');
+
+    const products = seqClient.models['products'];
 
     let newProducts = data.newProducts;
     let updatedProducts = data.updatedProducts;
@@ -58,8 +62,8 @@ class Service {
   }
 }
 
-module.exports = function (options) {
-  return new Service(options);
+module.exports = function (options, app) {
+  return new Service(options, app);
 };
 
 module.exports.Service = Service;

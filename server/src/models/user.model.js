@@ -13,14 +13,14 @@ module.exports = function (app) {
       autoIncrement: true
     },
 
-    password_expired: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    account_expired: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
+    /*    password_expired: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false
+        },
+        account_expired: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false
+        },*/
     full_name: {
       type: DataTypes.STRING(255),
       allowNull: false
@@ -30,18 +30,18 @@ module.exports = function (app) {
       allowNull: false,
       unique: true
     },
-    account_locked: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
+    /*    account_locked: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false
+        },*/
     password: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    }
+    /*    enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false
+        }*/
   }, {
     tableName: 'user', underscored: true,
   });

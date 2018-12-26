@@ -7,7 +7,7 @@ import {GroupCreate, GroupEdit, GroupList} from './resources/Group.js';
 import {YearCreate, YearEdit, YearList, YearShow} from './resources/Year.js';
 import {CustomerCreate, CustomerEdit, CustomerList} from './resources/Customers.js';
 import restClient from './grailsRestClient';
-import authClient from './security/authProvider';
+import authClient, {authClientConfig} from './security/authProvider';
 import {Dashboard} from './dashboard';
 import {Reports} from "./Reports";
 import {UGY} from "./UGY";
@@ -23,17 +23,7 @@ import feathersClient from './feathersClient';
 
 const generateClassName = createGenerateClassName();
 const jss = create(jssPreset());
-const authClientConfig = {
-    storageKey: 'token', // The key in localStorage used to store the authentication token
-    authenticate: { // Options included in calls to Feathers client.authenticate
-        strategy: 'local', // The authentication strategy Feathers should use
-    },
-    permissionsKey: 'permissions', // The key in localStorage used to store permissions from decoded JWT
-    permissionsField: 'roles', // The key in the decoded JWT containing the user's role
-    passwordField: 'password', // The key used to provide the password to Feathers client.authenticate
-    usernameField: 'username', // The key used to provide the username to Feathers client.authenticate
-    redirectTo: '/login', // Redirect to this path if an AUTH_CHECK fails. Uses the react-admin default of '/login' if omitted.
-};
+
 const dataProvider = restClient;
 //const dataProvider = simpleRestProvider('http://192.168.1.3:8080/api', httpClient);
 const MyUserMenu = props => (

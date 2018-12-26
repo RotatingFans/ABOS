@@ -14,7 +14,6 @@ const year = require('./year/year.service.js');
 const userHierarchy = require('./user-hierarchy/user-hierarchy.service.js');
 const productsMany = require('./products-many/products-many.service.js');
 const users = require('./users/users.service.js');
-const currentUser = require('./current-user/current-user.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function (app) {
   app.configure(categories);
@@ -33,5 +32,4 @@ module.exports = function (app) {
   app.configure(userHierarchy);
   app.configure(productsMany);
   app.configure(users);
-  app.configure(currentUser);
 };

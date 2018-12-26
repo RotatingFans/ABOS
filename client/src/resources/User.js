@@ -1,20 +1,5 @@
 import React from 'react';
-import {
-    Create,
-    Datagrid,
-    DateField,
-    DateInput,
-    DisabledInput,
-    Edit,
-    EditButton,
-    List,
-    Show,
-    ShowButton,
-    SimpleForm,
-    SimpleShowLayout,
-    TextField,
-    TextInput
-} from 'react-admin';
+import {Datagrid, List, Show, ShowButton, SimpleShowLayout, TextField} from 'react-admin';
 import {UserDashboard} from "../userDashboard";
 //import ErrorBoundary from '../ErrorBoundary';
 
@@ -22,7 +7,7 @@ import {UserDashboard} from "../userDashboard";
 export const UserList = props => (
     <List {...props}>
         <Datagrid>
-            <TextField source="userName"/>
+            <TextField source="username"/>
             <TextField source="fullName"/>
             <ShowButton basePath="/User"/>
         </Datagrid>

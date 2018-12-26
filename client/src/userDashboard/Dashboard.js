@@ -48,7 +48,7 @@ class Dashboard extends Component {
 
         {
             dataProvider(GET_LIST, 'Orders', {
-                filter: {year: year, user: userId},
+                filter: {year: year, user_id: userId},
                 sort: {field: 'id', order: 'DESC'},
                 pagination: {page: 1, perPage: 1000},
             })
@@ -59,8 +59,8 @@ class Dashboard extends Component {
 
                                 stats.total += order.cost;
                                 stats.nbCustomers++;
-                                stats.donation += order.donation;
-                                stats.grandTotal += order.cost + order.donation;
+                                stats.donation += order.customer.donation;
+                                stats.grandTotal += order.cost + order.customer.donation;
                                 stats.pendingOrders.push(order);
 
                                 return stats;
@@ -103,9 +103,9 @@ class Dashboard extends Component {
 
 
         }
-        dataProvider(GET_LIST, 'Ordered_products', {
-            filter: {year: year, user: userId},
-            sort: {field: 'products', order: 'DESC'},
+        dataProvider(GET_LIST, 'orderedProducts', {
+            filter: {year: year, user_id: userId},
+            sort: {field: 'products_id', order: 'ASC'},
             pagination: {page: 1, perPage: 1000},
         })
             .then(response =>
