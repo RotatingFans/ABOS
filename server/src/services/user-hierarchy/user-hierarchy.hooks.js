@@ -1,14 +1,17 @@
 const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
+const filterManagedUsers = require('../../hooks/filter-managed-users');
+const {disallow} = require('feathers-hooks-common');
 
 module.exports = {
   before: {
-    all: [],
-    find: [authenticate('jwt')],
-    get: [],
-    create: [authenticate('jwt')],
-    update: [],
-    patch: [],
-    remove: []
+    all: [authenticate('jwt'), checkPermissions(['ROLE_ADMIN'])],
+    find: [],
+    get: [disallow()],
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {

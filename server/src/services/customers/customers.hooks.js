@@ -1,6 +1,9 @@
 const {ValidationError} = require("sequelize");
 
 const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require("../../models/attributes");
+const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
+const filterManagedUsers = require('../../hooks/filter-managed-users');
 
 // const seqClient = app.get('sequelizeClient');
 // const orders = seqClient.models['orders'];
@@ -8,7 +11,7 @@ const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, produc
 
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate('jwt'), checkPermissions(['ROLE_USER']), filterManagedUsers()],
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       const sequelize = context.app.get('sequelizeClient');

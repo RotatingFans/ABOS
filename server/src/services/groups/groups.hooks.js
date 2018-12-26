@@ -1,6 +1,9 @@
+const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
+
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate('jwt'), checkPermissions(['ROLE_USER'])],
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -38,7 +41,7 @@ module.exports = {
       context.data.group_name = context.data.GroupName;
       context.data.year_id = context.data.year;
       return context;
-    }],
+    }, checkPermissions(['ROLE_ADMIN'])],
     update: [(context) => {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -46,7 +49,7 @@ module.exports = {
       context.data.group_name = context.data.GroupName;
       context.data.year_id = context.data.year;
       return context;
-    }],
+    }, checkPermissions(['ROLE_ADMIN'])],
     patch: [(context) => {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -54,8 +57,8 @@ module.exports = {
       context.data.group_name = context.data.GroupName;
       context.data.year_id = context.data.year;
       return context;
-    }],
-    remove: []
+    }, checkPermissions(['ROLE_ADMIN'])],
+    remove: [checkPermissions(['ROLE_ADMIN'])]
   },
 
   after: {

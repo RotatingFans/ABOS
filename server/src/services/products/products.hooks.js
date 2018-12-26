@@ -1,9 +1,11 @@
 const {productsAttr, yearAttr} = require("../../models/attributes");
+const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
 
 
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate('jwt'), checkPermissions(['ROLE_USER'])],
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -44,10 +46,10 @@ module.exports = {
 
       return context;
     },
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [checkPermissions(['ROLE_ADMIN'])],
+    update: [checkPermissions(['ROLE_ADMIN'])],
+    patch: [checkPermissions(['ROLE_ADMIN'])],
+    remove: [checkPermissions(['ROLE_ADMIN'])]
   },
 
   after: {

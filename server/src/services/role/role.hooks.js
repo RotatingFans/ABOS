@@ -1,6 +1,10 @@
+const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
+const {disallow} = require('feathers-hooks-common');
+
 module.exports = {
   before: {
-    all: [],
+    all: [disallow()],
     find: [],
     get: [],
     create: [],

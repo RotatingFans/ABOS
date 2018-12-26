@@ -32,8 +32,11 @@ module.exports = function (app) {
               where: {user_id: hook.params.payload.userId},
               include: {model: role}
             });
-            if (userRl.role.authority) {
+            if (userRl && userRl.role.authority) {
               Object.assign(hook.params.payload, {role: userRl.role.authority})
+            } else {
+              Object.assign(hook.params.payload, {role: "ROLE_USER"})
+
             }
           }
         }

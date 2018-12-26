@@ -1,6 +1,8 @@
+const {authenticate} = require('@feathersjs/authentication').hooks;
+
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate('jwt')],
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');

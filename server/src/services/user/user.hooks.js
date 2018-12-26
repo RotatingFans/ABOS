@@ -1,17 +1,18 @@
 const {authenticate} = require('@feathersjs/authentication').hooks;
-
+const checkPermissions = require('../../hooks/check-permissions');
+const filterManagedUsers = require('../../hooks/filter-managed-users');
 const {
   hashPassword, protect
 } = require('@feathersjs/authentication-local').hooks;
 
 module.exports = {
   before: {
+    all: [authenticate('jwt')],
 
-    create: [hashPassword()],
-    update: [hashPassword(), authenticate('jwt')],
-    patch: [hashPassword(), authenticate('jwt')],
-    remove: [authenticate('jwt')],
-    all: [],
+    create: [hashPassword(), checkPermissions(['ROLE_ADMIN'])],
+    update: [hashPassword(), checkPermissions(['ROLE_ADMIN'])],
+    patch: [hashPassword(), checkPermissions(['ROLE_ADMIN'])],
+    remove: [checkPermissions(['ROLE_ADMIN'])],
     find: [function (context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -22,8 +23,7 @@ module.exports = {
       };
 
       return context;
-    },
-      authenticate('jwt')],
+    }, authenticate('jwt'), filterManagedUsers({field: 'id'})],
     get: [function (context) {
       // Get the Sequelize instance. In the generated application via:
       //  const sequelize = context.app.get('sequelizeClient');
@@ -34,8 +34,7 @@ module.exports = {
       };
 
       return context;
-    },
-      authenticate('jwt')],
+    }, filterManagedUsers({field: 'id'})],
 
   },
 
@@ -66,7 +65,20 @@ module.exports = {
       });
 
     }],
-    create: [],
+    create: [async function (context) {
+      const sequelize = context.app.get('sequelizeClient');
+      const user_role = sequelize.models['user_role'];
+      const role = sequelize.models['role'];
+      const authority = await role.findOne({where: {authority: "ROLE_USER"}});
+      if (authority) {
+        await user_role.create({user_id: context.result.id, authority: authority.id});
+      }
+      else {
+        await user_role.create({user_id: context.result.id, authority: 0});
+
+      }
+      return context;
+    }],
     update: [],
     patch: [],
     remove: []

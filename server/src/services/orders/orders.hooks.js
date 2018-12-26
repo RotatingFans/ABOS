@@ -2,11 +2,15 @@ const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, produc
 // const seqClient = app.get('sequelizeClient');
 // const customers = seqClient.models['customers'];
 // const products = seqClient.models['products'];
+const {authenticate} = require('@feathersjs/authentication').hooks;
+const checkPermissions = require('../../hooks/check-permissions');
+const filterManagedUsers = require('../../hooks/filter-managed-users');
+const {disallow} = require('feathers-hooks-common');
 
 
 module.exports = {
   before: {
-    all: [],
+    all: [authenticate('jwt'), checkPermissions(['ROLE_USER']), filterManagedUsers()],
     find(context) {
       // Get the Sequelize instance. In the generated application via:
       const seqClient = context.app.get('sequelizeClient');
@@ -75,10 +79,10 @@ module.exports = {
 
       return context;
     },
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [disallow()],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {
