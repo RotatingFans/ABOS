@@ -17,6 +17,7 @@ const appHooks = require('./app.hooks');
 const channels = require('./channels');
 
 const sequelize = require('./sequelize');
+const jsreport = require('./jsreport');
 
 const authentication = require('./authentication');
 
@@ -39,6 +40,7 @@ app.configure(express.rest());
 app.configure(socketio());
 
 app.configure(sequelize);
+app.configure(jsreport);
 
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware);
