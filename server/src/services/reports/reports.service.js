@@ -2,7 +2,8 @@
 const createService = require('./reports.class.js');
 const hooks = require('./reports.hooks');
 const auth = require('@feathersjs/authentication');
-
+const template = require('./Reports.js');
+const testData = require('./test.json');
 module.exports = function (app) {
 
   const paginate = app.get('paginate');
@@ -17,10 +18,11 @@ module.exports = function (app) {
     const jsreport = app.get('jsreport');
     await jsreport.render({
       template: {
-        content: '<h1>Hello WORLD</h1>',
-        engine: 'jsrender',
+        content: template,
+        engine: 'handlebars',
         recipe: 'chrome-pdf'
-      }
+      },
+      data: testData
     }).then((resp) => {
       // prints pdf with headline Hello world
       // console.log(resp.content.toString());
