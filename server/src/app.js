@@ -4,6 +4,7 @@ const compress = require('compression');
 const helmet = require('helmet');
 const cors = require('cors');
 const logger = require('./logger');
+const bodyParser = require('body-parser');
 
 const feathers = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
@@ -29,8 +30,8 @@ app.configure(configuration());
 app.use(helmet());
 app.use(cors());
 app.use(compress());
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
 app.use('/', express.static(app.get('public')));

@@ -114,12 +114,12 @@ class reportsWizard extends React.Component {
     save = (record, redirect) => {
         console.log(record);
         let options = {};
-        let url = hostURL + '/api/Reports';
+        let url = hostURL + '/reports';
         if (!options.headers) {
             options.headers = new Headers({Accept: 'application/pdf'});
         }
-        const token = localStorage.getItem('access_token');
-        options.headers.set('Authorization', `Bearer ${token}`);
+        const token = localStorage.getItem('token');
+        options.headers.set('Authorization', `${token}`);
         if (record.LogoLocation) {
             convertFileToBase64(record.LogoLocation).then(b64 => {
                     record.LogoLocation.base64 = b64;
@@ -130,7 +130,7 @@ class reportsWizard extends React.Component {
                         credentials: "same-origin", // include, same-origin, *omit
                         headers: {
                             "Content-Type": "application/json; charset=utf-8",
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': `${token}`
                             // "Content-Type": "application/x-www-form-urlencoded",
                         },
                         redirect: "follow", // manual, *follow, error
@@ -160,7 +160,7 @@ class reportsWizard extends React.Component {
                 credentials: "same-origin", // include, same-origin, *omit
                 headers: {
                     "Content-Type": "application/json; charset=utf-8",
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `${token}`
                     // "Content-Type": "application/x-www-form-urlencoded",
                 },
                 redirect: "follow", // manual, *follow, error
@@ -190,7 +190,7 @@ class reportsWizard extends React.Component {
     getCustomersWithYearAndUser(Year, User) {
 
         dataProvider(GET_LIST, 'customers', {
-            filter: {year: Year, user: User},
+            filter: {year: Year, user_id: User},
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
@@ -202,7 +202,7 @@ class reportsWizard extends React.Component {
     getCustomersWithUser(User) {
 
         dataProvider(GET_LIST, 'customers', {
-            filter: {user: User},
+            filter: {user_id: User},
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
@@ -469,11 +469,14 @@ class reportsWizard extends React.Component {
                             {({formData, ...rest}) => {
                                 if (this.state.userReq) {
 
-                                    return <CustomSelectInput label="User" source="User" optionText={"userName"}
-                                                              optionValue={"id"}
-                                                              choices={this.state.users}  {...rest}
-                                                              onChangeCustomHandler={(key) => this.updateUser(key)}
-                                                              validate={requiredValidate}/>
+                                    return [<CustomSelectInput label="User" source="User" key="UserComboBox"
+                                                               optionText={"fullName"}
+                                                               optionValue={"id"}
+                                                               choices={this.state.users}  {...rest}
+                                                               onChangeCustomHandler={(key) => this.updateUser(key)}
+                                                               validate={requiredValidate}/>,
+                                        <BooleanInput key="Include_Sub_Users"
+                                                      source="Include_Sub_Users"/>]
                                 }
                             }
                             }

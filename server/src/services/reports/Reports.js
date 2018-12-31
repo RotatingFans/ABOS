@@ -7,6 +7,7 @@ module.exports = "<html>\n" +
   "    * {\n" +
   "      margin-top: 0px;\n" +
   "      margin-bottom: 0px;\n" +
+  "      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;\n" +
   "    }\n" +
   "\n" +
   "    .LBordered {\n" +
@@ -84,7 +85,7 @@ module.exports = "<html>\n" +
   "\n" +
   "\n" +
   "      </td>\n" +
-  "      <td style=\"text-align:right;\">\n" +
+  "      <td style=\"text-align:right; vertical-align: top\">\n" +
   "        <h4>\n" +
   "          {{../info.name}}\n" +
   "        </h4>\n" +
