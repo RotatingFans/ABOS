@@ -29,10 +29,21 @@ module.exports = function (options = {}) {
     } else if (context.params.user.enabledYear) {
       year = context.params.user.enabledYear;
     }
-    const uM = await user_manager.findAll({
-      where: {manage_id: context.params.payload.userId, year_id: year}
+    let uM = [];
+    if (!context.params.query[field] || context.params.query.includeSub === "true") {
+      uM = await user_manager.findAll({
+        where: {manage_id: context.params.payload.userId, year_id: year}
 
-    });
+      });
+    } else {
+      uM = await user_manager.findAll({
+        where: {manage_id: context.params.payload.userId, user_id: context.params.query[field], year_id: year}
+
+      });
+    }
+    delete context.params.query[field];
+    delete context.params.query.includeSub;
+
     if (uM) {
       let userIds = [];
       for (const manageEntry of uM) {

@@ -187,33 +187,21 @@ class reportsWizard extends React.Component {
 
     };
 
-    getCustomersWithYearAndUser(Year, User) {
+    updateIncludeSub = (event, key, payload) => {
+        this.setState({includeSubUser: key, update: true});
+
+    };
+
+    getCustomersWithYearAndUser(Year, User, includeSub) {
 
         dataProvider(GET_LIST, 'customers', {
-            filter: {year: Year, user_id: User},
+            filter: {year: Year, user_id: User, includeSub: includeSub},
             sort: {field: 'id', order: 'DESC'},
             pagination: {page: 1, perPage: 1000},
         }).then(response => {
             this.setState({customers: response.data})
         })
 
-    }
-
-    getCustomersWithUser(User) {
-
-        dataProvider(GET_LIST, 'customers', {
-            filter: {user_id: User},
-            sort: {field: 'id', order: 'DESC'},
-            pagination: {page: 1, perPage: 1000},
-        }).then(response => {
-            response.data.reduceRight((acc, obj, i) => {
-                acc[obj.customerName] ? response.data.splice(i, 1) : acc[obj.customerName] = true;
-                return acc;
-            }, Object.create(null));
-
-            //response.data.sort((a, b) => b.customerName - a.customerName);
-            this.setState({customers: response.data})
-        })
     }
 
 
@@ -265,6 +253,23 @@ class reportsWizard extends React.Component {
     updateUser(user) {
         this.setState({user: user, update: true});
         // this.updateChoices();
+    }
+
+    getCustomersWithUser(User, includeSub) {
+
+        dataProvider(GET_LIST, 'customers', {
+            filter: {user_id: User, includeSub: includeSub},
+            sort: {field: 'id', order: 'DESC'},
+            pagination: {page: 1, perPage: 1000},
+        }).then(response => {
+            response.data.reduceRight((acc, obj, i) => {
+                acc[obj.customerName] ? response.data.splice(i, 1) : acc[obj.customerName] = true;
+                return acc;
+            }, Object.create(null));
+
+            //response.data.sort((a, b) => b.customerName - a.customerName);
+            this.setState({customers: response.data})
+        })
     }
 
     updateReportType(ReportType) {
@@ -367,12 +372,14 @@ class reportsWizard extends React.Component {
         }
         this.setState({...addressObj, updateAddress: 1});
     };
+
     updateChoices() {
         if (this.state.update) {
             const year = this.state.year;
             const user = this.state.user;
+            const includeSub = this.state.includeSubUser;
             if ((year && user) > -1) {
-                this.getCustomersWithYearAndUser(year, user);
+                this.getCustomersWithYearAndUser(year, user, includeSub);
 
             }
             if (year) {
@@ -380,7 +387,7 @@ class reportsWizard extends React.Component {
 
             }
             if (user && this.state.reportType === 'Customer All-Time Totals') {
-                this.getCustomersWithUser(user);
+                this.getCustomersWithUser(user, includeSub);
 
             }
             this.setState({update: false})
@@ -476,7 +483,7 @@ class reportsWizard extends React.Component {
                                                                onChangeCustomHandler={(key) => this.updateUser(key)}
                                                                validate={requiredValidate}/>,
                                         <BooleanInput key="Include_Sub_Users"
-                                                      source="Include_Sub_Users"/>]
+                                                      source="Include_Sub_Users" onChange={this.updateIncludeSub}/>]
                                 }
                             }
                             }
