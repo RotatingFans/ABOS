@@ -6,6 +6,10 @@
   "author": "patrick <patmagauran.j@gmail.com>",
   "license": "GNU AGPLv3",
   "scripts": {
-    "heroku-prebuild": "cd server"
-  }
+    "postinstall": "cd server && yarn install"
+  },
+  "cacheDirectories": [
+    "server/node_modules"
+  ]
+
 }
