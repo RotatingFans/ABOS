@@ -1,4 +1,0 @@
-include 'server'
-if (INCLUDE_CLIENT == "true") {
-    include 'client'
-}
