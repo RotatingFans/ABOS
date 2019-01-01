@@ -4,5 +4,8 @@
   "description": "A smart sales management system for your annual fundraisers.",
   "repository": "git@gitlab.com:ABOS-Software/ABOS.git",
   "author": "patrick <patmagauran.j@gmail.com>",
-  "license": "GNU AGPLv3"
+  "license": "GNU AGPLv3",
+  "scripts": {
+    "heroku-prebuild": "cd server"
+  }
 }
