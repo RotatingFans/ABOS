@@ -1,1 +1,1 @@
-web: cd server/build ; echo $GOOLGE_CREDS > ./creds.json; export GOOGLE_APPLICATION_CREDENTIALS="./creds.json" ; java -Dgrails.env=prod -jar ../build/server/webapp-runner-*.jar --expand-war --port $PORT libs/*.war
+web: bin/run_cloud_sql_proxy; cd server; echo $CONFIG_FILE > config/production.json; NODE_ENV=production node start

@@ -136,7 +136,7 @@ code_quality-server:
   - docker:stable-dind
   script:
   - cd ./server
-  - rm build.gradle
+
   - setup_docker
   - code_quality
   artifacts:
@@ -155,7 +155,7 @@ license_management-server:
   - docker:stable-dind
   script:
   - cd ./server
-  - rm build.gradle
+
   - setup_docker
   - license_management
   artifacts:
@@ -177,7 +177,7 @@ performance-server:
   - docker:stable-dind
   script:
   - cd ./server
-  - rm build.gradle
+
   - setup_docker
   - performance
   artifacts:
@@ -200,7 +200,7 @@ sast-server:
   - docker:stable-dind
   script:
   - cd ./server
-  - rm build.gradle
+
   - setup_docker
   - sast
   artifacts:
@@ -222,7 +222,7 @@ dependency_scanning-server:
   - docker:stable-dind
   script:
   - cd ./server
-  - rm build.gradle
+
   - setup_docker
   - dependency_scanning
   artifacts:
@@ -265,7 +265,7 @@ dast-server:
     POSTGRES_DB: "false"
   script:
   - cd ./server
-  - rm build.gradle
+
   - dast
   artifacts:
     paths: [server/gl-dast-report.json]
@@ -290,7 +290,7 @@ code_quality-client:
   - docker:stable-dind
   script:
   - cd ./client
-  - rm build.gradle
+
   - setup_docker
   - code_quality
   artifacts:
@@ -309,7 +309,7 @@ license_management-client:
   - docker:stable-dind
   script:
   - cd ./client
-  - rm build.gradle
+
   - setup_docker
   - license_management
   artifacts:
@@ -331,7 +331,7 @@ performance-client:
   - docker:stable-dind
   script:
   - cd ./client
-  - rm build.gradle
+
   - setup_docker
   - performance
   artifacts:
@@ -354,7 +354,7 @@ sast-client:
   - docker:stable-dind
   script:
   - cd ./client
-  - rm build.gradle
+
   - setup_docker
   - sast
   artifacts:
@@ -376,7 +376,7 @@ dependency_scanning-client:
   - docker:stable-dind
   script:
   - cd ./client
-  - rm build.gradle
+
   - setup_docker
   - dependency_scanning
   artifacts:
@@ -419,7 +419,7 @@ dast-client:
     POSTGRES_DB: "false"
   script:
   - cd ./client
-  - rm build.gradle
+
   - dast
   artifacts:
     paths: [client/gl-dast-report.json]
@@ -487,6 +487,7 @@ stop_review:
 deploy_server:
   image: ilyasemenov/gitlab-ci-git-push
   script:
+  - echo $DATA_SOURCE_FILE > ./server/config/production.json
   - git-push git@heroku.com:abos-rf.git
 
   only:
