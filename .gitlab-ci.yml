@@ -85,19 +85,19 @@ stages:
 #  - branches
 
 
-test_server:
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-server
-    paths:
-    - node_modules
-  stage: build
-  image: node:8-alpine
-  script:
-  - cd ./server
-  - yarn install
-  - env CI=false yarn test
-  only:
-  - branches
+#test_server:
+#  cache:
+#    key: ${CI_COMMIT_REF_SLUG}-server
+#    paths:
+#    - node_modules
+#  stage: build
+#  image: node:8-alpine
+#  script:
+#  - cd ./server
+#  - yarn install
+#  - env CI=false yarn test
+#  only:
+#  - branches
 
 build_client:
   cache:
