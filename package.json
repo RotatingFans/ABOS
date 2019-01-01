@@ -1,0 +1,8 @@
+{
+  "name": "ABOS",
+  "version": "3.0.0",
+  "description": "A smart sales management system for your annual fundraisers.",
+  "repository": "git@gitlab.com:ABOS-Software/ABOS.git",
+  "author": "patrick <patmagauran.j@gmail.com>",
+  "license": "GNU AGPLv3"
+}
