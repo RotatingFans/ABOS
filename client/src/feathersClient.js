@@ -3,7 +3,10 @@ const rest = require('@feathersjs/rest-client');
 const auth = require('@feathersjs/authentication-client');
 
 const app = feathers();
-const restClientF = rest('http://localhost:3030');
+import hostURL from './host';
+
+const restClientF = rest(hostURL);
+
 app.configure(restClientF.fetch(window.fetch));
 app.configure(auth({
 
