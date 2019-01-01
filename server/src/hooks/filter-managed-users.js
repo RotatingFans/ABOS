@@ -12,11 +12,11 @@ module.exports = function (options = {}) {
   const {field, createField} = options;
 
   return async context => {
-    if (context.path === "user" && !context.params.payload) {
+    if (context.path === 'user' && !context.params.payload) {
       return context;
     }
     if (!context.params.payload.userId) {
-      throw new Forbidden('NOT AUTHENTICATED!')
+      throw new Forbidden('NOT AUTHENTICATED!');
     }
     const sequelize = context.app.get('sequelizeClient');
     const user_manager = sequelize.models['user_manager'];
@@ -30,7 +30,7 @@ module.exports = function (options = {}) {
       year = context.params.user.enabledYear;
     }
     let uM = [];
-    if (!context.params.query[field] || context.params.query.includeSub === "true") {
+    if (!context.params.query[field] || context.params.query.includeSub === 'true') {
       uM = await user_manager.findAll({
         where: {manage_id: context.params.payload.userId, year_id: year}
 
@@ -49,7 +49,7 @@ module.exports = function (options = {}) {
       for (const manageEntry of uM) {
         userIds.push(manageEntry.user_id);
       }
-      if (context.method === "find" || context.method === "get") {
+      if (context.method === 'find' || context.method === 'get') {
         context.params.query[field] = {'$in': userIds};
 
       } else {

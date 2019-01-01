@@ -7,7 +7,7 @@ module.exports = function (roleParam) {
   return async context => {
     if (roleParam && roleParam[0]) {
       if (!context.params.payload.userId) {
-        throw new Forbidden('NOT AUTHENTICATED!')
+        throw new Forbidden('NOT AUTHENTICATED!');
       }
       const roleRequired = roleParam[0];
       const sequelize = context.app.get('sequelizeClient');

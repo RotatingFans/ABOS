@@ -1,4 +1,4 @@
-const {productsAttr, yearAttr} = require("../../models/attributes");
+const {productsAttr, yearAttr} = require('../../models/attributes');
 const {authenticate} = require('@feathersjs/authentication').hooks;
 const checkPermissions = require('../../hooks/check-permissions');
 

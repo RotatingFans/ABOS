@@ -58,11 +58,11 @@ module.exports = function (app) {
       allowNull: true
     },
     latitude: {
-      type: "DOUBLE",
+      type: 'DOUBLE',
       allowNull: false
     },
     longitude: {
-      type: "DOUBLE",
+      type: 'DOUBLE',
       allowNull: false
     },
     city: {

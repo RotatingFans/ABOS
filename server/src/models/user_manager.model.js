@@ -21,7 +21,7 @@ module.exports = function (app) {
   schema.associate = models => {
     schema.belongsTo(models.year);
     schema.belongsTo(models.user);
-    schema.belongsTo(models.user, {as: "manage"});
+    schema.belongsTo(models.user, {as: 'manage'});
 
   };
   return schema;

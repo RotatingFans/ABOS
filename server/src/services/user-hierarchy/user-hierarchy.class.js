@@ -37,7 +37,7 @@ class Service {
       if (!userYr) {
         userYr = {};
         userYr.group_id = 1;
-        userYr.status = "DISABLED"
+        userYr.status = 'DISABLED';
       }
       for (const su of users) {
         let userYearSub = su.user_years[0];
@@ -48,7 +48,7 @@ class Service {
         if (!userYearSub) {
           userYearSub = {};
           userYearSub.group_id = 1;
-          userYearSub.status = "DISABLED"
+          userYearSub.status = 'DISABLED';
         }
         subUsers[su.username] = {
           group: userYearSub.group_id,
@@ -65,7 +65,7 @@ class Service {
 
       }
       let enabledYear = await userYear.findOne({
-        where: {user_id: u.id, status: "ENABLED"},
+        where: {user_id: u.id, status: 'ENABLED'},
         attributes: ['year_id']
       });
       if (!enabledYear) {
@@ -117,14 +117,14 @@ class Service {
 
       if (u.enabledYear !== -1) {
         if (yr.id !== u.enabledYear) {
-          if (u.status === "ENABLED") {
-            u.status = "ARCHIVED"
+          if (u.status === 'ENABLED') {
+            u.status = 'ARCHIVED';
           }
         } else {
 
-          let enabledUsers = await userYear.findAll({where: {user_id: usr.id, status: "ENABLED"}});
+          let enabledUsers = await userYear.findAll({where: {user_id: usr.id, status: 'ENABLED'}});
           for (let enabledU of enabledUsers) {
-            enabledU.status = "ARCHIVED";
+            enabledU.status = 'ARCHIVED';
             await enabledU.save();
             /*if (cr) {
                 // enabledU.errors.allErrors.each {
@@ -133,21 +133,21 @@ class Service {
             }*/
             //enabledU.save()
           }
-          u.status = "ENABLED"
+          u.status = 'ENABLED';
 
 
         }
       } else {
-        if (u.status === "ENABLED") {
-          u.status = "ARCHIVED"
+        if (u.status === 'ENABLED') {
+          u.status = 'ARCHIVED';
         }
       }
       let [userYr, cr] = await userYear.findOrBuild({where: {user_id: usr.id, year_id: yr.id}});
       if (u.group != null) {
-        userYr.group_id = u.group
+        userYr.group_id = u.group;
       }
-      userYr.status = u.status || "DISABLED";
-      if (userYr.user_id === params.payload.userId && userYr.status === "ENABLED") {
+      userYr.status = u.status || 'DISABLED';
+      if (userYr.user_id === params.payload.userId && userYr.status === 'ENABLED') {
         retEnabledYear = userYr.year_id;
       }
       await userYr.save();

@@ -18,47 +18,47 @@ module.exports = function (app) {
   return {
 
     GroupInclude: function () {
-      return {}
+      return {};
     },
     categoriesInclude: function () {
-      return {model: categories}
+      return {model: categories};
     },
 
 
     roleInclude: function () {
-      return {}
+      return {};
     },
     roleHierarchyEntryInclude: function () {
-      return {}
+      return {};
     },
     userInclude: function () {
       return {
         model: user,
         attributes: attributes.userAttr
-      }
+      };
     },
     userManagerInclude: function () {
-      return {}
+      return {};
     },
     userRoleInclude: function () {
-      return {}
+      return {};
     },
     userYearInclude: function () {
-      return {}
+      return {};
     },
 
     yearInclude: function () {
       return {model: year, attributes: attributes.yearAttr};
     },
 
-//const  yearInclude = { model: year, attributes: yearAttr };
+    //const  yearInclude = { model: year, attributes: yearAttr };
     productsInclude: function () {
       return {
         model: products,
         attributes: attributes.productsAttr,
         include: [categoriesInclude(), yearInclude()],
         as: 'products'
-      }
+      };
     },
     orderedProductsInclude: function () {
       return {
@@ -66,7 +66,7 @@ module.exports = function (app) {
         attributes: attributes.orderedProductsAttr,
         include: [productsInclude(), yearInclude()],
         as: 'orderedProducts'
-      }
+      };
     },
     ordersInclude: function () {
       return {
@@ -74,9 +74,9 @@ module.exports = function (app) {
         attributes: attributes.ordersAttr,
         include: [orderedProductsInclude(), yearInclude()],
         as: 'order'
-      }
+      };
     },
-  }
+  };
 
 
 };

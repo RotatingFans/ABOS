@@ -1,6 +1,6 @@
-const {ValidationError} = require("sequelize");
+const {ValidationError} = require('sequelize');
 
-const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require("../../models/attributes");
+const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require('../../models/attributes');
 const {authenticate} = require('@feathersjs/authentication').hooks;
 const checkPermissions = require('../../hooks/check-permissions');
 const filterManagedUsers = require('../../hooks/filter-managed-users');
@@ -150,7 +150,7 @@ module.exports = {
     },
     async update(context) {
       const sequelize = context.app.get('sequelizeClient');
-// const seqClient = app.get('sequelizeClient');
+      // const seqClient = app.get('sequelizeClient');
       const orderedProducts = sequelize.models['ordered_products'];
 
 

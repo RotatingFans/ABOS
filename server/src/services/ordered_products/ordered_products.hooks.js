@@ -1,4 +1,4 @@
-const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require("../../models/attributes");
+const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require('../../models/attributes');
 const {authenticate} = require('@feathersjs/authentication').hooks;
 const checkPermissions = require('../../hooks/check-permissions');
 const filterManagedUsers = require('../../hooks/filter-managed-users');
@@ -25,7 +25,7 @@ module.exports = {
       delete context.params.query.year;
 
       context.params.sequelize = {
-        attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
+        attributes: ['id', 'quantity', [sequelize.literal('`quantity` * `products`.`unit_cost`'), 'extendedCost'], ['user_name', 'userName']],
         include: [{
           model: products,
           attributes: productsAttr,
@@ -49,7 +49,7 @@ module.exports = {
       delete context.params.query.year;
 
       context.params.sequelize = {
-        attributes: ['id', 'quantity', [sequelize.literal(`\`quantity\` * \`products\`.\`unit_cost\``), 'extendedCost'], ['user_name', 'userName']],
+        attributes: ['id', 'quantity', [sequelize.literal('`quantity` * `products`.`unit_cost`'), 'extendedCost'], ['user_name', 'userName']],
         include: [{
           model: products,
           attributes: productsAttr,

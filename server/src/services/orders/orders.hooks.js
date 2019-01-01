@@ -1,4 +1,4 @@
-const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require("../../models/attributes");
+const {ordersAttr, customerAttr, orderedProductsAttr, yearAttr, userAttr, productsAttr} = require('../../models/attributes');
 // const seqClient = app.get('sequelizeClient');
 // const customers = seqClient.models['customers'];
 // const products = seqClient.models['products'];

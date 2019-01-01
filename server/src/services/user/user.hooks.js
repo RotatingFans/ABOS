@@ -48,7 +48,7 @@ module.exports = {
     get: [async function (context) {
       const sequelize = context.app.get('sequelizeClient');
       const user_year = sequelize.models['user_year'];
-      return user_year.findOne({where: {user_id: context.result.id, status: "ENABLED"}}).then(uY => {
+      return user_year.findOne({where: {user_id: context.result.id, status: 'ENABLED'}}).then(uY => {
         if (uY) {
           const enYear = uY.year_id;
           if (!enYear) {
@@ -69,7 +69,7 @@ module.exports = {
       const sequelize = context.app.get('sequelizeClient');
       const user_role = sequelize.models['user_role'];
       const role = sequelize.models['role'];
-      const authority = await role.findOne({where: {authority: "ROLE_USER"}});
+      const authority = await role.findOne({where: {authority: 'ROLE_USER'}});
       if (authority) {
         await user_role.create({user_id: context.result.id, authority: authority.id});
       }

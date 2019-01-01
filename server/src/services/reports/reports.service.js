@@ -67,52 +67,52 @@ module.exports = function (app) {
     } = inputs;
 
     let data = {
-      "info": {
-        "reportTitle": "",
-        "logo": logoLoc,
-        "name": scoutName,
-        "streetAddress": scoutStAddr,
-        "city": scoutCityLine,
-        "PhoneNumber": scoutPhone,
-        "rank": scoutRank,
-        "TotalCost": "0",
-        "TotalQuantity": "0"
+      'info': {
+        'reportTitle': '',
+        'logo': logoLoc,
+        'name': scoutName,
+        'streetAddress': scoutStAddr,
+        'city': scoutCityLine,
+        'PhoneNumber': scoutPhone,
+        'rank': scoutRank,
+        'TotalCost': '0',
+        'TotalQuantity': '0'
       },
-      "splitting": "",
-      "column": [
+      'splitting': '',
+      'column': [
         {
-          "name": "ID"
+          'name': 'ID'
         },
         {
-          "name": "Name"
+          'name': 'Name'
         },
         {
-          "name": "Unit Size"
+          'name': 'Unit Size'
         },
         {
-          "name": "Unit Cost"
+          'name': 'Unit Cost'
         },
         {
-          "name": "Quantity"
+          'name': 'Quantity'
         },
         {
-          "name": "Extended Price"
+          'name': 'Extended Price'
         }
       ],
 
     };
-    if (reportType === "customers_split") {
+    if (reportType === 'customers_split') {
       const splitObject = await generateCustomerSplit(inputs);
       data.customerYear = splitObject.customerYear;
       data.info.TotalCost = splitObject.totalCost;
       data.info.TotalQuantity = splitObject.totalQuantity;
-    } else if (reportType === "Customer All-Time Totals") {
+    } else if (reportType === 'Customer All-Time Totals') {
       const splitObject = await generateCustomerHistorical(inputs);
       data.customerYear = splitObject.customerYear;
       data.info.TotalCost = splitObject.totalCost;
       data.info.TotalQuantity = splitObject.totalQuantity;
     }
-    else if (reportType === "Year Totals") {
+    else if (reportType === 'Year Totals') {
       const splitObject = await generateYearTotals(inputs);
       data.customerYear = splitObject.customerYear;
       data.info.TotalCost = splitObject.totalCost;
@@ -169,8 +169,8 @@ module.exports = function (app) {
 
     let data = {
 
-      "customerYear": [],
-      reportTitle: "",
+      'customerYear': [],
+      reportTitle: '',
     };
 
     let orderArray = [];
@@ -179,20 +179,20 @@ module.exports = function (app) {
     let donation = 0.0;
     let quantityT = 0;
     let custYr = {
-      "header": false,
-      "title": "",
-      "custAddr": false,
-      "name": "",
-      "streetAddress": "",
-      "city": "",
-      "prodTable": false,
-      "Product": [],
-      "totalCost": "",
-      "includeDonation": false,
-      "Donation": "",
-      "GrandTotal": "",
-      "DonationThanks": [],
-      "specialInfo": []
+      'header': false,
+      'title': '',
+      'custAddr': false,
+      'name': '',
+      'streetAddress': '',
+      'city': '',
+      'prodTable': false,
+      'Product': [],
+      'totalCost': '',
+      'includeDonation': false,
+      'Donation': '',
+      'GrandTotal': '',
+      'DonationThanks': [],
+      'specialInfo': []
     };
 
 
@@ -225,8 +225,8 @@ module.exports = function (app) {
       });
 
       let catWhere = {};
-      if (category !== "All" && cat) {
-        catWhere = {category_id: cat.id}
+      if (category !== 'All' && cat) {
+        catWhere = {category_id: cat.id};
       }
       for (const cust of customers) {
         const custM = await customersModel.findByPk(cust, {
@@ -234,8 +234,8 @@ module.exports = function (app) {
             model: orders,
             include: {
               model: orderedProducts,
-              as: "orderedProducts",
-              include: {model: products, as: "products", where: catWhere, include: {model: categories}}
+              as: 'orderedProducts',
+              include: {model: products, as: 'products', where: catWhere, include: {model: categories}}
             }
           }, {model: year}]
         });
@@ -258,14 +258,14 @@ module.exports = function (app) {
         where: where,
         attributes: [[seqClient.fn('sum', seqClient.col('ordered_products.quantity')), 'quantity'], [seqClient.fn('sum', seqClient.col('ordered_products.extended_cost')), 'extended_cost']],
         group: 'products.id',
-        include: [{model: products, as: "products", where: catWhere, include: {model: categories}}]
+        include: [{model: products, as: 'products', where: catWhere, include: {model: categories}}]
       });
       //  custYr.name = cust.customer_name;
       //  custYr.streetAddress = cust.street_address;
       //  custYr.city = cust.city + ' ' + cust.state + ", " + cust.zip_code;
       custYr.header = true;
       //    custYr.title = cust.customer_name + ' ' + cust.year.year + ' Order';
-      data.reportTitle = yr.year + ' ' + category + " Orders";
+      data.reportTitle = yr.year + ' ' + category + ' Orders';
 
 
       let pTable = await generateProductTable(orderArray, category);
@@ -321,8 +321,8 @@ module.exports = function (app) {
 
     let data = {
 
-      "customerYear": [],
-      reportTitle: "",
+      'customerYear': [],
+      reportTitle: '',
     };
     let quantityT = 0;
     let tCostT = 0.0;
@@ -358,8 +358,8 @@ module.exports = function (app) {
       });
 
       let catWhere = {};
-      if (category !== "All" && cat) {
-        catWhere = {category_id: cat.id}
+      if (category !== 'All' && cat) {
+        catWhere = {category_id: cat.id};
       }
       for (const cust of customers) {
         let custM;
@@ -370,8 +370,8 @@ module.exports = function (app) {
               model: orders,
               include: {
                 model: orderedProducts,
-                as: "orderedProducts",
-                include: {model: products, as: "products", where: catWhere, include: {model: categories}}
+                as: 'orderedProducts',
+                include: {model: products, as: 'products', where: catWhere, include: {model: categories}}
               }
             }, {model: year}]
           });
@@ -382,8 +382,8 @@ module.exports = function (app) {
               model: orders,
               include: {
                 model: orderedProducts,
-                as: "orderedProducts",
-                include: {model: products, as: "products", where: catWhere, include: {model: categories}}
+                as: 'orderedProducts',
+                include: {model: products, as: 'products', where: catWhere, include: {model: categories}}
               }
             }, {model: year}]
           });
@@ -400,50 +400,50 @@ module.exports = function (app) {
       if (customersGen.length < 1) {
         return {
 
-          "customerYear": [],
+          'customerYear': [],
           totalCost: 0.0,
           totalQuantity: 0,
-          reportTitle: "",
+          reportTitle: '',
 
-        }
+        };
       }
       for (const cust of customersGen) {
         let orderArray = [];
         let tCost = 0.0;
         let donation = 0.0;
         let custYr = {
-          "header": false,
-          "title": "",
-          "custAddr": false,
-          "name": "",
-          "streetAddress": "",
-          "city": "",
-          "prodTable": false,
-          "Product": [],
-          "totalCost": "",
-          "includeDonation": false,
-          "Donation": "",
-          "GrandTotal": "",
-          "DonationThanks": [],
-          "specialInfo": []
+          'header': false,
+          'title': '',
+          'custAddr': false,
+          'name': '',
+          'streetAddress': '',
+          'city': '',
+          'prodTable': false,
+          'Product': [],
+          'totalCost': '',
+          'includeDonation': false,
+          'Donation': '',
+          'GrandTotal': '',
+          'DonationThanks': [],
+          'specialInfo': []
         };
         custYr.prodTable = true;
 
-        if (includeHeader && category !== "All") {
+        if (includeHeader && category !== 'All') {
 
-          custYr.specialInfo.push({text: "*Notice: These products will be delivered to your house on " + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
+          custYr.specialInfo.push({text: '*Notice: These products will be delivered to your house on ' + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
 
         }
         orderArray = cust.order.orderedProducts;
         custYr.custAddr = true;
         custYr.name = cust.customer_name;
         custYr.streetAddress = cust.street_address;
-        custYr.city = cust.city + ' ' + cust.state + ", " + cust.zip_code;
+        custYr.city = cust.city + ' ' + cust.state + ', ' + cust.zip_code;
         custYr.header = true;
         custYr.title = cust.customer_name + ' ' + cust.year.year + ' Order';
         donation = cust.donation;
         if (donation > 0) {
-          custYr.DonationThanks.push({text: 'Thank you for your $' + donation + " donation "});
+          custYr.DonationThanks.push({text: 'Thank you for your $' + donation + ' donation '});
           custYr.includeDonation = true;
           custYr.Donation = donation;
         }
@@ -503,7 +503,7 @@ module.exports = function (app) {
 
     let data = {
 
-      "customerYear": []
+      'customerYear': []
     };
 
     let customersGen = [];
@@ -527,10 +527,10 @@ module.exports = function (app) {
       if (customersGen.length < 1) {
         return {
 
-          "customerYear": [],
+          'customerYear': [],
           totalCost: 0.0,
           totalQuantity: 0
-        }
+        };
       }
       let tCostT = 0.0;
       let quantityT = 0;
@@ -554,8 +554,8 @@ module.exports = function (app) {
             model: orders,
             include: {
               model: orderedProducts,
-              as: "orderedProducts",
-              include: {model: products, as: "products", include: {model: categories}}
+              as: 'orderedProducts',
+              include: {model: products, as: 'products', include: {model: categories}}
             }
           }, {model: year}]
         });
@@ -568,44 +568,44 @@ module.exports = function (app) {
               year_id: cust.year_id
             }
           });
-          if (category !== "All" && cat) {
-            catWhere = {category_id: cat.id}
+          if (category !== 'All' && cat) {
+            catWhere = {category_id: cat.id};
           }
           let tCost = 0.0;
           let donation = 0.0;
           let custYr = {
-            "header": false,
-            "title": "",
-            "custAddr": false,
-            "name": "",
-            "streetAddress": "",
-            "city": "",
-            "prodTable": false,
-            "Product": [],
-            "totalCost": "",
-            "includeDonation": false,
-            "Donation": "",
-            "GrandTotal": "",
-            "DonationThanks": [],
-            "specialInfo": []
+            'header': false,
+            'title': '',
+            'custAddr': false,
+            'name': '',
+            'streetAddress': '',
+            'city': '',
+            'prodTable': false,
+            'Product': [],
+            'totalCost': '',
+            'includeDonation': false,
+            'Donation': '',
+            'GrandTotal': '',
+            'DonationThanks': [],
+            'specialInfo': []
           };
           let orderArray = cust.order.orderedProducts;
           const totalQuantity = orderArray.reduce((a, b) => {
-              return a + b.quantity
+              return a + b.quantity;
             }
             , 0);
           if (totalQuantity > 0) {
             custYr.custAddr = header;
             custYr.name = cust.customer_name;
             custYr.streetAddress = cust.street_address;
-            custYr.city = cust.city + ' ' + cust.state + ", " + cust.zip_code;
+            custYr.city = cust.city + ' ' + cust.state + ', ' + cust.zip_code;
             custYr.header = true;
             header = false;
-            custYr.title = cust.customer_name + " " + cust.year.year + " Order";
+            custYr.title = cust.customer_name + ' ' + cust.year.year + ' Order';
 
-            if (includeHeader && category !== "All") {
+            if (includeHeader && category !== 'All') {
 
-              custYr.specialInfo.push({text: "*Notice: These products will be delivered to your house on " + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
+              custYr.specialInfo.push({text: '*Notice: These products will be delivered to your house on ' + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
 
             }
             custYr.prodTable = true;
@@ -631,7 +631,7 @@ module.exports = function (app) {
             custYr.totalCost = tCost;
             donation = cust.donation;
             if (donation > 0) {
-              custYr.DonationThanks.push({text: 'Thank you for your $' + donation + " donation "});
+              custYr.DonationThanks.push({text: 'Thank you for your $' + donation + ' donation '});
               custYr.includeDonation = true;
               custYr.Donation = donation;
               custYr.GrandTotal = tCost + donation;
@@ -664,14 +664,14 @@ module.exports = function (app) {
     let quantityT = 0;
     let donation = 0.0;
     for (const op of orderArray) {
-      if ((op.products.category && op.products.category.category_name === category) || category === "All") {
+      if ((op.products.category && op.products.category.category_name === category) || category === 'All') {
         let product = {
-          "ID": op.products.human_product_id,
-          "Name": op.products.product_name,
-          "Size": op.products.unit_size,
-          "UnitCost": op.products.unit_cost,
-          "Quantity": op.quantity,
-          "TotalCost": op.extended_cost
+          'ID': op.products.human_product_id,
+          'Name': op.products.product_name,
+          'Size': op.products.unit_size,
+          'UnitCost': op.products.unit_cost,
+          'Quantity': op.quantity,
+          'TotalCost': op.extended_cost
         };
         tCost += op.extended_cost;
         quantityT += op.quantity;
@@ -731,7 +731,7 @@ module.exports = function (app) {
 
     let data = {
 
-      "customerYear": []
+      'customerYear': []
     };
     try {
       let where = {year_id: selectedYear, user_id: user};
@@ -746,8 +746,8 @@ module.exports = function (app) {
 
       }
       let catWhere = {};
-      if (category !== "All" && cat) {
-        catWhere = {category_id: cat.id}
+      if (category !== 'All' && cat) {
+        catWhere = {category_id: cat.id};
       }
       let customers = await customersModel.findAll({
         where: where,
@@ -755,8 +755,8 @@ module.exports = function (app) {
           model: orders,
           include: {
             model: orderedProducts,
-            as: "orderedProducts",
-            include: {model: products, as: "products", where: catWhere, include: {model: categories}}
+            as: 'orderedProducts',
+            include: {model: products, as: 'products', where: catWhere, include: {model: categories}}
           }
         }, {model: year}]
       });
@@ -767,37 +767,37 @@ module.exports = function (app) {
         let tCost = 0.0;
         let donation = 0.0;
         let custYr = {
-          "header": false,
-          "title": "",
-          "custAddr": false,
-          "name": "",
-          "streetAddress": "",
-          "city": "",
-          "prodTable": false,
-          "Product": [],
-          "totalCost": "",
-          "includeDonation": false,
-          "Donation": "",
-          "GrandTotal": "",
-          "DonationThanks": [],
-          "specialInfo": []
+          'header': false,
+          'title': '',
+          'custAddr': false,
+          'name': '',
+          'streetAddress': '',
+          'city': '',
+          'prodTable': false,
+          'Product': [],
+          'totalCost': '',
+          'includeDonation': false,
+          'Donation': '',
+          'GrandTotal': '',
+          'DonationThanks': [],
+          'specialInfo': []
         };
         let orderArray = cust.order.orderedProducts;
         const totalQuantity = orderArray.reduce((a, b) => {
-            return a + b.quantity
+            return a + b.quantity;
           }
           , 0);
         if (totalQuantity > 0) {
           custYr.custAddr = true;
           custYr.name = cust.customer_name;
           custYr.streetAddress = cust.street_address;
-          custYr.city = cust.city + ' ' + cust.state + ", " + cust.zip_code;
+          custYr.city = cust.city + ' ' + cust.state + ', ' + cust.zip_code;
           custYr.header = true;
           custYr.title = cust.customer_name + ' ' + cust.year.year + ' Order';
 
-          if (includeHeader && category !== "All") {
+          if (includeHeader && category !== 'All') {
 
-            custYr.specialInfo.push({text: "*Notice: These products will be delivered to your house on " + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
+            custYr.specialInfo.push({text: '*Notice: These products will be delivered to your house on ' + cat.delivery_date.toLocaleDateString() + ('. Total paid to date: $' + cust.order.amount_paid)});
 
           }
           custYr.prodTable = true;
@@ -823,7 +823,7 @@ module.exports = function (app) {
           custYr.totalCost = tCost;
           donation = cust.donation;
           if (donation > 0) {
-            custYr.DonationThanks.push({text: 'Thank you for your $' + donation + " donation "});
+            custYr.DonationThanks.push({text: 'Thank you for your $' + donation + ' donation '});
             custYr.includeDonation = true;
             custYr.Donation = donation;
             custYr.GrandTotal = tCost + donation;
@@ -852,7 +852,7 @@ module.exports = function (app) {
       const year = seqClient.models['year'];
 
       let jsonParams = req.body;
-      let formattedAddress = jsonParams.Scout_Town + ", " + jsonParams.Scout_State + " " + jsonParams.Scout_Zip;
+      let formattedAddress = jsonParams.Scout_Town + ', ' + jsonParams.Scout_State + ' ' + jsonParams.Scout_Zip;
       let customers = [];
       if (jsonParams.Customer) {
         if (jsonParams.Customer instanceof Array) {
@@ -866,36 +866,36 @@ module.exports = function (app) {
       }
 
       let user = jsonParams.User;
-      let Category = jsonParams.Category || "All";
-      let repTitle = "";
-      let Splitting = "";
-      let fileName = "report.pdf";
+      let Category = jsonParams.Category || 'All';
+      let repTitle = '';
+      let Splitting = '';
+      let fileName = 'report.pdf';
       let yearObj = await year.findByPk(jsonParams.Year);
       let yearText = yearObj.year;
       switch (jsonParams.template) {
-        case "customers_split":
-          Splitting = "";
-          fileName = yearText + "_customer_orders_" + Category + ".pdf";
+        case 'customers_split':
+          Splitting = '';
+          fileName = yearText + '_customer_orders_' + Category + '.pdf';
           break;
 
-        case "Year Totals":
-          Splitting = "";
-          fileName = yearText + "_Total_Orders_" + Category + ".pdf";
-
-          break;
-
-        case "Customer Year Totals":
-
-          Splitting = "";
-          fileName = "Individual_" + yearText + "_Order_" + Category + ".pdf";
+        case 'Year Totals':
+          Splitting = '';
+          fileName = yearText + '_Total_Orders_' + Category + '.pdf';
 
           break;
 
-        case "Customer All-Time Totals":
-          Splitting = "Year:";
-          fileName = "Individual_historical_orders.pdf";
+        case 'Customer Year Totals':
 
-          break
+          Splitting = '';
+          fileName = 'Individual_' + yearText + '_Order_' + Category + '.pdf';
+
+          break;
+
+        case 'Customer All-Time Totals':
+          Splitting = 'Year:';
+          fileName = 'Individual_historical_orders.pdf';
+
+          break;
       }
 
       const jsreport = app.get('jsreport');
@@ -905,10 +905,10 @@ module.exports = function (app) {
           engine: 'handlebars',
           recipe: 'chrome-pdf',
           chrome: {
-            marginTop: "1in",
-            marginBottom: "1in",
-            marginLeft: "0.5in",
-            marginRight: "0.5in",
+            marginTop: '1in',
+            marginBottom: '1in',
+            marginLeft: '0.5in',
+            marginRight: '0.5in',
           }
         },
         data: await generateJSON({
