@@ -43,7 +43,7 @@ module.exports = function (app) {
     dialect: 'mysql',
     host: connectionDetails.host,
     port: connectionDetails.port,
-    logging: true,
+    logging: connectionDetails.logging,
     operatorsAliases,
     define: {
       freezeTableName: true
