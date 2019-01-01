@@ -78,7 +78,7 @@ build_server:
   stage: build
   image: node:8-alpine
   script:
-  - cd ./client
+  - cd ./server
   - yarn install
   - env CI=false yarn build
   only:
@@ -93,7 +93,7 @@ test_server:
   stage: build
   image: node:8-alpine
   script:
-  - cd ./client
+  - cd ./server
   - yarn install
   - env CI=false yarn test
   only:
