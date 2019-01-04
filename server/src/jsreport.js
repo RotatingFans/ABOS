@@ -15,6 +15,12 @@ const jsreport = require('jsreport-core')({
       enabled: true //disable cache
     }
   },
+  'extensions': {
+    'chrome-pdf': {
+      'timeout': 30000,
+      'launchOptions': {args: ['--no-sandbox']}
+    }
+  }
 });
 
 
