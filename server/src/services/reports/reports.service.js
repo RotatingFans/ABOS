@@ -898,6 +898,10 @@ module.exports = function (app) {
           break;
       }
 
+      if (!jsonParams.LogoLocation || !jsonParams.LogoLocation.base64) {
+        jsonParams.LogoLocation = {base64: ''};
+      }
+
       const jsreport = app.get('jsreport');
       await jsreport.render({
         template: {
