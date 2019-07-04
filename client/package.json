@@ -25,13 +25,16 @@
     "react-number-format": "^3.5.2",
     "react-places-autocomplete": "^7.2.0",
     "react-scripts": "2.0.3",
-    "xml-js": "^1.6.7"
+    "xml-js": "^1.6.7",
+    "snyk": "^1.189.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "browserslist": [
     ">0.2%",
@@ -44,5 +47,6 @@
     "ra-ui-materialui/@material-ui/icons": "^3.0.1",
     "@material-ui/core": "3.3.2",
     "@material-ui/icons": "3.0.1"
-  }
+  },
+  "snyk": true
 }
